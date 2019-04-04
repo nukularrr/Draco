@@ -79,9 +79,9 @@ endmacro()
 ##---------------------------------------------------------------------------##
 macro( query_topology )
 
-# These cmake commands, while useful, don't provide the topology detail that we 
+# These cmake commands, while useful, don't provide the topology detail that we
 # are interested in (i.e. number of sockets per node). We could use the results
-# of these queries to know if hyperthreading is enabled (if logical != physical 
+# of these queries to know if hyperthreading is enabled (if logical != physical
 # cores)
 # - cmake_host_system_information(RESULT MPI_PHYSICAL_CORES
 #   QUERY NUMBER_OF_PHYSICAL_CORES)
