@@ -67,7 +67,7 @@ add_dir_if_exists( fit )          # needs linear
 add_dir_if_exists( meshReaders )  # needs c4
 add_dir_if_exists( min )          # needs linear
 add_dir_if_exists( norms )        # needs c4
-#add_dir_if_exists( parser )       # needs units, c4
+add_dir_if_exists( parser )       # needs units, c4
 add_dir_if_exists( roots )        # needs linear
 add_dir_if_exists( timestep )     # needs c4, ds++
 
@@ -92,7 +92,7 @@ add_dir_if_exists( RTT_Format_Reader)  # needs meshReaders
 message(" ")
 message( STATUS "Configuring Level 5 packages --" )
 if( NOT DEFINED ENV{APPVEYOR} )
-  #add_dir_if_exists( quadrature ) # needs mesh_element, parser, special_functions
+  add_dir_if_exists( quadrature ) # needs mesh_element, parser, special_functions
 endif()
 add_dir_if_exists( mesh )         # needs c4, ds++, mesh_element
 
