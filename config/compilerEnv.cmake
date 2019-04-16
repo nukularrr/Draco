@@ -141,7 +141,7 @@ macro(dbsSetupCxx)
   set( CMAKE_C_STANDARD 11 )
 
   # C++14 support:
-  set( CMAKE_CXX_STANDARD 14 )
+  set( CMAKE_CXX_STANDARD 17 )
   set( CMAKE_CXX_STANDARD_REQUIRED ON )
 
   # Do not enable extensions (e.g.: --std=gnu++11)

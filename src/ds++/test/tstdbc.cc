@@ -97,8 +97,9 @@ void dbc_test(UnitTest &ut) {
     FAILMSG(string("is_strict_monotonic_decreasing function template ") +
             string("incorrectly reported length=1 container monotonic."));
 
-  if (std::find_if(sum_test_array, sum_test_array + 6,
-                   bind2nd(greater<double>(), 2.)) != sum_test_array + 1)
+  if (std::find_if(sum_test_array, sum_test_array + 6, [](const double x) {
+        return x > 2.0;
+      }) != sum_test_array + 1)
     FAILMSG("std::bind2nd or std::greater function templates FAILED");
   else
     PASSMSG("std::bind2nd or std::greater function templates ok");
