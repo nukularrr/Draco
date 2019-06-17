@@ -35,14 +35,14 @@ case $ddir in
       run "module load parmetis superlu-dist trilinos"
       run "module list"
     }
-    function gcc640env()
+    function gcc740env()
     {
       export VENDOR_DIR=/usr/projects/draco/vendors
       run "module purge"
       run "module use --append ${VENDOR_DIR}-ec/modulefiles"
       run "module load friendly-testing user_contrib"
       run "module load cmake git numdiff python/3.6-anaconda-5.0.1"
-      run "module load gcc/6.4.0 openmpi/2.1.2"
+      run "module load gcc/7.4.0 openmpi/2.1.2"
       run "unset MPI_ROOT"
       run "module load random123 eospac/6.4.0 gsl"
       run "module load mkl metis ndi qt"

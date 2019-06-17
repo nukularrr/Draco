@@ -31,7 +31,7 @@ pdir=$ddir
 
 # release for each environment listed
 # These are defined in cts-env.sh
-environments="intel1802env intel1704env gcc640env"
+environments="intel1802env intel1704env gcc740env"
 
 # ============================================================================
 # ====== Normally, you do not edit anything below this line ==================
