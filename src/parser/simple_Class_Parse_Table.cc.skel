@@ -55,12 +55,22 @@ void Class_Parse_Table<MyClass>::parse_constant(Token_Stream &tokens, int) {
  */
 
 Class_Parse_Table<MyClass>::Class_Parse_Table(Context_Type debug_word)
-    : debug_context(debug_word), flag(false), constant(0.0) {
+    : Class_Parse_Table<MyBaseClass>(debug_word),
+      // Add other base class constructor calls here, or delete this one if there
+      // are no base classes.
+      debug_context(debug_word), flag(false), constant(0.0) {
   const Keyword keywords[] = {
       {"flag", parse_flag, 0, ""},
       {"constant", parse_constant, 0, ""},
   };
   initialize(keywords, sizeof(keywords));
+  // Delete the next code section if there is no base class.
+  static bool first_time = true;
+  if (first_time) {
+    parse_table_.add(Class_Parse_Table<MyBaseClass>::shared_parse_table());
+    // Add similar line for every other base class.
+    first_time = false;
+  }
 }
 
 //----------------------------------------------------------------------------//

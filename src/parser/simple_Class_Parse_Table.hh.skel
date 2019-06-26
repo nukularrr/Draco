@@ -28,9 +28,10 @@ using namespace MyNamespace;
 //! Specialization of Class_Parse_Table for MyClass.
 
 template <>
-class Class_Parse_Table<Class> : public Class_Parse_Table_Base<Class>
-// Insert protected inheritance of any base class parser here. Base class
-// parsers provide shared code for parameters common to a set of child classes.
+class Class_Parse_Table<MyClass> : public Class_Parse_Table_Base<MyClass>,
+                                   protected Class_Parse_Table<MyBaseClass>
+// Add additional base classes, or delete Class_Parse_Table<MyBaseClass> if
+// there is no base class.
 {
 public:
   // NESTED CLASSES AND TYPEDEF
