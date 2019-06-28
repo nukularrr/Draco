@@ -152,7 +152,7 @@ Draco_Mesh_Builder<FRT>::build_mesh(rtt_mesh_element::Geometry geometry) {
 
   /*! \bug [1] this should be a 'constexpr if' to avoid build warnings from 
    *           MSVC. Remove MSVC pragma from top of file when fixed. */
-    if (reader->get_use_face_types()) {
+  if (reader->get_use_face_types()) {
 
     // reserve some space for face_type
     face_type.reserve(std::accumulate(cell_type.begin(), cell_type.end(), 0u));
