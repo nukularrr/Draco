@@ -16,6 +16,7 @@
 #include "GrayOpacity.hh"
 #include "MultigroupOpacity.hh"
 #include "OdfmgOpacity.hh"
+#include "ds++/Constexpr_Functions.hh"
 #include "ds++/Soft_Equivalence.hh"
 #include <algorithm>
 #include <limits>
@@ -124,7 +125,7 @@ static inline double taylor_series_planck(double x) {
 static double polylog_series_minus_one_planck(double const x,
                                               double const eix) {
   Require(x >= 0.0);
-  Require(x < std::sqrt(std::numeric_limits<double>::max()));
+  Require(x < rtt_dsxx::ce_sqrt(std::numeric_limits<double>::max()));
   Require(rtt_dsxx::soft_equiv(std::exp(-x), eix));
 
   double const xsqrd = x * x;
@@ -776,8 +777,12 @@ double CDI::integrate_planck(double const scaled_freq,
                              double const exp_scaled_freq) {
   Require(scaled_freq >= 0);
 
+  // use the constexpr sqrt
+  constexpr double sqrt_max =
+      rtt_dsxx::ce_sqrt(std::numeric_limits<double>::max());
+
   // Case 1: nu/T very large -> integral == 1.0
-  if (scaled_freq > std::sqrt(std::numeric_limits<double>::max()))
+  if (scaled_freq > sqrt_max)
     return 1.0;
 
   // Case 2: nu/T is sufficiently small

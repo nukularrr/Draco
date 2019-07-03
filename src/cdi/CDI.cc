@@ -267,8 +267,10 @@ void CDI::integrate_Planckian_Spectrum(std::vector<double> const &bounds,
   planck.resize(groups, 0.0);
 
   // nu/T must be < numeric_limits<double>::max().  So, if T < nu*min(), then
-  // return early with planck == 0.0. This avoids a possible divide by zero.
-  if (T <= bounds[0] * std::numeric_limits<double>::min())
+  // return early with planck == 0.0. This avoids a possible divide by zero but
+  // it doesn't catch the case where bounds[0] == 0.0 and T is a denormal so
+  // make it the more restrictive T <= numeric_limits<double>::min()
+  if (T <= std::numeric_limits<double>::min())
     return;
 
   // Initialize the loop:
@@ -281,16 +283,12 @@ void CDI::integrate_Planckian_Spectrum(std::vector<double> const &bounds,
     double const last_planck = planck_value;
 
     // New values:
-    if (T <= bounds[group + 1] * std::numeric_limits<double>::min())
-      planck[group] = 0.0;
-    else {
-      scaled_frequency = bounds[group + 1] / T;
-      Ensure(scaled_frequency > last_scaled_frequency);
-      planck_value = integrate_planck(scaled_frequency);
+    scaled_frequency = bounds[group + 1] / T;
+    Ensure(scaled_frequency > last_scaled_frequency);
+    planck_value = integrate_planck(scaled_frequency);
 
-      // Record the definite integral between frequencies.
-      planck[group] = planck_value - last_planck;
-    }
+    // Record the definite integral between frequencies.
+    planck[group] = planck_value - last_planck;
     Ensure(planck[group] >= 0.0);
     Ensure(planck[group] <= 1.0);
   }
@@ -316,8 +314,11 @@ CDI::integrate_Planckian_Spectrum(std::vector<double> const &bounds,
   std::vector<double> planck(groups, 0.0);
 
   // nu/T must be < numeric_limits<double>::max().  So, if T < nu*min(), then
-  // return early with planck == 0.0. This avoids a possible divide by zero.
-  if (T <= bounds[0] * std::numeric_limits<double>::min())
+  // return early with planck == 0.0. This avoids a possible divide by zero but
+  // it doesn't catch the case where bounds[0] == 0.0 and T is a denormal so
+  // make it the more restrictive T <= numeric_limits<double>::min()
+
+  if (T <= std::numeric_limits<double>::min())
     return planck;
 
   // Initialize the loop:
@@ -330,16 +331,12 @@ CDI::integrate_Planckian_Spectrum(std::vector<double> const &bounds,
     double const last_planck = planck_value;
 
     // New values:
-    if (T <= bounds[group + 1] * std::numeric_limits<double>::min())
-      planck[group] = 0.0;
-    else {
-      scaled_frequency = bounds[group + 1] / T;
-      Ensure(scaled_frequency > last_scaled_frequency);
-      planck_value = integrate_planck(scaled_frequency);
+    scaled_frequency = bounds[group + 1] / T;
+    Ensure(scaled_frequency > last_scaled_frequency);
+    planck_value = integrate_planck(scaled_frequency);
 
-      // Record the definite integral between frequencies.
-      planck[group] = planck_value - last_planck;
-    }
+    // Record the definite integral between frequencies.
+    planck[group] = planck_value - last_planck;
     Ensure(planck[group] >= 0.0);
     Ensure(planck[group] <= 1.0);
   }
@@ -365,8 +362,10 @@ void CDI::integrate_Rosseland_Spectrum(std::vector<double> const &bounds,
   rosseland.resize(groups, 0.0);
 
   // nu/T must be < numeric_limits<double>::max().  So, if T < nu*min(), then
-  // return early with rosseland == 0.0. This avoids a possible divide by zero.
-  if (T <= bounds[0] * std::numeric_limits<double>::min())
+  // return early with rosseland == 0.0. This avoids a possible divide by zero
+  // but it doesn't catch the case where bounds[0] == 0.0 and T is a denormal so
+  // make it the more restrictive T <= numeric_limits<double>::min()
+  if (T <= std::numeric_limits<double>::min())
     return;
 
   // Initialize the loop:
@@ -385,18 +384,14 @@ void CDI::integrate_Rosseland_Spectrum(std::vector<double> const &bounds,
     double const last_rosseland = rosseland_value;
 
     // New values:
-    if (T <= bounds[group + 1] * std::numeric_limits<double>::min())
-      rosseland[group] = 0.0;
-    else {
-      scaled_frequency = bounds[group + 1] / T;
-      Check(scaled_frequency > last_scaled_frequency);
-      exp_scaled_frequency = std::exp(-scaled_frequency);
-      integrate_planck_rosseland(scaled_frequency, exp_scaled_frequency,
-                                 planck_value, rosseland_value);
+    scaled_frequency = bounds[group + 1] / T;
+    Check(scaled_frequency > last_scaled_frequency);
+    exp_scaled_frequency = std::exp(-scaled_frequency);
+    integrate_planck_rosseland(scaled_frequency, exp_scaled_frequency,
+                               planck_value, rosseland_value);
 
-      // Record the definite integral between frequencies.
-      rosseland[group] = rosseland_value - last_rosseland;
-    }
+    // Record the definite integral between frequencies.
+    rosseland[group] = rosseland_value - last_rosseland;
     Ensure(rosseland[group] >= 0.0);
     Ensure(rosseland[group] <= 1.0);
   }
@@ -426,8 +421,10 @@ void CDI::integrate_Rosseland_Planckian_Spectrum(
 
   // nu/T must be < numeric_limits<double>::max().  So, if T < nu*min(), then
   // return early with planck ==0.0 and rosseland == 0.0. This avoids a possible
-  // divide by zero
-  if (T <= bounds[0] * std::numeric_limits<double>::min())
+  // divide by zero but it doesn't catch the case where bounds[0] == 0.0 and T
+  // is a denormal so make it the more restrictive
+  // T <= numeric_limits<double>::min()
+  if (T <= std::numeric_limits<double>::min())
     return;
 
   // Initialize the loop:
@@ -447,21 +444,15 @@ void CDI::integrate_Rosseland_Planckian_Spectrum(
     double const last_rosseland = rosseland_value;
 
     // New values:
-    if (T <= bounds[group + 1] * std::numeric_limits<double>::min()) {
-      planck[group] = 0.0;
-      rosseland[group] = 0.0;
-    } else {
+    scaled_frequency = bounds[group + 1] / T;
+    Check(scaled_frequency > last_scaled_frequency);
+    exp_scaled_frequency = std::exp(-scaled_frequency);
+    integrate_planck_rosseland(scaled_frequency, exp_scaled_frequency,
+                               planck_value, rosseland_value);
 
-      scaled_frequency = bounds[group + 1] / T;
-      Check(scaled_frequency > last_scaled_frequency);
-      exp_scaled_frequency = std::exp(-scaled_frequency);
-      integrate_planck_rosseland(scaled_frequency, exp_scaled_frequency,
-                                 planck_value, rosseland_value);
-
-      // Record the definite integral between frequencies.
-      planck[group] = planck_value - last_planck;
-      rosseland[group] = rosseland_value - last_rosseland;
-    }
+    // Record the definite integral between frequencies.
+    planck[group] = planck_value - last_planck;
+    rosseland[group] = rosseland_value - last_rosseland;
     Ensure(planck[group] >= 0.0);
     Ensure(planck[group] <= 1.0);
     Ensure(rosseland[group] >= 0.0);
