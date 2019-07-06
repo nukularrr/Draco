@@ -11,7 +11,7 @@
 #ifndef rtt_dsxx_Constexpr_Functions_hh
 #define rtt_dsxx_Constexpr_Functions_hh
 
-#include <numeric>
+#include <limits>
 
 namespace rtt_dsxx {
 
