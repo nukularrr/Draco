@@ -769,7 +769,7 @@ double CDI::integrate_planck(double const scaled_freq) {
  * 1. nu/T is very large
  *    If nu/T is large enough, then the integral will be 1.0.
  * 2. nu/T is small
- *    Represent the integral via Taylor series exapansion (this will be
+ *    Represent the integral via Taylor series expansion (this will be
  *    more efficient than case 3).
  * 3. All other cases. Use the polylog algorithm.
  */
@@ -777,12 +777,8 @@ double CDI::integrate_planck(double const scaled_freq,
                              double const exp_scaled_freq) {
   Require(scaled_freq >= 0);
 
-  // use the constexpr sqrt
-  constexpr double sqrt_max =
-      rtt_dsxx::ce_sqrt(std::numeric_limits<double>::max());
-
   // Case 1: nu/T very large -> integral == 1.0
-  if (scaled_freq > sqrt_max)
+  if (scaled_freq > 1.0e100)
     return 1.0;
 
   // Case 2: nu/T is sufficiently small

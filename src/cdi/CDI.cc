@@ -260,18 +260,16 @@ void CDI::integrate_Rosseland_Planckian_Spectrum(const size_t groupIndex,
 void CDI::integrate_Planckian_Spectrum(std::vector<double> const &bounds,
                                        double const T,
                                        std::vector<double> &planck) {
-  Require(T >= 0.0);
+  Require(T >= std::numeric_limits<double>::min() &&
+          T < std::numeric_limits<double>::max());
   Require(bounds.size() > 0);
 
   size_t const groups(bounds.size() - 1);
   planck.resize(groups, 0.0);
 
-  // nu/T must be < numeric_limits<double>::max().  So, if T < nu*min(), then
-  // return early with planck == 0.0. This avoids a possible divide by zero but
-  // it doesn't catch the case where bounds[0] == 0.0 and T is a denormal so
-  // make it the more restrictive T <= numeric_limits<double>::min()
-  if (T <= std::numeric_limits<double>::min())
-    return;
+  // nu/T must be < numeric_limits<double>::max(), throw assertion in DBC mode
+  // if this occurs
+  Check(T > bounds.back() * std::numeric_limits<double>::min());
 
   // Initialize the loop:
   double scaled_frequency = bounds[0] / T;
@@ -307,19 +305,17 @@ void CDI::integrate_Planckian_Spectrum(std::vector<double> const &bounds,
 std::vector<double>
 CDI::integrate_Planckian_Spectrum(std::vector<double> const &bounds,
                                   double const T) {
-  Require(T >= 0.0);
+
+  Require(T >= std::numeric_limits<double>::min() &&
+          T < std::numeric_limits<double>::max());
   Require(bounds.size() > 0);
 
   size_t const groups(bounds.size() - 1);
   std::vector<double> planck(groups, 0.0);
 
-  // nu/T must be < numeric_limits<double>::max().  So, if T < nu*min(), then
-  // return early with planck == 0.0. This avoids a possible divide by zero but
-  // it doesn't catch the case where bounds[0] == 0.0 and T is a denormal so
-  // make it the more restrictive T <= numeric_limits<double>::min()
-
-  if (T <= std::numeric_limits<double>::min())
-    return planck;
+  // nu/T must be < numeric_limits<double>::max(), throw assertion in DBC mode
+  // if this occurs
+  Check(T > bounds.back() * std::numeric_limits<double>::min());
 
   // Initialize the loop:
   double scaled_frequency = bounds[0] / T;
@@ -355,18 +351,16 @@ CDI::integrate_Planckian_Spectrum(std::vector<double> const &bounds,
 void CDI::integrate_Rosseland_Spectrum(std::vector<double> const &bounds,
                                        double const T,
                                        std::vector<double> &rosseland) {
-  Require(T >= 0.0);
+  Require(T >= std::numeric_limits<double>::min() &&
+          T < std::numeric_limits<double>::max());
   Require(bounds.size() > 0);
 
   size_t const groups(bounds.size() - 1);
   rosseland.resize(groups, 0.0);
 
-  // nu/T must be < numeric_limits<double>::max().  So, if T < nu*min(), then
-  // return early with rosseland == 0.0. This avoids a possible divide by zero
-  // but it doesn't catch the case where bounds[0] == 0.0 and T is a denormal so
-  // make it the more restrictive T <= numeric_limits<double>::min()
-  if (T <= std::numeric_limits<double>::min())
-    return;
+  // nu/T must be < numeric_limits<double>::max(), throw assertion in DBC mode
+  // if this occurs
+  Check(T > bounds.back() * std::numeric_limits<double>::min());
 
   // Initialize the loop:
   double scaled_frequency = bounds[0] / T;
@@ -412,20 +406,17 @@ void CDI::integrate_Rosseland_Planckian_Spectrum(
     std::vector<double> const &bounds, double const T,
     std::vector<double> &planck, std::vector<double> &rosseland) {
 
-  Require(T >= 0.0);
+  Require(T >= std::numeric_limits<double>::min() &&
+          T < std::numeric_limits<double>::max());
   Require(bounds.size() > 0);
   size_t const groups(bounds.size() - 1);
 
   planck.resize(groups, 0.0);
   rosseland.resize(groups, 0.0);
 
-  // nu/T must be < numeric_limits<double>::max().  So, if T < nu*min(), then
-  // return early with planck ==0.0 and rosseland == 0.0. This avoids a possible
-  // divide by zero but it doesn't catch the case where bounds[0] == 0.0 and T
-  // is a denormal so make it the more restrictive
-  // T <= numeric_limits<double>::min()
-  if (T <= std::numeric_limits<double>::min())
-    return;
+  // nu/T must be < numeric_limits<double>::max(), throw assertion in DBC mode
+  // if this occurs
+  Check(T > bounds.back() * std::numeric_limits<double>::min());
 
   // Initialize the loop:
   double scaled_frequency = bounds[0] / T;
