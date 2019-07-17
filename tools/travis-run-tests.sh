@@ -45,7 +45,7 @@ if [[ ${STYLE} ]]; then
   export PATH=$PATH:/usr/bin
   # extract the TPL list from the Dockerfile
   export CLANG_FORMAT_VER="`grep \"ENV CLANG_FORMAT_VER\" tools/Dockerfile | sed -e 's/.*=//' | sed -e 's/\"//g'`"
-  toosl/check_style.sh -t
+  tools/check_style.sh -t
 
 else
   echo "checking build and test..."
