@@ -13,7 +13,7 @@
 
 cmake_minimum_required(VERSION 3.14.0 FATAL_ERROR)
 project( Draco
-  VERSION 7.1
+  VERSION 7.2
   DESCRIPTION "An object-oriented component library supporting radiation transport applications."
   LANGUAGES CXX C )
 
@@ -127,7 +127,7 @@ add_custom_target( uninstall
 # Export targets
 install(
   EXPORT draco-targets
-  DESTINATION cmake/draco
+  DESTINATION cmake
   EXPORT_LINK_INTERFACE_LIBRARIES )
 
 ##---------------------------------------------------------------------------##
