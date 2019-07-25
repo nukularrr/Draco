@@ -28,6 +28,11 @@ add_component_library(
    SOURCES      "${sources}"
    HEADERS      "${headers}" )
 target_include_directories( Lib_cdi_eospac PUBLIC ${EOSPAC_INCLUDE_DIR} )
+if(MSVC)
+  # we don't normally have access to debug symbol file for eospac.lib, so
+  # ignore warnings about missing pdb files.
+  set_target_properties( Lib_cdi_eospac PROPERTIES LINK_OPTIONS "/ignore:4099" )
+endif()
 
 add_component_executable(
   TARGET      Exe_QueryEospac
