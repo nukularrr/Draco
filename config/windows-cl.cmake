@@ -96,6 +96,10 @@ if( NOT CXX_FLAGS_INITIALIZED )
   set( CMAKE_CXX_FLAGS_MINSIZEREL "/${MD_or_MT} /O1 /DNDEBUG" )
   set( CMAKE_CXX_FLAGS_RELWITHDEBINFO "/${MD_or_MT} /O2 /Zi /DDEBUG" )
 
+  # Don't warn about missing pdb files.  We won't necessarily have these for 
+  # TPLs.
+  set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /ignore:4099" )
+
 endif()
 
 ##---------------------------------------------------------------------------##
