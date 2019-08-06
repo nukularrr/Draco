@@ -97,8 +97,9 @@ if( NOT CXX_FLAGS_INITIALIZED )
   set( CMAKE_CXX_FLAGS_RELWITHDEBINFO "/${MD_or_MT} /O2 /Zi /DDEBUG" )
 
   # Don't warn about missing pdb files.  We won't necessarily have these for 
-  # TPLs.
-  set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /ignore:4099" )
+  # TPLs. Link options are applied in component_macros.cmake near calls to 
+  # add_libarary or add_executable.
+  set( DRACO_LINK_OPTIONS "$<$<CONFIG:DEBUG>:/ignore:4099>")
 
 endif()
 
