@@ -65,8 +65,9 @@ void cartesian_mesh_2d_dd(rtt_c4::ParallelUnitTest &ut) {
   std::shared_ptr<Draco_Mesh> mesh(new Draco_Mesh(
       mesh_iface->dim, geometry, cell_type, cell_to_node_linkage,
       mesh_iface->side_set_flag, side_node_count, side_to_node_linkage,
-      mesh_iface->coordinates, mesh_iface->global_node_number, ghost_cell_type,
-      ghost_cell_to_node_linkage, ghost_cell_number, ghost_cell_rank));
+      mesh_iface->coordinates, mesh_iface->global_node_number,
+      mesh_iface->face_type, ghost_cell_type, ghost_cell_to_node_linkage,
+      ghost_cell_number, ghost_cell_rank));
 
   // check that the scalar data is correct
   FAIL_IF_NOT(mesh->get_dimension() == 2);

@@ -148,27 +148,21 @@ Draco_Mesh_Builder<FRT>::build_mesh(rtt_mesh_element::Geometry geometry) {
       coordinates[dimension * node + d] = node_coord[d];
   }
 
+  // reserve some space for face_type
   std::vector<unsigned> face_type;
+  face_type.reserve(std::accumulate(cell_type.begin(), cell_type.end(), 0u));
 
-  /*! \bug [1] this should be a 'constexpr if' to avoid build warnings from 
-   *           MSVC. Remove MSVC pragma from top of file when fixed. */
-  if (reader->get_use_face_types()) {
+  // generate face_type vector
+  unsigned cf_counter = 0;
+  for (size_t cell = 0; cell < num_cells; ++cell) {
+    for (unsigned face = 0; face < cell_type[cell]; ++face) {
 
-    // reserve some space for face_type
-    face_type.reserve(std::accumulate(cell_type.begin(), cell_type.end(), 0u));
+      // store number of nodes for this face
+      face_type.push_back(
+          static_cast<unsigned>(reader->get_cellfacenodes(cell, face).size()));
 
-    // generate face_type vector
-    unsigned cf_counter = 0;
-    for (size_t cell = 0; cell < num_cells; ++cell) {
-      for (unsigned face = 0; face < cell_type[cell]; ++face) {
-
-        // store number of nodes for this face
-        face_type.push_back(static_cast<unsigned>(
-            reader->get_cellfacenodes(cell, face).size()));
-
-        // increment counter
-        cf_counter++;
-      }
+      // increment counter
+      cf_counter++;
     }
   }
 
@@ -193,8 +187,8 @@ Draco_Mesh_Builder<FRT>::build_mesh(rtt_mesh_element::Geometry geometry) {
   std::shared_ptr<Draco_Mesh> mesh(new Draco_Mesh(
       dimension, geometry, cell_type, cell_to_node_linkage, side_set_flag,
       side_node_count, side_to_node_linkage, coordinates, global_node_number,
-      ghost_cell_type, ghost_cell_to_node_linkage, ghost_cell_number,
-      ghost_cell_rank, face_type));
+      face_type, ghost_cell_type, ghost_cell_to_node_linkage, ghost_cell_number,
+      ghost_cell_rank));
 
   return mesh;
 }

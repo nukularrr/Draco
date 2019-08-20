@@ -83,6 +83,7 @@ private:
 
   // Cell types and node indices per cell
   const std::vector<unsigned> m_cell_type;
+  const std::vector<unsigned> m_face_type;
   const std::vector<unsigned> m_cell_to_node_linkage;
 
   // Side types and node indices per side
@@ -109,11 +110,11 @@ public:
              const std::vector<unsigned> &side_to_node_linkage_,
              const std::vector<double> &coordinates_,
              const std::vector<unsigned> &global_node_number_,
+             const std::vector<unsigned> &face_type_,
              const std::vector<unsigned> &ghost_cell_type_ = {},
              const std::vector<unsigned> &ghost_cell_to_node_linkage_ = {},
              const std::vector<int> &ghost_cell_number_ = {},
-             const std::vector<int> &ghost_cell_rank_ = {},
-             const std::vector<unsigned> &face_type_ = {});
+             const std::vector<int> &ghost_cell_rank_ = {});
 
   // >>> ACCESSORS
 
@@ -134,6 +135,7 @@ public:
     return node_coord_vec;
   }
   const std::vector<unsigned> &get_cell_type() const { return m_cell_type; }
+  const std::vector<unsigned> &get_face_type() const { return m_face_type; }
   const std::vector<unsigned> &get_cell_to_node_linkage() const {
     return m_cell_to_node_linkage;
   }
