@@ -1,4 +1,4 @@
-//----------------------------------*-C++-*----------------------------------//
+//-----------------------------------*-C++-*----------------------------------//
 /*!
  * \file   mesh/Draco_Mesh_Builder.t.hh
  * \author Ryan Wollaeger <wollaeger@lanl.gov>
@@ -6,7 +6,7 @@
  * \brief  Draco_Mesh_Builder class header file.
  * \note   Copyright (C) 2018-2019 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "Draco_Mesh.hh"
 #include "Draco_Mesh_Builder.hh"
@@ -23,9 +23,9 @@
 
 namespace rtt_mesh {
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // CONSTRUCTOR
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Draco_Mesh_Builder constructor.
  *
@@ -37,9 +37,9 @@ Draco_Mesh_Builder<FRT>::Draco_Mesh_Builder(std::shared_ptr<FRT> reader_)
   Require(reader_ != nullptr);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // PUBLIC INTERFACE
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Build a Draco_Mesh object
  *
@@ -64,22 +64,14 @@ Draco_Mesh_Builder<FRT>::build_mesh(rtt_mesh_element::Geometry geometry) {
   size_t num_cells = reader->get_numcells();
 
   // generate the cell type vector
-  size_t cn_linkage_size = 0;
-  std::vector<unsigned> cell_type(num_cells);
-  for (size_t cell = 0; cell < num_cells; ++cell) {
-
-    // for Draco_Mesh, cell_type is number of nodes
-    cell_type[cell] = reader->get_celltype(cell);
-
-    // increment size of cell-to-node linkage array
-    cn_linkage_size += cell_type[cell];
-  }
+  std::vector<unsigned> num_faces_per_cell(num_cells);
+  for (size_t cell = 0; cell < num_cells; ++cell)
+    num_faces_per_cell[cell] = reader->get_celltype(cell);
 
   // \todo: Can the cell definitions past num_cells - 1 be checked as invalid?
 
   // generate the cell-to-node linkage
   std::vector<unsigned> cell_to_node_linkage;
-  cell_to_node_linkage.reserve(cn_linkage_size);
   for (size_t cell = 0; cell < num_cells; ++cell) {
 
     // insert the vector of node indices
@@ -148,29 +140,24 @@ Draco_Mesh_Builder<FRT>::build_mesh(rtt_mesh_element::Geometry geometry) {
       coordinates[dimension * node + d] = node_coord[d];
   }
 
-  // reserve some space for face_type
-  std::vector<unsigned> face_type;
-  face_type.reserve(std::accumulate(cell_type.begin(), cell_type.end(), 0u));
+  // reserve some space for num_nodes_per_face_per_cell
+  std::vector<unsigned> num_nodes_per_face_per_cell;
+  num_nodes_per_face_per_cell.reserve(std::accumulate(
+      num_faces_per_cell.begin(), num_faces_per_cell.end(), 0u));
 
-  // generate face_type vector
+  // generate num_nodes_per_face_per_cell vector
   unsigned cf_counter = 0;
   for (size_t cell = 0; cell < num_cells; ++cell) {
-    for (unsigned face = 0; face < cell_type[cell]; ++face) {
+    for (unsigned face = 0; face < num_faces_per_cell[cell]; ++face) {
 
       // store number of nodes for this face
-      face_type.push_back(
+      num_nodes_per_face_per_cell.push_back(
           static_cast<unsigned>(reader->get_cellfacenodes(cell, face).size()));
 
       // increment counter
       cf_counter++;
     }
   }
-
-  // assume parallel face data is empty
-  const std::vector<unsigned> ghost_cell_type;
-  const std::vector<unsigned> ghost_cell_to_node_linkage;
-  const std::vector<int> ghost_cell_number;
-  const std::vector<int> ghost_cell_rank;
 
   Remember(auto cn_minmax = std::minmax_element(cell_to_node_linkage.begin(),
                                                 cell_to_node_linkage.end()));
@@ -185,10 +172,9 @@ Draco_Mesh_Builder<FRT>::build_mesh(rtt_mesh_element::Geometry geometry) {
   // >>> CONSTRUCT THE MESH
 
   std::shared_ptr<Draco_Mesh> mesh(new Draco_Mesh(
-      dimension, geometry, cell_type, cell_to_node_linkage, side_set_flag,
-      side_node_count, side_to_node_linkage, coordinates, global_node_number,
-      face_type, ghost_cell_type, ghost_cell_to_node_linkage, ghost_cell_number,
-      ghost_cell_rank));
+      dimension, geometry, num_faces_per_cell, cell_to_node_linkage,
+      side_set_flag, side_node_count, side_to_node_linkage, coordinates,
+      global_node_number, num_nodes_per_face_per_cell));
 
   return mesh;
 }
@@ -199,6 +185,6 @@ Draco_Mesh_Builder<FRT>::build_mesh(rtt_mesh_element::Geometry geometry) {
 #pragma warning(pop)
 #endif
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of mesh/Draco_Mesh_Builder.t.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

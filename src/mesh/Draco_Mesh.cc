@@ -30,16 +30,14 @@ unsigned safe_convert_from_size_t(size_t const in_) {
  *
  * \param[in] dimension_ dimension of mesh
  * \param[in] geometry_ enumerator of possible coordinate system geometries
- * \param[in] cell_type_ number of vertices for each cell if face_type_ is
- *               size 0 (empty), otherwise number of faces for each cell.
+ * \param[in] num_faces_per_cell_ number of faces for each cell.
  * \param[in] cell_to_node_linkage_ serialized map of cell indices to node
- *               indices. if face_type_ is supplied then nodes are listed per
- *               cell face. so there are duplicate node entries in 2D or 3D
- *               since adjacent cell faces will share one or more nodes. when
- *               face_type_ is supplied, in 2D node ordering will be assumed to
- *               still be counterclockwise around the cell, in 3D the node
- *               ordering per face is assumed to be counterclockwise from inside
- *               the cell looking at the face.
+ *               indices. nodes are listed per cell face. so there are duplicate
+ *               node entries in 2D or 3D since adjacent cell faces will share
+ *               one or more nodes. 2D node ordering will be assumed to be
+ *               counterclockwise around the cell, in 3D the node ordering per
+ *               face is assumed to be counterclockwise from inside the cell
+ *               looking at the face.
  * \param[in] side_set_flag_ map of side indices (per cell) to side flag (global
  *               index for a side).
  * \param[in] side_node_count_ number of nodes per each cell on a side of
@@ -50,7 +48,7 @@ unsigned safe_convert_from_size_t(size_t const in_) {
  * \param[in] global_node_number_ map of local to global node index (vector
  *               subscript is local node index and value is global node index;
  *               for one process, this is the identity map).
- * \param[in] face_type_ number of vertices per face per cell.
+ * \param[in] num_nodes_per_face_per_cell_ number of vertices per face per cell.
  * \param[in] ghost_cell_type_ number of vertices corresponding to each ghost
  *               cell (1 in 1D, 2 in 2D, arbitrary in 3D).
  * \param[in] ghost_cell_to_node_linkage_ serialized map of index into vector of
@@ -58,26 +56,28 @@ unsigned safe_convert_from_size_t(size_t const in_) {
  * \param[in] ghost_cell_number_ cell index local to other processor.
  * \param[in] ghost_cell_rank_ rank of each ghost cell.
  */
-Draco_Mesh::Draco_Mesh(unsigned dimension_, Geometry geometry_,
-                       const std::vector<unsigned> &cell_type_,
-                       const std::vector<unsigned> &cell_to_node_linkage_,
-                       const std::vector<unsigned> &side_set_flag_,
-                       const std::vector<unsigned> &side_node_count_,
-                       const std::vector<unsigned> &side_to_node_linkage_,
-                       const std::vector<double> &coordinates_,
-                       const std::vector<unsigned> &global_node_number_,
-                       const std::vector<unsigned> &face_type_,
-                       const std::vector<unsigned> &ghost_cell_type_,
-                       const std::vector<unsigned> &ghost_cell_to_node_linkage_,
-                       const std::vector<int> &ghost_cell_number_,
-                       const std::vector<int> &ghost_cell_rank_)
+Draco_Mesh::Draco_Mesh(
+    unsigned dimension_, Geometry geometry_,
+    const std::vector<unsigned> &num_faces_per_cell_,
+    const std::vector<unsigned> &cell_to_node_linkage_,
+    const std::vector<unsigned> &side_set_flag_,
+    const std::vector<unsigned> &side_node_count_,
+    const std::vector<unsigned> &side_to_node_linkage_,
+    const std::vector<double> &coordinates_,
+    const std::vector<unsigned> &global_node_number_,
+    const std::vector<unsigned> &num_nodes_per_face_per_cell_,
+    const std::vector<unsigned> &ghost_cell_type_,
+    const std::vector<unsigned> &ghost_cell_to_node_linkage_,
+    const std::vector<int> &ghost_cell_number_,
+    const std::vector<int> &ghost_cell_rank_)
     : dimension(dimension_), geometry(geometry_),
-      num_cells(safe_convert_from_size_t(cell_type_.size())),
+      num_cells(safe_convert_from_size_t(num_faces_per_cell_.size())),
       num_nodes(safe_convert_from_size_t(global_node_number_.size())),
       side_set_flag(side_set_flag_), ghost_cell_number(ghost_cell_number_),
       ghost_cell_rank(ghost_cell_rank_),
       node_coord_vec(compute_node_coord_vec(coordinates_)),
-      m_cell_type(cell_type_), m_face_type(face_type_),
+      m_num_faces_per_cell(num_faces_per_cell_),
+      m_num_nodes_per_face_per_cell(num_nodes_per_face_per_cell_),
       m_cell_to_node_linkage(cell_to_node_linkage_),
       m_side_node_count(side_node_count_),
       m_side_to_node_linkage(side_to_node_linkage_) {
@@ -96,9 +96,10 @@ Draco_Mesh::Draco_Mesh(unsigned dimension_, Geometry geometry_,
       std::accumulate(ghost_cell_type_.begin(), ghost_cell_type_.end(), 0u));
 
   // build the layout using face types (number of nodes per face per cell)
-  compute_cell_to_cell_linkage(cell_type_, cell_to_node_linkage_, face_type_,
-                               side_node_count_, side_to_node_linkage_,
-                               ghost_cell_type_, ghost_cell_to_node_linkage_);
+  compute_cell_to_cell_linkage(num_faces_per_cell_, cell_to_node_linkage_,
+                               num_nodes_per_face_per_cell_, side_node_count_,
+                               side_to_node_linkage_, ghost_cell_type_,
+                               ghost_cell_to_node_linkage_);
 }
 
 //----------------------------------------------------------------------------//
@@ -124,7 +125,7 @@ std::vector<std::vector<double>> Draco_Mesh::compute_node_coord_vec(
   std::vector<double>::const_iterator ncv_first = coordinates.begin();
   for (unsigned node = 0; node < num_nodes; ++node) {
 
-    // use the cell_type to create a vector of node indices for this cell
+    // create a vector of node indices for this cell
     std::vector<double> coord_vec(ncv_first, ncv_first + dimension);
 
     // resize each entry to the number of dimensions
@@ -143,26 +144,27 @@ std::vector<std::vector<double>> Draco_Mesh::compute_node_coord_vec(
 /*!
  * \brief Build the cell-face index map to the corresponding coordinates.
  *
- * \param[in] cell_type number of faces per cell.
+ * \param[in] num_faces_per_cell number of faces per cell.
  * \param[in] cell_to_node_linkage serial map of cell to face to node indices.
- * \param[in] face_type number of nodes per face per cell
+ * \param[in] num_nodes_per_face_per_cell number of nodes per face per cell
  * \param[in] side_node_count number of vertices per side.
  * \param[in] side_to_node_linkage serial map of side index to node indices.
  * \param[in] ghost_cell_type  number of common vertices per ghost cell.
  * \param[in] ghost_cell_to_node_linkage vertices in common per ghost cell.
  */
 void Draco_Mesh::compute_cell_to_cell_linkage(
-    const std::vector<unsigned> &cell_type,
+    const std::vector<unsigned> &num_faces_per_cell,
     const std::vector<unsigned> &cell_to_node_linkage,
-    const std::vector<unsigned> &face_type,
+    const std::vector<unsigned> &num_nodes_per_face_per_cell,
     const std::vector<unsigned> &side_node_count,
     const std::vector<unsigned> &side_to_node_linkage,
     const std::vector<unsigned> &ghost_cell_type,
     const std::vector<unsigned> &ghost_cell_to_node_linkage) {
 
-  Require(face_type.size() > 0);
-  Require(face_type.size() ==
-          std::accumulate(cell_type.begin(), cell_type.end(), 0u));
+  Require(num_nodes_per_face_per_cell.size() > 0);
+  Require(num_nodes_per_face_per_cell.size() ==
+          std::accumulate(num_faces_per_cell.begin(), num_faces_per_cell.end(),
+                          0u));
 
   // (1) create map of cell face to node set
 
@@ -174,14 +176,14 @@ void Draco_Mesh::compute_cell_to_cell_linkage(
 
   // convert cell-node linkage to map of cell face to
   for (unsigned cell = 0; cell < num_cells; ++cell) {
-    for (unsigned face = 0; face < cell_type[cell]; ++face) {
+    for (unsigned face = 0; face < num_faces_per_cell[cell]; ++face) {
 
       // convert iterator to node indices to set of node indices
-      cface_to_nodes[cf_counter] =
-          std::set<unsigned>(cn_first, cn_first + face_type[cf_counter]);
+      cface_to_nodes[cf_counter] = std::set<unsigned>(
+          cn_first, cn_first + num_nodes_per_face_per_cell[cf_counter]);
 
       // increment iterator and counter
-      cn_first += face_type[cf_counter];
+      cn_first += num_nodes_per_face_per_cell[cf_counter];
       cf_counter++;
     }
   }
@@ -196,7 +198,7 @@ void Draco_Mesh::compute_cell_to_cell_linkage(
   cf_counter = 0;
 
   for (unsigned cell = 0; cell < num_cells; ++cell) {
-    for (unsigned face = 0; face < cell_type[cell]; ++face) {
+    for (unsigned face = 0; face < num_faces_per_cell[cell]; ++face) {
 
       // invert the map
       nodes_to_cells[cface_to_nodes[cf_counter]].push_back(cell);
@@ -221,7 +223,7 @@ void Draco_Mesh::compute_cell_to_cell_linkage(
   cn_first = cell_to_node_linkage.begin();
 
   for (unsigned cell = 0; cell < num_cells; ++cell) {
-    for (unsigned face = 0; face < cell_type[cell]; ++face) {
+    for (unsigned face = 0; face < num_faces_per_cell[cell]; ++face) {
 
       // initialize this face to not having a condition
       bool has_face_cond = false;
@@ -236,8 +238,8 @@ void Draco_Mesh::compute_cell_to_cell_linkage(
       Check(cells.size() <= 2);
 
       // get ordered node vector from cell_to_node_linkage
-      const std::vector<unsigned> node_vec(cn_first,
-                                           cn_first + face_type[cf_counter]);
+      const std::vector<unsigned> node_vec(
+          cn_first, cn_first + num_nodes_per_face_per_cell[cf_counter]);
 
       // check how many cells are associated with the face
       if (cells.size() == 2) {
@@ -282,7 +284,7 @@ void Draco_Mesh::compute_cell_to_cell_linkage(
         side_set_flag.push_back(0);
 
         // augment side-node count
-        m_side_node_count.push_back(face_type[cf_counter]);
+        m_side_node_count.push_back(num_nodes_per_face_per_cell[cf_counter]);
         Check(m_side_node_count.size() == side_set_flag.size());
 
         // augment side-node linkage
@@ -295,7 +297,7 @@ void Draco_Mesh::compute_cell_to_cell_linkage(
       }
 
       // increment iterator and counter
-      cn_first += face_type[cf_counter];
+      cn_first += num_nodes_per_face_per_cell[cf_counter];
       cf_counter++;
     }
   }

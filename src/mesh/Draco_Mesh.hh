@@ -1,4 +1,4 @@
-//----------------------------------*-C++-*----------------------------------//
+//-----------------------------------*-C++-*----------------------------------//
 /*!
  * \file   mesh/Draco_Mesh.hh
  * \author Ryan Wollaeger <wollaeger@lanl.gov>
@@ -6,7 +6,7 @@
  * \brief  Draco_Mesh class header file.
  * \note   Copyright (C) 2018-2019 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_mesh_Draco_Mesh_hh
 #define rtt_mesh_Draco_Mesh_hh
@@ -19,7 +19,7 @@
 
 namespace rtt_mesh {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class Draco_Mesh
  *
@@ -34,16 +34,16 @@ namespace rtt_mesh {
  * 1) Layout, which stores cell connectivity and hence the mesh topology.
  *    a) It has an internal layout containing local cell-to-cell linkage,
  *    b) and a boundary layout with side off-process linkage, and
- *    c) a ghost layout containing cell-to-ghostd-cell linkage.
+ *    c) a ghost layout containing cell-to-ghost-cell linkage.
  * 2) Geometry, which implies a metric for distance between points.
  *
  * Possibly temporary features:
- * 1) The cell_type_ vector (argument to the constructor) is currently taken to
- *    be the number of nodes per cell.
+ * 1) The num_faces_per_cell_ vector (argument to the constructor) is currently
+ *    taken to be the number of faces per cell.
  * 2) The layout data structure(s) will probably be moved to a separate class,
  *    where accessors might be used on a flattened version.
  */
-//===========================================================================//
+//============================================================================//
 
 class Draco_Mesh {
 public:
@@ -82,8 +82,8 @@ private:
   const std::vector<std::vector<double>> node_coord_vec;
 
   // Cell types and node indices per cell
-  const std::vector<unsigned> m_cell_type;
-  const std::vector<unsigned> m_face_type;
+  const std::vector<unsigned> m_num_faces_per_cell;
+  const std::vector<unsigned> m_num_nodes_per_face_per_cell;
   const std::vector<unsigned> m_cell_to_node_linkage;
 
   // Side types and node indices per side
@@ -103,14 +103,14 @@ private:
 public:
   //! Constructor.
   Draco_Mesh(unsigned dimension_, Geometry geometry_,
-             const std::vector<unsigned> &cell_type_,
+             const std::vector<unsigned> &num_faces_per_cell_,
              const std::vector<unsigned> &cell_to_node_linkage_,
              const std::vector<unsigned> &side_set_flag_,
              const std::vector<unsigned> &side_node_count_,
              const std::vector<unsigned> &side_to_node_linkage_,
              const std::vector<double> &coordinates_,
              const std::vector<unsigned> &global_node_number_,
-             const std::vector<unsigned> &face_type_,
+             const std::vector<unsigned> &num_nodes_per_face_per_cell_,
              const std::vector<unsigned> &ghost_cell_type_ = {},
              const std::vector<unsigned> &ghost_cell_to_node_linkage_ = {},
              const std::vector<int> &ghost_cell_number_ = {},
@@ -134,8 +134,12 @@ public:
   const std::vector<std::vector<double>> &get_node_coord_vec() const {
     return node_coord_vec;
   }
-  const std::vector<unsigned> &get_cell_type() const { return m_cell_type; }
-  const std::vector<unsigned> &get_face_type() const { return m_face_type; }
+  const std::vector<unsigned> &get_num_faces_per_cell() const {
+    return m_num_faces_per_cell;
+  }
+  const std::vector<unsigned> &get_num_nodes_per_face_per_cell() const {
+    return m_num_nodes_per_face_per_cell;
+  }
   const std::vector<unsigned> &get_cell_to_node_linkage() const {
     return m_cell_to_node_linkage;
   }
@@ -158,20 +162,11 @@ private:
   std::vector<std::vector<double>>
   compute_node_coord_vec(const std::vector<double> &coordinates) const;
 
-  //! Calculate the cell-to-cell linkage (layout)
-  void compute_cell_to_cell_linkage(
-      const std::vector<unsigned> &cell_type,
-      const std::vector<unsigned> &cell_to_node_linkage,
-      const std::vector<unsigned> &side_node_count,
-      const std::vector<unsigned> &side_to_node_linkage,
-      const std::vector<unsigned> &ghost_cell_type,
-      const std::vector<unsigned> &ghost_cell_to_node_linkage);
-
   //! Calculate the cell-to-cell linkage with face type vector (overload)
   void compute_cell_to_cell_linkage(
-      const std::vector<unsigned> &cell_type,
+      const std::vector<unsigned> &num_faces_per_cell,
       const std::vector<unsigned> &cell_to_node_linkage,
-      const std::vector<unsigned> &face_type,
+      const std::vector<unsigned> &num_nodes_per_face_per_cell,
       const std::vector<unsigned> &side_node_count,
       const std::vector<unsigned> &side_to_node_linkage,
       const std::vector<unsigned> &ghost_cell_type,
@@ -192,6 +187,6 @@ private:
 
 #endif // rtt_mesh_Draco_Mesh_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of mesh/Draco_Mesh.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

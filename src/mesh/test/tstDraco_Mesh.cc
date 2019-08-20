@@ -149,7 +149,7 @@ void cartesian_mesh_2d(rtt_c4::ParallelUnitTest &ut) {
   FAIL_IF_NOT(mesh->get_num_nodes() == mesh_iface.num_nodes);
 
   // check that flat cell type and cell to node linkage is correct
-  FAIL_IF_NOT(mesh->get_cell_type() == cell_type);
+  FAIL_IF_NOT(mesh->get_num_faces_per_cell() == cell_type);
   FAIL_IF_NOT(mesh->get_cell_to_node_linkage() == cell_to_node_linkage);
 
   // check that flat side type and side to node linkage is correct
