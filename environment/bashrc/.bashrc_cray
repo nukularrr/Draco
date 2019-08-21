@@ -88,19 +88,28 @@ if [[ ${CRAY_CPU_TARGET} =~ haswell ]] || [[ ${CRAY_CPU_TARGET} =~ knl ]]; then
   dracomodules="git cmake/3.14.0 numdiff gsl metis eospac random123 parmetis \
 superlu-dist trilinos clang-format python/3.6-anaconda-5.0.1"
 
+  if [[ -d ${VENDOR_DIR}-ec ]]; then
+    group_for_vendor_ec=`\ls -aFld ${VENDOR_DIR}-ec | awk '{ print $4 }'`
+    if [[ `groups | grep -c $group_for_vendor_ec` != 0 ]]; then
+      dracomodules="$dracomodules csk/0.4.2 ndi"
+    fi
+  fi
+
+
 elif [[ ${CRAY_CPU_TARGET} =~ arm ]]; then
 
   module use --append ${VENDOR_DIR}-ec/modulefiles-capulin
-  dracomodules="git/2.20.1 cmake numdiff gsl metis eospac random123 parmetis \
-superlu-dist trilinos cray-python/3.6.5.6 qt"
+  comp="gcc-8.3.0"
+  mpi="mpt-7.7.8"
+  dracomodules="git/2.20.1 cmake numdiff/5.9.0-gcc-8.3.0 gsl/2.5-gcc-8.3.0 openblas/0.3.6-gcc-8.3.0 metis/5.1.0-gcc-8.3.0 eospac/6.4.0-gcc-8.3.0 random123/1.09-gcc-8.3.0 parmetis/4.0.3-gcc-8.3.0-mpt-7.7.8 superlu-dist/5.4.0-gcc-8.3.0-mpt-7.7.8-openblas trilinos/12.14.1-gcc-8.3.0-mpt-7.7.8-openblas cray-python/3.6.5.6 qt"
 
-fi
-
-if [[ -d ${VENDOR_DIR}-ec ]]; then
-  group_for_vendor_ec=`\ls -aFld ${VENDOR_DIR}-ec | awk '{ print $4 }'`
-  if [[ `groups | grep -c $group_for_vendor_ec` != 0 ]]; then
-    dracomodules="$dracomodules csk ndi"
+  if [[ -d ${VENDOR_DIR}-ec ]]; then
+    group_for_vendor_ec=`\ls -aFld ${VENDOR_DIR}-ec | awk '{ print $4 }'`
+    if [[ `groups | grep -c $group_for_vendor_ec` != 0 ]]; then
+      dracomodules="$dracomodules csk/0.4.2-gcc-8.3.0 ndi"
+    fi
   fi
+
 fi
 
 export dracomodules
