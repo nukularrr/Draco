@@ -10,6 +10,16 @@
 
 include_guard(GLOBAL)
 
+#------------------------------------------------------------------------------#
+# Standards
+#------------------------------------------------------------------------------#
+
+# ANSI-C 11 support:
+set( Draco_C_STANDARD c_std_11 )
+
+# C++14 support:
+set( Draco_CXX_STANDARD cxx_std_14 )
+
 #------------------------------------------------------------------------------
 # replacement for built in command 'add_executable'
 #
@@ -118,16 +128,17 @@ or the target must be labeled NOEXPORT.")
   else()
     add_executable( ${ace_TARGET} ${ace_SOURCES} )
   endif()
-
-  # Some properties are set at a global scope in compilerEnv.cmake:
-  # - C_STANDARD, C_EXTENSIONS, CXX_STANDARD, CXX_EXTENSIONS,
-  #   CXX_STANDARD_REQUIRED, and POSITION_INDEPENDENT_CODE
+  target_compile_features( ${ace_TARGET} PUBLIC ${Draco_C_STANDARD} )
+  target_compile_features( ${ace_TARGET} PUBLIC ${Draco_CXX_STANDARD} )
   set_target_properties( ${ace_TARGET} PROPERTIES
     OUTPUT_NAME ${ace_EXE_NAME}
     FOLDER      ${ace_FOLDER}
     INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
-#    ENABLE_EXPORTS TRUE # See cmake policy cmp0065
     COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\""
+    CXX_STANDARD_REQUIRED ON
+    C_EXTENSIONS OFF
+    CXX_EXTENSIONS OFF
+    POSITION_INDEPENDENT_CODE ON
     )
   if( DEFINED ace_PROJECT_LABEL )
     set_target_properties( ${ace_TARGET} PROPERTIES PROJECT_LABEL ${ace_PROJECT_LABEL} )
@@ -321,19 +332,20 @@ macro( add_component_library )
   string( REPLACE "Lib_" "" folder_name ${acl_TARGET} )
 
   add_library( ${acl_TARGET} ${acl_LIBRARY_TYPE} ${acl_SOURCES} )
-  # Some properties are set at a global scope in compilerEnv.cmake:
-  # - C_STANDARD, C_EXTENSIONS, CXX_STANDARD, CXX_EXTENSIONS,
-  #   CXX_STANDARD_REQUIRED, and POSITION_INDEPENDENT_CODE
+  target_compile_features( ${acl_TARGET} PUBLIC ${Draco_C_STANDARD} )
+  target_compile_features( ${acl_TARGET} PUBLIC ${Draco_CXX_STANDARD} )
   set_target_properties( ${acl_TARGET} PROPERTIES
-    # ${compdefs}
-    # Use custom library naming
     OUTPUT_NAME ${acl_LIBRARY_NAME_PREFIX}${acl_LIBRARY_NAME}
     FOLDER      ${folder_name}
     INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
     WINDOWS_EXPORT_ALL_SYMBOLS ON
+    CXX_STANDARD_REQUIRED ON
+    C_EXTENSIONS OFF
+    CXX_EXTENSIONS OFF
+    POSITION_INDEPENDENT_CODE ON
     )
   if( DEFINED DRACO_LINK_OPTIONS )
-    set_target_properties( ${acl_TARGET} PROPERTIES 
+    set_target_properties( ${acl_TARGET} PROPERTIES
       LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
   endif()
 
@@ -872,18 +884,23 @@ macro( add_scalar_tests test_sources )
 
     get_filename_component( testname ${file} NAME_WE )
     add_executable( Ut_${compname}_${testname}_exe ${file} )
-    # Some properties are set at a global scope in compilerEnv.cmake:
-    # - C_STANDARD, C_EXTENSIONS, CXX_STANDARD, CXX_EXTENSIONS,
-    #   CXX_STANDARD_REQUIRED, and POSITION_INDEPENDENT_CODE
+    target_compile_features( Ut_${compname}_${testname}_exe
+      PUBLIC ${Draco_C_STANDARD} )
+    target_compile_features( Ut_${compname}_${testname}_exe
+      PUBLIC ${Draco_CXX_STANDARD} )
     set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
       OUTPUT_NAME ${testname}
       VS_KEYWORD  ${testname}
       FOLDER      ${compname}_test
       INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
       COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\""
+      CXX_STANDARD_REQUIRED ON
+      C_EXTENSIONS OFF
+      CXX_EXTENSIONS OFF
+      POSITION_INDEPENDENT_CODE ON
       )
     if( DEFINED DRACO_LINK_OPTIONS )
-      set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES 
+      set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
         LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
     endif()
     # Do we need to use the Fortran compiler as the linker?
@@ -1024,18 +1041,23 @@ macro( add_parallel_tests )
       )")
     endif()
     add_executable( Ut_${compname}_${testname}_exe ${file} )
-    # Some properties are set at a global scope in compilerEnv.cmake:
-    # - C_STANDARD, C_EXTENSIONS, CXX_STANDARD, CXX_EXTENSIONS,
-    #   CXX_STANDARD_REQUIRED, and POSITION_INDEPENDENT_CODE
+    target_compile_features( Ut_${compname}_${testname}_exe
+      PUBLIC ${Draco_C_STANDARD} )
+    target_compile_features( Ut_${compname}_${testname}_exe
+      PUBLIC ${Draco_CXX_STANDARD} )
     set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
       OUTPUT_NAME ${testname}
       VS_KEYWORD  ${testname}
       FOLDER      ${compname}_test
       INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
       COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\""
+      CXX_STANDARD_REQUIRED ON
+      C_EXTENSIONS OFF
+      CXX_EXTENSIONS OFF
+      POSITION_INDEPENDENT_CODE ON
       )
     if( DEFINED DRACO_LINK_OPTIONS )
-      set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES 
+      set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
         LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
     endif()
     if( addparalleltest_MPI_PLUS_OMP )
@@ -1199,8 +1221,7 @@ targets for copying support files.")
   endif()
   set_target_properties(
     Ut_${compname}_install_inputs_${Ut_${compname}_install_inputs_iarg}
-    PROPERTIES FOLDER ${folder_name}
-    )
+    PROPERTIES FOLDER ${folder_name} )
 
 endmacro()
 
