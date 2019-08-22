@@ -53,7 +53,7 @@ public:
                    std::vector<std::pair<unsigned, std::vector<unsigned>>>>
       Layout;
 
-private:
+protected:
   // >>> DATA
 
   // Dimension
@@ -122,37 +122,31 @@ public:
   Geometry get_geometry() const { return geometry; }
   unsigned get_num_cells() const { return num_cells; }
   unsigned get_num_nodes() const { return num_nodes; }
-  const std::vector<unsigned> &get_side_set_flag() const {
-    return side_set_flag;
-  }
-  const std::vector<int> &get_ghost_cell_numbers() const {
-    return ghost_cell_number;
-  }
-  const std::vector<int> &get_ghost_cell_ranks() const {
-    return ghost_cell_rank;
-  }
-  const std::vector<std::vector<double>> &get_node_coord_vec() const {
+  std::vector<unsigned> get_side_set_flag() const { return side_set_flag; }
+  std::vector<int> get_ghost_cell_numbers() const { return ghost_cell_number; }
+  std::vector<int> get_ghost_cell_ranks() const { return ghost_cell_rank; }
+  std::vector<std::vector<double>> get_node_coord_vec() const {
     return node_coord_vec;
   }
-  const std::vector<unsigned> &get_num_faces_per_cell() const {
+  std::vector<unsigned> get_num_faces_per_cell() const {
     return m_num_faces_per_cell;
   }
-  const std::vector<unsigned> &get_num_nodes_per_face_per_cell() const {
+  std::vector<unsigned> get_num_nodes_per_face_per_cell() const {
     return m_num_nodes_per_face_per_cell;
   }
-  const std::vector<std::vector<std::vector<unsigned>>> &
+  std::vector<std::vector<std::vector<unsigned>>>
   get_cell_to_node_linkage() const {
     return m_cell_to_node_linkage;
   }
-  const std::vector<unsigned> &get_side_node_count() const {
+  std::vector<unsigned> get_side_node_count() const {
     return m_side_node_count;
   }
-  const std::vector<unsigned> &get_side_to_node_linkage() const {
+  std::vector<unsigned> get_side_to_node_linkage() const {
     return m_side_to_node_linkage;
   }
-  const Layout &get_cc_linkage() const { return cell_to_cell_linkage; }
-  const Layout &get_cs_linkage() const { return cell_to_side_linkage; }
-  const Layout &get_cg_linkage() const { return cell_to_ghost_cell_linkage; }
+  Layout get_cc_linkage() const { return cell_to_cell_linkage; }
+  Layout get_cs_linkage() const { return cell_to_side_linkage; }
+  Layout get_cg_linkage() const { return cell_to_ghost_cell_linkage; }
 
   // >>> SERVICES
 
