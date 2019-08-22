@@ -45,7 +45,8 @@ if( NOT CXX_FLAGS_INITIALIZED )
 
   # Suppress warnings about typeid() called with function as an argument. In this
   # case, the function might not be called if the type can be deduced.
-  set( CMAKE_CXX_FLAGS                "${CMAKE_C_FLAGS} -stdlib=libc++ -Wno-undefined-var-template -Wno-potentially-evaluated-expression" )
+  # New Cray cce (clang-based) needs `-stdlib=libstdc++` instead of `-stdlib=libc++`.
+  set( CMAKE_CXX_FLAGS                "${CMAKE_C_FLAGS} -stdlib=libstdc++ -Wno-undefined-var-template -Wno-potentially-evaluated-expression" )
   set( CMAKE_CXX_FLAGS_DEBUG          "${CMAKE_C_FLAGS_DEBUG} -Woverloaded-virtual")
   # Tried to use -fsanitize=safe-stack but this caused build issues.
   set( CMAKE_CXX_FLAGS_RELEASE        "${CMAKE_C_FLAGS_RELEASE}")
