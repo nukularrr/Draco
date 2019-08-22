@@ -121,7 +121,6 @@ Draco_Mesh_Builder<FRT>::build_mesh(rtt_mesh_element::Geometry geometry) {
   size_t num_nodes = reader->get_numnodes();
 
   Check(num_nodes >= num_cells);
-  Check(num_nodes <= cn_linkage_size);
 
   // generate the global node number serialized vector of coordinates
   std::vector<unsigned> global_node_number(num_nodes);

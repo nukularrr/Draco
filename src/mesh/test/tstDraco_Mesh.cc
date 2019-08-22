@@ -150,7 +150,7 @@ void cartesian_mesh_2d(rtt_c4::ParallelUnitTest &ut) {
 
   // check that flat cell type and cell to node linkage is correct
   FAIL_IF_NOT(mesh->get_num_faces_per_cell() == cell_type);
-  FAIL_IF_NOT(mesh->get_cell_to_node_linkage() == cell_to_node_linkage);
+  FAIL_IF_NOT(mesh->get_flat_cell_node_linkage() == cell_to_node_linkage);
 
   // check that flat side type and side to node linkage is correct
   FAIL_IF_NOT(mesh->get_side_node_count() == side_node_count);
@@ -220,15 +220,31 @@ void cartesian_mesh_2d(rtt_c4::ParallelUnitTest &ut) {
         test_cn_linkage.begin();
     for (unsigned cell = 0; cell < mesh_iface.num_cells; ++cell) {
 
-      // nodes must only be permuted at the cell level
-      FAIL_IF_NOT(std::is_permutation(test_cn_first,
-                                      test_cn_first + cell_type[cell], cn_first,
-                                      cn_first + cell_type[cell]));
+      // get the unique cell nodes
+      std::vector<unsigned> cell_nodes = mesh->get_cell_nodes(cell);
+
+      // assume the duplicate nodes multiply the stride by 2 (only true for 2D)
+      const size_t nnpc = 2 * cell_nodes.size();
+
+      // nodes must only be permuted at the cell level (assumes 2D for nnpc)
+      FAIL_IF_NOT(std::is_permutation(test_cn_first, test_cn_first + nnpc,
+                                      cn_first, cn_first + nnpc));
+
+      // check that unique node entries from mesh are correct
+      std::sort(cell_nodes.begin(), cell_nodes.end());
+      std::vector<unsigned> cn_vec(cn_first, cn_first + nnpc);
+      std::sort(cn_vec.begin(), cn_vec.end());
+      auto last = std::unique(cn_vec.begin(), cn_vec.end());
+      cn_vec.erase(last, cn_vec.end());
+      FAIL_IF_NOT(cell_nodes == cn_vec);
 
       // update the iterators
-      cn_first += cell_type[cell];
-      test_cn_first += cell_type[cell];
+      cn_first += nnpc;
+      test_cn_first += nnpc;
     }
+
+    FAIL_IF_NOT(cn_first == cell_to_node_linkage.end());
+    FAIL_IF_NOT(test_cn_first == test_cn_linkage.end());
   }
 
   // check that each cell has the correct sides

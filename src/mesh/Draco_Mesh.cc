@@ -78,7 +78,9 @@ Draco_Mesh::Draco_Mesh(
       node_coord_vec(compute_node_coord_vec(coordinates_)),
       m_num_faces_per_cell(num_faces_per_cell_),
       m_num_nodes_per_face_per_cell(num_nodes_per_face_per_cell_),
-      m_cell_to_node_linkage(cell_to_node_linkage_),
+      m_cell_to_node_linkage(compute_cell_to_node_tensor(
+          num_faces_per_cell_, num_nodes_per_face_per_cell_,
+          cell_to_node_linkage_)),
       m_side_node_count(side_node_count_),
       m_side_to_node_linkage(side_to_node_linkage_) {
 
@@ -100,6 +102,68 @@ Draco_Mesh::Draco_Mesh(
                                num_nodes_per_face_per_cell_, side_node_count_,
                                side_to_node_linkage_, ghost_cell_type_,
                                ghost_cell_to_node_linkage_);
+}
+
+//----------------------------------------------------------------------------//
+// PUBLIC FUNCTIONS
+//----------------------------------------------------------------------------//
+/*!
+ * \brief Obtain a unique list of a cell's nodes.
+ *
+ * \param[in] cell the index of the cell
+ *
+ * \return a vector of node indices for the cell, without duplicates
+ */
+const std::vector<unsigned>
+Draco_Mesh::get_cell_nodes(const unsigned cell) const {
+  Require(cell < num_cells);
+
+  // initialize return vector
+  std::vector<unsigned> ret_cell_nodes;
+
+  for (unsigned face = 0; face < m_num_faces_per_cell[cell]; ++face) {
+
+    for (auto node : m_cell_to_node_linkage[cell][face]) {
+
+      // this preserves counter-clockwise ordering in 2D
+      if (std::find(ret_cell_nodes.begin(), ret_cell_nodes.end(), node) ==
+          ret_cell_nodes.end())
+        ret_cell_nodes.push_back(node);
+    }
+  }
+
+  Ensure(!ret_cell_nodes.empty());
+  return ret_cell_nodes;
+}
+
+//----------------------------------------------------------------------------//
+/*!
+ * \brief Return a flattended version of the cell-node tensor
+ *
+ * \return a flattened cell-node linkage vector
+ */
+const std::vector<unsigned> Draco_Mesh::get_flat_cell_node_linkage() const {
+
+  // initialize empty cell-node vector
+  std::vector<unsigned> ret_flat_cell_node;
+
+  // insert node vectors from each face of each cell
+  const size_t cn_size = m_cell_to_node_linkage.size();
+  for (size_t cell = 0; cell < cn_size; ++cell) {
+
+    const size_t cnface_size = m_cell_to_node_linkage[cell].size();
+    for (size_t face = 0; face < cnface_size; ++face) {
+
+      const std::vector<unsigned> node_vec = m_cell_to_node_linkage[cell][face];
+      ret_flat_cell_node.insert(ret_flat_cell_node.end(), node_vec.begin(),
+                                node_vec.end());
+    }
+  }
+
+  // return the flattened cell-node tensor
+  Ensure(ret_flat_cell_node.size() >= 2 * m_cell_to_node_linkage.size());
+  Ensure(!ret_flat_cell_node.empty());
+  return ret_flat_cell_node;
 }
 
 //----------------------------------------------------------------------------//
@@ -138,6 +202,53 @@ std::vector<std::vector<double>> Draco_Mesh::compute_node_coord_vec(
   Ensure(ncv_first == coordinates.end());
 
   return ret_node_coord_vec;
+}
+
+//----------------------------------------------------------------------------//
+/*!
+ * \brief Build the cell-face index map to the corresponding coordinates.
+ *
+ * \param[in] num_faces_per_cell number of faces per cell
+ * \param[in] num_nodes_per_face_per_cell number of nodes per face per cell.
+ * \param[in] cell_to_node_linkage node indices per face per cell (serialized).
+ *
+ * \return a vector of vectors of size=dimension of coordinates.
+ */
+std::vector<std::vector<std::vector<unsigned>>>
+Draco_Mesh::compute_cell_to_node_tensor(
+    const std::vector<unsigned> &num_faces_per_cell,
+    const std::vector<unsigned> &num_nodes_per_face_per_cell,
+    const std::vector<unsigned> &cell_to_node_linkage) const {
+
+  std::vector<std::vector<std::vector<unsigned>>> ret_cn_tensor(num_cells);
+
+  // de-serialize the cell-node linkage vector
+  std::vector<unsigned>::const_iterator cfn_first =
+      cell_to_node_linkage.begin();
+  unsigned cf_indx = 0;
+  for (unsigned cell = 0; cell < num_cells; ++cell) {
+
+    // resize the vector of vectors of nodes to the number of faces
+    ret_cn_tensor[cell].resize(num_faces_per_cell[cell]);
+
+    for (unsigned face = 0; face < num_faces_per_cell[cell]; ++face) {
+
+      // get the vector of nodes
+      std::vector<unsigned> node_vec(
+          cfn_first, cfn_first + num_nodes_per_face_per_cell[cf_indx]);
+
+      // resize and set the vector of nodes for this face
+      ret_cn_tensor[cell][face] = node_vec;
+
+      // increment iterator and counter
+      cfn_first += num_nodes_per_face_per_cell[cf_indx];
+      cf_indx++;
+    }
+  }
+
+  Ensure(cfn_first == cell_to_node_linkage.end());
+
+  return ret_cn_tensor;
 }
 
 //----------------------------------------------------------------------------//

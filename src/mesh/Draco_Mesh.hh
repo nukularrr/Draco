@@ -84,7 +84,7 @@ private:
   // Cell types and node indices per cell
   const std::vector<unsigned> m_num_faces_per_cell;
   const std::vector<unsigned> m_num_nodes_per_face_per_cell;
-  const std::vector<unsigned> m_cell_to_node_linkage;
+  const std::vector<std::vector<std::vector<unsigned>>> m_cell_to_node_linkage;
 
   // Side types and node indices per side
   std::vector<unsigned> m_side_node_count;
@@ -140,7 +140,8 @@ public:
   const std::vector<unsigned> &get_num_nodes_per_face_per_cell() const {
     return m_num_nodes_per_face_per_cell;
   }
-  const std::vector<unsigned> &get_cell_to_node_linkage() const {
+  const std::vector<std::vector<std::vector<unsigned>>> &
+  get_cell_to_node_linkage() const {
     return m_cell_to_node_linkage;
   }
   const std::vector<unsigned> &get_side_node_count() const {
@@ -155,6 +156,9 @@ public:
 
   // >>> SERVICES
 
+  const std::vector<unsigned> get_cell_nodes(const unsigned cell) const;
+  const std::vector<unsigned> get_flat_cell_node_linkage() const;
+
 private:
   // >>> SUPPORT FUNCTIONS
 
@@ -162,7 +166,13 @@ private:
   std::vector<std::vector<double>>
   compute_node_coord_vec(const std::vector<double> &coordinates) const;
 
-  //! Calculate the cell-to-cell linkage with face type vector (overload)
+  //! Convert cell-node linkage into tensor for easier indexing by cell, face
+  std::vector<std::vector<std::vector<unsigned>>> compute_cell_to_node_tensor(
+      const std::vector<unsigned> &num_faces_per_cell,
+      const std::vector<unsigned> &num_nodes_per_face_per_cell,
+      const std::vector<unsigned> &cell_to_node_linkage) const;
+
+  //! Calculate the cell-to-cell linkage with face type vector
   void compute_cell_to_cell_linkage(
       const std::vector<unsigned> &num_faces_per_cell,
       const std::vector<unsigned> &cell_to_node_linkage,
