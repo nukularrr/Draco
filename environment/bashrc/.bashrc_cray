@@ -50,15 +50,16 @@ fi
 #
 # export OMP_PLACES=threads # lmdm says do not set this!
 
+unset OMP_NUM_THREADS
 if [[ ${CRAY_CPU_TARGET} =~ arm ]]; then
-  export OMP_NUM_THREADS=28
+#  export OMP_NUM_THREADS=28
   export NRANKS_PER_NODE=56
 #if [[ `lscpu | grep Flags | grep -c avx512` == 0 ]]; then
 elif [[ ${CRAY_CPU_TARGET} =~ haswell ]]; then
-  export OMP_NUM_THREADS=16
+#  export OMP_NUM_THREADS=16
   export NRANKS_PER_NODE=32
 elif [[ ${CRAY_CPU_TARGET} =~ knl ]]; then
-  export OMP_NUM_THREADS=17
+#  export OMP_NUM_THREADS=17
   export NRANKS_PER_NODE=68
 fi
 
