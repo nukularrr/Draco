@@ -46,7 +46,8 @@ if( NOT CXX_FLAGS_INITIALIZED )
   # Suppress warnings about typeid() called with function as an argument. In this
   # case, the function might not be called if the type can be deduced.
   set( CMAKE_CXX_FLAGS                "${CMAKE_C_FLAGS} -Wno-undefined-var-template -Wno-potentially-evaluated-expression" )
-  if( ${CMAKE_CXX_COMPILER_WRAPPER} STREQUAL "CrayPrgEnv" )
+  if( DEFINED CMAKE_CXX_COMPILER_WRAPPER AND
+      "${CMAKE_CXX_COMPILER_WRAPPER}" STREQUAL "CrayPrgEnv" )
     string(APPEND CMAKE_CXX_FLAGS " -stdlib=libstdc++")
   else()
     string(APPEND CMAKE_CXX_FLAGS " -stdlib=libc++")
