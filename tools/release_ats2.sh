@@ -26,8 +26,6 @@
 
 # Draco install directory name (/usr/gapps/jayenne/draco-NN_NN_NN)
 export package=draco
-ddir=draco-7_2_0
-pdir=$ddir
 
 # release for each environment listed
 # These are defined in cts-env.sh
@@ -41,10 +39,13 @@ environments="gcc731env"
 ## Generic setup (do not edit)
 ##---------------------------------------------------------------------------##
 
-export script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 export draco_script_dir=`readlink -f $script_dir`
 echo "source $draco_script_dir/common.sh"
 source ${draco_script_dir}/common.sh
+
+ddir=`readlink -f $draco_script_dir/../.. | sed -e 's%.*/%%'`
+pdir=$ddir
 
 # CMake options that will be included in the configuration step
 CONFIG_BASE="-DDRACO_VERSION_PATCH=`echo $ddir | sed -e 's/.*_//'`"
@@ -56,30 +57,16 @@ export CONFIG_BASE
 establish_permissions
 
 export source_prefix="/usr/gapps/jayenne/$pdir"
-(cd /usr/gapps/jayenne/; if [[ -d latest ]]; then rm latest; fi; ln -s $pdir latest)
+(cd /usr/gapps/jayenne/; if [[ -L latest ]]; then rm latest; fi; ln -s $source_prefix latest)
 scratchdir=`selectscratchdir`
 
+hw_threads=`lscpu | grep CPU | head -n 1 | awk '{ print $2 }'`
+hw_threads_per_core=`lscpu | grep Thread | awk '{ print $4 }'`
+ppn=`expr $hw_threads / $hw_threads_per_core`
 # ppn=`showstats -n | tail -n 1 | awk '{print $3}'`
-#build_pe=`npes_build`
-#test_pe=`npes_test`
 
-# SLURM
-#avail_queues=`sacctmgr -np list assoc user=$LOGNAME | sed -e 's/.*|\(.*dev.*\|.*access.*\)|.*/\1/' | sed -e 's/|.*//'`
-
-# case $avail_queues in
-#   *access*) access_queue="-A access --qos=access" ;;
-#   *dev*) access_queue="--qos=dev" ;;
-# esac
-
-# Make sure there is enough tmp space for the compiler's temporary files.
-# export TMPDIR=/$scratchdir/$USER/tmp
-# if ! test -d $TMPDIR; then
-#   mkdir -p $TMPDIR
-# fi
-# if ! test -d $TMPDIR; then
-#   echo "Could not create TMPDIR=$TMPDIR."
-#   exit 1
-# fi
+build_pe=`npes_build`
+test_pe=`npes_test`
 
 # =============================================================================
 # Build types:
@@ -153,9 +140,6 @@ for env in $environments; do
 
     # export dry_run=1
     export steps="config build test"
-#    cmd="bsub -qpdebug -J release_draco $access_queue -W 1:00 -nnodes 1 \
-#-eo $source_prefix/logs/release-$buildflavor-$version.log \
-#$script_dir/release.msub"
     cmd="bsub -q pdebug -nnodes 1 -W 2:00 -J release_draco \
 -o $source_prefix/logs/release-$buildflavor-$version.log \
 -e $source_prefix/logs/release-$buildflavor-$version.log"
