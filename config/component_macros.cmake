@@ -20,6 +20,15 @@ set( Draco_C_STANDARD c_std_11 )
 # C++14 support:
 set( Draco_CXX_STANDARD cxx_std_14 )
 
+# Apply these properties to all targets (libraries, executables)
+set(Draco_std_target_props
+  CXX_EXTENSIONS OFF
+  CXX_STANDARD_REQUIRED ON
+  C_EXTENSIONS OFF
+  INTERPROCEDURAL_OPTIMIZATION_RELEASE ${USE_IPO}
+  POSITION_INDEPENDENT_CODE ON
+)
+
 #------------------------------------------------------------------------------
 # replacement for built in command 'add_executable'
 #
@@ -133,13 +142,8 @@ or the target must be labeled NOEXPORT.")
   set_target_properties( ${ace_TARGET} PROPERTIES
     OUTPUT_NAME ${ace_EXE_NAME}
     FOLDER      ${ace_FOLDER}
-    INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
     COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\""
-    CXX_STANDARD_REQUIRED ON
-    C_EXTENSIONS OFF
-    CXX_EXTENSIONS OFF
-    POSITION_INDEPENDENT_CODE ON
-    )
+    ${Draco_std_target_props} )
   if( DEFINED ace_PROJECT_LABEL )
     set_target_properties( ${ace_TARGET} PROPERTIES PROJECT_LABEL ${ace_PROJECT_LABEL} )
   endif()
@@ -337,13 +341,8 @@ macro( add_component_library )
   set_target_properties( ${acl_TARGET} PROPERTIES
     OUTPUT_NAME ${acl_LIBRARY_NAME_PREFIX}${acl_LIBRARY_NAME}
     FOLDER      ${folder_name}
-    INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
     WINDOWS_EXPORT_ALL_SYMBOLS ON
-    CXX_STANDARD_REQUIRED ON
-    C_EXTENSIONS OFF
-    CXX_EXTENSIONS OFF
-    POSITION_INDEPENDENT_CODE ON
-    )
+    ${Draco_std_target_props} )
   if( DEFINED DRACO_LINK_OPTIONS )
     set_target_properties( ${acl_TARGET} PROPERTIES
       LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
@@ -892,13 +891,8 @@ macro( add_scalar_tests test_sources )
       OUTPUT_NAME ${testname}
       VS_KEYWORD  ${testname}
       FOLDER      ${compname}_test
-      INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
       COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\""
-      CXX_STANDARD_REQUIRED ON
-      C_EXTENSIONS OFF
-      CXX_EXTENSIONS OFF
-      POSITION_INDEPENDENT_CODE ON
-      )
+      ${Draco_std_target_props} )
     if( DEFINED DRACO_LINK_OPTIONS )
       set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
         LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
@@ -1036,9 +1030,9 @@ macro( add_parallel_tests )
       OUTPUT_NAME ${testname}
       VS_KEYWORD  ${testname}
       FOLDER      ${compname}_test
-      INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
       COMPILE_DEFINITIONS \"PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\"\"
-      )")
+      ${Draco_std_target_props} )
+      ")
     endif()
     add_executable( Ut_${compname}_${testname}_exe ${file} )
     target_compile_features( Ut_${compname}_${testname}_exe
@@ -1049,13 +1043,8 @@ macro( add_parallel_tests )
       OUTPUT_NAME ${testname}
       VS_KEYWORD  ${testname}
       FOLDER      ${compname}_test
-      INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
       COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\""
-      CXX_STANDARD_REQUIRED ON
-      C_EXTENSIONS OFF
-      CXX_EXTENSIONS OFF
-      POSITION_INDEPENDENT_CODE ON
-      )
+      ${Draco_std_target_props} )
     if( DEFINED DRACO_LINK_OPTIONS )
       set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
         LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
