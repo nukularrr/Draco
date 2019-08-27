@@ -207,22 +207,22 @@ fi
 if [[ ${DRACO_BASHRC_DONE:-no} == no ]] && [[ ${INTERACTIVE} == true ]]; then
 
   # Clean up the default path to remove duplicates
-  tmpifs=$IFS
-  oldpath=$PATH
-  export PATH=/bin
-  IFS=:
-  for dir in $oldpath; do
-    if test -z "`echo $PATH | grep $dir`" && test -d $dir; then
-      export PATH=$PATH:$dir
-    fi
-  done
-  IFS=$tmpifs
-  unset tmpifs
-  unset oldpath
+#  tmpifs=$IFS
+#  oldpath=$PATH
+#  export PATH=/bin
+#  IFS=:
+#  for dir in $oldpath; do
+#    if test -z "`echo $PATH | grep $dir`" && test -d $dir; then
+#      export PATH=$PATH:$dir
+#    fi
+#  done
+#  IFS=$tmpifs
+#  unset tmpifs
+#  unset oldpath
 
   # Avoid double colon in PATH
-  export PATH=`echo ${PATH} | sed -e 's/[:]$//'`
-  export LD_LIBRARY_PATH=`echo ${LD_LIBRARY_PATH} | sed -e 's/[:]$//'`
+#  export PATH=`echo ${PATH} | sed -e 's/[:]$//'`
+#  export LD_LIBRARY_PATH=`echo ${LD_LIBRARY_PATH} | sed -e 's/[:]$//'`
 
   # Append PATHS (not linux specific, not ccs2 specific).
   add_to_path ${DRACO_ENV_DIR}/bin

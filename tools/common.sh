@@ -293,53 +293,53 @@ function flavor
 
 #------------------------------------------------------------------------------#
 # returns a path to a directory
-# function selectscratchdir
-# {
-#   # if df is too old this command won't work correctly, use an alternate form.
-#   local scratchdirs=`df --output=pcent,target 2>&1 | grep -c unrecognized`
-#   if [[ $scratchdirs == 0 ]]; then
-#     scratchdirs=`df --output=pcent,target | grep scratch | grep -v netscratch | sort -g`
-#     if [[ -z "$scratchdirs" ]]; then
-#       scratchdirs=`df --output=pcent,target | grep workspace | sort -g`
-#     fi
-#   else
-#     scratchdirs=`df -a 2> /dev/null | grep net/scratch | awk '{ print $4 " "$5 }' | sort -g`
-#     if [[ -z "$scratchdirs" ]]; then
-#       scratchdirs=`df -a 2> /dev/null | grep lustre/scratch | awk '{ print $4 " "$5 }' | sort -g`
-#     fi
-#   fi
-#   for item in $scratchdirs; do
-#     # omit entries that have a percent
-#     if [[ `echo $item | grep -c %` == 1 ]]; then continue; fi
-#     if [[ -d $item/users ]]; then
-#       item2="${item}/users"
-#       mkdir -p $item2/$USER &> /dev/null
-#       if [[ -w $item2/$USER ]]; then
-#         echo "$item2"
-#         return
-#       fi
-#     fi
-#     mkdir -p $item/$USER &> /dev/null
-#     if [[ -w $item/$USER ]]; then
-#       echo "$item"
-#       return
-#     fi
-#     # might need another directory level 'yellow'
-#     mkdir -p $item/yellow/$USER &> /dev/null
-#     if [[ -w $item/yellow/$USER ]]; then
-#       echo "$item/yellow"
-#       return
-#     fi
-#   done
+function selectscratchdir
+{
+  # if df is too old this command won't work correctly, use an alternate form.
+  local scratchdirs=`df --output=pcent,target 2>&1 | grep -c unrecognized`
+  if [[ $scratchdirs == 0 ]]; then
+    scratchdirs=`df --output=pcent,target | grep scratch | grep -v netscratch | sort -g`
+    if [[ -z "$scratchdirs" ]]; then
+      scratchdirs=`df --output=pcent,target | grep workspace | sort -g`
+    fi
+  else
+    scratchdirs=`df -a 2> /dev/null | grep net/scratch | awk '{ print $4 " "$5 }' | sort -g`
+    if [[ -z "$scratchdirs" ]]; then
+      scratchdirs=`df -a 2> /dev/null | grep lustre/scratch | awk '{ print $4 " "$5 }' | sort -g`
+    fi
+  fi
+  for item in $scratchdirs; do
+    # omit entries that have a percent
+    if [[ `echo $item | grep -c %` == 1 ]]; then continue; fi
+    if [[ -d $item/users ]]; then
+      item2="${item}/users"
+      mkdir -p $item2/$USER &> /dev/null
+      if [[ -w $item2/$USER ]]; then
+        echo "$item2"
+        return
+      fi
+    fi
+    mkdir -p $item/$USER &> /dev/null
+    if [[ -w $item/$USER ]]; then
+      echo "$item"
+      return
+    fi
+    # might need another directory level 'yellow'
+    mkdir -p $item/yellow/$USER &> /dev/null
+    if [[ -w $item/yellow/$USER ]]; then
+      echo "$item/yellow"
+      return
+    fi
+  done
 
-#   # if no writable scratch directory is located, then also try netscratch;
-#   item=/netscratch/$USER
-#   mkdir -p $item &> /dev/null
-#   if [[ -w $item ]]; then
-#     echo "$item"
-#     return
-#   fi
-# }
+  # if no writable scratch directory is located, then also try netscratch;
+  item=/netscratch/$USER
+  mkdir -p $item &> /dev/null
+  if [[ -w $item ]]; then
+    echo "$item"
+    return
+  fi
+}
 
 #------------------------------------------------------------------------------#
 function lookupppn()
@@ -395,7 +395,7 @@ function npes_test
   case ${target} in
 
     # current LSF only allows one executable to run under 'jsrun' at a time.
-    rzansel* | rzmanta* | sierra*) ppn=1 ;;
+    # rzansel* | rzmanta* | sierra*) ppn=1 ;;
 
     *)
 
@@ -554,6 +554,7 @@ function install_versions
       run "ctest -j $test_pe --output-on-failure --rerun-failed"
     fi
   fi
+  wait
   if ! test ${build_permissions:-notset} = "notset"; then
     run "chmod -R $build_permissions $build_dir"
   fi
@@ -573,7 +574,7 @@ function publish_release()
   case `osName` in
     toss* | cle* ) SHOWQ=squeue ;;
     darwin| ppc64) SHOWQ=squeue ;;
-    rzansel* | rzmanta* | sierra* ) SHOWQ=bjobs ;;
+    ppc64le )      SHOWQ=bjobs  ;;
   esac
 
   # wait for jobs to finish
@@ -792,7 +793,7 @@ export establish_permissions
 export machineName
 export osName
 export flavor
-# export selectscratchdir
+export selectscratchdir
 export npes_build
 export npes_test
 export install_versions
