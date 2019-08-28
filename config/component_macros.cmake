@@ -9,25 +9,50 @@
 #------------------------------------------------------------------------------#
 
 include_guard(GLOBAL)
+include( compilerEnv )
 
 #------------------------------------------------------------------------------#
-# Standards
+# Ensure order of setup is correct
 #------------------------------------------------------------------------------#
 
-# ANSI-C 11 support:
-set( Draco_C_STANDARD c_std_11 )
+if( NOT DEFINED USE_IPO )
+  dbsSetupCompilers() # sets USE_IPO
+endif()
 
-# C++14 support:
-set( Draco_CXX_STANDARD cxx_std_14 )
+#------------------------------------------------------------------------------#
+# Common Standards
+#------------------------------------------------------------------------------#
 
 # Apply these properties to all targets (libraries, executables)
-set(Draco_std_target_props
-  CXX_EXTENSIONS OFF
-  CXX_STANDARD_REQUIRED ON
+set(Draco_std_target_props_C
+  C_STANDARD 11                # Force strict ANSI-C 11 standard
   C_EXTENSIONS OFF
+  C_STANDARD_REQUIRED ON)
+set(Draco_std_target_props_CXX
+  CXX_STANDARD 14              # Force strict C++ 14 standard
+  CXX_EXTENSIONS OFF
+  CXX_STANDARD_REQUIRED ON )
+set(Draco_std_target_props
   INTERPROCEDURAL_OPTIMIZATION_RELEASE ${USE_IPO}
-  POSITION_INDEPENDENT_CODE ON
-)
+  POSITION_INDEPENDENT_CODE ON )
+
+#------------------------------------------------------------------------------#
+# Set properties that are common across all packages.  Including the required
+# language standard per target.
+#------------------------------------------------------------------------------#
+function( dbs_std_tgt_props target )
+
+  get_property(project_enabled_languages GLOBAL PROPERTY ENABLED_LANGUAGES)
+  foreach( lang ${project_enabled_languages} )
+    if( ${lang} STREQUAL "C" )
+      set_target_properties( ${target} PROPERTIES ${Draco_std_target_props_C} )
+    elseif( ${lang} STREQUAL "CXX" )
+      set_target_properties( ${target} PROPERTIES ${Draco_std_target_props_CXX} )
+    endif()
+    set_target_properties( ${target} PROPERTIES ${Draco_std_target_props} )
+  endforeach()
+
+endfunction()
 
 #------------------------------------------------------------------------------
 # replacement for built in command 'add_executable'
@@ -137,13 +162,11 @@ or the target must be labeled NOEXPORT.")
   else()
     add_executable( ${ace_TARGET} ${ace_SOURCES} )
   endif()
-  target_compile_features( ${ace_TARGET} PUBLIC ${Draco_C_STANDARD} )
-  target_compile_features( ${ace_TARGET} PUBLIC ${Draco_CXX_STANDARD} )
+  dbs_std_tgt_props( ${ace_TARGET} )
   set_target_properties( ${ace_TARGET} PROPERTIES
     OUTPUT_NAME ${ace_EXE_NAME}
     FOLDER      ${ace_FOLDER}
-    COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\""
-    ${Draco_std_target_props} )
+    COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\"" )
   if( DEFINED ace_PROJECT_LABEL )
     set_target_properties( ${ace_TARGET} PROPERTIES PROJECT_LABEL ${ace_PROJECT_LABEL} )
   endif()
@@ -336,13 +359,11 @@ macro( add_component_library )
   string( REPLACE "Lib_" "" folder_name ${acl_TARGET} )
 
   add_library( ${acl_TARGET} ${acl_LIBRARY_TYPE} ${acl_SOURCES} )
-  target_compile_features( ${acl_TARGET} PUBLIC ${Draco_C_STANDARD} )
-  target_compile_features( ${acl_TARGET} PUBLIC ${Draco_CXX_STANDARD} )
+  dbs_std_tgt_props( ${acl_TARGET} )
   set_target_properties( ${acl_TARGET} PROPERTIES
     OUTPUT_NAME ${acl_LIBRARY_NAME_PREFIX}${acl_LIBRARY_NAME}
     FOLDER      ${folder_name}
-    WINDOWS_EXPORT_ALL_SYMBOLS ON
-    ${Draco_std_target_props} )
+    WINDOWS_EXPORT_ALL_SYMBOLS ON )
   if( DEFINED DRACO_LINK_OPTIONS )
     set_target_properties( ${acl_TARGET} PROPERTIES
       LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
@@ -883,16 +904,12 @@ macro( add_scalar_tests test_sources )
 
     get_filename_component( testname ${file} NAME_WE )
     add_executable( Ut_${compname}_${testname}_exe ${file} )
-    target_compile_features( Ut_${compname}_${testname}_exe
-      PUBLIC ${Draco_C_STANDARD} )
-    target_compile_features( Ut_${compname}_${testname}_exe
-      PUBLIC ${Draco_CXX_STANDARD} )
+    dbs_std_tgt_props( Ut_${compname}_${testname}_exe)
     set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
       OUTPUT_NAME ${testname}
       VS_KEYWORD  ${testname}
       FOLDER      ${compname}_test
-      COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\""
-      ${Draco_std_target_props} )
+      COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\"" )
     if( DEFINED DRACO_LINK_OPTIONS )
       set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
         LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
@@ -1035,16 +1052,12 @@ macro( add_parallel_tests )
       ")
     endif()
     add_executable( Ut_${compname}_${testname}_exe ${file} )
-    target_compile_features( Ut_${compname}_${testname}_exe
-      PUBLIC ${Draco_C_STANDARD} )
-    target_compile_features( Ut_${compname}_${testname}_exe
-      PUBLIC ${Draco_CXX_STANDARD} )
+    dbs_std_tgt_props( Ut_${compname}_${testname}_exe )
     set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
       OUTPUT_NAME ${testname}
       VS_KEYWORD  ${testname}
       FOLDER      ${compname}_test
-      COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\""
-      ${Draco_std_target_props} )
+      COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\"" )
     if( DEFINED DRACO_LINK_OPTIONS )
       set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
         LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
