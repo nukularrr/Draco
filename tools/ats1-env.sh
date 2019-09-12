@@ -23,7 +23,7 @@ else
 fi
 
 # The following toolchains will be used when releasing code
-environments="intel1802env intel1802env-knl intel1704env intel1704env-knl"
+environments="intel1904env intel1904env-knl intel1802env intel1802env-knl intel1704env intel1704env-knl"
 
 # Extra cmake options
 export CONFIG_BASE+=" -DCMAKE_VERBOSE_MAKEFILE=ON"
@@ -49,6 +49,40 @@ case $ddir in
 
   #------------------------------------------------------------------------------#
   draco-7_2* | draco-7_3*)
+    function intel1904env()
+    {
+      unset partition
+      unset jobnameext
+
+      if [[ ${CRAY_CPU_TARGET} == mic-knl ]]; then
+        run "module swap craype-mic-knl craype-haswell"
+      fi
+      run "module load user_contrib friendly-testing"
+      run "module unload cmake numdiff git"
+      run "module unload gsl random123 eospac"
+      run "module unload trilinos ndi"
+      run "module unload superlu-dist metis parmetis"
+      run "module unload csk lapack"
+      run "module unload PrgEnv-intel PrgEnv-pgi PrgEnv-cray PrgEnv-gnu"
+      run "module unload lapack "
+      run "module unload intel gcc"
+      run "module unload papi perftools"
+      run "module load PrgEnv-intel"
+      run "module unload intel"
+      run "module unload xt-libsci xt-totalview"
+      run "module unload cray-hugepages2M"
+      run "module load intel/19.0.4"
+      run "module load cmake/3.14.6 numdiff git"
+      run "module load gsl random123 eospac/6.4.0 ndi python/3.6-anaconda-5.0.1"
+      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist"
+      run "module use --append ${VENDOR_DIR}-ec/modulefiles"
+      run "module load csk"
+      run "module list"
+      CC=`which cc`
+      CXX=`which CC`
+      FC=`which ftn`
+      export LD_LIBRARY_PATH=$CRAY_LD_LIBRARY_PATH:$LD_LIBRARY_PATH
+    }
     function intel1802env()
     {
       unset partition
@@ -72,7 +106,7 @@ case $ddir in
       run "module unload xt-libsci xt-totalview"
       run "module unload cray-hugepages2M"
       run "module load intel/18.0.2"
-      run "module load cmake/3.14.0 numdiff git"
+      run "module load cmake/3.14.6 numdiff git"
       run "module load gsl random123 eospac/6.4.0 ndi python/3.6-anaconda-5.0.1"
       run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist"
       run "module use --append ${VENDOR_DIR}-ec/modulefiles"
@@ -83,6 +117,42 @@ case $ddir in
       FC=`which ftn`
       export LD_LIBRARY_PATH=$CRAY_LD_LIBRARY_PATH:$LD_LIBRARY_PATH
     }
+    function intel1904env-knl()
+    {
+      export partition="-p knl"
+      export jobnameext="-knl"
+
+      if [[ ${CRAY_CPU_TARGET} == mic-knl ]]; then
+        run "module swap craype-mic-knl craype-haswell"
+      fi
+      run "module load user_contrib friendly-testing"
+      run "module unload cmake numdiff git"
+      run "module unload gsl random123 eospac"
+      run "module unload trilinos ndi"
+      run "module unload superlu-dist metis parmetis"
+      run "module unload csk lapack"
+      run "module unload PrgEnv-intel PrgEnv-pgi PrgEnv-cray PrgEnv-gnu"
+      run "module unload intel gcc"
+      run "module unload papi perftools"
+      run "module load PrgEnv-intel"
+      run "module unload intel"
+      run "module unload xt-libsci xt-totalview"
+      run "module unload cray-hugepages2M"
+      run "module load intel/19.0.4"
+      run "module load cmake/3.14.6 numdiff git"
+      run "module load gsl random123 eospac/6.4.0 ndi python/3.6-anaconda-5.0.1"
+      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist"
+      run "module use --append ${VENDOR_DIR}-ec/modulefiles"
+      run "module load csk"
+      run "module swap craype-haswell craype-mic-knl"
+      run "module list"
+      run "module list"
+      CC=`which cc`
+      CXX=`which CC`
+      FC=`which ftn`
+      export LD_LIBRARY_PATH=$CRAY_LD_LIBRARY_PATH:$LD_LIBRARY_PATH
+    }
+
     function intel1802env-knl()
     {
       export partition="-p knl"
@@ -105,7 +175,7 @@ case $ddir in
       run "module unload xt-libsci xt-totalview"
       run "module unload cray-hugepages2M"
       run "module load intel/18.0.2"
-      run "module load cmake/3.14.0 numdiff git"
+      run "module load cmake/3.14.6 numdiff git"
       run "module load gsl random123 eospac/6.4.0 ndi python/3.6-anaconda-5.0.1"
       run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist"
       run "module use --append ${VENDOR_DIR}-ec/modulefiles"
@@ -140,7 +210,7 @@ case $ddir in
       run "module unload intel"
       run "module unload xt-libsci xt-totalview"
       run "module load intel/17.0.4"
-      run "module load cmake/3.14.0 numdiff git"
+      run "module load cmake/3.14.6 numdiff git"
       run "module load gsl random123 eospac/6.4.0 ndi python/3.6-anaconda-5.0.1"
       run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist"
       run "module use --append ${VENDOR_DIR}-ec/modulefiles"
@@ -172,7 +242,7 @@ case $ddir in
       run "module unload intel"
       run "module unload xt-libsci xt-totalview"
       run "module load intel/17.0.4"
-      run "module load cmake/3.14.0 numdiff git"
+      run "module load cmake/3.14.6 numdiff git"
       run "module load gsl random123 eospac/6.4.0 ndi python/3.6-anaconda-5.0.1"
       run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist"
       run "module use --append ${VENDOR_DIR}-ec/modulefiles"

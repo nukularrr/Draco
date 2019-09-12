@@ -37,8 +37,8 @@
 # switch to group 'ccsrad' or dacodes
 install_group=$USER
 build_group=$USER
-if [[   `groups | grep -c ccsrad`  -gt 0 ]]; then install_group=ccsrad;
-elif [[ `groups | grep -c dacodes` -gt 0 ]]; then install_group=dacodes; fi
+if [[ `groups | grep -c dacodes` -gt 0 ]]; then install_group=dacodes;
+elif [[   `groups | grep -c ccsrad`  -gt 0 ]]; then install_group=ccsrad; fi
 if [[ $(id -gn) != $install_group ]]; then exec sg $install_group "$0 $*"; fi
 umask 0002       # initially no world or group access
 set -m           # Enable job control

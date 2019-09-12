@@ -548,8 +548,6 @@ function publish_release()
   echo "Waiting batch jobs to finish ..."
   echo "   Running jobs = $jobids"
 
-  establish_permissions
-
   case `osName` in
     toss* | cle* ) SHOWQ=squeue ;;
     darwin| ppc64) SHOWQ=squeue ;;
