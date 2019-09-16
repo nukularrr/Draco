@@ -28,8 +28,8 @@ using rtt_cdi_analytic::Analytic_Eloss_Model;
 
 void KP_alpha_test(rtt_dsxx::UnitTest &ut) {
 
-  rtt_cdi::ParticleType target_in = rtt_cdi::DEUTERIUM;
-  rtt_cdi::ParticleType particle_in = rtt_cdi::ALPHA;
+  rtt_cdi::CParticleType target_in = rtt_cdi::DEUTERIUM;
+  rtt_cdi::CParticleType particle_in = rtt_cdi::ALPHA;
 
   std::shared_ptr<Analytic_Eloss_Model> model_in(
       new rtt_cdi_analytic::Analytic_KP_Alpha_Eloss_Model());

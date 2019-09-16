@@ -11,6 +11,7 @@
 #ifndef rtt_cdi_CDI_hh
 #define rtt_cdi_CDI_hh
 
+#include "CPEloss.hh"
 #include "EICoupling.hh"
 #include "EoS.hh"
 #include "GrayOpacity.hh"
@@ -467,12 +468,16 @@ class CDI {
   typedef std::shared_ptr<const OdfmgOpacity> SP_OdfmgOpacity;
   typedef std::shared_ptr<const EoS> SP_EoS;
   typedef std::shared_ptr<const EICoupling> SP_EICoupling;
+  typedef std::shared_ptr<const CPEloss> SP_CPEloss;
   typedef std::vector<SP_GrayOpacity> SF_GrayOpacity;
   typedef std::vector<SF_GrayOpacity> VF_GrayOpacity;
   typedef std::vector<SP_MultigroupOpacity> SF_MultigroupOpacity;
   typedef std::vector<SF_MultigroupOpacity> VF_MultigroupOpacity;
   typedef std::vector<SP_OdfmgOpacity> SF_OdfmgOpacity;
   typedef std::vector<SF_OdfmgOpacity> VF_OdfmgOpacity;
+  typedef std::vector<SP_CPEloss> SF_CPEloss;
+  typedef std::vector<SF_CPEloss> VF_CPEloss;
+  typedef std::vector<VF_CPEloss> VVF_CPEloss;
   typedef std::string std_string;
 
   // DATA
@@ -501,6 +506,9 @@ class CDI {
 
   //! Array that stores the list of possible OdfmgOpacity types.
   VF_OdfmgOpacity odfmgOpacities;
+
+  //! 3D Array that stores the list of possible CP ELoss types.
+  VVF_CPEloss CPElosses;
 
   /*!
    * \brief Frequency group boundaries for multigroup data.
@@ -574,6 +582,9 @@ public:
   //! Register a gray opacity (rtt_cdi::GrayOpacity) with CDI.
   void setGrayOpacity(const SP_GrayOpacity &spGOp);
 
+  //! Register a gray opacity (rtt_cdi::CPEloss) with CDI.
+  void setCPEloss(const SP_CPEloss &spCPEp);
+
   //! Register a multigroup opacity (rtt_cdi::MultigroupOpacity) with CDI.
   void setMultigroupOpacity(const SP_MultigroupOpacity &spMGOp);
 
@@ -595,6 +606,8 @@ public:
   SP_GrayOpacity gray(rtt_cdi::Model m, rtt_cdi::Reaction r) const;
   SP_MultigroupOpacity mg(rtt_cdi::Model m, rtt_cdi::Reaction r) const;
   SP_OdfmgOpacity odfmg(rtt_cdi::Model m, rtt_cdi::Reaction r) const;
+  SP_CPEloss eloss(rtt_cdi::CPModel m, rtt_cdi::CParticleType part,
+                   rtt_cdi::CParticleType targ) const;
   SP_EoS eos(void) const;
   SP_EICoupling ei_coupling(void) const;
 
@@ -655,9 +668,14 @@ public:
   //! Return material ID string.
   const std_string &getMatID() const { return matID; }
 
+  //! Get the rest mass of a particular (supported) charged particle
+  static double getCPMass(rtt_cdi::CParticleType part);
+
   bool isGrayOpacitySet(rtt_cdi::Model, rtt_cdi::Reaction) const;
   bool isMultigroupOpacitySet(rtt_cdi::Model, rtt_cdi::Reaction) const;
   bool isOdfmgOpacitySet(rtt_cdi::Model, rtt_cdi::Reaction) const;
+  bool isCPElossSet(rtt_cdi::CPModel, rtt_cdi::CParticleType,
+                    rtt_cdi::CParticleType) const;
   bool isEoSSet() const;
   bool isEICouplingSet() const;
 

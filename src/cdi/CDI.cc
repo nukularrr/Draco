@@ -43,10 +43,13 @@ CDI::CDI(const std_string &id)
                           SF_MultigroupOpacity(constants::num_Reactions)),
       odfmgOpacities(constants::num_Models,
                      SF_OdfmgOpacity(constants::num_Reactions)),
+      CPElosses(constants::num_CPModels,
+                VF_CPEloss(constants::num_CPs, SF_CPEloss(constants::num_CPs))),
       spEoS(SP_EoS()), spEICoupling(SP_EICoupling()), matID(id) {
   Ensure(grayOpacities.size() == constants::num_Models);
   Ensure(multigroupOpacities.size() == constants::num_Models);
   Ensure(odfmgOpacities.size() == constants::num_Models);
+  Ensure(CPElosses.size() == constants::num_CPModels);
 }
 
 //---------------------------------------------------------------------------//
@@ -64,6 +67,34 @@ std::vector<double> CDI::opacityCdfBandBoundaries = std::vector<double>();
 //---------------------------------------------------------------------------//
 // STATIC FUNCTIONS
 //---------------------------------------------------------------------------//
+
+/*!
+ * \brief Return the rest mass (in keV) of a supported charged particle type
+ */
+double CDI::getCPMass(rtt_cdi::CParticleType ptype) {
+  double mass = 0.0;
+  switch (ptype) {
+  case rtt_cdi::CParticleType::ELECTRON:
+    mass = 510.998;
+    break;
+  case rtt_cdi::CParticleType::HYDROGEN:
+    mass = 9.38272e5;
+    break;
+  case rtt_cdi::CParticleType::DEUTERIUM:
+    mass = 1.87561e6;
+    break;
+  case rtt_cdi::CParticleType::TRITIUM:
+    mass = 2.80943e6;
+    break;
+  case rtt_cdi::CParticleType::ALPHA:
+    mass = 3.72840e6;
+    break;
+  case rtt_cdi::CParticleType::UNKNOWN_PART:
+  default:
+    break;
+  }
+  return mass;
+}
 
 /*!
  * \brief Return the frequency group boundaries.
@@ -872,6 +903,33 @@ double CDI::collapseOdfmgReciprocalOpacitiesPlanck(
 // SET FUNCTIONS
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Register a charged particle eloss (rtt_cdi::CPEloss) with CDI.
+ *
+ * You cannot overwrite
+ * registered objects with the setCPEloss() function!
+ *
+ * \param spCPp smart pointer to an Eloss object
+ */
+void CDI::setCPEloss(const SP_CPEloss &spCPp) {
+  Require(spCPp);
+
+  // determine the model and reaction type (these MUST be in the correct range
+  // because the particle/target are constrained by the rtt_cdi::Particle
+  // enumerations assuming nobody hosed these)
+  rtt_cdi::CPModelType model = spCPp->getModelType();
+  rtt_cdi::CParticleType part = spCPp->getParticleType();
+  rtt_cdi::CParticleType targ = spCPp->getTargetType();
+
+  Insist(!CPElosses[model][part][targ],
+         "Tried to overwrite a set CPEloss object!");
+
+  // assign the smart pointer
+  CPElosses[model][part][targ] = spCPp;
+
+  Ensure(CPElosses[model][part][targ]);
+}
+
+/*!
  * \brief Register a gray opacity (rtt_cdi::GrayOpacity) with CDI.
  *
  * This function sets a gray opacity object of type rtt_cdi::GrayOpacity with
@@ -1112,6 +1170,26 @@ CDI::SP_OdfmgOpacity CDI::odfmg(rtt_cdi::Model m, rtt_cdi::Reaction r) const {
   return odfmgOpacities[m][r];
 }
 
+//----------------------------------------------------------------------------//
+/*!
+ * \brief This fuction returns the charged particle energy loss object.
+ *
+ * \code
+ * size_t numGroups = spCDI1->mg()->getNumGroupBoundaries();
+ * \endcode
+ *
+ * The appropriate charged particle eloss is returned for the given model/ trio.
+ *
+ * \param m rtt_cdi::CPModel specifying the desired CP physics model
+ * \param t rtt_cdi::CParticleType specifying the desired target type.
+ * \param p rtt_cdi::CParticleType specifying the desired particle type.
+ */
+CDI::SP_CPEloss CDI::eloss(rtt_cdi::CPModel m, rtt_cdi::CParticleType p,
+                           rtt_cdi::CParticleType t) const {
+  Insist(CPElosses[m][p][t], "Undefined CPEloss!");
+  return CPElosses[m][p][t];
+}
+
 //---------------------------------------------------------------------------//
 /*!
  * \brief This fuction returns the EoS object.
@@ -1227,6 +1305,14 @@ bool CDI::isMultigroupOpacitySet(rtt_cdi::Model m, rtt_cdi::Reaction r) const {
  */
 bool CDI::isOdfmgOpacitySet(rtt_cdi::Model m, rtt_cdi::Reaction r) const {
   return static_cast<bool>(odfmgOpacities[m][r]);
+}
+
+/*!
+ * \brief Query to see if an odf multigroup opacity is set.
+ */
+bool CDI::isCPElossSet(rtt_cdi::CPModel m, rtt_cdi::CParticleType p,
+                       rtt_cdi::CParticleType t) const {
+  return static_cast<bool>(CPElosses[m][p][t]);
 }
 
 /*!
