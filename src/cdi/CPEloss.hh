@@ -11,26 +11,12 @@
 #ifndef __cdi_CPEloss_hh__
 #define __cdi_CPEloss_hh__
 
+#include "CPCommon.hh"
 #include "ds++/config.h"
 #include <string>
 #include <vector>
 
 namespace rtt_cdi {
-
-enum ElossModelType {
-  UNASSIGNED_RTYPE =
-      0, /*!< unassigned type; used as a placeholder before deciding type */
-  ANALYTIC_RTYPE = 1, /*!< an Analytic eloss model */
-};
-
-enum ParticleType {
-  UNKNOWN_PART = 0, /*!< unknown particle :-O */
-  ELECTRON = 1,     /*!< rest are pretty self-explanatory... */
-  HYDROGEN = 2,
-  DEUTERIUM = 3,
-  TRITIUM = 4,
-  ALPHA = 5
-};
 
 //========================================================================
 /*!
@@ -128,12 +114,17 @@ public:
   /*!
      * \brief Query to determine the target species type.
      */
-  virtual rtt_cdi::ParticleType getTargetType() const = 0;
+  virtual rtt_cdi::CParticleType getTargetType() const = 0;
 
   /*!
      * \brief Query to determine the transporting particle type.
      */
-  virtual rtt_cdi::ParticleType getParticleType() const = 0;
+  virtual rtt_cdi::CParticleType getParticleType() const = 0;
+
+  /*!
+     * \brief Query to determine the CP Model type.
+     */
+  virtual rtt_cdi::CPModel getModel() const = 0;
 
   /*!
      * \brief Returns a string that describes the EnergyPolicy.
@@ -172,7 +163,7 @@ public:
 	 * \brief Returns the general Eloss model type (Analytic),
 	 * defined in the enum at the top of this file.
 	 */
-  virtual rtt_cdi::ElossModelType getElossModelType() const = 0;
+  virtual rtt_cdi::CPModelType getModelType() const = 0;
 };
 
 } // namespace rtt_cdi

@@ -30,9 +30,9 @@ namespace rtt_cdi_analytic {
  * \param particle_in rtt_cdi::ParticleType transporting particle (enumeration)
  */
 Analytic_CP_Eloss::Analytic_CP_Eloss(SP_Analytic_Model model_in,
-                                     rtt_cdi::ParticleType target_in,
-                                     rtt_cdi::ParticleType particle_in)
-    : analytic_model(model_in), target(target_in), particle(particle_in) {
+                                     rtt_cdi::CParticleType target_in,
+                                     rtt_cdi::CParticleType particle_in)
+    : analytic_model(model_in), particle(particle_in), target(target_in) {
   Ensure(analytic_model);
 }
 

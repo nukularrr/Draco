@@ -39,16 +39,21 @@ private:
   // Analytic eloss model.
   SP_Analytic_Model analytic_model;
 
-  // Target species.
-  rtt_cdi::ParticleType target;
-
   // Particle type being transported.
-  rtt_cdi::ParticleType particle;
+  rtt_cdi::CParticleType particle;
+
+  // Target species.
+  rtt_cdi::CParticleType target;
+
+  // Data model (e.g. Eloss, large-angle scatter, etc.)
+  // Currently only ELOSS is implemented.
+  //rtt_cdi::CPModel cpmodel;
 
 public:
   // Constructor.
-  Analytic_CP_Eloss(SP_Analytic_Model model_in, rtt_cdi::ParticleType target_in,
-                    rtt_cdi::ParticleType particle_in);
+  Analytic_CP_Eloss(SP_Analytic_Model model_in,
+                    rtt_cdi::CParticleType target_in,
+                    rtt_cdi::CParticleType particle_in);
 
   // >>> ACCESSORS
   const_SP_Model get_Analytic_Model() const { return analytic_model; }
@@ -68,10 +73,12 @@ public:
   bool data_in_tabular_form() const { return false; }
 
   //! Query to get the target species type.
-  rtt_cdi::ParticleType getTargetType() const { return target; }
+  rtt_cdi::CParticleType getTargetType() const { return target; }
 
   //! Query for transport particle type.
-  rtt_cdi::ParticleType getParticleType() const { return particle; }
+  rtt_cdi::CParticleType getParticleType() const { return particle; }
+
+  rtt_cdi::CPModel getModel() const { return rtt_cdi::ELOSS; }
 
   // Return the energy policy (gray).
   inline std_string getEnergyPolicyDescriptor() const;
@@ -94,11 +101,9 @@ public:
   /*!
      * \brief Returns the general eloss model type
      *
-     * Since this is an analytic model, return 1 (rtt_cdi::ANALYTIC_RTYPE)
+     * Since this is an analytic model, return 1 (rtt_cdi::ANALYTIC_ETYPE)
      */
-  rtt_cdi::ElossModelType getElossModelType() const {
-    return rtt_cdi::ANALYTIC_RTYPE;
-  }
+  rtt_cdi::CPModelType getModelType() const { return rtt_cdi::ANALYTIC_ETYPE; }
 };
 
 //---------------------------------------------------------------------------//
