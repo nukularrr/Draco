@@ -97,8 +97,9 @@ if( NOT CXX_FLAGS_INITIALIZED )
   set( CMAKE_CXX_FLAGS_RELWITHDEBINFO "/${MD_or_MT} /O2 /Zi /DDEBUG" )
 
   # Don't warn about missing pdb files.  We won't necessarily have these for 
-  # TPLs.
-  set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /ignore:4099" )
+  # TPLs. Link options are applied in component_macros.cmake near calls to 
+  # add_libarary or add_executable.
+  set( DRACO_LINK_OPTIONS "$<$<CONFIG:DEBUG>:/ignore:4099>")
 
 endif()
 
@@ -116,6 +117,8 @@ set( CMAKE_CXX_FLAGS_DEBUG          "${CMAKE_CXX_FLAGS_DEBUG}"          CACHE ST
 set( CMAKE_CXX_FLAGS_RELEASE        "${CMAKE_CXX_FLAGS_RELEASE}"        CACHE STRING "compiler flags" FORCE )
 set( CMAKE_CXX_FLAGS_MINSIZEREL     "${CMAKE_CXX_FLAGS_MINSIZEREL}"     CACHE STRING "compiler flags" FORCE )
 set( CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}" CACHE STRING "compiler flags" FORCE )
+
+set( DRACO_LINK_OPTIONS "${DRACO_LINK_OPTIONS}" CACHE STRING "link flags" FORCE)
 
 #
 # Toggle compiler flags for optional features

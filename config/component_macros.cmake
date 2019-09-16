@@ -9,6 +9,50 @@
 #------------------------------------------------------------------------------#
 
 include_guard(GLOBAL)
+include( compilerEnv )
+
+#------------------------------------------------------------------------------#
+# Ensure order of setup is correct
+#------------------------------------------------------------------------------#
+
+if( NOT DEFINED USE_IPO )
+  dbsSetupCompilers() # sets USE_IPO
+endif()
+
+#------------------------------------------------------------------------------#
+# Common Standards
+#------------------------------------------------------------------------------#
+
+# Apply these properties to all targets (libraries, executables)
+set(Draco_std_target_props_C
+  C_STANDARD 11                # Force strict ANSI-C 11 standard
+  C_EXTENSIONS OFF
+  C_STANDARD_REQUIRED ON)
+set(Draco_std_target_props_CXX
+  CXX_STANDARD 14              # Force strict C++ 14 standard
+  CXX_EXTENSIONS OFF
+  CXX_STANDARD_REQUIRED ON )
+set(Draco_std_target_props
+  INTERPROCEDURAL_OPTIMIZATION_RELEASE ${USE_IPO}
+  POSITION_INDEPENDENT_CODE ON )
+
+#------------------------------------------------------------------------------#
+# Set properties that are common across all packages.  Including the required
+# language standard per target.
+#------------------------------------------------------------------------------#
+function( dbs_std_tgt_props target )
+
+  get_property(project_enabled_languages GLOBAL PROPERTY ENABLED_LANGUAGES)
+  foreach( lang ${project_enabled_languages} )
+    if( ${lang} STREQUAL "C" )
+      set_target_properties( ${target} PROPERTIES ${Draco_std_target_props_C} )
+    elseif( ${lang} STREQUAL "CXX" )
+      set_target_properties( ${target} PROPERTIES ${Draco_std_target_props_CXX} )
+    endif()
+    set_target_properties( ${target} PROPERTIES ${Draco_std_target_props} )
+  endforeach()
+
+endfunction()
 
 #------------------------------------------------------------------------------
 # replacement for built in command 'add_executable'
@@ -118,17 +162,11 @@ or the target must be labeled NOEXPORT.")
   else()
     add_executable( ${ace_TARGET} ${ace_SOURCES} )
   endif()
-
-  # Some properties are set at a global scope in compilerEnv.cmake:
-  # - C_STANDARD, C_EXTENSIONS, CXX_STANDARD, CXX_EXTENSIONS,
-  #   CXX_STANDARD_REQUIRED, and POSITION_INDEPENDENT_CODE
+  dbs_std_tgt_props( ${ace_TARGET} )
   set_target_properties( ${ace_TARGET} PROPERTIES
     OUTPUT_NAME ${ace_EXE_NAME}
     FOLDER      ${ace_FOLDER}
-    INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
-#    ENABLE_EXPORTS TRUE # See cmake policy cmp0065
-    COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\""
-    )
+    COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\"" )
   if( DEFINED ace_PROJECT_LABEL )
     set_target_properties( ${ace_TARGET} PROPERTIES PROJECT_LABEL ${ace_PROJECT_LABEL} )
   endif()
@@ -321,17 +359,15 @@ macro( add_component_library )
   string( REPLACE "Lib_" "" folder_name ${acl_TARGET} )
 
   add_library( ${acl_TARGET} ${acl_LIBRARY_TYPE} ${acl_SOURCES} )
-  # Some properties are set at a global scope in compilerEnv.cmake:
-  # - C_STANDARD, C_EXTENSIONS, CXX_STANDARD, CXX_EXTENSIONS,
-  #   CXX_STANDARD_REQUIRED, and POSITION_INDEPENDENT_CODE
+  dbs_std_tgt_props( ${acl_TARGET} )
   set_target_properties( ${acl_TARGET} PROPERTIES
-    # ${compdefs}
-    # Use custom library naming
     OUTPUT_NAME ${acl_LIBRARY_NAME_PREFIX}${acl_LIBRARY_NAME}
     FOLDER      ${folder_name}
-    INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
-    WINDOWS_EXPORT_ALL_SYMBOLS ON
-    )
+    WINDOWS_EXPORT_ALL_SYMBOLS ON )
+  if( DEFINED DRACO_LINK_OPTIONS )
+    set_target_properties( ${acl_TARGET} PROPERTIES
+      LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
+  endif()
 
   #
   # Generate properties related to library dependencies
@@ -868,17 +904,16 @@ macro( add_scalar_tests test_sources )
 
     get_filename_component( testname ${file} NAME_WE )
     add_executable( Ut_${compname}_${testname}_exe ${file} )
-    # Some properties are set at a global scope in compilerEnv.cmake:
-    # - C_STANDARD, C_EXTENSIONS, CXX_STANDARD, CXX_EXTENSIONS,
-    #   CXX_STANDARD_REQUIRED, and POSITION_INDEPENDENT_CODE
-    set_target_properties( Ut_${compname}_${testname}_exe
-      PROPERTIES
+    dbs_std_tgt_props( Ut_${compname}_${testname}_exe)
+    set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
       OUTPUT_NAME ${testname}
       VS_KEYWORD  ${testname}
       FOLDER      ${compname}_test
-      INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
-      COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\""
-      )
+      COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\"" )
+    if( DEFINED DRACO_LINK_OPTIONS )
+      set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
+        LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
+    endif()
     # Do we need to use the Fortran compiler as the linker?
     if( addscalartest_LINK_WITH_FORTRAN )
       set_target_properties( Ut_${compname}_${testname}_exe
@@ -1008,29 +1043,25 @@ macro( add_parallel_tests )
     get_filename_component( testname ${file} NAME_WE )
     if( lverbose )
       message( "   add_executable( Ut_${compname}_${testname}_exe ${file} )
-   set_target_properties(
-      Ut_${compname}_${testname}_exe
-      PROPERTIES
+   set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
       OUTPUT_NAME ${testname}
       VS_KEYWORD  ${testname}
       FOLDER      ${compname}_test
-      INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
       COMPILE_DEFINITIONS \"PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\"\"
-      )")
+      ${Draco_std_target_props} )
+      ")
     endif()
     add_executable( Ut_${compname}_${testname}_exe ${file} )
-    # Some properties are set at a global scope in compilerEnv.cmake:
-    # - C_STANDARD, C_EXTENSIONS, CXX_STANDARD, CXX_EXTENSIONS,
-    #   CXX_STANDARD_REQUIRED, and POSITION_INDEPENDENT_CODE
-    set_target_properties(
-      Ut_${compname}_${testname}_exe
-      PROPERTIES
+    dbs_std_tgt_props( Ut_${compname}_${testname}_exe )
+    set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
       OUTPUT_NAME ${testname}
       VS_KEYWORD  ${testname}
       FOLDER      ${compname}_test
-      INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
-      COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\""
-      )
+      COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\"" )
+    if( DEFINED DRACO_LINK_OPTIONS )
+      set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
+        LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
+    endif()
     if( addparalleltest_MPI_PLUS_OMP )
       if( ${CMAKE_GENERATOR} MATCHES Xcode )
         set_target_properties( Ut_${compname}_${testname}_exe
@@ -1192,8 +1223,7 @@ targets for copying support files.")
   endif()
   set_target_properties(
     Ut_${compname}_install_inputs_${Ut_${compname}_install_inputs_iarg}
-    PROPERTIES FOLDER ${folder_name}
-    )
+    PROPERTIES FOLDER ${folder_name} )
 
 endmacro()
 
