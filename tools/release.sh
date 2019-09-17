@@ -37,10 +37,10 @@
 # switch to group 'ccsrad' or dacodes
 install_group=$USER
 build_group=$USER
-if [[ `groups | grep -c dacodes` -gt 0 ]]; then install_group=dacodes;
-elif [[   `groups | grep -c ccsrad`  -gt 0 ]]; then install_group=ccsrad; fi
+if [[   `groups | grep -c dacodes` -gt 0 ]]; then install_group=dacodes;
+elif [[ `groups | grep -c ccsrad`  -gt 0 ]]; then install_group=ccsrad; fi
 if [[ $(id -gn) != $install_group ]]; then exec sg $install_group "$0 $*"; fi
-umask 0002       # initially no world or group access
+umask 0007       # initially no world or group access
 set -m           # Enable job control
 shopt -s extglob # Allow variable as case condition
 install_permissions="g+rwX,o-rwX"
@@ -74,9 +74,10 @@ else
   exit 1
 fi
 
-ddir=`readlink -f $draco_script_dir/../.. | sed -e 's%.*/%%'`
 # If package is set, use those values, otherwise, setup stuff for draco.
 if ! [[ $package ]]; then
+  export source_prefix=`readlink -f $draco_script_dir/../..`
+  export ddir=`echo $source_prefix | sed -e 's%.*/%%'`
   export script_dir=$draco_script_dir
   export pdir=$ddir
   export package=`echo $pdir | sed -e 's/-.*//'`
@@ -90,7 +91,6 @@ if ! [[ $package ]]; then
   export CONFIG_BASE+=" -DDRACO_VERSION_PATCH=`echo $ddir | sed -e 's/.*_//'`"
 fi
 
-export source_prefix="/usr/projects/$package/$pdir"
 scratchdir=`selectscratchdir`
 
 # hw_threads=`lscpu | grep CPU | head -n 1 | awk '{ print $2 }'`
