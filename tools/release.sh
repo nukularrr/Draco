@@ -74,10 +74,12 @@ else
   exit 1
 fi
 
+export draco_source_prefix=`readlink -f $draco_script_dir/../..`
+export ddir=`echo $draco_source_prefix | sed -e 's%.*/%%'`
+
 # If package is set, use those values, otherwise, setup stuff for draco.
 if ! [[ $package ]]; then
-  export source_prefix=`readlink -f $draco_script_dir/../..`
-  export ddir=`echo $source_prefix | sed -e 's%.*/%%'`
+  export source_prefix=$draco_source_prefix
   export script_dir=$draco_script_dir
   export pdir=$ddir
   export package=`echo $pdir | sed -e 's/-.*//'`
@@ -138,14 +140,15 @@ echo " "
 ##---------------------------------------------------------------------------##
 
 jobids=""
-echo -e "\nThe following environments will be processed: $env\n"
+echo -e "\nThe following environments will be processed: $environments\n"
+
 for env in $environments; do
 
   # Run the bash function defined above to load appropriate module
   # environment.
   echo -e "\nEstablish environment $env"
   echo "======================================="
-  $env
+  ${env}
 
   buildflavor=`flavor`
   # e.g.: buildflavor=snow-openmpi-1.6.5-intel-15.0.3
@@ -153,15 +156,21 @@ for env in $environments; do
   export install_prefix="$source_prefix/$buildflavor"
   export build_prefix="$scratchdir/$USER/$pdir/$buildflavor"
 
+
   for (( i=0 ; i < ${#VERSIONS[@]} ; ++i )); do
 
     export rttversion=${VERSIONS[$i]}
     export options=${OPTIONS[$i]}
 
+    echo -e "\nExtra environment setup:\n"
+
     # callback to append extra data to the cmake options.
     if [[ `fn_exists append_config_base` -gt 0 ]]; then
       extra=`append_config_base`
+      echo "  - CONFIG_EXTRA += ${extra}"
       export CONFIG_EXTRA="$extra $CONFIG_BASE"
+    else
+      export CONFIG_EXTRA="$CONFIG_BASE"
     fi
 
     source ${draco_script_dir}/${machfam}-release.sh

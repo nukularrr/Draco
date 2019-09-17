@@ -3,6 +3,7 @@
 # Cray (ATS-1) Environment setups
 #------------------------------------------------------------------------------#
 
+# verbose=true
 export KMP_AFFINITY=disabled
 export VENDOR_DIR=/usr/projects/draco/vendors
 export CRAYPE_LINK_TYPE=dynamic
@@ -16,7 +17,7 @@ fi
 
 # symlinks will be generated for each machine that point to the correct
 # installation directory.
-if [[ `df | grep yellow | grep -c jayenne` -gt 0 ]]; then
+if [[ `df | grep yellnfs2 | grep -c jayenne` -gt 0 ]]; then
   export siblings="trinitite"
 else
   export siblings="trinity"
@@ -34,7 +35,7 @@ case $avail_queues in
   *access*) access_queue="-A access --qos=access" ;;
   *dev*) access_queue="--qos=dev" ;;
 esac
-export avail_queues
+export access_queue
 
 #------------------------------------------------------------------------------#
 # Specify environments (modules)
@@ -91,7 +92,8 @@ case $ddir in
       if [[ ${CRAY_CPU_TARGET} == mic-knl ]]; then
         run "module swap craype-mic-knl craype-haswell"
       fi
-      run "module load user_contrib friendly-testing"
+      run "module load user_contrib"
+      run "module load friendly-testing"
       run "module unload cmake numdiff git"
       run "module unload gsl random123 eospac"
       run "module unload trilinos ndi"
@@ -258,7 +260,7 @@ case $ddir in
     ;;
 
   #------------------------------------------------------------------------------#
-  draco-7_0_0 | draco-7_1_0)
+  draco-7_0* | draco-7_1*)
     function intel1802env()
     {
       unset partition
@@ -396,140 +398,28 @@ case $ddir in
     }
     ;;
 
-    #------------------------------------------------------------------------------#
-    draco-6_25_0 )
-
-    function intel18env()
-    {
-      if [[ ${CRAY_CPU_TARGET} == mic-knl ]]; then
-        run "module swap craype-mic-knl craype-haswell"
-      fi
-      run "module load user_contrib friendly-testing"
-      run "module unload cmake numdiff git"
-      run "module unload gsl random123 eospac"
-      run "module unload trilinos ndi"
-      run "module unload superlu-dist metis parmetis"
-      run "module unload csk lapack"
-      run "module unload PrgEnv-intel PrgEnv-pgi PrgEnv-cray PrgEnv-gnu"
-      run "module unload lapack "
-      run "module unload intel gcc"
-      run "module unload papi perftools"
-      run "module load PrgEnv-intel"
-      run "module unload intel"
-      run "module unload xt-libsci xt-totalview"
-      run "module load intel/18.0.2"
-      run "module load cmake/3.12.1 numdiff git"
-      run "module load gsl random123 eospac/6.3.0 ndi"
-      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist"
-      run "module use --append ${VENDOR_DIR}-ec/modulefiles"
-      run "module load csk"
-      run "module list"
-      CC=`which cc`
-      CXX=`which CC`
-      FC=`which ftn`
-      export LD_LIBRARY_PATH=$CRAY_LD_LIBRARY_PATH:$LD_LIBRARY_PATH
-    }
-
-    function intel18env-knl()
-    {
-      if [[ ${CRAY_CPU_TARGET} == mic-knl ]]; then
-        run "module swap craype-mic-knl craype-haswell"
-      fi
-      run "module load user_contrib friendly-testing"
-      run "module unload cmake numdiff git"
-      run "module unload gsl random123 eospac"
-      run "module unload trilinos ndi"
-      run "module unload superlu-dist metis parmetis"
-      run "module unload csk lapack"
-      run "module unload PrgEnv-intel PrgEnv-pgi PrgEnv-cray PrgEnv-gnu"
-      run "module unload intel gcc"
-      run "module unload papi perftools"
-      run "module load PrgEnv-intel"
-      run "module unload intel"
-      run "module unload xt-libsci xt-totalview"
-      run "module load intel/18.0.2"
-      run "module load cmake/3.12.1 numdiff git"
-      run "module load gsl random123 eospac/6.3.0 ndi"
-      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist"
-      run "module use --append ${VENDOR_DIR}-ec/modulefiles"
-      run "module load csk"
-      run "module swap craype-haswell craype-mic-knl"
-      run "module list"
-      run "module list"
-      CC=`which cc`
-      CXX=`which CC`
-      FC=`which ftn`
-      export LD_LIBRARY_PATH=$CRAY_LD_LIBRARY_PATH:$LD_LIBRARY_PATH
-    }
-
-    function intel17env()
-    {
-      if [[ ${CRAY_CPU_TARGET} == mic-knl ]]; then
-        run "module swap craype-mic-knl craype-haswell"
-      fi
-      run "module load user_contrib friendly-testing"
-      run "module unload cmake numdiff git"
-      run "module unload gsl random123 eospac"
-      run "module unload trilinos ndi"
-      run "module unload superlu-dist metis parmetis"
-      run "module unload csk lapack"
-      run "module unload PrgEnv-intel PrgEnv-pgi PrgEnv-cray PrgEnv-gnu"
-      run "module unload lapack "
-      run "module unload intel gcc"
-      run "module unload papi perftools"
-      run "module load PrgEnv-intel"
-      run "module unload intel"
-      run "module unload xt-libsci xt-totalview"
-      run "module load intel/17.0.4"
-      run "module load cmake/3.12.1 numdiff git"
-      run "module load gsl random123 eospac/6.3.0 ndi"
-      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist"
-      run "module use --append ${VENDOR_DIR}-ec/modulefiles"
-      run "module load csk"
-      run "module list"
-      CC=`which cc`
-      CXX=`which CC`
-      FC=`which ftn`
-      export LD_LIBRARY_PATH=$CRAY_LD_LIBRARY_PATH:$LD_LIBRARY_PATH
-    }
-
-    function intel17env-knl()
-    {
-      if [[ ${CRAY_CPU_TARGET} == mic-knl ]]; then
-        run "module swap craype-mic-knl craype-haswell"
-      fi
-      run "module load user_contrib friendly-testing"
-      run "module unload cmake numdiff git"
-      run "module unload gsl random123 eospac"
-      run "module unload trilinos ndi"
-      run "module unload superlu-dist metis parmetis"
-      run "module unload csk lapack"
-      run "module unload PrgEnv-intel PrgEnv-pgi PrgEnv-cray PrgEnv-gnu"
-      run "module unload intel gcc"
-      run "module unload papi perftools"
-      run "module load PrgEnv-intel"
-      run "module unload intel"
-      run "module unload xt-libsci xt-totalview"
-      run "module load intel/17.0.4"
-      run "module load cmake/3.12.1 numdiff git"
-      run "module load gsl random123 eospac/6.3.0 ndi"
-      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist"
-      run "module use --append ${VENDOR_DIR}-ec/modulefiles"
-      run "module load csk"
-      run "module swap craype-haswell craype-mic-knl"
-      run "module list"
-      run "module list"
-      CC=`which cc`
-      CXX=`which CC`
-      FC=`which ftn`
-      export LD_LIBRARY_PATH=$CRAY_LD_LIBRARY_PATH:$LD_LIBRARY_PATH
-    }
+  *)
+    die "ats1-env.sh:: did not set any build environments, ddir = $ddir."
     ;;
 
 
   #------------------------------------------------------------------------------#
 esac
 
+#------------------------------------------------------------------------------#
+# Sanity check
+#------------------------------------------------------------------------------#
+
+for env in $environments; do
+  if [[ `fn_exists $env` -gt 0 ]]; then
+    if [[ $verbose ]]; then echo "export -f $env"; fi
+    # exporting these environment is required on CTS-1, but breaks the module
+    # system on trinitite.  Ugh.
+    # export -f $env
+  else
+    die "Requested environment $env is not defined."
+  fi
+done
 
 ##---------------------------------------------------------------------------##
 ## End

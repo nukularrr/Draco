@@ -15,11 +15,12 @@
 	  ATS-1              Intel 18.0.2    Cray_MPICH2-7.7.4
 	  (TT/TR)            Intel 17.0.4    Cray_MPICH2-7.7.4
 	  ---------------------------------------------------------------
-	  TH/CP              GCC 8.3.0       Cray_MPICH2-7.7.8
+	  LANL ARM           GCC 8.3.0       Cray_MPICH2-7.7.8
+	  TH/CP              CCE 9.0.1.80    Cray_MPICH2-7.7.8
 	  ---------------------------------------------------------------
-	  ATS-2              GCC 7.3.1       Spectrum MPI 2010.01-30
+	  ATS-2              GCC 7.3.1       Spectrum MPI 2019.01.30
 	                                     Cuda-9.2
-	                     XL 2019.04      Spectrum MPI 2010.01-30
+	                     XL 2019.04      Spectrum MPI 2019.01.30
                                              Cuda-9.2
 	  ---------------------------------------------------------------
           Darwin - Power9    GCC 7.3.0       OpenMPI-3.1.3, Cuda-10.1

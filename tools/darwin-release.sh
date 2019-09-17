@@ -8,7 +8,7 @@ fi
 # export dry_run=1
 export steps="config build test"
 echo -e "\nConfigure, Build and Test $buildflavor-$rttversion version of $package.\n"
-$script_dir/release.msub
+$draco_script_dir/release.msub
 
 ##---------------------------------------------------------------------------##
 ## End
