@@ -26,6 +26,14 @@ environments="gcc731env"
 # Extra cmake options
 export CONFIG_BASE+=" -DCMAKE_VERBOSE_MAKEFILE=ON"
 
+# job launch options
+case $siblings in
+  rzansel) job_launch_options="-q pdebug" ;;
+  sierra) job_launch_options="-q pbatch" ;;
+  *) die "*FATAL ERROR* (ats2-env.sh) I only know how to set job_launch_options for rzansel and sierra." ;;
+esac
+export job_launch_options
+
 # Special setup for ATS-1: replace the 'latest' symlink
 (cd /usr/gapps/jayenne; if [[ -L draco-latest ]]; then rm draco-latest; fi; ln -s $source_prefix draco-latest)
 
@@ -76,8 +84,26 @@ case $ddir in
     }
     ;;
 
+  *)
+    die "ats2-env.sh:: did not set any build environments, ddir = $ddir."
+    ;;
+
   #------------------------------------------------------------------------------#
 esac
+
+#------------------------------------------------------------------------------#
+# Sanity check
+#------------------------------------------------------------------------------#
+
+for env in $environments; do
+  if [[ `fn_exists $env` -gt 0 ]]; then
+    if [[ $verbose ]]; then echo "export -f $env"; fi
+    export -f $env
+  else
+    die "Requested environment $env is not defined."
+  fi
+done
+
 
 ##---------------------------------------------------------------------------##
 ## End

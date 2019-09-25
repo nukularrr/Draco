@@ -5,6 +5,7 @@
 
 export KMP_AFFINITY=disabled
 export VENDOR_DIR=/usr/projects/draco/vendors
+export CRAYPE_LINK_TYPE=dynamic
 
 # Sanity Check (Cray machines have very fragile module systems!)
 if [[ -d $ParMETIS_ROOT_DIR ]]; then
@@ -61,11 +62,11 @@ case $ddir in
       run "module load trilinos/12.14.1-gcc-8.3.0-mpt-7.7.8-openblas"
       run "module load cray-python/3.6.5.6 qt"
       run "module use --append ${VENDOR_DIR}-ec/modulefiles-capulin"
-      run "module load csk"
+      run "module load csk/0.4.2-gcc-8.3.0"
       run "module list"
-      CC=`which cc`
-      CXX=`which CC`
-      FC=`which ftn`
+      export CC=`which cc`
+      export CXX=`which CC`
+      export FC=`which ftn`
 #      export LD_LIBRARY_PATH=$CRAY_LD_LIBRARY_PATH:$LD_LIBRARY_PATH
     }
 
@@ -89,18 +90,35 @@ case $ddir in
       # run "module load superlu-dist/5.4.0-cce-9.0.1.80-mpt-7.7.8-openblas"
       run "module load cray-python/3.6.5.6 qt"
       run "module use --append ${VENDOR_DIR}-ec/modulefiles-capulin"
-      run "module load csk"
+      run "module load csk/0.4.2-cce-9.0.1.80"
       run "module list"
-      CC=`which cc`
-      CXX=`which CC`
-      FC=`which ftn`
+      export CC=`which cc`
+      export CXX=`which CC`
+      export FC=`which ftn`
 #      export LD_LIBRARY_PATH=$CRAY_LD_LIBRARY_PATH:$LD_LIBRARY_PATH
     }
 
     ;;
 
+  *)
+    die "cray-env.sh:: did not set any build environments, ddir = $ddir."
+    ;;
+
   #------------------------------------------------------------------------------#
 esac
+
+#------------------------------------------------------------------------------#
+# Sanity check
+#------------------------------------------------------------------------------#
+
+for env in $environments; do
+  if [[ `fn_exists $env` -gt 0 ]]; then
+    if [[ $verbose ]]; then echo "export -f $env"; fi
+    export -f $env
+  else
+    die "Requested environment $env is not defined."
+  fi
+done
 
 
 ##---------------------------------------------------------------------------##

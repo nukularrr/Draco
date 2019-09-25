@@ -508,7 +508,8 @@ function install_versions
   # source_dir="$source_prefix/source/$package"
   build_dir="$build_prefix/$rttversion/${package:0:1}"
 
-  # Purge any existing files before running cmake to configure the build directory.
+  # Purge any existing files before running cmake to configure the build
+  # directory.
   if test $config_step == 1; then
     if test -d ${build_dir}; then
       run "rm -rf ${build_dir}"
@@ -518,8 +519,7 @@ function install_versions
 
   run "cd $build_dir"
   if test $config_step == 1; then
-    run "cmake -DCMAKE_INSTALL_PREFIX=$install_dir \
-             $options $CONFIG_EXTRA $source_dir" \
+    run "cmake -DCMAKE_INSTALL_PREFIX=$install_dir $options $CONFIG_EXTRA $source_dir" \
       || die "Could not configure in $build_dir from source at $source_dir"
   fi
   if test $build_step == 1; then
@@ -547,8 +547,6 @@ function publish_release()
   echo " "
   echo "Waiting batch jobs to finish ..."
   echo "   Running jobs = $jobids"
-
-  establish_permissions
 
   case `osName` in
     toss* | cle* ) SHOWQ=squeue ;;
