@@ -53,9 +53,26 @@ case $ddir in
     }
     ;;
 
+  *)
+    die "darwin-arm-env.sh:: did not set any build environments, ddir = $ddir."
+    ;;
+
   #---------------------------------------------------------------------------#
 
 esac
+
+#------------------------------------------------------------------------------#
+# Sanity check
+#------------------------------------------------------------------------------#
+
+for env in $environments; do
+  if [[ `fn_exists $env` -gt 0 ]]; then
+    if [[ $verbose ]]; then echo "export -f $env"; fi
+    export -f $env
+  else
+    die "Requested environment $env is not defined."
+  fi
+done
 
 ##---------------------------------------------------------------------------##
 ## End

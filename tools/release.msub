@@ -29,6 +29,7 @@ if test $verbose == 1; then
   echo "test command = ctest -j $test_pe"
   echo "steps        = ${steps}"
   echo "queue        = $access_queue"
+  echo "cmake opts   = $CONFIG_EXTRA"
   echo
 fi
 
