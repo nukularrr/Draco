@@ -123,7 +123,7 @@ function dracoenv ()
 {
   if [[ ${CRAY_CPU_TARGET} =~ haswell ]] || [[ ${CRAY_CPU_TARGET} =~ knl ]]; then
     module unload gcc cray-libsci intel
-    module load intel/18.0.2
+    module load intel/19.0.4
   else
     module unload PrgEnv-cray gcc
     module load PrgEnv-gnu
