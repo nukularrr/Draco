@@ -241,18 +241,20 @@ std::map<std::string, unsigned> get_word_count(std::string const &filename,
 /*!
  * \brief Remove control characters from string that might produce color, etc.
  *
- * \param[in] colored_string A string with ANSI escape sequences that enable 
+ * \param[in] colored_string A string with ANSI escape sequences that enable
  *            color output (see DracoTerminal.hh)
  * \return A string w/o ANSI escape sequences.
  *
- * As mentioned at 
- * https://superuser.com/questions/380772/removing-ansi-color-codes-from-text-stream, 
- * another way to strip color is to pipe output through sed to remove the color 
+ * As mentioned at
+ * https://superuser.com/questions/380772/removing-ansi-color-codes-from-text-stream,
+ * another way to strip color is to pipe output through sed to remove the color
  * codes...
- * - sed 's/\x1b\[[0-9;]*m//g'           # Remove color sequences only
- * - sed 's/\x1b\[[0-9;]*[a-zA-Z]//g'    # Remove all escape sequences
- * - sed 's/\x1b\[[0-9;]*[mGKH]//g'      # Remove color and move sequences
- * - sed 's/\x1b\[[0-9;]*[mGKF]//g'      # Remove color and move sequences
+ * \code
+ * sed 's/\x1b\[[0-9;]*m//g'           # Remove color sequences only
+ * sed 's/\x1b\[[0-9;]*[a-zA-Z]//g'    # Remove all escape sequences
+ * sed 's/\x1b\[[0-9;]*[mGKH]//g'      # Remove color and move sequences
+ * sed 's/\x1b\[[0-9;]*[mGKF]//g'      # Remove color and move sequences
+ * \endcode
  */
 inline std::string remove_color(std::string const &colored_string) {
   std::regex color_regex("\033["
