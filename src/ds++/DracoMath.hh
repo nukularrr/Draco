@@ -215,9 +215,9 @@ inline Ordered_Group sign(Ordered_Group a, Ordered_Group b) {
  * \pre  x in (x1,x2), extrapolation is not allowed.
  * \post y in (y1,y2), extrapolation is not allowed.
  */
-inline double linear_interpolate(double const x1, double const x2,
-                                 double const y1, double const y2,
-                                 double const x) {
+constexpr inline double linear_interpolate(double const x1, double const x2,
+                                           double const y1, double const y2,
+                                           double const x) {
   Require(std::abs(x2 - x1) > std::numeric_limits<double>::epsilon());
   Require(((x >= x1) && (x <= x2)) || ((x >= x2) && (x <= x1)));
 
