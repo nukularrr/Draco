@@ -52,7 +52,7 @@ template <typename T>
 constexpr inline
     typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
     soft_equiv(const T &value, const T &reference,
-               const T precision = 1.0e-12) {
+               const T precision = static_cast<T>(1.0e-12)) {
   using std::fabs;
   bool passed = false;
 
@@ -62,7 +62,8 @@ constexpr inline
     passed = false;
 
   // second chance for passing if reference is within machine error of zero
-  if (!passed && (fabs(reference) < 1.0e-14))
+  T const ztol = static_cast<T>(1.0e-14);
+  if (!passed && (fabs(reference) < ztol))
     if (fabs(value) < precision)
       passed = true;
 
@@ -191,7 +192,9 @@ inline bool soft_equiv(
     Value_Iterator value, Value_Iterator value_end, Ref_Iterator ref,
     Ref_Iterator ref_end,
     typename std::iterator_traits<Value_Iterator>::value_type const precision =
-        1.0e-12) {
+        1.0e-12f
+
+) {
   typedef typename std::iterator_traits<Value_Iterator>::value_type FPT;
   return soft_equiv_deep<1, FPT>().equiv(value, value_end, ref, ref_end,
                                          precision);

@@ -17,7 +17,7 @@
 //---------------------------------------------------------------------------//
 
 void tstabs(rtt_dsxx::UnitTest &ut) {
-  using rtt_dsxx::abs;
+  using std::abs;
 
   if (rtt_dsxx::soft_equiv(abs(-2.2), abs(2.2)))
     PASSMSG("Correctly calculated abs(double)");

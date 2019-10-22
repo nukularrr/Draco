@@ -203,9 +203,10 @@ public:
    * \param length Length of the constructed Slice.
    * \param stride Stride to apply to the sequence.
    */
-  Slice(Ran const first, unsigned const length, unsigned const stride = 1)
-      : first(first), length(length), stride(stride) {
-    Require(stride > 0);
+  Slice(Ran const first_in, unsigned const length_in,
+        unsigned const stride_in = 1)
+      : first(first_in), length(length_in), stride(stride_in) {
+    Require(stride_in > 0);
   }
 
   // MANIPULATORS
