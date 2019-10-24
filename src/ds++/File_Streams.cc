@@ -153,11 +153,10 @@ void File_Input::open(const std::string &filename) {
 
   // Check if the binary header is present.
 
-  for (string::const_iterator s = BINARY_FILE_HEADER.begin();
-       s != BINARY_FILE_HEADER.end(); ++s) {
-    char c;
+  for (char s : BINARY_FILE_HEADER) {
+    char c('x');
     d_stream >> c;
-    if (c != *s || (!d_stream.good())) {
+    if (c != s || (!d_stream.good())) {
       d_binary = false;
       break;
     }

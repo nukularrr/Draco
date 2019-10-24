@@ -22,7 +22,7 @@ namespace rtt_dsxx {
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor for UnitTest object.
- * 
+ *
  * \param argv A list of command line arguments.
  * \param release_ A function pointer to the local package's release() function.
  * \param out_ A user selectable output stream.  By default this is std::cout.
@@ -42,7 +42,7 @@ UnitTest::UnitTest(int & /* argc */, char **&argv, string_fp_void release_,
           rtt_dsxx::FC_PATH)),
       release(release_), out(out_), m_dbcRequire(false), m_dbcCheck(false),
       m_dbcEnsure(false), m_dbcNothrow(false), verbose(verbose_) {
-  Require(release != NULL);
+  Require(release != nullptr);
   Ensure(numPasses == 0);
   Ensure(numFails == 0);
   Ensure(testName.length() > 0);
