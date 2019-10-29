@@ -42,10 +42,10 @@ std::string assertion::build_message(std::string const &cond,
 
 //----------------------------------------------------------------------------//
 /*
- * Leave this definition in the .cc file!  It needs to be saved to the dsxx 
+ * Leave this definition in the .cc file!  It needs to be saved to the dsxx
  * library.
  */
-assertion::~assertion() throw() { /* empty */
+assertion::~assertion() noexcept { /* empty */ // NOLINT
 }
 
 //============================================================================//

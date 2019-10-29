@@ -34,7 +34,7 @@ std::string print_devs(size_t const maxlinelen, std::string const &line_name,
   // temporary storage
   std::ostringstream msg;
 
-  for (mmdevs::const_iterator it = devs.begin(); it != devs.end();) {
+  for (auto it = devs.begin(); it != devs.end();) {
     std::string const name = it->second;
     if (current_line.length() + name.length() + 2 > maxlinelen) {
       // flush current line to the real output
