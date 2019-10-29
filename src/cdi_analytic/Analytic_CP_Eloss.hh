@@ -40,10 +40,10 @@ private:
   SP_Analytic_Model analytic_model;
 
   // Particle type being transported.
-  rtt_cdi::CParticleType particle;
+  int32_t projectile_zaid;
 
   // Target species.
-  rtt_cdi::CParticleType target;
+  int32_t target_zaid;
 
   // Data model (e.g. Eloss, large-angle scatter, etc.)
   // Currently only ELOSS is implemented.
@@ -51,9 +51,8 @@ private:
 
 public:
   // Constructor.
-  Analytic_CP_Eloss(SP_Analytic_Model model_in,
-                    rtt_cdi::CParticleType target_in,
-                    rtt_cdi::CParticleType particle_in);
+  Analytic_CP_Eloss(SP_Analytic_Model model_in, int32_t target_zaid_in,
+                    int32_t projectile_zaid_in);
 
   // >>> ACCESSORS
   const_SP_Model get_Analytic_Model() const { return analytic_model; }
@@ -61,27 +60,20 @@ public:
   // >>> INTERFACE SPECIFIED BY rtt_cdi::CPEloss
 
   // Get an eloss.
-  double getEloss(double, double, double) const;
-
-  // Get an eloss field given a field of temperatures.
-  sf_double getEloss(const sf_double &, double, double) const;
-
-  // Get an eloss field given a field of densities.
-  sf_double getEloss(double, const sf_double &, double) const;
+  double getEloss(const double temperature, const double density,
+                  const double v0) const;
 
   //! Query to see if data is in tabular or functional form (false).
   bool data_in_tabular_form() const { return false; }
 
-  //! Query to get the target species type.
-  rtt_cdi::CParticleType getTargetType() const { return target; }
+  //! Query to determine the target species type.
+  int32_t getTargetZAID() const { return target_zaid; }
 
-  //! Query for transport particle type.
-  rtt_cdi::CParticleType getParticleType() const { return particle; }
+  //! Query to determine the transporting particle type.
+  int32_t getProjectileZAID() const { return projectile_zaid; }
 
-  rtt_cdi::CPModel getModel() const { return rtt_cdi::ELOSS; }
-
-  // Return the energy policy (gray).
-  inline std_string getEnergyPolicyDescriptor() const;
+  //! Return the model (energy loss)
+  rtt_cdi::CPModel getModel() const { return rtt_cdi::CPModel::ELOSS; }
 
   // Get the name of the associated data file.
   inline std_string getDataFilename() const;
@@ -92,39 +84,36 @@ public:
   //! Get the density grid (size 0 for function-based analytic data).
   sf_double getDensityGrid() const { return sf_double(0); }
 
+  //! Get the density grid (size 0 for function-based analytic data).
+  sf_double getEnergyGrid() const { return sf_double(0); }
+
   //! Get the size of the temperature grid (size 0).
   size_t getNumTemperatures() const { return 0; }
 
   //! Get the size of the density grid (size 0).
   size_t getNumDensities() const { return 0; }
 
+  //! Get the size of the density grid (size 0).
+  size_t getNumEnergies() const { return 0; }
+
   /*!
-     * \brief Returns the general eloss model type
-     *
-     * Since this is an analytic model, return 1 (rtt_cdi::ANALYTIC_ETYPE)
-     */
-  rtt_cdi::CPModelType getModelType() const { return rtt_cdi::ANALYTIC_ETYPE; }
+   * \brief Returns the general eloss model type
+   *
+   * Since this is an analytic model, return 1 (rtt_cdi::ANALYTIC_ETYPE)
+   */
+  rtt_cdi::CPModelType getModelType() const {
+    return rtt_cdi::CPModelType::ANALYTIC_ETYPE;
+  }
 };
 
 //---------------------------------------------------------------------------//
 // INLINE FUNCTIONS
 //---------------------------------------------------------------------------//
-/*!
- * \brief Return the energy policy descriptor (gray for
- * Analytic_CP_Eloss).
- */
-Analytic_CP_Eloss::std_string
-Analytic_CP_Eloss::getEnergyPolicyDescriptor() const {
-  return std_string("gray");
-}
-
 //---------------------------------------------------------------------------//
 /*!
- * \brief Return NULL string for the data filename.
+ * \brief Return null string for the data filename.
  */
-Analytic_CP_Eloss::std_string Analytic_CP_Eloss::getDataFilename() const {
-  return std_string();
-}
+std::string Analytic_CP_Eloss::getDataFilename() const { return std_string(); }
 
 } // namespace rtt_cdi_analytic
 

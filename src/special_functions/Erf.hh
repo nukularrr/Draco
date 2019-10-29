@@ -15,12 +15,12 @@
 
 namespace rtt_sf {
 //! Calculate approximate error function at x
-DLL_PUBLIC_special_functions double Erf(double x);
+double Erf(double x);
 
 } // end namespace rtt_sf
 
-#endif // sf_F12_hh
+#endif // sf_Erf_hh
 
 //---------------------------------------------------------------------------//
-// end of sf/F12.hh
+// end of special_functions/Erf.hh
 //---------------------------------------------------------------------------//

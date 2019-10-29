@@ -21,6 +21,7 @@
 #include "ds++/Soft_Equivalence.hh"
 #include <algorithm>
 #include <limits>
+#include <map>
 #include <memory>
 
 //---------------------------------------------------------------------------//
@@ -476,9 +477,11 @@ class CDI {
   typedef std::vector<SP_OdfmgOpacity> SF_OdfmgOpacity;
   typedef std::vector<SF_OdfmgOpacity> VF_OdfmgOpacity;
   typedef std::vector<SP_CPEloss> SF_CPEloss;
-  typedef std::vector<SF_CPEloss> VF_CPEloss;
-  typedef std::vector<VF_CPEloss> VVF_CPEloss;
   typedef std::string std_string;
+  // Typedefs for CPT mapping:
+  typedef const std::pair<int32_t, int32_t> pt_zaid_pair;
+  typedef std::map<pt_zaid_pair, size_t> index_pt_map;
+  typedef index_pt_map::const_iterator map_it;
 
   // DATA
 
@@ -507,9 +510,10 @@ class CDI {
   //! Array that stores the list of possible OdfmgOpacity types.
   VF_OdfmgOpacity odfmgOpacities;
 
-  //! 3D Array that stores the list of possible CP ELoss types.
-  VVF_CPEloss CPElosses;
-
+  //! Array that stores CP Eloss types.
+  SF_CPEloss CPElosses;
+  //! Map vector index -> particle/target pair
+  index_pt_map CPEloss_map;
   /*!
    * \brief Frequency group boundaries for multigroup data.
    *
@@ -606,8 +610,8 @@ public:
   SP_GrayOpacity gray(rtt_cdi::Model m, rtt_cdi::Reaction r) const;
   SP_MultigroupOpacity mg(rtt_cdi::Model m, rtt_cdi::Reaction r) const;
   SP_OdfmgOpacity odfmg(rtt_cdi::Model m, rtt_cdi::Reaction r) const;
-  SP_CPEloss eloss(rtt_cdi::CPModel m, rtt_cdi::CParticleType part,
-                   rtt_cdi::CParticleType targ) const;
+  SP_CPEloss eloss(rtt_cdi::CPModel m, int32_t proj_zaid,
+                   int32_t targ_zaid) const;
   SP_EoS eos(void) const;
   SP_EICoupling ei_coupling(void) const;
 
@@ -668,14 +672,10 @@ public:
   //! Return material ID string.
   const std_string &getMatID() const { return matID; }
 
-  //! Get the rest mass of a particular (supported) charged particle
-  static double getCPMass(rtt_cdi::CParticleType part);
-
   bool isGrayOpacitySet(rtt_cdi::Model, rtt_cdi::Reaction) const;
   bool isMultigroupOpacitySet(rtt_cdi::Model, rtt_cdi::Reaction) const;
   bool isOdfmgOpacitySet(rtt_cdi::Model, rtt_cdi::Reaction) const;
-  bool isCPElossSet(rtt_cdi::CPModel, rtt_cdi::CParticleType,
-                    rtt_cdi::CParticleType) const;
+  bool isCPElossSet(rtt_cdi::CPModel, int32_t pz, int32_t tz) const;
   bool isEoSSet() const;
   bool isEICouplingSet() const;
 

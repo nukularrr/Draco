@@ -690,10 +690,8 @@ public:
   }
 
   //! Interface for derived analytic eloss models.
-  virtual double calculate_eloss(double T, double rho, double v0) const = 0;
-
-  //! Return parameters.
-  virtual sf_double get_parameters() const = 0;
+  virtual double calculate_eloss(const double T, const double rho,
+                                 const double v0) const = 0;
 };
 
 //---------------------------------------------------------------------------//
@@ -720,10 +718,8 @@ public:
 
   //! Calculate the eloss rate in units of shk^-1;
   //! T given in keV, rho in g/cc, v0 in cm/shk
-  double calculate_eloss(double T, double rho, double v0) const;
-
-  //! Return the model parameters (none).
-  sf_double get_parameters() const { return sf_double(); }
+  double calculate_eloss(const double T, const double rho,
+                         const double v0) const;
 };
 
 } // end namespace rtt_cdi_analytic

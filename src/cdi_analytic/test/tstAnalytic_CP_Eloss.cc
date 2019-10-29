@@ -28,18 +28,20 @@ using rtt_cdi_analytic::Analytic_Eloss_Model;
 
 void KP_alpha_test(rtt_dsxx::UnitTest &ut) {
 
-  rtt_cdi::CParticleType target_in = rtt_cdi::DEUTERIUM;
-  rtt_cdi::CParticleType particle_in = rtt_cdi::ALPHA;
+  // Deuterium:
+  int32_t target_in = 1002;
+  // Alpha particle:
+  int32_t projectile_in = 2004;
 
   std::shared_ptr<Analytic_Eloss_Model> model_in(
       new rtt_cdi_analytic::Analytic_KP_Alpha_Eloss_Model());
 
-  Analytic_CP_Eloss eloss_mod(model_in, target_in, particle_in);
+  Analytic_CP_Eloss eloss_mod(model_in, target_in, projectile_in);
 
   // Check that accessors return the correct data:
-  if (target_in != eloss_mod.getTargetType())
+  if (target_in != eloss_mod.getTargetZAID())
     ITFAILS;
-  if (particle_in != eloss_mod.getParticleType())
+  if (projectile_in != eloss_mod.getProjectileZAID())
     ITFAILS;
 
   // Get eloss values for some sample data:
@@ -76,64 +78,6 @@ void KP_alpha_test(rtt_dsxx::UnitTest &ut) {
     double eloss_coeff = eloss_mod.getEloss(T, rho, vel0);
 
     if (!rtt_dsxx::soft_equiv(eloss_coeff, 1.0e25))
-      ITFAILS;
-  }
-
-  // Take a temperature stripe along a constant-density line, and be sure trend
-  // is what you expect (Loose check on correct shape)
-  {
-    std::vector<double> Ts{18.0, 19.0, 20.0, 22.0, 24.0, 26.0, 28.0, 30.0};
-    double rho = 15.0;
-    double vel0 = 1.0;
-
-    std::vector<double> eloss_coeffs = eloss_mod.getEloss(Ts, rho, vel0);
-
-    if (!rtt_dsxx::is_strict_monotonic_increasing(eloss_coeffs.begin(),
-                                                  eloss_coeffs.end()))
-      ITFAILS;
-  }
-
-  // Take a temperature stripe along a constant-density line, and be sure trend
-  // is what you expect (Loose check on correct shape)
-  {
-    std::vector<double> Ts{0.0, 1.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0};
-    double rho = 15.0;
-    double vel0 = 1.0;
-
-    std::vector<double> eloss_coeffs = eloss_mod.getEloss(Ts, rho, vel0);
-
-    if (!rtt_dsxx::is_strict_monotonic_decreasing(eloss_coeffs.begin(),
-                                                  eloss_coeffs.end()))
-      ITFAILS;
-  }
-
-  // Take a density stripe along a constant-temperature line, and be sure trend
-  // is what you expect (Loose check on correct shape)
-  {
-    std::vector<double> rhos{0.0, 1.0, 2.0, 3.0, 4.0, 8.0, 12.0, 16.0};
-    double T = 15.0;
-    double vel0 = 1.0;
-
-    std::vector<double> eloss_coeffs = eloss_mod.getEloss(T, rhos, vel0);
-
-    if (!rtt_dsxx::is_strict_monotonic_increasing(eloss_coeffs.begin(),
-                                                  eloss_coeffs.end()))
-      ITFAILS;
-  }
-
-  // Check that speed only operates as a scalar on the range
-  {
-    double rho = 1.0;
-    double T = 15.0;
-    double vel0_1 = 1.0;
-    double vel0_4 = 4.0;
-
-    double eloss_coeff_1 = eloss_mod.getEloss(T, rho, vel0_1);
-    double eloss_coeff_4 = eloss_mod.getEloss(T, rho, vel0_4);
-
-    // Because the eloss scales linearly with particle speed, we
-    // expect the coefficient ratio to be exactly 4.0.
-    if (!rtt_dsxx::soft_equiv(eloss_coeff_4 / eloss_coeff_1, 4.0))
       ITFAILS;
   }
 

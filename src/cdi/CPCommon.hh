@@ -11,34 +11,36 @@
 #ifndef __cdi_CPCommon_hh__
 #define __cdi_CPCommon_hh__
 
+#include <cstdint>
+
 namespace rtt_cdi {
 
 namespace constants {
 //! Number of models contained in rtt_cdi::CPModel.
-unsigned int const num_CPModels(2);
-
-//! Number of charged particle types in ParticleType above.
-unsigned int const num_CPs(6);
+unsigned int const num_CPModels(3);
 } // namespace constants
 
-enum CPModel {
+enum class CPModel {
   ELOSS = 0,        /*!< energy loss model */
   LA_SCATTERING = 1 /*!< large-angle scattering model */
 };
 
-enum CPModelType {
+enum class CPModelType {
   UNASSIGNED_ETYPE =
       0, /*!< unassigned type; used as a placeholder before deciding type */
   ANALYTIC_ETYPE = 1, /*!< an Analytic eloss model */
+  TABULAR_ETYPE = 2   /*!< an Analytic eloss model */
 };
 
-enum CParticleType {
-  UNKNOWN_PART = 0, /*!< unknown particle :-O */
-  ELECTRON = 1,     /*!< rest are pretty self-explanatory... */
-  HYDROGEN = 2,
-  DEUTERIUM = 3,
-  TRITIUM = 4,
-  ALPHA = 5
+// Basic data required to describe a charged particle
+class CParticle {
+private:
+  int32_t zaid;
+  double mass;
+
+public:
+  int32_t get_zaid() const { return zaid; }
+  double get_mass() const { return mass; }
 };
 
 } // namespace rtt_cdi
