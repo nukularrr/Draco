@@ -192,10 +192,8 @@ inline bool soft_equiv(
     Value_Iterator value, Value_Iterator value_end, Ref_Iterator ref,
     Ref_Iterator ref_end,
     typename std::iterator_traits<Value_Iterator>::value_type const precision =
-        1.0e-12f
-
-) {
-  typedef typename std::iterator_traits<Value_Iterator>::value_type FPT;
+        1.0e-12) {
+  using FPT = typename std::iterator_traits<Value_Iterator>::value_type;
   return soft_equiv_deep<1, FPT>().equiv(value, value_end, ref, ref_end,
                                          precision);
 }
