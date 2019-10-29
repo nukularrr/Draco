@@ -162,7 +162,7 @@ public:
 
   /*! \brief Destructor for ds++/assertion class.
    * We do not allow the destructor to throw! */
-  virtual ~assertion() noexcept;
+  ~assertion() noexcept override;
 
   /*! Helper function to build error message that includes source file name and
    *  line number. */

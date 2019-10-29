@@ -34,7 +34,7 @@ namespace rtt_dsxx {
  * \param binary   If true, use binary mode for writing.
  */
 File_Output::File_Output(std::string const &filename, bool const binary)
-    : d_stream(), d_last_was_char(false), d_binary(binary)
+    : d_stream(), d_binary(binary)
 
 {
   if (!filename.empty())
@@ -119,7 +119,7 @@ File_Output &File_Output::operator<<(const char c) {
  *                 be used later to open a file.
  */
 File_Input::File_Input(std::string const &filename)
-    : d_stream(), d_line(std::string()), d_char_line(-1), d_binary(false) {
+    : d_stream(), d_line(std::string()) {
   if (!filename.empty())
     open(filename);
 }

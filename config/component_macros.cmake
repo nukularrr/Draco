@@ -55,7 +55,7 @@ function( dbs_std_tgt_props target )
   # Helper for clang-tidy that points to very old gcc STL files.  We need STL
   # files from clang.
   get_target_property( tgt_sources ${target} SOURCES )
-  if( ${DRACO_STATIC_ANALYZER} MATCHES "clang-tidy" )
+  if( "${DRACO_STATIC_ANALYZER}" MATCHES "clang-tidy" )
     set_source_files_properties( ${tgt_sources} PROPERTIES INCLUDE_DIRECTORIES
       ${CLANG_TIDY_IPATH} )
   endif()
@@ -354,7 +354,7 @@ macro( add_component_library )
   # Add headers to Visual Studio or Xcode solutions
   #
   if( acl_HEADERS )
-    if( MSVC_IDE OR ${CMAKE_GENERATOR} MATCHES Xcode )
+    if( MSVC_IDE OR "${CMAKE_GENERATOR}" MATCHES Xcode )
       list( APPEND acl_SOURCES ${acl_HEADERS} )
     endif()
   endif()
@@ -362,13 +362,6 @@ macro( add_component_library )
   # if a library type was not specified use the default Draco setting
   if(NOT acl_LIBRARY_TYPE)
     set( acl_LIBRARY_TYPE ${DRACO_LIBRARY_TYPE})
-  endif()
-
-  # Helper for clang-tidy that points to very old gcc STL files.  We need STL
-  # files from clang.
-  if( "${DRACO_STATIC_ANALYZER}" STREQUAL "clang-tidy" AND DEFINED CT_IPATH)
-    set_source_files_properties( ${acl_SOURCES} PROPERTIES INCLUDE_DIRECTORIES
-      ${CT_IPATH} )
   endif()
 
   #

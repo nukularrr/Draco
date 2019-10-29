@@ -434,8 +434,8 @@ void std_string_test(rtt_dsxx::UnitTest &ut) {
     packer << static_cast<int>(hw.size());
 
     // pack it
-    for (auto it = hw.begin(); it != hw.end(); it++)
-      packer << *it;
+    for (char &it : hw)
+      packer << it;
 
     if (packer.get_ptr() != &pack_string[0] + pack_string.size())
       ITFAILS;
