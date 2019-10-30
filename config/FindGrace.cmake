@@ -89,9 +89,6 @@ if( EXISTS ${Gracebat_EXECUTABLE} )
     ERROR_VARIABLE gracebat_ver_err
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_STRIP_TRAILING_WHITESPACE )
-  message("
- gracebat_ver_out = ${gracebat_ver_out}${gracebat_ver_err}
-")
   if( "${gracebat_ver_out}${gracebat_ver_err}" MATCHES "Broken" )
     set( Gracebat_EXECUTABLE "NOTFOUND" CACHE STRING "working gracebat found?"
       FORCE)
