@@ -29,7 +29,7 @@ enum class CPModelType {
   UNASSIGNED_ETYPE =
       0, /*!< unassigned type; used as a placeholder before deciding type */
   ANALYTIC_ETYPE = 1, /*!< an Analytic eloss model */
-  TABULAR_ETYPE = 2   /*!< an Analytic eloss model */
+  TABULAR_ETYPE = 2   /*!< a Tabular eloss model */
 };
 
 // Basic data required to describe a charged particle
@@ -41,6 +41,9 @@ private:
 public:
   int32_t get_zaid() const { return zaid; }
   double get_mass() const { return mass; }
+
+  CParticle(const int32_t zaid_in, const double mass_in)
+      : zaid(zaid_in), mass(mass_in) {}
 };
 
 } // namespace rtt_cdi
