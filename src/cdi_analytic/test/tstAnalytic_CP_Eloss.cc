@@ -38,11 +38,26 @@ void KP_alpha_test(rtt_dsxx::UnitTest &ut) {
 
   Analytic_CP_Eloss eloss_mod(model_in, target_in, projectile_in);
 
-  // Check that accessors return the correct data:
-  if (target_in != eloss_mod.getTargetZAID())
-    ITFAILS;
-  if (projectile_in != eloss_mod.getProjectileZAID())
-    ITFAILS;
+  // Check that basic accessors return correct result:
+  // Model type better be analytic:
+  FAIL_IF_NOT(eloss_mod.getModelType() == rtt_cdi::CPModelType::ANALYTIC_ETYPE);
+  FAIL_IF_NOT(eloss_mod.getModel() == rtt_cdi::CPModel::ELOSS);
+
+  // NOT tabular data
+  FAIL_IF(eloss_mod.data_in_tabular_form());
+
+  // All sizes should be 0 (again, not tabular data)
+  FAIL_IF_NOT(eloss_mod.getTemperatureGrid().size() ==
+              eloss_mod.getNumTemperatures());
+  FAIL_IF_NOT(eloss_mod.getDensityGrid().size() == eloss_mod.getNumDensities());
+  FAIL_IF_NOT(eloss_mod.getEnergyGrid().size() == eloss_mod.getNumEnergies());
+
+  // Data file name should be an empty string:
+  FAIL_IF_NOT(eloss_mod.getDataFilename().empty());
+
+  // Check that accessors return the correct target and projectile:
+  FAIL_IF_NOT(target_in == eloss_mod.getTargetZAID());
+  FAIL_IF_NOT(projectile_in == eloss_mod.getProjectileZAID());
 
   // Get eloss values for some sample data:
   {
@@ -52,8 +67,7 @@ void KP_alpha_test(rtt_dsxx::UnitTest &ut) {
 
     double eloss_coeff = eloss_mod.getEloss(T, rho, vel0);
 
-    if (!rtt_dsxx::soft_equiv(eloss_coeff, 212.287, 1.0e-3))
-      ITFAILS;
+    FAIL_IF_NOT(rtt_dsxx::soft_equiv(eloss_coeff, 212.287, 1.0e-3));
   }
 
   // Point near the maximum on rho in [0, 20] g/cc, T in [0, 100] keV:
@@ -64,8 +78,7 @@ void KP_alpha_test(rtt_dsxx::UnitTest &ut) {
 
     double eloss_coeff = eloss_mod.getEloss(T, rho, vel0);
 
-    if (!rtt_dsxx::soft_equiv(eloss_coeff, 78.5845, 1.0e-4))
-      ITFAILS;
+    FAIL_IF_NOT(rtt_dsxx::soft_equiv(eloss_coeff, 78.5845, 1.0e-4));
   }
 
   // Point where the range fit goes negative -- eloss should return 1.0e25:
@@ -77,8 +90,7 @@ void KP_alpha_test(rtt_dsxx::UnitTest &ut) {
 
     double eloss_coeff = eloss_mod.getEloss(T, rho, vel0);
 
-    if (!rtt_dsxx::soft_equiv(eloss_coeff, 1.0e25))
-      ITFAILS;
+    FAIL_IF_NOT(rtt_dsxx::soft_equiv(eloss_coeff, 1.0e25));
   }
 
   if (ut.numFails == 0)
