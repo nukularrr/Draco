@@ -52,6 +52,14 @@ function( dbs_std_tgt_props target )
     set_target_properties( ${target} PROPERTIES ${Draco_std_target_props} )
   endforeach()
 
+  # Helper for clang-tidy that points to very old gcc STL files.  We need STL
+  # files from clang.
+  get_target_property( tgt_sources ${target} SOURCES )
+  if( "${DRACO_STATIC_ANALYZER}" MATCHES "clang-tidy" )
+    set_source_files_properties( ${tgt_sources} PROPERTIES INCLUDE_DIRECTORIES
+      ${CLANG_TIDY_IPATH} )
+  endif()
+
 endfunction()
 
 #------------------------------------------------------------------------------
@@ -95,6 +103,10 @@ endfunction()
 #   SOURCES      "${PROJECT_SOURCE_DIR}/draco_info_main.cc"
 #   FOLDER       diagnostics
 #   )
+#
+# Note: directories listed as VENDOR_INCLUDE_DIRS will be exported in the
+#       INTERFACE_INCLUDE_DIRECTORIES target property.
+#
 #------------------------------------------------------------------------------
 macro( add_component_executable )
 
@@ -180,8 +192,9 @@ or the target must be labeled NOEXPORT.")
   if( DEFINED ace_VENDOR_LIBS )
     target_link_libraries( ${ace_TARGET} ${ace_VENDOR_LIBS} )
   endif()
-  if( DEFINED ace_VENDOR_INCLUDE_DIRS )
-    include_directories( ${ace_VENDOR_INCLUDE_DIRS} )
+  if( ace_VENDOR_INCLUDE_DIRS )
+    set_property(TARGET ${ace_TARGET} APPEND PROPERTY
+      INTERFACE_INCLUDE_DIRECTORIES "${ace_VENDOR_INCLUDE_DIRS}")
   endif()
 
   #
@@ -212,21 +225,20 @@ or the target must be labeled NOEXPORT.")
   endif()
 
   # For non-test libraries, save properties to the project-config.cmake file
-  if( "${ilil}x" STREQUAL "x" )
-    set( ${ace_PREFIX}_EXPORT_TARGET_PROPERTIES
-      "${${ace_PREFIX}_EXPORT_TARGET_PROPERTIES}
-    set_target_properties(${ace_TARGET} PROPERTIES
-      IMPORTED_LINK_INTERFACE_LANGUAGES \"${ace_LINK_LANGUAGE}\"
-      INTERFACE_INCLUDE_DIRECTORIES     \"${CMAKE_INSTALL_PREFIX}/${DBSCFGDIR}include\" )
-    ")
+  get_target_property( iid ${ace_TARGET} INTERFACE_INCLUDE_DIRECTORIES )
+  if( iid )
+    list(APPEND iid "${CMAKE_INSTALL_PREFIX}/${DBSCFGDIR}include" )
   else()
-    set( ${ace_PREFIX}_EXPORT_TARGET_PROPERTIES
-      "${${ace_PREFIX}_EXPORT_TARGET_PROPERTIES}
-    set_target_properties(${ace_TARGET} PROPERTIES
-      IMPORTED_LINK_INTERFACE_LANGUAGES \"${ace_LINK_LANGUAGE}\"
-      INTERFACE_INCLUDE_DIRECTORIES     \"${CMAKE_INSTALL_PREFIX}/${DBSCFGDIR}include\" )
-  ")
+    set( iid "${CMAKE_INSTALL_PREFIX}/${DBSCFGDIR}include" )
   endif()
+  list(REMOVE_DUPLICATES iid)
+  set( ${ace_PREFIX}_EXPORT_TARGET_PROPERTIES
+    "${${ace_PREFIX}_EXPORT_TARGET_PROPERTIES}
+  set_target_properties(${ace_TARGET} PROPERTIES
+    IMPORTED_LINK_INTERFACE_LANGUAGES \"${ace_LINK_LANGUAGE}\"
+    INTERFACE_INCLUDE_DIRECTORIES     \"${iid}\" )
+  ")
+  unset(iid)
 
   # Only publish information to draco-config.cmake for non-test
   # libraries.  Also, omit any libraries that are marked as NOEXPORT
@@ -266,7 +278,7 @@ or the target must be labeled NOEXPORT.")
   # If Win32, copy dll files into binary directory.
   copy_dll_link_libraries_to_build_dir( ${ace_TARGET} )
 
-endmacro( add_component_executable )
+endmacro()
 
 #------------------------------------------------------------------------------
 # replacement for built in command 'add_library'
@@ -308,6 +320,9 @@ endmacro( add_component_executable )
 #   SOURCES      "${sources}"
 #   )
 #
+# Note: directories listed as VENDOR_INCLUDE_DIRS will be exported in the
+#       INTERFACE_INCLUDE_DIRECTORIES target property.
+#
 # Note: you must use quotes around ${list_of_sources} to preserve the list.
 #------------------------------------------------------------------------------
 macro( add_component_library )
@@ -339,7 +354,7 @@ macro( add_component_library )
   # Add headers to Visual Studio or Xcode solutions
   #
   if( acl_HEADERS )
-    if( MSVC_IDE OR ${CMAKE_GENERATOR} MATCHES Xcode )
+    if( MSVC_IDE OR "${CMAKE_GENERATOR}" MATCHES Xcode )
       list( APPEND acl_SOURCES ${acl_HEADERS} )
     endif()
   endif()
@@ -378,8 +393,9 @@ macro( add_component_library )
   if( NOT "${acl_VENDOR_LIBS}x" STREQUAL "x" )
     target_link_libraries( ${acl_TARGET} ${acl_VENDOR_LIBS} )
   endif()
-  if( NOT "${acl_VENDOR_INCLUDE_DIRS}x" STREQUAL "x" )
-    include_directories( ${acl_VENDOR_INCLUDE_DIRS} )
+  if( acl_VENDOR_INCLUDE_DIRS )
+    set_property(TARGET ${acl_TARGET} APPEND PROPERTY
+      INTERFACE_INCLUDE_DIRECTORIES "${acl_VENDOR_INCLUDE_DIRS}")
   endif()
 
   #
@@ -414,22 +430,20 @@ macro( add_component_library )
   endif()
 
   # For non-test libraries, save properties to the project-config.cmake file
-  if( "${ilil}x" STREQUAL "x" )
-    set( ${acl_PREFIX}_EXPORT_TARGET_PROPERTIES
-      "${${acl_PREFIX}_EXPORT_TARGET_PROPERTIES}
-    set_target_properties(${acl_TARGET} PROPERTIES
-      IMPORTED_LINK_INTERFACE_LANGUAGES \"${acl_LINK_LANGUAGE}\"
-      INTERFACE_INCLUDE_DIRECTORIES     \"${CMAKE_INSTALL_PREFIX}/${DBSCFGDIR}include\" )
-    ")
+  get_target_property( iid ${acl_TARGET} INTERFACE_INCLUDE_DIRECTORIES )
+  if( iid )
+    list(APPEND iid "${CMAKE_INSTALL_PREFIX}/${DBSCFGDIR}include" )
   else()
-#      IMPORTED_LINK_INTERFACE_LIBRARIES \"${ilil}\"
-    set( ${acl_PREFIX}_EXPORT_TARGET_PROPERTIES
-      "${${acl_PREFIX}_EXPORT_TARGET_PROPERTIES}
-    set_target_properties(${acl_TARGET} PROPERTIES
-      IMPORTED_LINK_INTERFACE_LANGUAGES \"${acl_LINK_LANGUAGE}\"
-      INTERFACE_INCLUDE_DIRECTORIES     \"${CMAKE_INSTALL_PREFIX}/${DBSCFGDIR}include\" )
-  ")
+    set( iid "${CMAKE_INSTALL_PREFIX}/${DBSCFGDIR}include" )
   endif()
+  list(REMOVE_DUPLICATES iid)
+  set( ${acl_PREFIX}_EXPORT_TARGET_PROPERTIES
+    "${${acl_PREFIX}_EXPORT_TARGET_PROPERTIES}
+  set_target_properties(${acl_TARGET} PROPERTIES
+    IMPORTED_LINK_INTERFACE_LANGUAGES \"${acl_LINK_LANGUAGE}\"
+    INTERFACE_INCLUDE_DIRECTORIES     \"${iid}\" )
+  ")
+  unset(iid)
 
   # Only publish information to draco-config.cmake for non-test libraries.
   # Also, omit any libraries that are marked as NOEXPORT
@@ -904,7 +918,7 @@ macro( add_scalar_tests test_sources )
 
     get_filename_component( testname ${file} NAME_WE )
     add_executable( Ut_${compname}_${testname}_exe ${file} )
-    dbs_std_tgt_props( Ut_${compname}_${testname}_exe)
+    dbs_std_tgt_props( Ut_${compname}_${testname}_exe )
     set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
       OUTPUT_NAME ${testname}
       VS_KEYWORD  ${testname}

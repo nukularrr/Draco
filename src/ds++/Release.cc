@@ -9,6 +9,7 @@
 //---------------------------------------------------------------------------//
 
 #include "Release.hh"
+#include "DracoTerminal.hh"
 #include "ds++/config.h"
 #include <cstring> // memcpy
 #include <sstream>
@@ -34,7 +35,7 @@ std::string print_devs(size_t const maxlinelen, std::string const &line_name,
   // temporary storage
   std::ostringstream msg;
 
-  for (mmdevs::const_iterator it = devs.begin(); it != devs.end();) {
+  for (auto it = devs.begin(); it != devs.end();) {
     std::string const name = it->second;
     if (current_line.length() + name.length() + 2 > maxlinelen) {
       // flush current line to the real output
@@ -61,8 +62,10 @@ std::string print_devs(size_t const maxlinelen, std::string const &line_name,
 const std::string release() {
   std::ostringstream pkg_release;
   // Name and version
-  pkg_release << "Draco-" << Draco_VERSION_MAJOR << "_" << Draco_VERSION_MINOR
-              << "_" << Draco_VERSION_PATCH;
+  pkg_release << Term::ccolor(Term::style::bold) << Term::ccolor(Term::fg::cyan)
+              << "Draco-" << Draco_VERSION_MAJOR << "_" << Draco_VERSION_MINOR
+              << "_" << Draco_VERSION_PATCH << Term::ccolor(Term::fg::reset)
+              << Term::ccolor(Term::style::reset);
 
   // build date and type
   std::string const build_date(Draco_BUILD_DATE);
@@ -94,7 +97,7 @@ const std::string release() {
  * added/removed. Because the git repository only includes code provided
  * starting at draco-6_0_0, all LOC were attributed to KT at draco-6_0_0 since
  * he converted the svn repo to git. The remaining numbers are computed by
- * couting LOC added/removed since draco-6_0_0.
+ * counting LOC added/removed since draco-6_0_0.
  */
 const std::string author_list(bool const use_doxygen_formatting) {
   std::stringstream alist;
@@ -149,15 +152,23 @@ const std::string author_list(bool const use_doxygen_formatting) {
     maxlinelen = 400;
     alist << "\n\\par " << line_name << "\n\n";
     line_name = "";
+  } else {
+    line_name = Term::ccolor(Term::style::bold) + Term::ccolor(Term::fg::cyan) +
+                line_name + Term::ccolor(Term::fg::reset) +
+                Term::ccolor(Term::style::reset);
   }
 
   alist << rtt_dsxx::print_devs(maxlinelen, line_name, current_developers);
   alist << "\n";
 
-  line_name = std::string("Prior Contributers: ");
+  line_name = std::string("Prior Contributors: ");
   if (use_doxygen_formatting) {
     alist << "\\par " << line_name << "\n\n";
     line_name = "";
+  } else {
+    line_name = Term::ccolor(Term::style::bold) + Term::ccolor(Term::fg::cyan) +
+                line_name + Term::ccolor(Term::fg::reset) +
+                Term::ccolor(Term::style::reset);
   }
   alist << rtt_dsxx::print_devs(maxlinelen, line_name, prior_developers);
 
@@ -170,9 +181,10 @@ const std::string copyright() {
   std::ostringstream msg;
 
   msg << author_list() << "\n"
+      << Term::ccolor(Term::fg::green)
       << "Copyright (C) 2016-2019 Triad National Security, LLC. "
          "(C19028, LA-CC-16-016),\n     Released under a 3-Clause BSD License."
-      << std::endl;
+      << Term::ccolor(Term::fg::reset) << std::endl;
 
   return msg.str();
 }
