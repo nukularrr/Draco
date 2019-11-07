@@ -49,8 +49,10 @@ namespace rtt_dsxx {
  * \sa http://en.cppreference.com/w/cpp/types/numeric_limits/epsilon
  */
 template <typename T>
-inline typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
-soft_equiv(const T &value, const T &reference, const T precision = 1.0e-12) {
+constexpr inline
+    typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
+    soft_equiv(const T &value, const T &reference,
+               const T precision = 1.0e-12) {
   using std::fabs;
   bool passed = false;
 
@@ -102,7 +104,7 @@ soft_equiv(const T &value, const T &reference, const T precision = 1.0e-12) {
 template <unsigned Depth, typename FPT = double> class soft_equiv_deep {
 public:
   // Constructor
-  soft_equiv_deep(void) { /* empty */
+  soft_equiv_deep() { /* empty */
   }
 
   /*!
@@ -143,7 +145,7 @@ public:
 template <typename FPT> class soft_equiv_deep<1, FPT> {
 public:
   // Constructor
-  soft_equiv_deep<1, FPT>(void) { /* empty */
+  soft_equiv_deep<1, FPT>() { /* empty */
   }
   template <typename Value_Iterator, typename Ref_Iterator>
   bool equiv(Value_Iterator value, Value_Iterator value_end, Ref_Iterator ref,
@@ -190,7 +192,7 @@ inline bool soft_equiv(
     Ref_Iterator ref_end,
     typename std::iterator_traits<Value_Iterator>::value_type const precision =
         1.0e-12) {
-  typedef typename std::iterator_traits<Value_Iterator>::value_type FPT;
+  using FPT = typename std::iterator_traits<Value_Iterator>::value_type;
   return soft_equiv_deep<1, FPT>().equiv(value, value_end, ref, ref_end,
                                          precision);
 }

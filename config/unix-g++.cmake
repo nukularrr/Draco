@@ -37,6 +37,7 @@ endif()
 #
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
+# arm --> -mcpu=thunderx2t99 ??? Darwin volta nodes?
 check_c_compiler_flag(   "-march=native" HAS_MARCH_NATIVE )
 if( DEFINED CMAKE_CXX_COMPILER_ID )
   check_cxx_compiler_flag( "-Wnoexcept"    HAS_WNOEXCEPT )
@@ -161,6 +162,8 @@ if( NOT CXX_FLAGS_INITIALIZED )
       NOT CRAY_PE AND
       NOT "${sitename}" MATCHES "toolbox")
     string( APPEND CMAKE_C_FLAGS " -march=native" )
+  elseif( ${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "ppc64le")
+    string( APPEND CMAKE_C_FLAGS " -mcpu=powerpc64le -mtune=powerpc64le" )
   endif()
 
   set( CMAKE_CXX_FLAGS                "${CMAKE_C_FLAGS}")
