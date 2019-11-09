@@ -1,4 +1,28 @@
+//----------------------------------------------------------------------------//
+// Draco supressions
+//----------------------------------------------------------------------------//
 // clang-format off
+
+#include "ds++/config.h"
+
+#ifdef __GNUC__
+#if (DBS_GNUC_VERSION >= 40204) && !defined(__ICC) && !defined(NVCC)
+// Suppress GCC's "unused variable" warning.
+#if (DBS_GNUC_VERSION >= 40600)
+#pragma GCC diagnostic push
+#endif
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#endif
+#endif
+
+#ifdef __CUDACC__
+// https://stackoverflow.com/questions/14831051/how-to-disable-a-specific-nvcc-compiler-warnings
+// http://www.ssl.berkeley.edu/~jimm/grizzly_docs/SSL/opt/intel/cc/9.0/lib/locale/en_US/mcpcom.msg
+#pragma diag_suppress unsigned_compare_with_negative
+#endif
+
+
+//----------------------------------------------------------------------------//
 
 #ifndef TERMINAL_H
 #define TERMINAL_H
@@ -21,8 +45,8 @@
 #include <string>
 #include <vector>
 
-#define CTRL_KEY(k) ((k)&0x1f)
-#define ALT_KEY(k) (k + 128)
+#define CTRL_KEY(k) (char)(((unsigned char)(k) & 0x1f))
+#define ALT_KEY(k) (char)(((unsigned char)(k) + 0x80))
 
 namespace Term {
 
@@ -226,7 +250,7 @@ public:
                     // gnome-term, Windows Console
                     return ALT_KEY(seq[0]);
                 }
-                if (seq[0] == 13) {
+                if (seq[0] == '\x0d') {
                     // gnome-term
                     return Key::ALT_ENTER;
                 }
@@ -347,28 +371,28 @@ public:
             return -4;
         } else {
             switch (c) {
-            case 9:
+            case '\x09':
                 return Key::TAB;
-            case 13:
+            case '\x0d':
                 return Key::ENTER;
-            case 127:
+            case '\x7f':
                 return Key::BACKSPACE;
             }
-            if (c == -61) {
+            if (c == '\xc3') {
                 if (!read_raw(&c)) {
                     return -8;
                 } else {
-                    if (c >= -95 && c <= -70) {
+                    if (c >= '\xa1' && c <= '\xba') {
                         // xterm
-                        return ALT_KEY(c+'a'-(-95));
+                        return ALT_KEY(c+'a'-'\xa1');
                     }
                     return -9;
                 }
-            } else if (c == -62) {
+            } else if (c == '\xc2') {
                 if (!read_raw(&c)) {
                     return -10;
                 } else {
-                    if (c == -115) {
+                    if (c == '\x8d') {
                         // xterm
                         return Key::ALT_ENTER;
                     }
@@ -431,53 +455,26 @@ public:
 
 /*----------------------------------------------------------------------------*/
 
-/*-
- * Copyright (c) 2014 Taylor R Campbell
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
-
-
 #define	UTF8_ACCEPT	0
 #define	UTF8_REJECT	0xf
-
-static const uint32_t utf8_classtab[0x10] = {
-	0x88888888UL,0x88888888UL,0x99999999UL,0x99999999UL,
-	0xaaaaaaaaUL,0xaaaaaaaaUL,0xaaaaaaaaUL,0xaaaaaaaaUL,
-	0x222222ffUL,0x22222222UL,0x22222222UL,0x22222222UL,
-	0x3333333bUL,0x33433333UL,0xfff5666cUL,0xffffffffUL,
-};
-
-static const uint32_t utf8_statetab[0x10] = {
-	0xfffffff0UL,0xffffffffUL,0xfffffff1UL,0xfffffff3UL,
-	0xfffffff4UL,0xfffffff7UL,0xfffffff6UL,0xffffffffUL,
-	0x33f11f0fUL,0xf3311f0fUL,0xf33f110fUL,0xfffffff2UL,
-	0xfffffff5UL,0xffffffffUL,0xffffffffUL,0xffffffffUL,
-};
 
 static inline uint8_t
 utf8_decode_step(uint8_t state, uint8_t octet, uint32_t *cpp)
 {
+    static const uint32_t utf8_classtab[0x10] = {
+        0x88888888UL,0x88888888UL,0x99999999UL,0x99999999UL,
+        0xaaaaaaaaUL,0xaaaaaaaaUL,0xaaaaaaaaUL,0xaaaaaaaaUL,
+        0x222222ffUL,0x22222222UL,0x22222222UL,0x22222222UL,
+        0x3333333bUL,0x33433333UL,0xfff5666cUL,0xffffffffUL,
+    };
+
+    static const uint32_t utf8_statetab[0x10] = {
+        0xfffffff0UL,0xffffffffUL,0xfffffff1UL,0xfffffff3UL,
+        0xfffffff4UL,0xfffffff7UL,0xfffffff6UL,0xffffffffUL,
+        0x33f11f0fUL,0xf3311f0fUL,0xf33f110fUL,0xfffffff2UL,
+        0xfffffff5UL,0xffffffffUL,0xffffffffUL,0xffffffffUL,
+    };
+
 	const uint8_t reject = (state >> 3), nonascii = (octet >> 7);
 	const uint8_t class_ = (!nonascii? 0 :
 	    (0xf & (utf8_classtab[(octet >> 3) & 0xf] >> (4 * (octet & 7)))));
@@ -493,40 +490,27 @@ utf8_decode_step(uint8_t state, uint8_t octet, uint32_t *cpp)
 /*----------------------------------------------------------------------------*/
 
 inline void codepoint_to_utf8(std::string &s, char32_t c) {
-    int nbytes;
-    if (c < 0x80) {
-        nbytes = 1;
-    } else if (c < 0x800) {
-        nbytes = 2;
-    } else if (c < 0x10000) {
-        nbytes = 3;
-    } else if (c <= 0x0010FFFF) {
-        nbytes = 4;
-    } else {
+    if (c > 0x0010FFFF) {
         throw std::runtime_error("Invalid UTF32 codepoint.");
     }
-    char u1('x'), u2('x'), u3('x'), u4('x');
+    char bytes[4];
+    int nbytes = 1;
+    char32_t d = c;
+    if (c >= 0x10000) {
+        nbytes++;
+        bytes[3] = ((d | 0x80) & 0xBF); d >>= 6;
+    }
+    if (c >= 0x800) {
+        nbytes++;
+        bytes[2] = ((d | 0x80) & 0xBF); d >>= 6;
+    }
+    if (c >= 0x80) {
+        nbytes++;
+        bytes[1] = ((d | 0x80) & 0xBF); d >>= 6;
+    }
     static const unsigned char mask[4] = {0x00, 0xC0, 0xE0, 0xF0};
-    switch (nbytes) {
-        case 4: u4 = ((c | 0x80) & 0xBF); c >>= 6; /* fall through */
-        case 3: u3 = ((c | 0x80) & 0xBF); c >>= 6; /* fall through */
-        case 2: u2 = ((c | 0x80) & 0xBF); c >>= 6; /* fall through */
-        case 1: u1 =  static_cast<char>(c | mask[nbytes-1]);
-    }
-    switch (nbytes) {
-      case 1:
-        s.push_back(u1);
-        break;
-      case 2:
-        s.push_back(u1); s.push_back(u2);
-        break;
-      case 3:
-        s.push_back(u1); s.push_back(u2); s.push_back(u3);
-        break;
-      case 4:
-        s.push_back(u1); s.push_back(u2); s.push_back(u3); s.push_back(u4);
-        break;
-    }
+    bytes[0] = static_cast<char>(d | mask[nbytes-1]);
+    s.append(bytes, nbytes);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -754,4 +738,24 @@ public:
 } // namespace Term
 
 #endif // TERMINAL_H
+
+//----------------------------------------------------------------------------//
+// Draco supressions
+//----------------------------------------------------------------------------//
+
+// This is defined by <termios.h> but causes conflicts with some TRT code.
+#undef B0
+
+#ifdef __CUDACC__
+#pragma diag_default unsigned_compare_with_negative
+#endif
+
+#ifdef __GNUC__
+#if (DBS_GNUC_VERSION >= 40600)
+// Restore GCC diagnostics to previous state.
+#pragma GCC diagnostic pop
+#endif
+#endif
 // clang-format on
+
+//----------------------------------------------------------------------------//
