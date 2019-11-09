@@ -91,7 +91,7 @@ if( NOT CXX_FLAGS_INITIALIZED )
   if( CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 7.0 )
     string( APPEND CMAKE_C_FLAGS    " -Wno-expansion-to-defined -Wnarrowing" )
   endif()
-  set( CMAKE_C_FLAGS_DEBUG          "-g -gdwarf-3 -fno-inline -fno-eliminate-unused-debug-types -O0 -Wextra -Wundef -Wunreachable-code -Wconversion -Wdouble-promotion -Wshadow -Wformat=2 -DDEBUG")
+  set( CMAKE_C_FLAGS_DEBUG          "-g -gdwarf-3 -fno-inline -fno-eliminate-unused-debug-types -O0 -Wextra -Wundef -Wunreachable-code -DDEBUG")
   # -Wfloat-equal
   # -Werror
   # -Wconversion

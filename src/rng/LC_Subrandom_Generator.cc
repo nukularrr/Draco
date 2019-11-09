@@ -14,7 +14,7 @@ namespace rtt_rng {
 
 //---------------------------------------------------------------------------//
 /*!
- * \param count_ Dimension of the vector of random values returned by this
+ * \param count_in Dimension of the vector of random values returned by this
  *          object.
  */
 LC_Subrandom_Generator::LC_Subrandom_Generator(unsigned const count_in)
