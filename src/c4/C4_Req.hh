@@ -82,7 +82,8 @@ private:
 
 //===========================================================================//
 /*!
- * \class C4_Req \brief Non-blocking communication request class.
+ * \class C4_Req
+ * \brief Non-blocking communication request class.
  *
  * This class provides an encapsulation for the message requests (MPI) which are
  * produced by non blocking calls.  This class automatically waits for the
