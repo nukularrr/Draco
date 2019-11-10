@@ -45,8 +45,12 @@ Timer::Timer()
       posix_clock_ticks_per_second(static_cast<int>(DRACO_CLOCKS_PER_SEC)),
       timer_on(false), isMPIWtimeAvailable(setIsMPIWtimeAvailable()),
       sum_wall(0.0), sum_system(0.0), sum_user(0.0), num_intervals(0) {
-
+#if defined(WIN32)
+  static_assert(DRACO_CLOCKS_PER_SEC < INT32_MAX,
+                "!(DRACO_CLOCKS_PER_SEC < INT32_MAX)");
+#else
   Check(DRACO_CLOCKS_PER_SEC < INT32_MAX);
+#endif
 
 #ifdef HAVE_PAPI
 

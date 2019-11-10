@@ -30,7 +30,7 @@ namespace rtt_c4 {
  *
  * We postpone including C4_Req.hh until C4_MPI.i.hh is loaded. This allows the
  * 'friend' declarations found in class C4_Req to be seen after the 'official'
- * function declartions (with optional default arguments) are loaded.
+ * function declarations (with optional default arguments) are loaded.
  */
 class C4_Req;
 
@@ -182,7 +182,7 @@ int receive_udt(T *buffer, int size, int source, C4_Datatype &,
 /*!
  * \brief Do a point-to-point, non-blocking send.
  *
- * \return C4_Req object to handle communciation requests
+ * \return C4_Req object to handle communication requests
  */
 template <typename T>
 C4_Req send_async(T const *buffer, int size, int destination,
@@ -239,7 +239,7 @@ void send_is_custom(C4_Req &request, const T *buffer, int size, int destination,
 /*!
  * \brief Do a point-to-point, non-blocking receive.
  *
- * \return C4_Req object to handle communciation requests
+ * \return C4_Req object to handle communication requests
  */
 template <typename T>
 C4_Req receive_async(T *buffer, int size, int source,
@@ -480,7 +480,7 @@ template <typename T> T prefix_sum(const T node_value);
  * \brief Return the value of the prefix sum at this processor.
  *
  * \param buffer Current node's starting buffer address to be prefix summed
- * \param n number of ojbects of type T in the buffer
+ * \param n number of objects of type T in the buffer
  */
 template <typename T> void prefix_sum(T *buffer, const int32_t n);
 
