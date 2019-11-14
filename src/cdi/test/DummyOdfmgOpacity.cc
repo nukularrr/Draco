@@ -87,7 +87,8 @@ DummyOdfmgOpacity::DummyOdfmgOpacity(rtt_cdi::Reaction reaction,
   bandBoundaries[0] = 0.0;
   for (size_t i = 1; i < numBandBoundaries; ++i)
     bandBoundaries[i] =
-        std::pow(2.0, static_cast<double>(i - numBandBoundaries) - 1.0);
+        std::pow(2.0, static_cast<double>(i) -
+                          static_cast<double>(numBandBoundaries) - 1.0);
   return;
 }
 
