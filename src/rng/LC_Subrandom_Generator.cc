@@ -20,7 +20,6 @@ namespace rtt_rng {
 LC_Subrandom_Generator::LC_Subrandom_Generator(unsigned const count_in)
     : Subrandom_Generator(count_in),
       generator_(gsl_rng_alloc(gsl_rng_mt19937)) {
-  // generator_ = gsl_rng_alloc(gsl_rng_mt19937);
   Ensure(check_class_invariants());
 }
 
