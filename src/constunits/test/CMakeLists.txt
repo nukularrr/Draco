@@ -1,12 +1,12 @@
 #-----------------------------*-cmake-*----------------------------------------#
-# file   units2/test/CMakeLists.txt
+# file   constunits/test/CMakeLists.txt
 # author Ben R. Ryan <brryan@lanl.gov>
-# date   2012 Aug 1
-# brief  Generate build project files for units2/test.
+# date   2019 Nov 20
+# brief  Generate build project files for constunits/test.
 # note   Copyright (C) 2016-2019, Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
-project( units2_test CXX )
+project( constunits_test CXX )
 
 # ---------------------------------------------------------------------------- #
 # Source files
@@ -20,8 +20,8 @@ file( GLOB test_sources *.cc )
 
 add_scalar_tests(
    SOURCES "${test_sources}"
-   DEPS    "Lib_units2" )
+   DEPS    "Lib_constunits" )
 
 #------------------------------------------------------------------------------#
-# End units2/test/CMakeLists.txt
+# End constunits/test/CMakeLists.txt
 #------------------------------------------------------------------------------#

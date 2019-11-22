@@ -8,8 +8,8 @@
 #include <stdio.h>
 
 void test_static_access(rtt_dsxx::UnitTest &ut) {
-  constexpr rtt_units2::PhysicalConstants<rtt_units2::CGS> pc_cgs;
-  constexpr rtt_units2::PhysicalConstants<rtt_units2::SI> pc_SI;
+  constexpr rtt_constunits::PhysicalConstants<rtt_constunits::CGS> pc_cgs;
+  constexpr rtt_constunits::PhysicalConstants<rtt_constunits::SI> pc_SI;
   printf("CGS c = %e cm s^-1\n", pc_cgs.c());
   printf("SI  c = %e m s^-1\n", pc_SI.c());
 }

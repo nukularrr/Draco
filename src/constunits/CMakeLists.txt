@@ -1,5 +1,5 @@
 #-----------------------------*-cmake-*----------------------------------------#
-# file   units2/CMakeLists.txt
+# file   constunits/CMakeLists.txt
 # author Ben R. Ryan <brryan@lanl.gov>
 # date   2019 Nov 20
 # brief  Generate build project files for units.
@@ -7,7 +7,7 @@
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 cmake_minimum_required(VERSION 3.9.0)
-project( units2 CXX )
+project( constunits CXX )
 
 # ---------------------------------------------------------------------------- #
 # Source files
@@ -22,7 +22,7 @@ file( GLOB headers *.hh )
 # ---------------------------------------------------------------------------- #
 
 add_component_library(
-   TARGET       Lib_units2
+   TARGET       Lib_constunits
    TARGET_DEPS  Lib_dsxx
    LIBRARY_NAME ${PROJECT_NAME}
    HEADERS      "${headers}"
@@ -32,8 +32,8 @@ add_component_library(
 # Installation instructions
 # ---------------------------------------------------------------------------- #
 
-install( TARGETS Lib_units2 EXPORT draco-targets DESTINATION ${DBSCFGDIR}lib )
-install( FILES ${headers} DESTINATION ${DBSCFGDIR}include/units )
+install( TARGETS Lib_constunits EXPORT draco-targets DESTINATION ${DBSCFGDIR}lib )
+install( FILES ${headers} DESTINATION ${DBSCFGDIR}include/constunits )
 
 # ---------------------------------------------------------------------------- #
 # Unit tests
@@ -50,5 +50,5 @@ endif()
 process_autodoc_pages()
 
 #------------------------------------------------------------------------------#
-# End units2/CMakeLists.txt
+# End constunits/CMakeLists.txt
 #------------------------------------------------------------------------------#
