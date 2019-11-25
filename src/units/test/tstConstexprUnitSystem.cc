@@ -1,17 +1,19 @@
 #include "ds++/Release.hh"
 #include "ds++/ScalarUnitTest.hh"
 #include "ds++/Soft_Equivalence.hh"
-#include "units2/PhysicalConstants.hh"
+#include "units/ConstexprUnitSystem.hh"
 
 // Debugging
 #include <string>
 #include <stdio.h>
 
 void test_static_access(rtt_dsxx::UnitTest &ut) {
-  constexpr rtt_constunits::PhysicalConstants<rtt_constunits::CGS> pc_cgs;
-  constexpr rtt_constunits::PhysicalConstants<rtt_constunits::SI> pc_SI;
+  constexpr rtt_units::PhysicalConstexprs<rtt_units::CGS> pc_cgs;
+  constexpr rtt_units::PhysicalConstexprs<rtt_units::SI> pc_SI;
   printf("CGS c = %e cm s^-1\n", pc_cgs.c());
   printf("SI  c = %e m s^-1\n", pc_SI.c());
+
+  PASSMSG("test");
 }
 
 int main(int argc, char *argv[]) {
