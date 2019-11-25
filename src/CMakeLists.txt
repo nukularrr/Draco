@@ -55,7 +55,6 @@ add_dir_if_exists( mesh_element ) # needs ds++
 add_dir_if_exists( ode )          # needs ds++
 add_dir_if_exists( rng )          # needs ds++
 add_dir_if_exists( units )        # needs ds++
-add_dir_if_exists( constunits )        # needs ds++
 add_dir_if_exists( viz )          # needs ds++
 add_dir_if_exists( memory )       # needs ds++
 
