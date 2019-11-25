@@ -27,7 +27,7 @@ struct CGSH {
   static constexpr double Length = 1.e2;                    // centimeter
   static constexpr double Mass = 1.e3;                      // gram
   static constexpr double Time = 1.e8;                      // shake
-  static constexpr double Temperature = 8.61733238496e-8;   // Kelvin
+  static constexpr double Temperature = 8.61733238496e-8;   // keV
   static constexpr double Current = 1.e-1;                  // Biot
   static constexpr double Charge = 2.997924580e9;           // Statcoulomb
   static constexpr double Capacitance = 8.9831483395497e11; // Statfarad
@@ -70,7 +70,7 @@ public:
   constexpr double e() const { return electronCharge(); }
 
   //! accesses the speed of light
-  constexpr double speedOfLight() const { return d_speed_of_light_SI; }
+  constexpr double speedOfLight() const { return d_speed_of_light; }
   //! see speedOfLight()
   constexpr double c() const { return d_speed_of_light; }
 
@@ -106,11 +106,11 @@ public:
   constexpr double mu0() const { return permeabilityOfVacuum(); }
 
   //! access the permittivity of free space
-  constexpr double permittivityOfFreeSpace() const {
+  constexpr double permittivityOfVacuum() const {
     return d_permittivityOfVacuum;
   }
-  //! see permittivityOfFreeSpace()
-  constexpr double epsi0() const { return permittivityOfFreeSpace(); }
+  //! see permittivityOfVacuum()
+  constexpr double epsi0() const { return permittivityOfVacuum(); }
 
   //! access the classical electron radius
   constexpr double classicalElectronRadius() const {
@@ -128,6 +128,11 @@ public:
   constexpr double protonMass() const { return d_protonMass; }
   //! see protonMass()
   constexpr double mp() const { return protonMass(); }
+
+  //! access the Electronvolt
+  constexpr double electronVolt() const { return d_electronVolt; }
+  //! see electronVolt()
+  constexpr double eV() const { return electronVolt(); }
 
 private:
   // Derived unit conversions
@@ -198,6 +203,9 @@ private:
   //! Proton rest mass (CODATA 2018 value)
   static constexpr double d_protonMass_SI = 1.67262192369e-27; // kg
 
+  //! Electron volt (CODATA 2018 exact value)
+  static constexpr double d_electronVolt_SI = 1.602176634e-19; // J
+
   // Dimensional values converted to templated unit system
   //! Planck constant value in unit system
   static constexpr double d_planck = d_planck_SI * Energy * Time;
@@ -251,5 +259,8 @@ private:
 
   //! Proton mass value in unit system
   static constexpr double d_protonMass = d_protonMass_SI * Mass;
+
+  //! Electron volt value in unit system
+  static constexpr double d_electronVolt = d_electronVolt_SI*Energy;
 };
 } // namespace rtt_units
