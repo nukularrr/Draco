@@ -1,3 +1,18 @@
+//----------------------------------*-C++-*----------------------------------//
+/*! \file   PhysicalConstexprs.hh
+ *  \author Ben R. Ryan <brryan@lanl.gov>
+ *  \brief  Provide a single place where mathematical and physical constants
+ *          are defined in an entirely constexpr fashion.
+ *  \date   2019 Nov 25
+ *  \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ *          All rights reserved. */
+//---------------------------------------------------------------------------//
+
+#ifndef __units_PhysicalConstexprs_hh__
+#define __units_PhysicalConstexprs_hh__
+
+#include "MathConstants.hh"
+
 namespace rtt_units {
 struct SI {
   static constexpr double Length = 1.;      // meter
@@ -35,8 +50,21 @@ struct CGSH {
   static constexpr double Quantity = 1.;                    // Mole
 };
 
+//==============================================================================
+/*!
+ * \class PhysicalConstexprs
+ *
+ * \brief A class to define and encapsulate physical and mathematical constants
+ *        in a purely constexpr way.
+ *
+ * \example test/tstPhysicalConstexprs.cc
+ * This is the unit regression test for the PhysicalConstexprs class.  It
+ * demonstrates typical usage.
+ */
+//==============================================================================
 template <typename UNITS> class PhysicalConstexprs {
 public:
+  //! Default constructor
   constexpr PhysicalConstexprs() {}
 
   //! accesses Avogadro's number
@@ -48,6 +76,9 @@ public:
   constexpr double fineStructure() const { return d_fineStructure; }
   //! see fineStructure()
   constexpr double alpha() const { return fineStructure(); }
+
+  //! accesses pi
+  constexpr double pi() const { return d_pi; }
 
   //! accesses Planck's constant
   constexpr double planck() const { return d_planck; }
@@ -135,7 +166,7 @@ public:
   constexpr double eV() const { return electronVolt(); }
 
 private:
-  // Derived unit conversions
+  //! Derived unit conversions
   static constexpr double Length = UNITS::Length;
   static constexpr double Mass = UNITS::Mass;
   static constexpr double Time = UNITS::Time;
@@ -149,14 +180,17 @@ private:
   static constexpr double Energy = Force * Length;
   static constexpr double Power = Energy / Time;
 
-  // Dimensionless constants
+  //! Dimensionless constants
   //! Avogadro cosntant (CODATA 2018 exact value)
   static constexpr double d_avogadro = 6.02214076e23;
 
   //! Fine structure constant (CODATA 2018 value)
   static constexpr double d_fineStructure = 7.2973525693e-3;
 
-  // SI values of fundamental constants
+  //! Pi
+  static constexpr double d_pi = PI;
+
+  //! SI values of fundamental constants
   //! Planck constant (CODATA 2018 exact value)
   static constexpr double d_planck_SI = 6.62607015e-34; // J s
 
@@ -194,8 +228,7 @@ private:
       8.8541878128e-12; // F m^-1
 
   //! Classical electron radius (CODATA 2018 value)
-  static constexpr double d_classicalElectronRadius_SI =
-      2.8179403262e-15; // m
+  static constexpr double d_classicalElectronRadius_SI = 2.8179403262e-15; // m
 
   //! Electron rest mass (CODATA 2018 value)
   static constexpr double d_electronMass_SI = 9.1093837015e-31; // kg
@@ -206,7 +239,7 @@ private:
   //! Electron volt (CODATA 2018 exact value)
   static constexpr double d_electronVolt_SI = 1.602176634e-19; // J
 
-  // Dimensional values converted to templated unit system
+  //! Dimensional values converted to templated unit system
   //! Planck constant value in unit system
   static constexpr double d_planck = d_planck_SI * Energy * Time;
 
@@ -261,6 +294,12 @@ private:
   static constexpr double d_protonMass = d_protonMass_SI * Mass;
 
   //! Electron volt value in unit system
-  static constexpr double d_electronVolt = d_electronVolt_SI*Energy;
+  static constexpr double d_electronVolt = d_electronVolt_SI * Energy;
 };
 } // namespace rtt_units
+
+#endif // __units_PhysicalConstexprs_hh__
+
+//----------------------------------------------------------------------------//
+// End units/FundamentalConstexprs.hh
+//----------------------------------------------------------------------------//
