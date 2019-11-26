@@ -58,7 +58,7 @@ set( dll_declspec_content
  */
 /*---------------------------------------------------------------------------*/
 
-#ifndef DRACO_SHARED_LIBS
+#ifndef rtt_dsxx_config_h
 #error \"Do not call this file directly. Call ds++/config.h instead.\"
 #endif
 
