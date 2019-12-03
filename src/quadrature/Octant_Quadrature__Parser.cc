@@ -5,27 +5,22 @@
  * \date   Wed Sep  1 10:19:52 2004
  * \brief  
  * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
- *         All rights reserved.
- */
-//---------------------------------------------------------------------------------------//
-// $Id: Octant_Quadrature.cc 6718 2012-08-30 20:03:01Z warsa $
+ *         All rights reserved. */
 //---------------------------------------------------------------------------------------//
 
+#include "Octant_Quadrature.hh"
+#include "parser/utilities.hh"
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
-
-#include "Octant_Quadrature.hh"
-
-#include "parser/utilities.hh"
 
 namespace rtt_quadrature {
 using namespace rtt_parser;
 
 //---------------------------------------------------------------------------------------//
 /*!
- * Used in conjuction with child parse routines for common features
+ * Used in conjunction with child parse routines for common features
  */
 
 /*static*/
