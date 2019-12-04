@@ -1,4 +1,4 @@
-//----------------------------------*-C++-*----------------------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   quadrature/Sn_Ordinate_Space.hh
  * \author Kent Budge
@@ -6,7 +6,7 @@
  * \brief  Definition of class Sn_Ordinate_Space
  * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef quadrature_Sn_Ordinate_Space_hh
 #define quadrature_Sn_Ordinate_Space_hh
@@ -16,17 +16,18 @@
 namespace rtt_quadrature {
 using std::ostream;
 
-//=======================================================================================//
+//============================================================================//
 /*!
- * \class Sn_Ordinate_Space \brief Represents ordinate operators for a
- *        conventional Sn moment space.
+ * \class Sn_Ordinate_Space
+ *
+ * \brief Represents ordinate operators for a conventional Sn moment space.
  *
  * The moment space contains all moments up to the specified scattering order,
  * and the moment to discrete and discrete to moment operators are calculated in
  * a straightforward manner from the Ylm and the weight associated with each
  * ordinate direction.
  */
-//=======================================================================================//
+//============================================================================//
 
 class Sn_Ordinate_Space : public Ordinate_Space {
 public:
@@ -97,6 +98,6 @@ private:
 
 #endif // quadrature_Sn_Ordinate_Space_hh
 
-//---------------------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of quadrature/Sn_Ordinate_Space.hh
-//---------------------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
