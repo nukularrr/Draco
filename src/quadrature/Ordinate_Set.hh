@@ -99,7 +99,7 @@ private:
 
   // initialized
   rtt_mesh_element::Geometry geometry_;
-  int dimension_;
+  unsigned dimension_;
   bool has_starting_directions_;
   bool has_extra_starting_directions_;
   Ordering ordering_;
