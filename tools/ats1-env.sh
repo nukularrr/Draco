@@ -49,7 +49,7 @@ fi
 case $ddir in
 
   #------------------------------------------------------------------------------#
-  draco-7_2* | draco-7_3* | draco_7_4*)
+  draco-7_2* | draco-7_3* | draco-7_4*)
     function intel1904env()
     {
       unset partition
