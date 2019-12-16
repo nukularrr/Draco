@@ -49,7 +49,7 @@ fi
 case $ddir in
 
   #------------------------------------------------------------------------------#
-  draco-7_2* | draco-7_3*)
+  draco-7_2* | draco-7_3* | draco_7_4*)
     function intel1904env()
     {
       unset partition
@@ -75,7 +75,7 @@ case $ddir in
       run "module load intel/19.0.4"
       run "module load cmake/3.14.6 numdiff git"
       run "module load gsl random123 eospac/6.4.0 ndi python/3.6-anaconda-5.0.1"
-      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist"
+      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist quo"
       run "module use --append ${VENDOR_DIR}-ec/modulefiles"
       run "module load csk"
       run "module list"
@@ -110,7 +110,7 @@ case $ddir in
       run "module load intel/18.0.2"
       run "module load cmake/3.14.6 numdiff git"
       run "module load gsl random123 eospac/6.4.0 ndi python/3.6-anaconda-5.0.1"
-      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist"
+      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist quo"
       run "module use --append ${VENDOR_DIR}-ec/modulefiles"
       run "module load csk"
       run "module list"
@@ -143,7 +143,7 @@ case $ddir in
       run "module load intel/19.0.4"
       run "module load cmake/3.14.6 numdiff git"
       run "module load gsl random123 eospac/6.4.0 ndi python/3.6-anaconda-5.0.1"
-      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist"
+      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist quo"
       run "module use --append ${VENDOR_DIR}-ec/modulefiles"
       run "module load csk"
       run "module swap craype-haswell craype-mic-knl"
@@ -179,7 +179,7 @@ case $ddir in
       run "module load intel/18.0.2"
       run "module load cmake/3.14.6 numdiff git"
       run "module load gsl random123 eospac/6.4.0 ndi python/3.6-anaconda-5.0.1"
-      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist"
+      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist quo"
       run "module use --append ${VENDOR_DIR}-ec/modulefiles"
       run "module load csk"
       run "module swap craype-haswell craype-mic-knl"
@@ -214,7 +214,7 @@ case $ddir in
       run "module load intel/17.0.4"
       run "module load cmake/3.14.6 numdiff git"
       run "module load gsl random123 eospac/6.4.0 ndi python/3.6-anaconda-5.0.1"
-      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist"
+      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist quo"
       run "module use --append ${VENDOR_DIR}-ec/modulefiles"
       run "module load csk"
       run "module list"
@@ -246,7 +246,7 @@ case $ddir in
       run "module load intel/17.0.4"
       run "module load cmake/3.14.6 numdiff git"
       run "module load gsl random123 eospac/6.4.0 ndi python/3.6-anaconda-5.0.1"
-      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist"
+      run "module load trilinos/12.10.1 metis parmetis/4.0.3 superlu-dist quo"
       run "module use --append ${VENDOR_DIR}-ec/modulefiles"
       run "module load csk"
       run "module swap craype-haswell craype-mic-knl"
