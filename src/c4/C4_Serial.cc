@@ -52,9 +52,11 @@ void free_inherited_comm() {}
 //---------------------------------------------------------------------------//
 
 int node() { return 0; }
+uint32_t rank() { return 0; }
 
 //---------------------------------------------------------------------------//
 int nodes() { return 1; }
+uint32_t nranks() { return 1; }
 
 //---------------------------------------------------------------------------//
 // BARRIER FUNCTIONS
@@ -84,10 +86,10 @@ double wall_clock_time() {
 /* Linux */
 double wall_clock_time() {
   DRACO_TIME_TYPE now;
-  return times(&now) / wall_clock_resolution();
+  return static_cast<double>(times(&now)) / wall_clock_resolution();
 }
 double wall_clock_time(DRACO_TIME_TYPE &now) {
-  return times(&now) / wall_clock_resolution();
+  return static_cast<double>(times(&now)) / wall_clock_resolution();
 }
 #endif
 
@@ -136,6 +138,7 @@ int abort(int error) {
 // isScalar
 //---------------------------------------------------------------------------//
 bool isScalar() { return true; }
+bool isMpiInit() { return false; }
 
 //---------------------------------------------------------------------------//
 // get_processor_name

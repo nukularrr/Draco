@@ -16,29 +16,6 @@
 // TESTS
 //---------------------------------------------------------------------------//
 
-void tstabs(rtt_dsxx::UnitTest &ut) {
-  using rtt_dsxx::abs;
-
-  if (rtt_dsxx::soft_equiv(abs(-2.2), abs(2.2)))
-    PASSMSG("Correctly calculated abs(double)");
-  else
-    FAILMSG("Did NOT correctly calculate abs(double)");
-  if (rtt_dsxx::soft_equiv(abs(-2.2f), abs(2.2f)))
-    PASSMSG("Correctly calculated abs(float)");
-  else
-    FAILMSG("Did NOT correctly calculate abs(float)");
-  if (abs(-2) == abs(2))
-    PASSMSG("Correctly calculated abs(int)");
-  else
-    FAILMSG("Did NOT correctly calculate abs(int)");
-  if (abs(-2L) == abs(2L))
-    PASSMSG("Correctly calculated abs(long)");
-  else
-    FAILMSG("Did NOT correctly calculate abs(long)");
-  return;
-}
-
-//---------------------------------------------------------------------------//
 void tstconj(rtt_dsxx::UnitTest &ut) {
   if (rtt_dsxx::soft_equiv(rtt_dsxx::conj(3.5), 3.5))
     PASSMSG("conj(double) is correct");
@@ -142,16 +119,32 @@ void test_linear_interpolate(rtt_dsxx::UnitTest &ut) {
 }
 
 //---------------------------------------------------------------------------//
+void tstceilintdiv(rtt_dsxx::UnitTest &ut) {
+  using namespace rtt_dsxx;
+  uint32_t const nf = ut.numFails;
+  FAIL_IF_NOT(rtt_dsxx::ceil_int_division(1, 2) == 1);
+  FAIL_IF_NOT(ceil_int_division(2, 2) == 1);
+  FAIL_IF_NOT(ceil_int_division(0, 2) == 0);
+  FAIL_IF_NOT(ceil_int_division(1, 200) == 1);
+  FAIL_IF_NOT(ceil_int_division(-1, 2) == 0);
+  if (ut.numFails == nf)
+    PASSMSG("Fast ceiling integer division checks ok.");
+  else
+    FAILMSG("Fast ceiling integer division checks fail.");
+  return;
+}
+
+//---------------------------------------------------------------------------//
 int main(int argc, char *argv[]) {
   rtt_dsxx::ScalarUnitTest ut(argc, argv, rtt_dsxx::release);
   try {
-    tstabs(ut);
     tstconj(ut);
     tstcube(ut);
     tstpythag(ut);
     tstsign(ut);
     tstsquare(ut);
     test_linear_interpolate(ut);
+    tstceilintdiv(ut);
   }
   UT_EPILOG(ut);
 }
