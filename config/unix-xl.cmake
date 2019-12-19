@@ -8,8 +8,7 @@
 #------------------------------------------------------------------------------#
 
 # Ref:
-# https://www.ibm.com/support/knowledgecenter/SSXVZZ_16.1.0/com.ibm.xlcpp161.lelinux.doc/compiler_ref/opt_langlvl.html
-
+# https://www.ibm.com/support/knowledgecenter/en/SSXVZZ_16.1.1/com.ibm.xlcpp1611.lelinux.doc/compiler_ref/rucmpopt.html
 #
 # Compiler flag checks
 #
@@ -33,9 +32,9 @@ if( NOT CXX_FLAGS_INITIALIZED )
     string( APPEND CMAKE_C_FLAGS " -qsuppress=1506-1197" )
   endif()
   # 2019-04-03 IBM support asks that we not use '-qcheck' due to compiler issues.
-  set( CMAKE_C_FLAGS_DEBUG          "-O0 -qsmp=omp:noopt -qoffload -qfullpath -DDEBUG") # -qcheck
+  set( CMAKE_C_FLAGS_DEBUG          "-O0 -qsmp=omp:noopt -qfullpath -DDEBUG") # -qcheck -qoffload
   set( CMAKE_C_FLAGS_RELWITHDEBINFO
-    "-O3 -qhot=novector -qsimd=auto -qstrict=nans:operationprecision" )
+    "-O3 -qhot=novector -qsmp=omp -qstrict=nans:operationprecision" ) # -qsimd=auto
   set( CMAKE_C_FLAGS_RELEASE        "${CMAKE_C_FLAGS_RELWITHDEBINFO} -DNDEBUG" )
   set( CMAKE_C_FLAGS_MINSIZEREL     "${CMAKE_C_FLAGS_RELEASE}" )
 
