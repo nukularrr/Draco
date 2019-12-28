@@ -14,9 +14,12 @@
 #include <limits>
 #include <map>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
 #ifndef _GLIBCXX_THROW
 #define _GLIBCXX_THROW(except) throw(except)
 #endif
+#pragma clang diagnostic pop
 
 namespace rtt_memory {
 using namespace std;
