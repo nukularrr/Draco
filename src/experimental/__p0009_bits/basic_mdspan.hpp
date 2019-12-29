@@ -63,7 +63,8 @@ template <class ElementType, ptrdiff_t... Exts, class LayoutPolicy,
 class basic_mdspan<ElementType, std::experimental::extents<Exts...>,
                    LayoutPolicy, AccessorPolicy> {
 private:
-  // Workaround for non-deducibility of the index sequence template parameter if it's given at the top level
+  // Workaround for non-deducibility of the index sequence template parameter
+  // if it's given at the top level
   template <class = make_index_sequence<sizeof...(Exts)>> struct __impl;
 
   template <size_t... Idxs> struct __impl<index_sequence<Idxs...>> {
@@ -81,7 +82,7 @@ private:
   };
 
 public:
-  //--------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // Domain and codomain types
 
   using extents_type = std::experimental::extents<Exts...>;
@@ -95,7 +96,7 @@ public:
   using pointer = typename accessor_type::pointer;
   using reference = typename accessor_type::reference;
 
-  //--------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // [mdspan.basic.cons], basic_mdspan constructors, assignment, and destructor
 
   MDSPAN_INLINE_FUNCTION_DEFAULTED constexpr basic_mdspan() noexcept = default;
@@ -156,7 +157,8 @@ public:
        _MDSPAN_TRAIT(is_convertible, OtherAccessor, accessor_type) &&
        _MDSPAN_TRAIT(is_convertible, typename OtherAccessor::pointer,
                      pointer) &&
-       // TODO @proposal-bug there is a redundant constraint in the proposal; the convertibility of the extents is effectively stated twice
+       // TODO @proposal-bug there is a redundant constraint in the proposal;
+       // the convertibility of the extents is effectively stated twice
        _MDSPAN_TRAIT(is_convertible, OtherExtents, extents_type)))
   MDSPAN_INLINE_FUNCTION
   constexpr basic_mdspan(
@@ -201,8 +203,9 @@ public:
     return *this;
   }
 
-  //--------------------------------------------------------------------------------
-  // [mdspan.basic.mapping], basic_mdspan mapping domain multidimensional index to access codomain element
+  //----------------------------------------------------------------------------
+  // [mdspan.basic.mapping], basic_mdspan mapping domain multidimensional index
+  //  to access codomain element
 
   MDSPAN_TEMPLATE_REQUIRES(class Index,
                            /* requires */ (_MDSPAN_TRAIT(is_convertible, Index,
@@ -238,8 +241,9 @@ public:
   MDSPAN_INLINE_FUNCTION
   accessor_type accessor() const { return acc_; };
 
-  //--------------------------------------------------------------------------------
-  // [mdspan.basic.domobs], basic_mdspan observers of the domain multidimensional index space
+  //----------------------------------------------------------------------------
+  // [mdspan.basic.domobs], basic_mdspan observers of the domain
+  // multidimensional index space
 
   MDSPAN_INLINE_FUNCTION static constexpr int rank() noexcept {
     return extents_type::rank();
@@ -262,7 +266,8 @@ public:
     return __impl<>::__size(*this);
   };
 
-  // TODO @proposal-bug for non-unique, non-contiguous mappings this is unimplementable
+  // TODO @proposal-bug for non-unique, non-contiguous mappings this is
+  // unimplementable
   MDSPAN_INLINE_FUNCTION _MDSPAN_CONSTEXPR_14 index_type unique_size() const
       noexcept {
     if (map_.is_unique()) {
@@ -283,7 +288,7 @@ public:
     return ptr_;
   };
 
-  //--------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // [mdspan.basic.obs], basic_mdspan observers of the mapping
 
   MDSPAN_INLINE_FUNCTION static constexpr bool is_always_unique() noexcept {

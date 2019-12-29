@@ -59,6 +59,7 @@ namespace __array_workaround {
 // Assumes T is integral, which works for our use case
 template <class T, size_t Idx> struct __array_entry_impl {
   T __value = {};
+
 #if !MDSPAN_HAS_CXX_14
   MDSPAN_INLINE_FUNCTION_DEFAULTED constexpr __array_entry_impl() noexcept =
       default;
