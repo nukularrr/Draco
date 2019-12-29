@@ -17,7 +17,7 @@
 
 <!---------------------------------------------------------------------------->
 
-\section Overview
+\section project_experimental
 
 The experimental package provides C++ backports for future C++ language
 features.
