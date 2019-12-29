@@ -32,7 +32,6 @@ install( FILES ${supporting_headers_p0009_bits} DESTINATION
 # ---------------------------------------------------------------------------- #
 # Unit tests
 # ---------------------------------------------------------------------------- #
-
 if( BUILD_TESTING )
   add_subdirectory( test )
 endif()
@@ -40,11 +39,7 @@ endif()
 # ---------------------------------------------------------------------------- #
 # Autodoc
 # ---------------------------------------------------------------------------- #
-
-# process_autodoc_pages()
-
-# add autodoc/mainpage that links to...
-# https://github.com/kokkos/mdspan/wiki/A-Gentle-Introduction-to-mdspan
+process_autodoc_pages()
 
 # ---------------------------------------------------------------------------- #
 # End experimental/CMakeLists.txt
