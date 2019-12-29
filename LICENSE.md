@@ -136,3 +136,6 @@ associated software packages may are listed below:
 10. ds++/terminal.h and ds++/terminal_base.h developed by Ondřej Čertík
     https://github.com/certik/terminal
     MIT License
+
+11. experimental/mdspan - https://github.com/kokkos/mdspan
+    Kokkos v. 2.0, Copyright (2019) Sandia Corporation, BSD-3 License
