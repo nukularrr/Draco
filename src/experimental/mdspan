@@ -49,6 +49,12 @@
 #pragma warning(disable : 4348)
 #endif
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+
 #include "__p0009_bits/accessor_basic.hpp"
 #include "__p0009_bits/all_type.hpp"
 #include "__p0009_bits/array_workaround.hpp"
@@ -62,6 +68,11 @@
 #include "__p0009_bits/macros.hpp"
 #include "__p0009_bits/mixed_size_storage.hpp"
 #include "__p0009_bits/subspan.hpp"
+
+#ifdef __clang__
+// Restore clang diagnostics to previous state.
+#pragma clang diagnostic pop
+#endif
 
 #ifdef _MSC_FULL_VER
 #pragma warning(pop)

@@ -65,6 +65,10 @@
 #define _MDSPAN_COMPILER_APPLECLANG
 #endif
 
+#ifdef __clang_version__
+#define _MDSPAN_COMPILER_LLVMCLANG
+#endif
+
 #ifndef __has_cpp_attribute
 #define __has_cpp_attribute(x) 0
 #endif
@@ -127,14 +131,20 @@
 #endif
 #endif
 #ifndef _MDSPAN_USE_INTEGER_SEQUENCE
+
 #if (defined(__cpp_lib_integer_sequence) &&                                    \
      __cpp_lib_integer_sequence >= 201304) &&                                  \
     MDSPAN_HAS_CXX_14
-// several compilers lie about integer_sequence working properly unless the C++14 standard is used
+// several compilers lie about integer_sequence working properly unless the
+// C++14 standard is used
 #define _MDSPAN_USE_INTEGER_SEQUENCE 1
 #elif defined(_MDSPAN_COMPILER_APPLECLANG) && MDSPAN_HAS_CXX_14
-// appleclang seems to be missing the __cpp_lib_... macros, but doesn't seem to lie about C++14 making
-// integer_sequence work
+// appleclang seems to be missing the __cpp_lib_... macros, but doesn't seem to
+// lie about C++14 making integer_sequence work
+#define _MDSPAN_USE_INTEGER_SEQUENCE 1
+#elif defined(_MDSPAN_COMPILER_LLVMCLANG) && MDSPAN_HAS_CXX_14
+// appleclang seems to be missing the __cpp_lib_... macros, but doesn't seem to
+// lie about C++14 making integer_sequence work
 #define _MDSPAN_USE_INTEGER_SEQUENCE 1
 #endif
 #endif
@@ -161,7 +171,12 @@
      __cpp_lib_transformation_trait_aliases >= 201304)
 #define _MDSPAN_USE_STANDARD_TRAIT_ALIASES 1
 #elif defined(_MDSPAN_COMPILER_APPLECLANG) && MDSPAN_HAS_CXX_14
-// appleclang seems to be missing the __cpp_lib_... macros, but doesn't seem to lie about C++14
+// appleclang seems to be missing the __cpp_lib_... macros, but doesn't seem to
+// lie about C++14
+#define _MDSPAN_USE_STANDARD_TRAIT_ALIASES 1
+#elif defined(_MDSPAN_COMPILER_LLVMCLANG) && MDSPAN_HAS_CXX_14
+// appleclang seems to be missing the __cpp_lib_... macros, but doesn't seem to
+// lie about C++14
 #define _MDSPAN_USE_STANDARD_TRAIT_ALIASES 1
 #endif
 #endif
