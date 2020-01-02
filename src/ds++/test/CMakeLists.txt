@@ -46,7 +46,7 @@ add_scalar_tests(
 
 # (2013-11-13 KT):: tstdbc intentionally divides by zero (to test the isinfinity
 # function). PGI issues a warning for this case that we don't care about.  Since
-# PGI does not appear to use pragmas to supress warnings, I am turning off
+# PGI does not appear to use pragmas to suppress warnings, I am turning off
 # warnings for Ut_dsxx_tstdbc_exe when the compiler is PGI.
 # if( draco_isPGI )
 #    set_source_files_properties(
