@@ -6,8 +6,8 @@
  *         All rights reserved. */
 //---------------------------------------------------------------------------//
 
-#ifndef __lapack_wrap_Blas_hh__
-#define __lapack_wrap_Blas_hh__
+#ifndef rtt_lapack_wrap_Blas_hh
+#define rtt_lapack_wrap_Blas_hh
 
 #include "Blas_Prototypes.hh"
 #include "ds++/Assert.hh"
@@ -252,7 +252,7 @@ inline T blas_nrm2(const std::vector<T> &x, int increment_x) {
 
 } // end namespace rtt_lapack_wrap
 
-#endif // __lapack_wrap_Blas_hh__
+#endif // rtt_lapack_wrap_Blas_hh
 
 //---------------------------------------------------------------------------//
 // end of lapack_wrap/Blas.hh
