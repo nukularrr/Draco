@@ -649,11 +649,12 @@ macro( toggle_compiler_flag switch compiler_flag
     if( NOT ${comp} STREQUAL "C" AND
         NOT ${comp} STREQUAL "CXX" AND
         NOT ${comp} STREQUAL "Fortran" AND
-        NOT ${comp} STREQUAL "EXE_LINKER")
-      message(FATAL_ERROR "When calling
-toggle_compiler_flag(switch, compiler_flag, compiler_flag_var_names),
-compiler_flag_var_names must be set to one or more of these valid
-names: C;CXX;EXE_LINKER.")
+        NOT ${comp} STREQUAL "EXE_LINKER" AND
+        NOT ${comp} STREQUAL "SHARED_LINKER")
+      message(FATAL_ERROR "When calling "
+"toggle_compiler_flag(switch, compiler_flag, compiler_flag_var_names), "
+"compiler_flag_var_names must be set to one or more of these valid "
+"names: C;CXX;EXE_LINKER.")
     endif()
 
     string( REPLACE "+" "x" safe_CMAKE_${comp}_FLAGS
