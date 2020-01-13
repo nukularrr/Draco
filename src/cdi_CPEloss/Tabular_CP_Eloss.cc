@@ -306,9 +306,9 @@ double Tabular_CP_Eloss::getEloss(const double temperature,
   const double f110 = stopping_data(pt1_energy, pt1_density, pt0_temperature);
   const double f011 = stopping_data(pt0_energy, pt1_density, pt1_temperature);
   const double f111 = stopping_data(pt1_energy, pt1_density, pt1_temperature);
-  const double dedx = exp(linear_interpolate_3(
-      x0, x1, y0, y1, z0, z1, f000, f100, f001, f101, f010, f110, f011, f111,
-      partSpeed, density, temperature));
+  const double dedx = exp(
+      linear_interpolate_3(x0, x1, y0, y1, z0, z1, f000, f100, f001, f101, f010,
+                           f110, f011, f111, partSpeed, density, temperature));
   const double number_density = density / target.get_mass();
   return dedx * 1000. * number_density * partSpeed; // MeV cm^2 -> keV shk^-1
 }
