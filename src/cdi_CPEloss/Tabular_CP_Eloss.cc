@@ -1,10 +1,10 @@
 //----------------------------------*-C++-*----------------------------------//
-/*!                                                                              
- * \file   cdi_CPEloss/Tabular_CP_Eloss.cc                                     
- * \author Ben R. Ryan                                                        
- * \date   2019 Nov 4                                             
- * \brief  Tabular_CP_Eloss member definitions.                                 
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.                 
+/*!
+ * \file   cdi_CPEloss/Tabular_CP_Eloss.cc
+ * \author Ben R. Ryan
+ * \date   2019 Nov 4
+ * \brief  Tabular_CP_Eloss member definitions.
+ * \note   Copyright (C) 2019-2020 Triad National Security, LLC.
  *         All rights reserved. */
 //---------------------------------------------------------------------------//
 
@@ -55,22 +55,26 @@ linear_interpolate_3(double const x0, double const x1, double const y0,
   Require(std::abs(x1 - x0) > std::numeric_limits<double>::epsilon());
   Require(std::abs(y1 - y0) > std::numeric_limits<double>::epsilon());
   Require(std::abs(z1 - z0) > std::numeric_limits<double>::epsilon());
-  Require((x >= x0) && (x <= x1) && (y >= y0) && (y <= y1) && (z >= z0) &&
-          (z <= z1));
+  Require(x >= x0);
+  Require(x <= x1);
+  Require(y >= y0);
+  Require(y <= y1);
+  Require(z >= z0);
+  Require(z <= z1);
 
-  double xd = (x - x0) / (x1 - x0);
-  double yd = (y - y0) / (y1 - y0);
-  double zd = (z - z0) / (z1 - z0);
+  const double xd = (x - x0) / (x1 - x0);
+  const double yd = (y - y0) / (y1 - y0);
+  const double zd = (z - z0) / (z1 - z0);
 
-  double f00 = f000 * (1. - xd) + f100 * xd;
-  double f01 = f001 * (1. - xd) + f101 * xd;
-  double f10 = f010 * (1. - xd) + f110 * xd;
-  double f11 = f011 * (1. - xd) + f111 * xd;
+  const double f00 = f000 * (1. - xd) + f100 * xd;
+  const double f01 = f001 * (1. - xd) + f101 * xd;
+  const double f10 = f010 * (1. - xd) + f110 * xd;
+  const double f11 = f011 * (1. - xd) + f111 * xd;
 
-  double f0 = f00 * (1. - yd) + f10 * yd;
-  double f1 = f01 * (1. - yd) + f11 * yd;
+  const double f0 = f00 * (1. - yd) + f10 * yd;
+  const double f1 = f01 * (1. - yd) + f11 * yd;
 
-  double f = f0 * (1. - zd) + f1 * zd;
+  const double f = f0 * (1. - zd) + f1 * zd;
 
   return f;
 }
@@ -79,28 +83,30 @@ linear_interpolate_3(double const x0, double const x1, double const y0,
 // CONSTRUCTORS
 //---------------------------------------------------------------------------//
 /*!
- * \brief Constructor for an analytic tabular eloss model. 
+ * \brief Constructor for an analytic tabular eloss model.
  *
  * This constructor builds an eloss model defined by the
  * rtt_cdi_cpeloss::Tabular_Eloss_Model derived class argument.
  *
  * The path to an eloss datafile is passed to the constructor,
  * which opens and parses the file. The file format is the usual
- * LANL format for stopping powers. 
+ * LANL format for stopping powers.
  *
  * \param[in] filename_in path to eloss file
  * \param[in] target_in target particle zaid
  * \param[in] projectile_in transporting particle zaid
  */
-Tabular_CP_Eloss::Tabular_CP_Eloss(std::string filename_in,
-                                   rtt_cdi::CParticle target_in,
-                                   rtt_cdi::CParticle projectile_in)
-    : rtt_cdi::CPEloss(target_in, projectile_in), filename(filename_in),
-      us(rtt_units::UnitSystemType().X4()), pc_cgs(us) {
+Tabular_CP_Eloss::Tabular_CP_Eloss(
+    const std::string &filename_in, rtt_cdi::CParticle target_in,
+    rtt_cdi::CParticle projectile_in,
+    rtt_cdi::CPModelAngleCutoff model_angle_cutoff_in)
+    : rtt_cdi::CPEloss(target_in, projectile_in,
+                       rtt_cdi::CPModelType::TABULAR_ETYPE,
+                       model_angle_cutoff_in),
+      //filename(filename_in), us(rtt_units::UnitSystemType().X4()), pc_cgs(us) {
+      filename(filename_in) {
   using std::stod;
   using std::stoi;
-
-  model_type = rtt_cdi::CPModelType::TABULAR_ETYPE;
 
   file.open(filename);
   Insist(file.is_open(), "Error opening DEDX file \"" + filename + "\"");
@@ -123,9 +129,15 @@ Tabular_CP_Eloss::Tabular_CP_Eloss(std::string filename_in,
   line_entries =
       read_line(); // Bin spacing for energy, density, temperature (log)
   Check(line_entries.size() >= 3);
-  d_log_energy = 1. / stod(line_entries[0]);
-  d_log_density = 1. / stod(line_entries[1]);
-  d_log_temperature = 1. / stod(line_entries[2]);
+  d_log_energy = stod(line_entries[0]);
+  d_log_density = stod(line_entries[1]);
+  d_log_temperature = stod(line_entries[2]);
+  Require(d_log_energy > 0);
+  Require(d_log_density > 0);
+  Require(d_log_temperature > 0);
+  d_log_energy = 1. / d_log_energy;
+  d_log_density = 1. / d_log_density;
+  d_log_temperature = 1. / d_log_temperature;
 
   // Get first energy support point
   uint32_t nlines = (n_energy + max_entries - 1) / max_entries;
@@ -216,7 +228,7 @@ Tabular_CP_Eloss::Tabular_CP_Eloss(std::string filename_in,
 
   // Convert units on table to match those of getEloss:
   //   energy:      MeV -> cm/shk (using target particle mass)
-  double energy_cgs = exp(min_log_energy) * (1.e6 * 1.6021772e-12);
+  double energy_cgs = exp(min_log_energy) * (1.e6 * pc.electronVolt());
   min_log_energy = log(sqrt(2. * energy_cgs / target.get_mass()) * 1.e-8);
   d_log_energy = d_log_energy / 2.;
   //   density:     cm^-3 -> g cm^-3
@@ -225,7 +237,8 @@ Tabular_CP_Eloss::Tabular_CP_Eloss(std::string filename_in,
   // Note that d log x = dx / x is not affected by unit conversion factors
   for (auto &energy : energies) {
     energy =
-        sqrt(2. * (energy * 1.e6 * 1.6021772e-12) / target.get_mass()) * 1.e-8;
+        sqrt(2. * (energy * 1.e6 * pc.electronVolt()) / target.get_mass()) *
+        1.e-8;
   }
   for (auto &density : densities) {
     density *= target.get_mass();
@@ -241,6 +254,7 @@ Tabular_CP_Eloss::Tabular_CP_Eloss(std::string filename_in,
       exp(min_log_temperature + d_log_temperature * (n_temperature));
 }
 
+//----------------------------------------------------------------------------//
 /*!
  * \brief Read through the next nlines lines and ignore them.
  * \param[in] nlines number of lines in file to skip
@@ -252,6 +266,7 @@ void Tabular_CP_Eloss::skip_lines(uint32_t nlines) {
   }
 }
 
+//----------------------------------------------------------------------------//
 /*!
  * \brief Read a line from an eloss datafile and return as a vector of strings.
  * \return entries the resulting vector of entries in the datafile line.
@@ -262,12 +277,20 @@ std::vector<std::string> const Tabular_CP_Eloss::read_line() {
   return rtt_dsxx::tokenize(line);
 }
 
+//----------------------------------------------------------------------------//
+/*!
+ * \brief Interpolate the tabulated stopping power for a given material and
+ *        projectile state.
+ * \param[in] temperature Material temperature [keV]
+ * \param[in] density Material density [g cm^-3]
+ * \param[in] partSpeed Particle speed [cm shk^-1]
+ */
 double Tabular_CP_Eloss::getEloss(const double temperature,
                                   const double density,
                                   const double partSpeed) const {
-  Require(temperature >= min_temperature);
-  Require(density >= min_density);
-  Require(partSpeed >= min_energy);
+  Require(temperature > min_temperature);
+  Require(density > min_density);
+  Require(partSpeed > min_energy);
   Require(temperature < max_temperature);
   Require(density < max_density);
   Require(partSpeed < max_energy);
@@ -281,13 +304,13 @@ double Tabular_CP_Eloss::getEloss(const double temperature,
 
   const int pt0_energy = static_cast<int>(
       std::floor((log(partSpeed) - min_log_energy) / d_log_energy));
-  int pt1_energy = pt0_energy + 1;
-  int pt0_density = static_cast<int>(
+  const int pt1_energy = pt0_energy + 1;
+  const int pt0_density = static_cast<int>(
       std::floor((log(density) - min_log_density) / d_log_density));
-  int pt1_density = pt0_density + 1;
-  int pt0_temperature = static_cast<int>(
+  const int pt1_density = pt0_density + 1;
+  const int pt0_temperature = static_cast<int>(
       std::floor((log(temperature) - min_log_temperature) / d_log_temperature));
-  int pt1_temperature = pt0_temperature + 1;
+  const int pt1_temperature = pt0_temperature + 1;
 
   const double x0 = exp(min_log_energy + pt0_energy * d_log_energy);
   const double x1 = exp(min_log_energy + pt1_energy * d_log_energy);
@@ -314,3 +337,7 @@ double Tabular_CP_Eloss::getEloss(const double temperature,
 }
 
 } // namespace rtt_cdi_cpeloss
+
+//----------------------------------------------------------------------------//
+// End cdi_CPEloss/Tabular_CP_Eloss.cc
+//----------------------------------------------------------------------------//

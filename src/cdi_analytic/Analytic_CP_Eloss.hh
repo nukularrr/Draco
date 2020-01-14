@@ -8,8 +8,8 @@
  *         All rights reserved. */
 //---------------------------------------------------------------------------//
 
-#ifndef __cdi_analytic_Analytic_CP_Eloss_hh__
-#define __cdi_analytic_Analytic_CP_Eloss_hh__
+#ifndef rtt_cdi_analytic_Analytic_CP_Eloss_hh
+#define rtt_cdi_analytic_Analytic_CP_Eloss_hh
 
 #include "Analytic_Models.hh"
 #include "cdi/CPCommon.hh"
@@ -36,6 +36,7 @@ public:
   typedef std::vector<double> sf_double;
   typedef std::string std_string;
   typedef rtt_cdi::CParticle CParticle;
+  typedef rtt_cdi::CPModelAngleCutoff CPModelAngleCutoff;
 
 private:
   // Analytic eloss model.
@@ -48,7 +49,8 @@ private:
 public:
   // Constructor.
   Analytic_CP_Eloss(SP_Analytic_Model model_in, CParticle target_in,
-                    CParticle projectile_in);
+                    CParticle projectile_in,
+                    CPModelAngleCutoff model_angle_cutoff_in);
 
   // >>> ACCESSORS
   const_SP_Model get_Analytic_Model() const { return analytic_model; }
@@ -60,7 +62,7 @@ public:
                   const double v0) const;
 
   //! Query to see if data is in tabular or functional form (false).
-  bool data_in_tabular_form() const { return false; }
+  constexpr static bool is_data_in_tabular_form() { return false; }
 
   // Get the name of the associated data file.
   inline std_string getDataFilename() const;
@@ -105,3 +107,7 @@ std::string Analytic_CP_Eloss::getDataFilename() const { return std_string(); }
 } // namespace rtt_cdi_analytic
 
 #endif
+
+//----------------------------------------------------------------------------//
+// End cdi_analytic/Analytic_CP_Eloss.hh
+//----------------------------------------------------------------------------//

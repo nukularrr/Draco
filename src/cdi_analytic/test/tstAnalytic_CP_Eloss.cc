@@ -29,21 +29,26 @@ using rtt_cdi_analytic::Analytic_Eloss_Model;
 void KP_alpha_test(rtt_dsxx::UnitTest &ut) {
 
   // Deuterium:
-  rtt_cdi::CParticle target_in(1002, 3.34358e-24);
+  int deuterium_zaid = 1002;
+  double deuterium_mass = 3.34358e-24;
+  rtt_cdi::CParticle target_in(deuterium_zaid, deuterium_mass);
   // Alpha particle:
-  rtt_cdi::CParticle projectile_in(2004, 6.64424e-24);
+  int alpha_zaid = 2004;
+  double alpha_mass = 6.64424e-24;
+  rtt_cdi::CParticle projectile_in(alpha_zaid, alpha_mass);
 
   std::shared_ptr<Analytic_Eloss_Model> model_in(
       new rtt_cdi_analytic::Analytic_KP_Alpha_Eloss_Model());
 
-  Analytic_CP_Eloss eloss_mod(model_in, target_in, projectile_in);
+  Analytic_CP_Eloss eloss_mod(model_in, target_in, projectile_in,
+                              rtt_cdi::CPModelAngleCutoff::NONE);
 
   // Check that basic accessors return correct result:
   // Model type better be analytic:
   FAIL_IF_NOT(eloss_mod.getModelType() == rtt_cdi::CPModelType::ANALYTIC_ETYPE);
 
   // NOT tabular data
-  FAIL_IF(eloss_mod.data_in_tabular_form());
+  FAIL_IF(eloss_mod.is_data_in_tabular_form());
 
   // All sizes should be 0 (again, not tabular data)
   FAIL_IF_NOT(eloss_mod.getTemperatureGrid().size() ==

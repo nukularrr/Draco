@@ -29,19 +29,22 @@ namespace rtt_cdi_analytic {
  * \param[in] target_in int32_t target particle
  * \param[in] projectile_in int32_t particle being transported
  */
-Analytic_CP_Eloss::Analytic_CP_Eloss(SP_Analytic_Model model_in,
-                                     rtt_cdi::CParticle target_in,
-                                     rtt_cdi::CParticle projectile_in)
-    : rtt_cdi::CPEloss(target_in, projectile_in), analytic_model(model_in) {
+Analytic_CP_Eloss::Analytic_CP_Eloss(
+    SP_Analytic_Model model_in, rtt_cdi::CParticle target_in,
+    rtt_cdi::CParticle projectile_in,
+    rtt_cdi::CPModelAngleCutoff model_angle_cutoff_in)
+    : rtt_cdi::CPEloss(target_in, projectile_in,
+                       rtt_cdi::CPModelType::ANALYTIC_ETYPE,
+                       model_angle_cutoff_in),
+      analytic_model(model_in) {
   Ensure(analytic_model);
-  model_type = rtt_cdi::CPModelType::ANALYTIC_ETYPE;
 }
 
 //---------------------------------------------------------------------------//
 // ELOSS INTERFACE FUNCTIONS
 //---------------------------------------------------------------------------//
 /*!
- * \brief Return a scalar eloss given a scalar temperature, density, and 
+ * \brief Return a scalar eloss given a scalar temperature, density, and
  *        particle speed.
  *
  * Given a scalar temperature/density/speed, return an eloss for the reaction
@@ -68,3 +71,7 @@ double Analytic_CP_Eloss::getEloss(double temperature, double density,
 }
 
 } // namespace rtt_cdi_analytic
+
+//----------------------------------------------------------------------------//
+// End cdi_analytic/Analytic_CP_Eloss.cc
+//----------------------------------------------------------------------------//

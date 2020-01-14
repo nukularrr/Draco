@@ -4,7 +4,7 @@
  * \author Ben R. Ryan
  * \date   2019 Nov 18
  * \brief  Tabular_CP_Eloss test
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2019-2020 Triad National Security, LLC.
  *         All rights reserved. */
 //---------------------------------------------------------------------------//
 
@@ -26,18 +26,23 @@ void dedx_table_test(rtt_dsxx::UnitTest &ut) {
 
   // Datatable filename
   std::string filename_in = ut.getTestSourcePath() + "001-H-001";
-  // Alpha particle target
-  rtt_cdi::CParticle target_in(1002, 3.34447643e-24);
+  // Deuterium target
+  int deuterium_zaid = 1002;
+  double deuterium_mass = 3.34447643e-24;
+  rtt_cdi::CParticle target_in(deuterium_zaid, deuterium_mass);
   // Proton projectile
-  rtt_cdi::CParticle projectile_in(1001, 1.6726219e-24);
+  int proton_zaid = 1001;
+  double proton_mass = 1.6726219e-24;
+  rtt_cdi::CParticle projectile_in(proton_zaid, proton_mass);
 
-  Tabular_CP_Eloss eloss_mod(filename_in, target_in, projectile_in);
+  Tabular_CP_Eloss eloss_mod(filename_in, target_in, projectile_in,
+                             rtt_cdi::CPModelAngleCutoff::NONE);
 
   // Model type better be tabular:
   FAIL_IF_NOT(eloss_mod.getModelType() == rtt_cdi::CPModelType::TABULAR_ETYPE);
 
   // Tabular data
-  FAIL_IF_NOT(eloss_mod.data_in_tabular_form());
+  FAIL_IF_NOT(eloss_mod.is_data_in_tabular_form());
 
   // Check that grid accessors agree
   FAIL_IF_NOT(eloss_mod.getTemperatureGrid().size() ==
@@ -68,7 +73,7 @@ void dedx_table_test(rtt_dsxx::UnitTest &ut) {
     double temperature = 3.981051e-04;
     FAIL_IF_NOT(
         rtt_dsxx::soft_equiv(eloss_mod.getEloss(temperature, density, energy),
-                             1.958064043427486800e-01, 1.e-8));
+                             0.1958064213742134, 1.e-8));
   }
 
   // Get eloss value for almost last (2,3,4) grid point
@@ -88,7 +93,7 @@ void dedx_table_test(rtt_dsxx::UnitTest &ut) {
     double temperature = 3.981044e+00;
     FAIL_IF_NOT(
         rtt_dsxx::soft_equiv(eloss_mod.getEloss(temperature, density, energy),
-                             1.391042023333255202e+05, 1.e-8));
+                             139104.1982932578, 1.e-8));
   }
 
   if (ut.numFails == 0) {
