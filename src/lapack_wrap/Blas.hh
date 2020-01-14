@@ -194,7 +194,7 @@ inline double blas_nrm2(int N, const double *x, int increment_x) {
 /*!
  * \brief Do \f$ \mbox{nrm2}\leftarrow \| x\|_{2} \f$ stl-algorithms style.
  *
- * The iterators must point to float or double value_type's. 
+ * The iterators must point to float or double value_type's.
  *
  * \param x_begin iterator pointing to the beginning of x
  * \param x_end iterator pointing to the end of x
