@@ -70,9 +70,12 @@ private:
   sf_double temperatures;     //!< Vector of temperature gridpoints
   // Note that after unit conversions, *_energy is really *_speed
 
-  // Storage for tabulated data
+  // Multidimensional view of stored tabulated data
   stdex::basic_mdspan<double, dynamic_extents_3, std::experimental::layout_left>
       stopping_data;
+
+  // Storage for tabulated data
+  std::vector<double> stopping_data_1d
 
   // Utility for skipping lines
   void skip_lines(uint32_t nlines);

@@ -172,7 +172,7 @@ Tabular_CP_Eloss::Tabular_CP_Eloss(
     temperatures[n] = exp(min_log_temperature + n * d_log_temperature);
   }
 
-  std::vector<double> stopping_data_1d(n_energy * n_density * n_temperature);
+  stopping_data_1d(n_energy * n_density * n_temperature);
 
   bool target_found = false;
   nlines =
