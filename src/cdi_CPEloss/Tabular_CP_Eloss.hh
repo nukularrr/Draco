@@ -75,7 +75,7 @@ private:
       stopping_data;
 
   // Storage for tabulated data
-  std::vector<double> stopping_data_1d
+  std::vector<double> stopping_data_1d;
 
   // Utility for skipping lines
   void skip_lines(uint32_t nlines);
