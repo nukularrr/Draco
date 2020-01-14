@@ -95,6 +95,9 @@ linear_interpolate_3(double const x0, double const x1, double const y0,
  * \param[in] filename_in path to eloss file
  * \param[in] target_in target particle zaid
  * \param[in] projectile_in transporting particle zaid
+ * \param[in] model_angle_cutoff_in rtt_cdi::CPModelAngleCutoff the angle
+ *                 separating the stopping power approximation from analog 
+ *                 scattering
  */
 Tabular_CP_Eloss::Tabular_CP_Eloss(
     const std::string &filename_in, rtt_cdi::CParticle target_in,

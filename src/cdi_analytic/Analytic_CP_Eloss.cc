@@ -28,6 +28,9 @@ namespace rtt_cdi_analytic {
  *                 rtt_cdi_analytic::Analytic_Eloss_Model object
  * \param[in] target_in int32_t target particle
  * \param[in] projectile_in int32_t particle being transported
+ * \param[in] model_angle_cutoff_in rtt_cdi::CPModelAngleCutoff the angle
+ *                 separating the stopping power approximation from analog 
+ *                 scattering
  */
 Analytic_CP_Eloss::Analytic_CP_Eloss(
     SP_Analytic_Model model_in, rtt_cdi::CParticle target_in,
