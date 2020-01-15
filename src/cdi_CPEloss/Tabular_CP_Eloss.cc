@@ -106,7 +106,6 @@ Tabular_CP_Eloss::Tabular_CP_Eloss(
     : rtt_cdi::CPEloss(target_in, projectile_in,
                        rtt_cdi::CPModelType::TABULAR_ETYPE,
                        model_angle_cutoff_in),
-      //filename(filename_in), us(rtt_units::UnitSystemType().X4()), pc_cgs(us) {
       filename(filename_in) {
   using std::stod;
   using std::stoi;
@@ -115,7 +114,8 @@ Tabular_CP_Eloss::Tabular_CP_Eloss(
   Insist(file.is_open(), "Error opening DEDX file \"" + filename + "\"");
 
   constexpr uint32_t max_entries =
-      6; // This is a statement about the file format, maximum of six entries per row.
+      6; // This is a statement about the file format, maximum of six entries
+         // per row
 
   std::vector<std::string> line_entries = read_line(); // ZAID
   int32_t projectile_zaid_file = stoi(line_entries[0]);
@@ -177,7 +177,8 @@ Tabular_CP_Eloss::Tabular_CP_Eloss(
   bool target_found = false;
   nlines =
       (n_energy * n_density * n_temperature + max_entries - 1) /
-      max_entries; // The number of lines taken up by stopping power data for one target
+      max_entries; // The number of lines taken up by stopping power data for
+                   // one target
   if (target.get_zaid() == -1) {
     // Target is free electrons
     target_found = true;

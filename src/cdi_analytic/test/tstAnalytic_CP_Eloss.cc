@@ -44,6 +44,11 @@ void KP_alpha_test(rtt_dsxx::UnitTest &ut) {
                               rtt_cdi::CPModelAngleCutoff::NONE);
 
   // Check that basic accessors return correct result:
+  // Analytic model should match that passed to constructor
+  FAIL_IF_NOT(rtt_dsxx::soft_equiv(
+      eloss_mod.getEloss(1., 10., 1.),
+      eloss_mod.get_Analytic_Model()->calculate_eloss(1., 10., 1.), 1.0e-3));
+
   // Model type better be analytic:
   FAIL_IF_NOT(eloss_mod.getModelType() == rtt_cdi::CPModelType::ANALYTIC_ETYPE);
 
@@ -62,6 +67,10 @@ void KP_alpha_test(rtt_dsxx::UnitTest &ut) {
   // Check that accessors return the correct target and projectile:
   FAIL_IF_NOT(target_in.get_zaid() == eloss_mod.getTarget().get_zaid());
   FAIL_IF_NOT(projectile_in.get_zaid() == eloss_mod.getProjectile().get_zaid());
+
+  // Check that accessor returns the correct model angle cutoff
+  FAIL_IF_NOT(eloss_mod.getModelAngleCutoff() ==
+              rtt_cdi::CPModelAngleCutoff::NONE);
 
   // Get eloss values for some sample data:
   {
