@@ -292,16 +292,9 @@ std::vector<std::string> const Tabular_CP_Eloss::read_line() {
 double Tabular_CP_Eloss::getEloss(const double temperature,
                                   const double density,
                                   const double partSpeed) const {
-  Require(temperature > min_temperature);
-  Require(density > min_density);
-  Require(partSpeed > min_energy);
-  Require(temperature < max_temperature);
-  Require(density < max_density);
-  Require(partSpeed < max_energy);
-
-  if (temperature < min_temperature || temperature > max_temperature ||
-      density < min_density || density > max_density ||
-      partSpeed < min_energy || partSpeed > max_energy) {
+  if (temperature <= min_temperature || temperature >= max_temperature ||
+      density <= min_density || density >= max_density ||
+      partSpeed <= min_energy || partSpeed >= max_energy) {
     // Outside of the table
     return 0.;
   }

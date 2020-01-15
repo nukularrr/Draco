@@ -58,14 +58,6 @@ void dedx_table_test(rtt_dsxx::UnitTest &ut) {
   // Data file should not be empty
   FAIL_IF(eloss_mod.getDataFilename().empty());
 
-  // Throw error if trying to read table out of bounds
-  try {
-    eloss_mod.getEloss(0, 0, 0);
-    FAILMSG("Require failed to fire with out-of-bounds table access.");
-  } catch (rtt_dsxx::assertion &) {
-    PASSMSG("Require fired for out-of-bounds table access.");
-  }
-
   // Get eloss value for almost first (1,1,1) grid point
   {
     double energy = 1.384272;
