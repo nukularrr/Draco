@@ -118,8 +118,8 @@ Tabular_CP_Eloss::Tabular_CP_Eloss(
          // per row
 
   std::vector<std::string> line_entries = read_line(); // ZAID
-  int32_t projectile_zaid_file = stoi(line_entries[0]);
-  Require(projectile.get_zaid() == projectile_zaid_file);
+  Remember(int32_t projectile_zaid_file = stoi(line_entries[0]));
+  Ensure(projectile.get_zaid() == projectile_zaid_file);
 
   skip_lines(1); // Z, A, mass
 
