@@ -88,28 +88,31 @@ macro( query_craype )
       # We expect developers to use the Cray compiler wrappers (especially in
       # setupMPI.cmake). See also
       # https://cmake.org/cmake/help/latest/module/FindMPI.html
-      if( NOT "$ENV{CXX}" MATCHES "CC$" OR
-          NOT "$ENV{CC}" MATCHES "cc$" OR
-          NOT "$ENV{FC}" MATCHES "ftn$" OR
-          NOT "$ENV{CRAYPE_LINK_TYPE}" MATCHES "dynamic$" )
-        message( FATAL_ERROR
-"The build system requires that the Cray compiler wrappers (CC, cc, ftn) be "
-" used when configuring this product on a Cray system (CRAY_PE=${CRAY_PE}). The"
-" development environment must also support dynamic linking.  The build system "
-" thinks you are trying to use:\n"
-"  CMAKE_CXX_COMPILER     = ${CMAKE_CXX_COMPILER}\n"
-"  CMAKE_C_COMPILER       = ${CMAKE_C_COMPILER}\n"
-"  CMAKE_Fortran_COMPILER = ${CMAKE_Fortran_COMPILER}\n"
-"  CRAYPE_LINK_TYPE       = $ENV{CRAYPE_LINK_TYPE}\n"
-"If you are working on a system that runs the Cray Programming Environment, try"
-" setting the following variables and rerunning cmake from a clean build"
-" directory:\n"
-"   export CXX=`which CC`\n"
-"   export CC=`which cc`\n"
-"   export FC=`which ftn`\n"
-"   export CRAYPE_LINK_TYPE=dynamic\n"
-"Otherwise please email this error message and other related information to"
-" draco@lanl.gov.\n" )
+      if( NOT "$ENV{CXX}" MATCHES "spack/lib/spack" )
+        # skip this check if building from within spack.
+        if( NOT "$ENV{CXX}" MATCHES "CC$" OR
+            NOT "$ENV{CC}" MATCHES "cc$" OR
+            NOT "$ENV{FC}" MATCHES "ftn$" OR
+            NOT "$ENV{CRAYPE_LINK_TYPE}" MATCHES "dynamic$" )
+          message( FATAL_ERROR
+            "The build system requires that the Cray compiler wrappers (CC, cc, ftn) be "
+            " used when configuring this product on a Cray system (CRAY_PE=${CRAY_PE}). The"
+            " development environment must also support dynamic linking.  The build system "
+            " thinks you are trying to use:\n"
+            "  CMAKE_CXX_COMPILER     = ${CMAKE_CXX_COMPILER}\n"
+            "  CMAKE_C_COMPILER       = ${CMAKE_C_COMPILER}\n"
+            "  CMAKE_Fortran_COMPILER = ${CMAKE_Fortran_COMPILER}\n"
+            "  CRAYPE_LINK_TYPE       = $ENV{CRAYPE_LINK_TYPE}\n"
+            "If you are working on a system that runs the Cray Programming Environment, try"
+            " setting the following variables and rerunning cmake from a clean build"
+            " directory:\n"
+            "   export CXX=`which CC`\n"
+            "   export CC=`which cc`\n"
+            "   export FC=`which ftn`\n"
+            "   export CRAYPE_LINK_TYPE=dynamic\n"
+            "Otherwise please email this error message and other related information to"
+            " draco@lanl.gov.\n" )
+        endif()
       endif()
       message( STATUS
         "Looking to see if we are building in a Cray Environment..."
