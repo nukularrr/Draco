@@ -118,8 +118,9 @@ Tabular_CP_Eloss::Tabular_CP_Eloss(
          // per row
 
   std::vector<std::string> line_entries = read_line(); // ZAID
-  Remember(int32_t projectile_zaid_file = stoi(line_entries[0]));
-  Ensure(projectile.get_zaid() == projectile_zaid_file);
+  int32_t projectile_zaid_file = stoi(line_entries[0]);
+  Insist(projectile.get_zaid() == projectile_zaid_file,
+         "File projectile ZAID does not match constructor argument!");
 
   skip_lines(1); // Z, A, mass
 
