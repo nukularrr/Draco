@@ -12,6 +12,7 @@
 #define rtt_cdi_analytic_Analytic_CP_Eloss_hh
 
 #include "Analytic_Models.hh"
+#include "cdi/CPCommon.hh"
 #include "cdi/CPEloss.hh"
 #include <memory>
 
@@ -34,16 +35,12 @@ public:
   typedef std::shared_ptr<Analytic_Eloss_Model> SP_Analytic_Model;
   typedef std::vector<double> sf_double;
   typedef std::string std_string;
+  typedef rtt_cdi::CParticle CParticle;
+  typedef rtt_cdi::CPModelAngleCutoff CPModelAngleCutoff;
 
 private:
   // Analytic eloss model.
   SP_Analytic_Model analytic_model;
-
-  // Particle type being transported.
-  int32_t projectile_zaid;
-
-  // Target species.
-  int32_t target_zaid;
 
   // Data model (e.g. Eloss, large-angle scatter, etc.)
   // Currently only ELOSS is implemented.
@@ -51,8 +48,9 @@ private:
 
 public:
   // Constructor.
-  Analytic_CP_Eloss(SP_Analytic_Model model_in, int32_t target_zaid_in,
-                    int32_t projectile_zaid_in);
+  Analytic_CP_Eloss(SP_Analytic_Model model_in, CParticle target_in,
+                    CParticle projectile_in,
+                    CPModelAngleCutoff model_angle_cutoff_in);
 
   // >>> ACCESSORS
   const_SP_Model get_Analytic_Model() const { return analytic_model; }
@@ -64,16 +62,7 @@ public:
                   const double v0) const;
 
   //! Query to see if data is in tabular or functional form (false).
-  bool data_in_tabular_form() const { return false; }
-
-  //! Query to determine the target species type.
-  int32_t getTargetZAID() const { return target_zaid; }
-
-  //! Query to determine the transporting particle type.
-  int32_t getProjectileZAID() const { return projectile_zaid; }
-
-  //! Return the model (energy loss)
-  rtt_cdi::CPModel getModel() const { return rtt_cdi::CPModel::ELOSS; }
+  constexpr static bool is_data_in_tabular_form() { return false; }
 
   // Get the name of the associated data file.
   inline std_string getDataFilename() const;
@@ -118,3 +107,7 @@ std::string Analytic_CP_Eloss::getDataFilename() const { return std_string(); }
 } // namespace rtt_cdi_analytic
 
 #endif
+
+//----------------------------------------------------------------------------//
+// End cdi_analytic/Analytic_CP_Eloss.hh
+//----------------------------------------------------------------------------//
