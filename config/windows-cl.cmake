@@ -148,7 +148,7 @@ foreach( lib ws2_32;wsock32;winsock32;mswsock32 )
       HINTS C:/Windows/System32;${winkitdirs} )
     if( EXISTS "${winsock_lib_${lib}}" )
       set( Lib_win_winsock "${winsock_lib_${lib}}" CACHE FILEPATH
-        "Windows sockets library.")      
+        "Windows sockets library.")
     endif()
   endif()
 endforeach()
