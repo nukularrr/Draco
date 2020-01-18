@@ -48,6 +48,7 @@ add_dir_if_exists( ds++ )
 # Level 2
 message(" ")
 message( STATUS "Configuring Level 2 packages --" )
+add_dir_if_exists( experimental ) # needs ds++ for tests only
 add_dir_if_exists( c4 )           # needs ds++
 add_dir_if_exists( cdi )          # needs ds++
 add_dir_if_exists( linear )       # needs ds++
@@ -87,6 +88,7 @@ add_dir_if_exists( norms )        # needs c4
 add_dir_if_exists( parser )       # needs units, c4, mesh_element
 add_dir_if_exists( roots )        # needs linear
 add_dir_if_exists( timestep )     # needs c4, ds++
+add_dir_if_exists( cdi_CPEloss )  # needs ds++, cdi, units
 
 if( NOT DEFINED ENV{APPVEYOR} )
   add_dir_if_exists( VendorChecks ) # needs c4
