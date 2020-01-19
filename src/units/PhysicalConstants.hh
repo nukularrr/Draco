@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*! \file   PhysicalConstants.hh
  *  \author Kelly Thompson
  *  \brief  Provide a single place where physical constants (pi, speed of
  *          light, etc) are defined.
  *  \date   Fri Nov 07 10:04:52 2003
- *  \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ *  \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *          All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_units_PhysicalConstants_hh
 #define rtt_units_PhysicalConstants_hh
@@ -218,6 +218,6 @@ private:
 
 #endif // rtt_units_PhysicalConstants_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of units/PhysicalConstants.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   timestep/ts_advisor.hh
  * \author John McGhee
  * \date   Thu Apr  2 14:06:18 1998
  * \brief  Header file for the base class time-step advisor.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_timestep_ts_advisor_hh
 #define rtt_timestep_ts_advisor_hh
@@ -22,7 +22,7 @@ namespace rtt_timestep {
 
 class ts_manager;
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \brief Defines the base class time-step advisor.
  *
@@ -30,7 +30,7 @@ class ts_manager;
  *     overview_timestep page gives a summary of the Draco time step control
  *     utilities.
  */
-//===========================================================================//
+//============================================================================//
 class DLL_PUBLIC_timestep ts_advisor {
 
   // NESTED CLASSES AND TYPEDEFS
@@ -149,6 +149,6 @@ public:
 
 #endif // rtt_timestep_ts_advisor_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of ts_advisor.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

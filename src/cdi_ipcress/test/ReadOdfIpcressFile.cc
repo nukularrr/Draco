@@ -1,11 +1,11 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi_ipcress/test/ReadOdfIpcressFile.cc
  * \author Seth R. Johnson
  * \date   Thu July 10 2008
- * \note   Copyright (C) 2008-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2008-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "cdi_ipcress_test.hh"
 #include "cdi_ipcress/IpcressOdfmgOpacity.hh"
@@ -37,7 +37,7 @@ void printCData(SP_Goo spGandOpacity, double temperature, double density);
 void printData(SP_Goo spGandOpacity, double temperature, double density);
 void printTable(SP_Goo spGandOpacity, double temperature, double density);
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void printSyntax() {
   cerr << "syntax: ReadOdfIpcressFile [--help] [--bands n | --mg] "
        << "[--analyze | --printc | --printtable | --collapse] [--model "
@@ -47,7 +47,7 @@ void printSyntax() {
   // Undocumented:
   // ReadOdfIpcressFile --unittest
 }
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 int main(int argc, char *argv[]) {
   rtt_dsxx::ScalarUnitTest ut(argc, argv, rtt_dsxx::release);
@@ -333,7 +333,7 @@ int main(int argc, char *argv[]) {
   cerr << "\nFinished." << endl;
   return 0;
 }
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void printGrid(SP_Goo spGandOpacity) {
   const vec_d temperatures = spGandOpacity->getTemperatureGrid();
   const vec_d densities = spGandOpacity->getDensityGrid();
@@ -348,7 +348,7 @@ void printGrid(SP_Goo spGandOpacity) {
     cout << densities[i] << " ";
   cout << endl;
 }
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void askTempDens(double &temperature, double &density, bool is_unittest) {
   if (is_unittest) {
     temperature = 5.0;
@@ -363,7 +363,7 @@ void askTempDens(double &temperature, double &density, bool is_unittest) {
     cin >> density;
   }
 }
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void analyzeData(SP_Goo spGandOpacity) {
   Require(spGandOpacity);
 
@@ -391,7 +391,7 @@ void analyzeData(SP_Goo spGandOpacity) {
     }
   }
 }
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void collapseOpacities(SP_Goo spGandOpacity, double temperature,
                        double density) {
   Require(spGandOpacity);
@@ -442,7 +442,7 @@ void collapseOpacities(SP_Goo spGandOpacity, double temperature,
   }
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void printTable(SP_Goo spGandOpacity, double temperature, double density) {
   Require(spGandOpacity);
 
@@ -482,7 +482,7 @@ void printTable(SP_Goo spGandOpacity, double temperature, double density) {
   cout << endl;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void printCData(SP_Goo spGandOpacity, double temperature, double density) {
   Require(spGandOpacity);
 
@@ -553,7 +553,7 @@ void printCData(SP_Goo spGandOpacity, double temperature, double density) {
   cout << "};" << endl;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void printData(SP_Goo spGandOpacity, double temperature, double density) {
   Require(spGandOpacity);
 
@@ -604,6 +604,6 @@ void printData(SP_Goo spGandOpacity, double temperature, double density) {
        << "=============================================" << endl;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of ReadOdfIpcressFile.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

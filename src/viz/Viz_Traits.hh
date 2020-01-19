@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   viz/Viz_Traits.hh
  * \author Thomas M. Evans
  * \date   Fri Jan 21 17:10:54 2000
  * \brief  Viz_Traits header file.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_viz_Viz_Traits_hh
 #define rtt_viz_Viz_Traits_hh
@@ -16,7 +16,7 @@
 
 namespace rtt_viz {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class Viz_Traits
  *
@@ -34,9 +34,10 @@ namespace rtt_viz {
  * \arg operator()(int i, int j) where the range is [0:N-1, 0:N-1];
  * \arg nrows() returns the number of rows (i index);
  * \arg ncols(int row) returns the number of columns in row (j index);
- * \arg FT::value_type defined to the type returned by the field (int, double, etc).
+ * \arg FT::value_type defined to the type returned by the field (int, double, 
+ *      etc).
  */
-//===========================================================================//
+//============================================================================//
 
 template <typename FT> class Viz_Traits {
 private:
@@ -60,7 +61,7 @@ public:
   size_t ncols(size_t row) const { return field.ncols(row); }
 };
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // Specialization for std::vector<std::vector>
 
 template <typename T> class Viz_Traits<std::vector<std::vector<T>>> {
@@ -98,6 +99,6 @@ public:
 
 #endif // rtt_viz_Viz_Traits_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of viz/Viz_Traits.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

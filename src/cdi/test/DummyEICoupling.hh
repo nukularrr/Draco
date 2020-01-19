@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi/test/DummyEICoupling.hh
  * \author Mathew Cleveland
  * \date   March 2019
  * \brief  DummyEICoupling class header file (derived from ../EICoupling)
- * \note   Copyright (C) 2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2019-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_DummyEICoupling_hh
 #define rtt_cdi_DummyEICoupling_hh
@@ -115,6 +115,6 @@ public:
 
 #endif // rtt_cdi_DummyEICoupling_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of cdi/test/DummyEICoupling.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

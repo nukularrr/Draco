@@ -1,10 +1,10 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   timestep/fixed_ts_advisor.hh
  * \brief  Header file for the fixed time-step advisor class.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_timestep_fixed_ts_advisor_hh
 #define rtt_timestep_fixed_ts_advisor_hh
@@ -14,7 +14,7 @@
 
 namespace rtt_timestep {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \brief Introduces a user defined fixed value
  *        into the time-step calculation.
@@ -27,7 +27,7 @@ namespace rtt_timestep {
  * timestep, etc. The recommendation for the new timestep is
  * simply the user input value.
  */
-//===========================================================================//
+//============================================================================//
 class DLL_PUBLIC_timestep fixed_ts_advisor : public ts_advisor {
 
   // DATA
@@ -95,6 +95,6 @@ public:
 
 #endif // rtt_timestep_fixed_ts_advisor_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of fixed_ts_advisor.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
