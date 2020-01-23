@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   dummy_package.hh
  * \author John McGhee
  * \date   Thu Aug 27 07:48:41 1998
  * \brief  A dummy package to exercize the field time-step advisors.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_timestep_test_dummy_package_hh
 #define rtt_timestep_test_dummy_package_hh
@@ -24,7 +24,7 @@ class field_ts_advisor;
 
 namespace rtt_timestep_test {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class dummy_package
  * \brief Exercizes the field time-step advisors.
@@ -33,7 +33,7 @@ namespace rtt_timestep_test {
  * of the time-step manaager/advisor utility. It also exercizes the field
  * time-step advisors.
  */
-//===========================================================================//
+//============================================================================//
 
 class DLL_PUBLIC_timestep_test dummy_package {
 public:
@@ -72,6 +72,6 @@ private:
 
 #endif // rtt_timestep_test_dummy_package_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of dummy_package.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

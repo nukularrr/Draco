@@ -1,13 +1,13 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi_ipcress/test/ReadOdfIpcressFile.cc
  * \author Seth R. Johnson
  * \date   Thu July 10 2008
  * \brief  Regression test based on odfregression10.ipcress, also checks
  *         packing and unpacking.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "cdi_ipcress_test.hh"
 #include "cdi/OpacityCommon.hh"
@@ -36,7 +36,7 @@ typedef std::shared_ptr<IpcressOdfmgOpacity const> SP_Goo;
 typedef std::vector<double> vec_d;
 typedef std::vector<std::vector<double>> vec2_d;
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 namespace benchmarkData {
 rtt_cdi::Model const model = rtt_cdi::ROSSELAND;
@@ -174,12 +174,12 @@ double const opacities[numGroups][numBands] = {
 
 } // namespace benchmarkData
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 // declaration
 bool checkData(rtt_dsxx::ScalarUnitTest &ut, SP_Goo spGandOpacity);
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 int main(int argc, char *argv[]) {
   rtt_dsxx::ScalarUnitTest ut(argc, argv, rtt_dsxx::release);
@@ -281,7 +281,7 @@ int main(int argc, char *argv[]) {
   return ut.numFails;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 bool checkData(rtt_dsxx::ScalarUnitTest &ut, SP_Goo spGandOpacity) {
   Require(spGandOpacity);
 
@@ -432,6 +432,6 @@ bool checkData(rtt_dsxx::ScalarUnitTest &ut, SP_Goo spGandOpacity) {
   return hasNotFailed;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of tIpcressOdfmgOpacity.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

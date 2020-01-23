@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi/CPEloss.hh
  * \author Kendra Long
  * \date   Fri Aug  2 14:28:08 2019
  * \brief  CPEloss class header file (an abstract class)
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_CPEloss_hh
 #define rtt_cdi_CPEloss_hh

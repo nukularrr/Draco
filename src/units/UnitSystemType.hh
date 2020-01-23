@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*! \file   UnitSystemType.hh
  *  \author Kelly Thompson
  *  \brief  Aggregates a collection of FundUnits to create a complete
  *          UnitSystemType.
  *  \date   Fri Oct 24 15:04:41 2003
- *  \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ *  \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *          All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_units_UnitSystemType_hh
 #define rtt_units_UnitSystemType_hh
@@ -119,6 +119,6 @@ private:
 
 #endif // rtt_units_UnitSystemType_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of UnitSystemType.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

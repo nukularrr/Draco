@@ -1,4 +1,4 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi_CPEloss/Tabular_CP_Eloss.cc
  * \author Ben R. Ryan
@@ -6,7 +6,7 @@
  * \brief  Tabular_CP_Eloss member definitions.
  * \note   Copyright (C) 2019-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "Tabular_CP_Eloss.hh"
 #include "ds++/DracoStrings.hh"
@@ -19,7 +19,7 @@ using std::experimental::dynamic_extent;
 using std::experimental::extents;
 using std::experimental::layout_left;
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Do a 3D linear interpolation between vertices of a rectangular prism.
  *
@@ -79,9 +79,9 @@ linear_interpolate_3(double const x0, double const x1, double const y0,
   return f;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // CONSTRUCTORS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Constructor for an analytic tabular eloss model.
  *

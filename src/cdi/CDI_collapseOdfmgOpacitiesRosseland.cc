@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi/CDI_collapseOdfmgOpacitiesRosseland.cc
  * \author Kelly Thompson
  * \date   Thu Jun 22 16:22:07 2000
  * \brief  CDI class implementation file.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "CDI.hh"
 #include "ds++/Safe_Divide.hh"
@@ -14,7 +14,7 @@
 
 namespace rtt_cdi {
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Collapse a multigroup-multiband opacity set into a single
  *        representative value weighted by the Rosseland function.
@@ -117,6 +117,6 @@ double CDI::collapseOdfmgOpacitiesRosseland(
 
 } // end namespace rtt_cdi
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of CDI_collapseOdfmgOpacitiesRosseland.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
