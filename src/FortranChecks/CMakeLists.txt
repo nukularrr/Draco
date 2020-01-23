@@ -15,7 +15,7 @@ project( FortranChecks CXX )
 # name demangling unnecessary.
 
 # ---------------------------------------------------------------------------- #
-# Source files 
+# Source files
 # ---------------------------------------------------------------------------- #
 file( GLOB Csources *.cc )
 
@@ -68,17 +68,22 @@ if( BUILD_TESTING )
       "-DDraco_TPL_INCLUDE_DIRS=${tmp}"
       "-DPython_EXECUTABLE=${Python_EXECUTABLE}"
       "-DRANDOM123_INCLUDE_DIR=${RANDOM123_INCLUDE_DIR}"
-      "-Ddraco_DIR=${draco_DIR}"     
+      "-Ddraco_DIR=${draco_DIR}" )
+    if( ${DRACO_C4} MATCHES "MPI" )
+      list( APPEND build_system_state
       "-DMPI_C_LIBRARIES=${MPI_C_LIBRARIES}"
-      "-DMPI_C_INCLUDE_DIRS=${MPI_C_INCLUDE_DIRS}"
-      )
+      "-DMPI_C_INCLUDE_DIRS=${MPI_C_INCLUDE_DIRS}" )
+      set( deps Lib_FC_Derived_Type;Lib_c4;Lib_dsxx )
+    else()
+      set( deps Lib_FC_Derived_Type;Lib_dsxx )
+    endif()
     if( WIN32 )
       # For Win32 builds, DLL and applications are built in the directory
       # specified by CMAKE_RUNTIME_OUTPUT_DIRECTORY.
-      list( APPEND build_system_state 
+      list( APPEND build_system_state
         "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${Draco_BINARY_DIR}/\${CMAKE_BUILD_TYPE}" )
       if(CMAKE_TOOLCHAIN_FILE)
-        list( APPEND build_system_state 
+        list( APPEND build_system_state
           "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
       endif()
     else()
@@ -96,10 +101,10 @@ if( BUILD_TESTING )
       LIBRARIES    rtt_FC_f90sub   # Sub project will create a library with this name.
       # --> librtt_FC_f90.dll.
       TARGET_NAMES Lib_FC_f90sub
-      DEPENDS      "Lib_FC_Derived_Type;Lib_c4;Lib_dsxx"
+      DEPENDS      ${deps}
       NO_EXTERNAL_INSTALL
       CMAKE_COMMAND_LINE "${build_system_state}"
-      # VERBOSE
+      #VERBOSE
       )
   endif()
 
