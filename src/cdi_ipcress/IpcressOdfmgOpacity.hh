@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi_ipcress/IpcressOdfmgOpacity.hh
  * \author Kelly Thompson
  * \date   Mon Jan 22 13:56:01 2001
  * \brief  IpcressOdfmgOpacity class header file (derived from cdi/OdfmgOpacity)
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_ipcress_IpcressOdfmgOpacity_hh
 #define rtt_cdi_ipcress_IpcressOdfmgOpacity_hh
@@ -23,7 +23,7 @@ namespace rtt_cdi_ipcress {
 class IpcressFile;
 class IpcressDataTable;
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class IpcressOdfmgOpacity
  *
@@ -74,7 +74,7 @@ class IpcressDataTable;
  * This example tests and demonstrates how to use the cdi_ipcress package as a
  * plug-in for the CDI class.
  */
-//===========================================================================//
+//============================================================================//
 
 class IpcressOdfmgOpacity : public rtt_cdi::OdfmgOpacity {
 
@@ -459,9 +459,9 @@ public:
 
 }; // end of class IpcressOdfmgOpacity
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // INCLUDE TEMPLATE MEMBER DEFINITIONS FOR AUTOMATIC TEMPLATE INSTANTIATION
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 // --------------------------------- //
 // STL-like accessors for getOpacity //
@@ -534,6 +534,6 @@ OpacityIterator IpcressOdfmgOpacity::getOpacity(double targetTemperature,
 
 #endif // rtt_cdi_ipcress_IpcressOdfmgOpacity_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of cdi_ipcress/IpcressOdfmgOpacity.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

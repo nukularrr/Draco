@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi_ipcress/IpcressGrayOpacity.hh
  * \author Kelly Thompson
  * \date   Mon Jan 22 13:23:37 2001
  * \brief  IpcressGrayOpacity class header file (derived from cdi/GrayOpacity)
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_ipcress_IpcressGrayOpacity_hh
 #define rtt_cdi_ipcress_IpcressGrayOpacity_hh
@@ -26,7 +26,7 @@ namespace rtt_cdi_ipcress {
 
 class IpcressFile;
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class IpcressGrayOpacity
  *
@@ -83,7 +83,7 @@ class IpcressFile;
  * This example tests and demonstrates how to use the cdi_ipcress
  * package as a plug-in for the CDI class.
  */
-//===========================================================================//
+//============================================================================//
 
 class IpcressGrayOpacity : public rtt_cdi::GrayOpacity {
 
@@ -424,9 +424,9 @@ public:
 
 }; // end of class IpcressGrayOpacity
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // INCLUDE TEMPLATE MEMBER DEFINITIONS FOR AUTOMATIC TEMPLATE INSTANTIATION
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 // --------------------------------- //
 // STL-like accessors for getOpacity //
@@ -491,6 +491,6 @@ OpacityIterator IpcressGrayOpacity::getOpacity(double targetTemperature,
 
 #endif // rtt_cdi_ipcress_IpcressGrayOpacity_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of cdi_ipcress/IpcressGrayOpacity.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

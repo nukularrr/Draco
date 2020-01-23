@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi/CDI.cc
  * \author Kelly Thompson
  * \date   Thu Jun 22 16:22:07 2000
  * \brief  CDI class implementation file.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "CDI.hh"
 #include "ds++/Safe_Divide.hh"
@@ -17,9 +17,9 @@
 
 namespace rtt_cdi {
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // CONSTRUCTORS AND DESTRUCTORS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 /*!
  * \brief Construct a CDI object.
@@ -49,21 +49,21 @@ CDI::CDI(const std_string &id)
   Ensure(odfmgOpacities.size() == constants::num_Models);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 CDI::~CDI() { /* empty */
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // STATIC DATA
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 std::vector<double> CDI::frequencyGroupBoundaries = std::vector<double>();
 std::vector<double> CDI::opacityCdfBandBoundaries = std::vector<double>();
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // STATIC FUNCTIONS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Return the frequency group boundaries.
  *
@@ -93,7 +93,7 @@ std::vector<double> CDI::getOpacityCdfBandBoundaries() {
   return opacityCdfBandBoundaries;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Return the number of frequency groups.
  */
@@ -102,7 +102,7 @@ size_t CDI::getNumberFrequencyGroups() {
                                           : frequencyGroupBoundaries.size() - 1;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Return the number of opacity bands.
  */
@@ -111,24 +111,24 @@ size_t CDI::getNumberOpacityBands() {
                                           : opacityCdfBandBoundaries.size() - 1;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // Core Integrators
 /*
  * These are the most basic of the Planckian and Rosseland integration
  * functions. They are used in the implementation of integration functions with
  * friendlier interfaces.
  */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // Planckian Spectrum Integrators
 //
 /* These are versions of the integrators that work over specific energy ranges
  * or groups in the stored group structure.
  */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  *
  * \brief Integrate the Planckian spectrum over a frequency group.
@@ -160,7 +160,7 @@ double CDI::integratePlanckSpectrum(size_t const groupIndex, double const T) {
   return integral;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Integrate the Planckian spectrum over all frequency groups.
  * \param[in] T The temperature in keV (must be greater than 0.0).
@@ -183,11 +183,11 @@ double CDI::integratePlanckSpectrum(const double T) {
   return integral;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // Rosseland Spectrum Integrators
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  *
  * \brief Integrate the Rosseland spectrum over a frequency group.
@@ -214,7 +214,7 @@ double CDI::integrateRosselandSpectrum(size_t const groupIndex,
   return rosseland;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Integrate the Planckian and Rosseland spectrum over a frequency group.
  *
@@ -247,7 +247,7 @@ void CDI::integrate_Rosseland_Planckian_Spectrum(const size_t groupIndex,
   return;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Integrate the Planckian Specrum over an entire a set of frequency
  *        groups, returning a vector of the integrals
@@ -292,7 +292,7 @@ void CDI::integrate_Planckian_Spectrum(std::vector<double> const &bounds,
   return;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Integrate the Planckian Specrum over an entire a set of frequency
  *        groups directly returning the vector of the integrals
@@ -338,7 +338,7 @@ CDI::integrate_Planckian_Spectrum(std::vector<double> const &bounds,
   return planck;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Integrate the Rosseland Spectrum over an entire a set of frequency
  *        groups, returning a vector of the integrals
@@ -391,7 +391,7 @@ void CDI::integrate_Rosseland_Spectrum(std::vector<double> const &bounds,
   return;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Integrate the Planckian and Rosseland Specrum over an entire a set of
  *        frequency groups, returning a vector of the integrals
@@ -451,7 +451,7 @@ void CDI::integrate_Rosseland_Planckian_Spectrum(
   return;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Collapse a multigroup opacity set into a single representative value
  *        weighted by the Planckian function.
@@ -520,7 +520,7 @@ double CDI::collapseMultigroupOpacitiesPlanck(
   return planck_opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Collapse a multigroup opacity set into a single representative value
  *        weighted by the Planckian function without setting the emission CDF
@@ -581,7 +581,7 @@ double CDI::collapseMultigroupOpacitiesPlanck(
   return planck_opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Collapse a multigroup reciprocal opacity set into a single
  *        representative value weighted by the Planckian function.
@@ -638,7 +638,7 @@ double CDI::collapseMultigroupReciprocalOpacitiesPlanck(
   return reciprocal_planck_opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Collapse a multigroup opacity set into a single representative value
  *        weighted by the Rosseland function.
@@ -720,7 +720,7 @@ double CDI::collapseMultigroupOpacitiesRosseland(
   Check(inv_sig_r_sum > 0.0);
   return rosseland_integral / inv_sig_r_sum;
 }
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Collapse a multigroup-multiband opacity set into a single
  *        representative value weighted by the Planckian function.
@@ -801,7 +801,7 @@ double CDI::collapseOdfmgOpacitiesPlanck(
   return planck_opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Collapse a multigroup-multiband opacity set into a single
  *        representative reciprocal value weighted by the Planckian function.
@@ -870,9 +870,9 @@ double CDI::collapseOdfmgReciprocalOpacitiesPlanck(
   return reciprocal_planck_opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // SET FUNCTIONS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Register a charged particle eloss (rtt_cdi::CPEloss) with CDI.
  *
@@ -926,7 +926,7 @@ void CDI::setGrayOpacity(const SP_GrayOpacity &spGOp) {
   Ensure(grayOpacities[model][reaction]);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Register a multigroup opacity (rtt_cdi::MultigroupOpacity) with CDI.
  *
@@ -978,7 +978,7 @@ void CDI::setMultigroupOpacity(const SP_MultigroupOpacity &spMGOp) {
   Ensure(multigroupOpacities[model][reaction]);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Register a multigroup opacity (rtt_cdi::OdfmgOpacity) with CDI.
  *
@@ -1049,7 +1049,7 @@ void CDI::setOdfmgOpacity(const SP_OdfmgOpacity &spODFOp) {
   Ensure(odfmgOpacities[model][reaction]);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 void CDI::setEoS(const SP_EoS &in_spEoS) {
   Require(in_spEoS);
@@ -1059,7 +1059,7 @@ void CDI::setEoS(const SP_EoS &in_spEoS) {
   Ensure(spEoS);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 void CDI::setEICoupling(const SP_EICoupling &in_spEICoupling) {
   Require(in_spEICoupling);
@@ -1069,9 +1069,9 @@ void CDI::setEICoupling(const SP_EICoupling &in_spEICoupling) {
   Ensure(spEICoupling);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // GET FUNCTIONS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 /*!
  * \brief This fuction returns a GrayOpacity object.
@@ -1161,7 +1161,7 @@ CDI::SP_CPEloss CDI::eloss(rtt_cdi::CPModelAngleCutoff mAC, int32_t pz,
   return CPElosses[entry->second];
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief This fuction returns the EoS object.
  *
@@ -1177,7 +1177,7 @@ CDI::SP_EoS CDI::eos() const {
   return spEoS;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief This fuction returns the EICoupling object.
  *
@@ -1193,9 +1193,9 @@ CDI::SP_EICoupling CDI::ei_coupling() const {
   return spEICoupling;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // RESET THE CDI OBJECT
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 /*!
  * \brief Reset the CDI object.
@@ -1253,9 +1253,9 @@ void CDI::reset() {
   Check(!spEICoupling);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // BOOLEAN QUERY FUNCTIONS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 /*!
  * \brief Query to see if a gray opacity is set.
@@ -1303,6 +1303,6 @@ bool CDI::isEICouplingSet() const { return static_cast<bool>(spEICoupling); }
 
 } // end namespace rtt_cdi
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of CDI.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

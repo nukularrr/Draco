@@ -1,7 +1,7 @@
 #-----------------------------*-cmake-*----------------------------------------#
 # file   config/compilerEnv.cmake
 # brief  Default CMake build parameters
-# note   Copyright (C) 2019 Triad National Security, LLC. All rights reserved.
+# note   Copyright (C) 2019-2020 Triad National Security, LLC. All rights reserved.
 #------------------------------------------------------------------------------#
 
 include_guard(GLOBAL)

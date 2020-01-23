@@ -1,10 +1,10 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file timestep/target_ts_advisor.hh
  * \brief Header file for the target time-step advisor class.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_timestep_target_ts_advisor_hh
 #define rtt_timestep_target_ts_advisor_hh
@@ -13,7 +13,7 @@
 
 namespace rtt_timestep {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \brief  Calculates a new time-step required to hit some "target"
  * problem time.
@@ -27,7 +27,7 @@ namespace rtt_timestep {
  * is useful to assure that graphics dumps/IO/etc. occur precisely at
  * a predetermined problem time.
  */
-//===========================================================================//
+//============================================================================//
 class DLL_PUBLIC_timestep target_ts_advisor : public ts_advisor {
 
   // DATA
@@ -86,6 +86,6 @@ public:
 
 #endif // target_timestep_ts_advisor_hh__
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of target_ts_advisor.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

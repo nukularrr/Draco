@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   meshReaders/Hex_Mesh_Reader.hh
  * \author John McGhee
  * \date   Tue Mar  7 08:38:04 2000
  * \brief  Header file for CIC-19 Hex format mesh reader.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_meshReaders_Hex_Mesh_Reader_hh
 #define rtt_meshReaders_Hex_Mesh_Reader_hh
@@ -15,7 +15,7 @@
 
 namespace rtt_meshReaders {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class Hex_Mesh_Reader
  *
@@ -27,7 +27,7 @@ namespace rtt_meshReaders {
  *     in the rtt_meshReaders namespace. the \ref rtt_meshreaders_hexformat page
  *     provides a description of the Hex file format.
  */
-//===========================================================================//
+//============================================================================//
 
 class DLL_PUBLIC_meshReaders Hex_Mesh_Reader
     : public rtt_meshReaders::Mesh_Reader {
@@ -183,6 +183,6 @@ private:
  *   reflective boundary faces, and four cell flag values.
  */
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of meshReaders/Hex_Mesh_Reader.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

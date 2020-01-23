@@ -1,10 +1,10 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   timestep/ratio_ts_advisor.hh
  * \brief  Header file for the ratio time-step advisor class.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_timestep_ratio_ts_advisor_hh
 #define rtt_timestep_ratio_ts_advisor_hh
@@ -14,7 +14,7 @@
 
 namespace rtt_timestep {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \brief Calculates a new timestep as a ratio of the current time-step
  *
@@ -28,7 +28,7 @@ namespace rtt_timestep {
  * next. The recommendation for the new time step is computed as
  * current_dt*ratio.
  */
-//===========================================================================//
+//============================================================================//
 class DLL_PUBLIC_timestep ratio_ts_advisor : public ts_advisor {
 
   // DATA
@@ -91,6 +91,6 @@ public:
 
 #endif // rtt_timestep_ratio_ts_advisor_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of ratio_ts_advisor.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
