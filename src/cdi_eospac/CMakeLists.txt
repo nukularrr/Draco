@@ -7,7 +7,7 @@
 cmake_minimum_required(VERSION 3.9.0)
 project( cdi_eospac CXX )
 
-if( EOSPAC_FOUND )
+if( EOSPAC_FOUND AND NOT DEFINED ENV{TRAVIS} )
 
 # ---------------------------------------------------------------------------- #
 # Source files
@@ -53,7 +53,7 @@ endif()
 # Unit tests
 # ---------------------------------------------------------------------------- #
 
-if( BUILD_TESTING )
+if( BUILD_TESTING AND NOT DEFINED ENV{APPVEYOR} )
   add_subdirectory( test )
 endif()
 
