@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi/test/tCDI.cc
  * \author Thomas M. Evans
  * \date   Tue Oct  9 15:52:01 2001
  * \brief  CDI test executable.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "DummyEoS.hh"
 #include "DummyGrayOpacity.hh"
@@ -33,9 +33,9 @@ using rtt_cdi_test::DummyMultigroupOpacity;
 using rtt_cdi_test::DummyOdfmgOpacity;
 using rtt_dsxx::soft_equiv;
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // TESTS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 void check_CDI(rtt_dsxx::UnitTest &ut, CDI const &cdi) {
   // check cdi, note that the different combinations of rtt_cdi::Model and
@@ -262,7 +262,7 @@ void check_CDI(rtt_dsxx::UnitTest &ut, CDI const &cdi) {
   return;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 void test_CDI(rtt_dsxx::UnitTest &ut) {
   // make shared_ptrs to opacity and EoS objects
@@ -608,7 +608,7 @@ void test_CDI(rtt_dsxx::UnitTest &ut) {
   }
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 void test_planck_integration(rtt_dsxx::UnitTest &ut) {
   // We have not defined any group structure yet; thus, the Insist will
@@ -855,7 +855,7 @@ void test_planck_integration(rtt_dsxx::UnitTest &ut) {
   return;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void test_rosseland_integration(rtt_dsxx::UnitTest &ut) {
   // Only report this as a failure if 1) the error was not caught AND 2)
   // the Require macro is available.
@@ -1183,7 +1183,7 @@ void test_rosseland_integration(rtt_dsxx::UnitTest &ut) {
   return;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void test_mgopacity_collapse(rtt_dsxx::UnitTest &ut) {
   std::cout << "Running test test_mgopacity_collapse(ut)..." << std::endl;
   size_t const numFailCheckpoint(ut.numFails);
@@ -1416,7 +1416,7 @@ void test_mgopacity_collapse(rtt_dsxx::UnitTest &ut) {
   return;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void test_odfmgopacity_collapse(rtt_dsxx::UnitTest &ut) {
   // Test functions that collapse MG opacity data into one-group data using
   // either Planckian or Rosseland weight functions:
@@ -1557,7 +1557,7 @@ void test_odfmgopacity_collapse(rtt_dsxx::UnitTest &ut) {
   return;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 int main(int argc, char *argv[]) {
   rtt_dsxx::ScalarUnitTest ut(argc, argv, rtt_dsxx::release);
   try {
@@ -1570,6 +1570,6 @@ int main(int argc, char *argv[]) {
   UT_EPILOG(ut);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of tCDI.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

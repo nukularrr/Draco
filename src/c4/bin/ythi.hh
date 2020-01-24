@@ -1,15 +1,15 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   c4/bin/ythi.hh
  * \author Kelly Thompson <kgt@lanl.gov>, Tim Kelley <tkelley@lanl.gov.
  * \date   Tuesday, Jun 05, 2018, 17:12 pm
  * \brief  Print MPI rank, thread number and core affinity bindings.
- * \note   Copyright (C) 2018-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2018-2020 Triad National Security, LLC.
  *         All rights reserved.
  *
  * These functions are used by c4/bin/ythi.cc and c4/test/tstQuoWrapper.cc
  */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_c4_bin_ythi_hh
 #define rtt_c4_bin_ythi_hh

@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi_analytic/test/tstAnalytic_Odfmg_Opacity.cc
  * \author Thomas M. Evans
  * \date   Tue Nov 13 17:24:12 2001
  * \brief  Analytic_Odfmg_Opacity test.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "cdi_analytic_test.hh"
 #include "c4/ParallelUnitTest.hh"
@@ -26,7 +26,7 @@ using rtt_cdi::OdfmgOpacity;
 using rtt_parser::Constant_Expression;
 using rtt_parser::Expression;
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 bool checkOpacityEquivalence(vector<vector<double>> sigma, vector<double> ref) {
   bool itPasses = true;
@@ -50,9 +50,9 @@ bool checkOpacityEquivalence(vector<vector<double>> sigma, vector<double> ref) {
   return itPasses;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // TESTS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 void odfmg_test(UnitTest &ut) {
   // group structure
@@ -236,7 +236,7 @@ void odfmg_test(UnitTest &ut) {
   return;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void test_CDI(UnitTest &ut) {
   // group structure
   vector<double> groups = {0.05, 0.5, 5.0, 50.0};
@@ -307,7 +307,7 @@ void test_CDI(UnitTest &ut) {
   }
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void packing_test(UnitTest &ut) {
   vector<char> packed;
 
@@ -458,7 +458,7 @@ void packing_test(UnitTest &ut) {
   }
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void pseudo_line_opacity_test(UnitTest &ut) {
   // group structure
   vector<double> groups = {0.05, 0.5, 5.0, 10.0};
@@ -528,7 +528,7 @@ void pseudo_line_opacity_test(UnitTest &ut) {
   // vector<char> data = model.pack();
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 int main(int argc, char *argv[]) {
   rtt_c4::ParallelUnitTest ut(argc, argv, release);
   try {
@@ -540,6 +540,6 @@ int main(int argc, char *argv[]) {
   UT_EPILOG(ut);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of tstAnalytic_Odfmg_Opacity.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

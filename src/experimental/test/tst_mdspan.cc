@@ -5,7 +5,7 @@
  * \date   Saturday, Dec 28, 2019, 15:51 pm
  * \brief  Test experimental C++ features (e.g.: mdspan)
  * \sa     https://github.com/kokkos/mdspan/wiki/A-Gentle-Introduction-to-mdspan
- * \note   Copyright (C) 2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2019-2020 Triad National Security, LLC.
  *         All rights reserved. */
 //----------------------------------------------------------------------------//
 

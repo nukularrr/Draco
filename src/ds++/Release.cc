@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   ds++/Release.cc
  * \author Thomas Evans
  * \date   Thu Jul 15 09:31:44 1999
  * \brief  Provides the function definition for Release.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "Release.hh"
 #include "DracoTerminal.hh"
@@ -16,7 +16,7 @@
 
 namespace rtt_dsxx {
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Format list of authors to do correct line breaks and ensures total
  *        line length is less than a specified maximum.
@@ -56,7 +56,7 @@ std::string print_devs(size_t const maxlinelen, std::string const &line_name,
   return msg.str();
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // function definition for Release, define the local version number for this
 // library in the form ds_#.#.# in pkg_version variable
 const std::string release() {
@@ -87,7 +87,7 @@ const std::string release() {
   return pkg_release.str();
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*! \brief Return a list of Draco contributing authors
  *
  * \param[in] use_doxygen_formatting If true, use extra decoration in the
@@ -176,14 +176,14 @@ const std::string author_list(bool const use_doxygen_formatting) {
   return alist.str();
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 //! Print a Copyright note with an author list:
 const std::string copyright() {
   std::ostringstream msg;
 
   msg << author_list() << "\n"
       << Term::ccolor(Term::fg::green)
-      << "Copyright (C) 2016-2019 Triad National Security, LLC. "
+      << "Copyright (C) 2016-2020 Triad National Security, LLC. "
          "(C19028, LA-CC-16-016),\n     Released under a 3-Clause BSD License."
       << Term::ccolor(Term::fg::reset) << std::endl;
 
@@ -192,7 +192,7 @@ const std::string copyright() {
 
 } // namespace rtt_dsxx
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 //! This version can be called by Fortran and wraps the C++ version.
 extern "C" void ec_release(char *release_string, size_t maxlen) {
   std::string tmp_rel = rtt_dsxx::release();
@@ -203,6 +203,6 @@ extern "C" void ec_release(char *release_string, size_t maxlen) {
   return;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of Release.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
