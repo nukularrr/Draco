@@ -14,6 +14,8 @@ project( FortranChecks CXX )
 # However, Draco has chosen to use ISO_C_BINDING instead and this makes manual
 # name demangling unnecessary.
 
+if( HAVE_Fortran )
+
 # ---------------------------------------------------------------------------- #
 # Source files
 # ---------------------------------------------------------------------------- #
@@ -116,6 +118,8 @@ endif()
 # Autodoc
 # ---------------------------------------------------------------------------- #
 process_autodoc_pages()
+
+endif( HAVE_Fortran )
 
 # ---------------------------------------------------------------------------- #
 # end FortranChecks/CMakeLists.txt
