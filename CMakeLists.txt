@@ -3,7 +3,8 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2010 April 28
 # brief  Instructions for building root level Makefile.
-# note   Copyright (C) 2019-2020 Triad National Security, LLC. All rights reserved.
+# note   Copyright (C) 2019-2020 Triad National Security, LLC. 
+#        All rights reserved.
 #------------------------------------------------------------------------------#
 
 # Build notes:
@@ -97,7 +98,9 @@ setupVendorLibraries()
 # Build Draco components:
 #
 add_subdirectory( src )
-add_subdirectory( autodoc ) # This must be processed after 'src'
+if( TARGET Exe_draco_info )
+  add_subdirectory( autodoc ) # This must be processed after 'src'
+endif()
 add_subdirectory( config )  # This must be processed after 'src'
 
 #

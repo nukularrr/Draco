@@ -23,6 +23,7 @@ if( VERBOSE )
       -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
       @source_dir@)
     ")
+  list(APPEND CMAKE_COMMAND_LINE "-DCMAKE_VERBOSE_MAKEFILE=ON")
 endif()
 execute_process(
   COMMAND "@CMAKE_COMMAND@" "@GENERATOR_TYPE@"
