@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi/CDI.hh
  * \author Kelly Thompson
  * \date   Thu Jun 22 16:22:06 2000
  * \brief  CDI class header file.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_CDI_hh
 #define rtt_cdi_CDI_hh
@@ -24,9 +24,9 @@
 #include <map>
 #include <memory>
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // UNNAMED NAMESPACE
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // Nested unnamed namespace that holds data and services used by the Planckian
 // integration routines.  The data in this namespace is accessible by the
 // methods in this file only (internal linkage).
@@ -49,7 +49,7 @@ static double const coeff_21 = 43.867 / 107290978560589824.0;
 static double const coeff = 0.1539897338202651; // 15/pi^4
 static double const NORM_FACTOR = 0.25 * coeff; // 15/(4*pi^4);
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \fn inline double taylor_series_planck(double x)
  * \brief Computes the normalized Planck integral via a 21 term Taylor
@@ -199,7 +199,7 @@ static double polylog_series_minus_one_planck(double const x,
   return poly;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Compute the difference between an integrated Planck and Rosseland
  * curves over \f$ (0,\nu) \f$.
@@ -246,7 +246,7 @@ static double Planck2Rosseland(double const freq, double const exp_freq) {
 
 namespace rtt_cdi {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class CDI
  *
@@ -460,7 +460,7 @@ namespace rtt_cdi {
  * The test code also provides a mechanism to test the CDI independent of any
  * "real" data objects.
  */
-//===========================================================================//
+//============================================================================//
 
 class CDI {
   // NESTED CLASSES AND TYPEDEFS
@@ -610,7 +610,7 @@ public:
   SP_GrayOpacity gray(rtt_cdi::Model m, rtt_cdi::Reaction r) const;
   SP_MultigroupOpacity mg(rtt_cdi::Model m, rtt_cdi::Reaction r) const;
   SP_OdfmgOpacity odfmg(rtt_cdi::Model m, rtt_cdi::Reaction r) const;
-  SP_CPEloss eloss(rtt_cdi::CPModel m, int32_t proj_zaid,
+  SP_CPEloss eloss(rtt_cdi::CPModelAngleCutoff mAC, int32_t proj_zaid,
                    int32_t targ_zaid) const;
   SP_EoS eos(void) const;
   SP_EICoupling ei_coupling(void) const;
@@ -675,7 +675,8 @@ public:
   bool isGrayOpacitySet(rtt_cdi::Model, rtt_cdi::Reaction) const;
   bool isMultigroupOpacitySet(rtt_cdi::Model, rtt_cdi::Reaction) const;
   bool isOdfmgOpacitySet(rtt_cdi::Model, rtt_cdi::Reaction) const;
-  bool isCPElossSet(rtt_cdi::CPModel, int32_t pz, int32_t tz) const;
+  bool isCPElossSet(rtt_cdi::CPModelAngleCutoff mAC, int32_t pz,
+                    int32_t tz) const;
   bool isEoSSet() const;
   bool isEICouplingSet() const;
 
@@ -755,11 +756,11 @@ public:
       std::vector<double> &planck, std::vector<double> &rosseland);
 };
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // INLINE FUNCTIONS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /**
  * \brief Integrate the normalized Planckian spectrum from 0 to \f$ x
  * (\frac{h\nu}{kT}) \f$.
@@ -773,7 +774,7 @@ double CDI::integrate_planck(double const scaled_freq) {
   return CDI::integrate_planck(scaled_freq, exp_scaled_freq);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /**
  * \brief Integrate the normalized Planckian spectrum from 0 to \f$ x
  *        (\frac{h\nu}{kT}) \f$.
@@ -815,7 +816,7 @@ double CDI::integrate_planck(double const scaled_freq,
   return integral;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*! \brief Integrate the normalized Planckian and Rosseland spectrums from 0 to
  *         \f$ x (\frac{h\nu}{kT}) \f$.
  *
@@ -851,6 +852,6 @@ void CDI::integrate_planck_rosseland(double const scaled_freq,
 
 #endif // rtt_cdi_CDI_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of cdi/CDI.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

@@ -1,22 +1,22 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi/test/DummyOdfmgOpacity.hh
  * \author Kelly Thompson
  * \date   Mon Jan 8 17:12:51 2001
  * \brief  DummyOdfmgOpacity class header file (derived from
  *         ../OdfmgOpacity)
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved.  */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
-#ifndef __cdi_DummyOdfmgOpacity_hh__
-#define __cdi_DummyOdfmgOpacity_hh__
+#ifndef rtt_cdi_DummyOdfmgOpacity_hh
+#define rtt_cdi_DummyOdfmgOpacity_hh
 
 #include "cdi/OdfmgOpacity.hh"
 
 namespace rtt_cdi_test {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class DummyOdfmgOpacity
  *
@@ -41,7 +41,7 @@ namespace rtt_cdi_test {
  * \sa cdi/test/tDummyOpacity.cc
  * \sa cdi/test/tCDI.cc
  */
-//===========================================================================//
+//============================================================================//
 
 class DLL_PUBLIC_cdi_test DummyOdfmgOpacity : public rtt_cdi::OdfmgOpacity {
 
@@ -362,10 +362,10 @@ public:
 
 }; // end of class DummyOdfmgOpacity
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // TEMPLATE DEFINITIONS
 // (enable us to use automatic instantiation)
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Opacity accessor that returns an STL container of opacities that
  *     correspond to a tuple of provided STL containers (temperatures and
@@ -389,7 +389,7 @@ OpacityIterator DummyOdfmgOpacity::getOpacity(
   return opacityIter;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Opacity accessor that returns an STL container of opacities that
  *     correspond to a list of provided STL temperature values.  The length of
@@ -409,7 +409,7 @@ OpacityIterator DummyOdfmgOpacity::getOpacity(
   return opacityIter;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Opacity accessor that returns an STL container of opacities that
  *     correspond to a list of provided STL density values and a fixed
@@ -432,8 +432,8 @@ OpacityIterator DummyOdfmgOpacity::getOpacity(
 
 } // end namespace rtt_cdi_test
 
-#endif // __cdi_DummyOdfmgOpacity_hh__
+#endif // rtt_cdi_DummyOdfmgOpacity_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of cdi/test/DummyOdfmgOpacity.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

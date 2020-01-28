@@ -3,7 +3,7 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2010 April 28
 # brief  Instructions for building src level Makefile.
-# note   Copyright (C) 2016-2019 Triad National Security, LLC.
+# note   Copyright (C) 2016-2020 Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 cmake_minimum_required(VERSION 3.9.0)
@@ -50,68 +50,48 @@ message(" ")
 message( STATUS "Configuring Level 2 packages --" )
 add_dir_if_exists( c4 )           # needs ds++
 add_dir_if_exists( cdi )          # needs ds++
+add_dir_if_exists( compton )      # needs ds++, CSK
+add_dir_if_exists( device )       # needs ds++
+add_dir_if_exists( experimental ) # only the tests need ds++
+add_dir_if_exists( lapack_wrap )  # needs ds++
 add_dir_if_exists( linear )       # needs ds++
+add_dir_if_exists( memory )       # needs ds++
 add_dir_if_exists( mesh_element ) # needs ds++
 add_dir_if_exists( ode )          # needs ds++
+add_dir_if_exists( plot2D )
 add_dir_if_exists( rng )          # needs ds++
 add_dir_if_exists( units )        # needs ds++
 add_dir_if_exists( viz )          # needs ds++
-add_dir_if_exists( memory )       # needs ds++
-
-# For now, do not try to build or test some packages (these two paths are
-# identical now, but are expected to diverge as more packages are added to the
-# CI test system):
-#  - For appveyor (Visual Studio) CI on Github, omit packages that need special
-#    libraries like CSK, lapack, metis, parmetis or cuda. Also omit packages
-#    that require Fortran.
-if( NOT DEFINED ENV{APPVEYOR} )
-  add_dir_if_exists( device )       # needs ds++
-  add_dir_if_exists( compton )      # needs c4, CSK
-  if( HAVE_Fortran )
-    add_dir_if_exists( lapack_wrap )  # needs ds++
-  endif()
-  if( Grace_FOUND )
-    add_dir_if_exists( plot2D )
-  endif()
-endif()
 
 # Level 3
 message(" ")
 message( STATUS "Configuring Level 3 packages --" )
-add_dir_if_exists( cdi_ipcress )
+add_dir_if_exists( cdi_CPEloss )  # needs cdi, units
+add_dir_if_exists( cdi_ipcress )  # needs cdi
 add_dir_if_exists( diagnostics )  # needs c4
 add_dir_if_exists( fit )          # needs linear
+add_dir_if_exists( FortranChecks ) # needs c4
 add_dir_if_exists( meshReaders )  # needs c4
 add_dir_if_exists( min )          # needs linear
 add_dir_if_exists( norms )        # needs c4
 add_dir_if_exists( parser )       # needs units, c4, mesh_element
 add_dir_if_exists( roots )        # needs linear
-add_dir_if_exists( timestep )     # needs c4, ds++
-
-if( NOT DEFINED ENV{APPVEYOR} )
-  add_dir_if_exists( VendorChecks ) # needs c4
-  if( HAVE_Fortran )
-    add_dir_if_exists( FortranChecks )
-  endif()
-  if( NOT DEFINED ENV{TRAVIS} )
-    add_dir_if_exists( cdi_eospac ) # needs parser, ode, cdi
-  endif()
-endif()
+add_dir_if_exists( timestep )     # needs c4
+add_dir_if_exists( VendorChecks ) # needs c4
 
 # Level 4
 message(" ")
 message( STATUS "Configuring Level 4 packages --" )
-add_dir_if_exists( special_functions ) # needs roots, units, GSL
 add_dir_if_exists( cdi_analytic )      # needs parser, roots, ode, cdi
+add_dir_if_exists( cdi_eospac )        # needs parser, ode, cdi
 add_dir_if_exists( RTT_Format_Reader)  # needs meshReaders
+add_dir_if_exists( special_functions ) # needs roots, units, GSL
 
 # Level 5
 message(" ")
 message( STATUS "Configuring Level 5 packages --" )
-if( NOT DEFINED ENV{APPVEYOR} )
-  add_dir_if_exists( quadrature ) # needs mesh_element, parser, special_functions
-endif()
-add_dir_if_exists( mesh )         # needs c4, ds++, mesh_element
+add_dir_if_exists( mesh )       # needs c4, ds++, mesh_element
+add_dir_if_exists( quadrature ) # needs mesh_element, parser, special_functions
 
 # Summary
 

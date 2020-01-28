@@ -1,21 +1,21 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   meshReaders/Hex_Mesh_Reader.hh
  * \author John McGhee
  * \date   Tue Mar  7 08:38:04 2000
  * \brief  Header file for CIC-19 Hex format mesh reader.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
-#ifndef __meshReaders_Hex_Mesh_Reader_hh__
-#define __meshReaders_Hex_Mesh_Reader_hh__
+#ifndef rtt_meshReaders_Hex_Mesh_Reader_hh
+#define rtt_meshReaders_Hex_Mesh_Reader_hh
 
 #include "Mesh_Reader.hh"
 
 namespace rtt_meshReaders {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class Hex_Mesh_Reader
  *
@@ -27,7 +27,7 @@ namespace rtt_meshReaders {
  *     in the rtt_meshReaders namespace. the \ref rtt_meshreaders_hexformat page
  *     provides a description of the Hex file format.
  */
-//===========================================================================//
+//============================================================================//
 
 class DLL_PUBLIC_meshReaders Hex_Mesh_Reader
     : public rtt_meshReaders::Mesh_Reader {
@@ -112,7 +112,7 @@ private:
 
 } // end namespace rtt_meshReaders
 
-#endif // __meshReaders_Hex_Mesh_Reader_hh__
+#endif // rtt_meshReaders_Hex_Mesh_Reader_hh
 
 /*!
  * \page rtt_meshreaders_hexformat The CIC-19 Hex Mesh File Format
@@ -183,6 +183,6 @@ private:
  *   reflective boundary faces, and four cell flag values.
  */
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of meshReaders/Hex_Mesh_Reader.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

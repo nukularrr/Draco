@@ -4,7 +4,7 @@
 # date   2010 Dec 1
 # brief  Provide extra macros to simplify CMakeLists.txt for component
 #        directories.
-# note   Copyright (C) 2016-2019 Triad National Security, LLC.
+# note   Copyright (C) 2016-2020 Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 
@@ -379,7 +379,7 @@ macro( add_component_library )
     OUTPUT_NAME ${acl_LIBRARY_NAME_PREFIX}${acl_LIBRARY_NAME}
     FOLDER      ${folder_name}
     WINDOWS_EXPORT_ALL_SYMBOLS ON )
-  if( DEFINED DRACO_LINK_OPTIONS )
+  if( DEFINED DRACO_LINK_OPTIONS AND NOT "${DRACO_LINK_OPTIONS}x" STREQUAL "x")
     set_target_properties( ${acl_TARGET} PROPERTIES
       LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
   endif()
@@ -924,7 +924,8 @@ macro( add_scalar_tests test_sources )
       VS_KEYWORD  ${testname}
       FOLDER      ${compname}_test
       COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\"" )
-    if( DEFINED DRACO_LINK_OPTIONS )
+    if( DEFINED DRACO_LINK_OPTIONS AND 
+        NOT "${DRACO_LINK_OPTIONS}x" STREQUAL "x")
       set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
         LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
     endif()
@@ -1072,7 +1073,8 @@ macro( add_parallel_tests )
       VS_KEYWORD  ${testname}
       FOLDER      ${compname}_test
       COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\"" )
-    if( DEFINED DRACO_LINK_OPTIONS )
+    if( DEFINED DRACO_LINK_OPTIONS AND 
+        NOT "${DRACO_LINK_OPTIONS}x" STREQUAL "x" )
       set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
         LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
     endif()
