@@ -65,12 +65,9 @@ if( BUILD_TESTING )
     # will need some of the current build system parameters:
     set( draco_DIR ${Draco_SOURCE_DIR}/config )
     set( build_system_state
-      # "-DCMAKE_VERBOSE_MAKEFILE=TRUE"
       "-DDRACO_C4=${DRACO_C4}"
       "-DDRACO_LIBRARY_TYPE=${DRACO_LIBRARY_TYPE}"
       "-DDraco_TPL_INCLUDE_DIRS=${tmp}"
-      #"-DPython_EXECUTABLE=${Python_EXECUTABLE}"
-      #"-DRANDOM123_INCLUDE_DIR=${RANDOM123_INCLUDE_DIR}"
       "-Ddraco_DIR=${draco_DIR}"
       "-DMPI_C_LIBRARIES=${MPI_C_LIBRARIES}"
       "-DMPI_C_INCLUDE_DIRS=${MPI_C_INCLUDE_DIRS}"
@@ -78,14 +75,14 @@ if( BUILD_TESTING )
     if( WIN32 )
       # For Win32 builds, DLL and applications are built in the directory
       # specified by CMAKE_RUNTIME_OUTPUT_DIRECTORY.
-      list( APPEND build_system_state 
+      list( APPEND build_system_state
         "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${Draco_BINARY_DIR}/\${CMAKE_BUILD_TYPE}" )
       if(CMAKE_TOOLCHAIN_FILE)
-        list( APPEND build_system_state 
+        list( APPEND build_system_state
           "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
       endif()
     else()
-      list( APPEND build_system_state "-DWITH_CUDA=${WITH_CUDA}" )
+      list( APPEND build_system_state "-DHAVE_CUDA=${HAVE_CUDA}" )
     endif()
 
     cmake_add_fortran_subdirectory(

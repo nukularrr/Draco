@@ -3,7 +3,7 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2010 April 28
 # brief  Instructions for building root level Makefile.
-# note   Copyright (C) 2019-2020 Triad National Security, LLC. 
+# note   Copyright (C) 2019-2020 Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 
@@ -29,7 +29,7 @@ if( ${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
   if( DEFINED ENV{FC} OR DEFINED CMAKE_Fortran_COMPILER )
     enable_language( Fortran OPTIONAL )
   endif()
-  if( DEFINED ENV{CUDADIR} )
+  if( DEFINED ENV{CUDADIR} OR DEFINED ENV{CUDACXX} )
     enable_language( CUDA OPTIONAL )
   endif()
 endif()
@@ -86,6 +86,7 @@ include( compilerEnv )
 dbsSetupCompilers()
 dbsSetupCxx()
 dbsSetupFortran()
+dbsSetupCuda()
 dbsSetupProfilerTools()
 dbsSetupStaticAnalyzers()
 

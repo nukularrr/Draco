@@ -19,9 +19,9 @@ endif()
 # ----------------------------------------
 if( DEFINED ENV{PAPI_HOME} )
   set( HAVE_PAPI 1 CACHE BOOL "Is PAPI available on this machine?" )
-  set( PAPI_INCLUDE $ENV{PAPI_INCLUDE} CACHE PATH 
+  set( PAPI_INCLUDE $ENV{PAPI_INCLUDE} CACHE PATH
     "PAPI headers at this location" )
-  set( PAPI_LIBRARY $ENV{PAPI_LIBDIR}/libpapi.so CACHE FILEPATH 
+  set( PAPI_LIBRARY $ENV{PAPI_LIBDIR}/libpapi.so CACHE FILEPATH
     "PAPI library." )
 endif()
 
@@ -593,6 +593,69 @@ macro(dbsSetupFortran)
 
   set( HAVE_Fortran ${HAVE_Fortran} CACHE BOOL
     "Should we build Fortran portions of this project?" FORCE )
+
+endmacro()
+
+#------------------------------------------------------------------------------#
+# Setup Cuda Compiler
+#
+# Use:
+#    include( compilerEnv )
+#    dbsSetupCuda( [QUIET] )
+#
+# Helpers - these environment variables help cmake find/set CUDA envs.
+# - ENV{CUDACXX}
+# - ENV{CUDAFLAGS}
+# - ENV{CUDAHOSTCXX}
+#
+# Returns:
+#    BUILD_SHARED_LIBS - bool
+#    CMAKE_CUDA_FLAGS
+#    CMAKE_CUDA_FLAGS_DEBUG
+#    CMAKE_CUDA_FLAGS_RELEASE
+#    CMAKE_CUDA_FLAGS_RELWITHDEBINFO
+#    CMAKE_CUDA_FLAGS_MINSIZEREL
+#
+# Notes:
+# - https://devblogs.nvidia.com/tag/cuda/
+# - https://devblogs.nvidia.com/building-cuda-applications-cmake/
+#------------------------------------------------------------------------------#
+macro(dbsSetupCuda)
+
+  # Toggle if we should try to build Cuda parts of the project.  This will be
+  # set to true if $ENV{FC} points to a working compiler.
+  option( HAVE_CUDA "Should we build Cuda parts of the project?" OFF )
+
+  # Is Fortran enabled (it is considered 'optional' for draco)?
+  get_property(_LANGUAGES_ GLOBAL PROPERTY ENABLED_LANGUAGES)
+  if( _LANGUAGES_ MATCHES CUDA )
+
+    # We found CUDA, keep track of this information.
+    set( HAVE_CUDA ON )
+
+    # User option to disable cuda, even when it is available.
+    option(USE_CUDA "Use Cuda?" ON)
+
+    # Use this string as a toggle when calling add_component_library or
+    # add_scalar_tests to force compiling with nvcc.
+    set( COMPILE_WITH_CUDA LINK_LANGUAGE CUDA )
+
+    # setup flags
+    if( "${CMAKE_CUDA_COMPILER_ID}" MATCHES "NVIDIA" )
+      include( unix-cuda )
+    else()
+      message(FATAL_ERROR "Build system does not support "
+        "CUDACXX=${CMAKE_CUDA_COMPILER}")
+    endif()
+  endif()
+
+  # Save the results
+  set( HAVE_CUDA ${HAVE_CUDA} CACHE BOOL
+    "Should we build CUDA portions of this project?" FORCE )
+  if( ${HAVE_CUDA} )
+    set( CUDA_DBS_STRING "CUDA" CACHE STRING
+      "If CUDA is available, this variable is 'CUDA'")
+  endif()
 
 endmacro()
 

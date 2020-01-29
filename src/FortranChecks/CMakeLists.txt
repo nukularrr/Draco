@@ -89,7 +89,7 @@ if( BUILD_TESTING )
           "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
       endif()
     else()
-      list( APPEND build_system_state "-DWITH_CUDA=${WITH_CUDA}" )
+      list( APPEND build_system_state "-DHAVE_CUDA=${HAVE_CUDA}" )
     endif()
 
     # CMake will put some run scripts in $build_dir/f90sub Another directory for
