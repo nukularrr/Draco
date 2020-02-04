@@ -15,6 +15,7 @@
 #include "ndi.h"
 #include "ds++/Assert.hh"
 #include <string>
+#include <vector>
 
 namespace rtt_cdi_ndi {
 
@@ -49,6 +50,15 @@ protected:
            const std::string &library_in, const std::string &reaction_in,
            const DISCRETIZATION discretization_in);
 
+  //! Name of reaction as found in NDI data
+  std::string reaction_name;
+
+  //! Labels (ZAIDs) for reaction products
+  std::vector<int> products;
+
+  //! Temperature support point grids for each reaction product
+  std::vector<std::vector<int>> product_temperatures;
+
 public:
   //! Get the name of the gendir file
   inline std::string get_gendir() const { return gendir; }
@@ -62,8 +72,14 @@ public:
   //! Get the reaction
   inline std::string get_reaction() const { return reaction; }
 
+  //! Get the name of the reaction from the NDI file
+  inline std::string get_reaction_name() const { return reaction_name; }
+
   //! Get the energy discretization
   inline DISCRETIZATION get_discretization() const { return discretization; }
+
+  //! Get vector of reaction products
+  inline std::vector<int> get_products() const { return products; }
 };
 
 } // namespace rtt_cdi_ndi

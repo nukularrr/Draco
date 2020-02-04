@@ -12,6 +12,23 @@
 
 namespace rtt_cdi_ndi {
 
+//----------------------------------------------------------------------------//
+// CONSTRUCTORS
+//----------------------------------------------------------------------------//
+/*!
+ * \brief Constructor for generic NDI reader, to be inherited by readers for
+ *        specific dataset.
+ *
+ * This base constructor only sets some data members based on constructor input.
+ * For more details on NDI, see
+ * https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html
+ *
+ * \param[in] gendir_in path to gendir file
+ * \param[in] dataset_in name of requested dataset (provided by inherited class)
+ * \param[in] library_in name of requested NDI data library
+ * \param[in] reaction_in name of requested reaction
+ * \param[in] discretization_in type of energy discretization to request
+ */
 NDI_Base::NDI_Base(const std::string &gendir_in, const std::string &dataset_in,
                    const std::string &library_in,
                    const std::string &reaction_in,

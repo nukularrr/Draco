@@ -26,11 +26,22 @@ void gendir_test(rtt_dsxx::UnitTest &ut) {
 
   std::string gendir_in = ut.getTestSourcePath() + "gendir.all";
   std::string library_in = "lanl04";
+  std::string reaction_in = "d+t->n+a";
 
-  NDI_TN tn(gendir_in, library_in, "reaction",
+  NDI_TN tn(gendir_in, library_in, reaction_in,
                 rtt_cdi_ndi::DISCRETIZATION::MULTIGROUP);
 
   printf("gendir \"%s\"\n", tn.get_gendir().c_str());
+
+  printf("reaction \"%s\"\n", tn.get_reaction_name().c_str());
+
+  FAIL_IF(tn.get_gendir().find("gendir.all") == std::string::npos);
+  FAIL_IF_NOT(tn.get_reaction_name() == "d+t->n+a.011ztn");
+
+  std::vector<int> products = tn.get_products();
+  for (auto &product : products) {
+    printf("product: %i\n", product);
+  }
 
   if (ut.numFails == 0) {
     PASSMSG("NDI_Base test passes.");
