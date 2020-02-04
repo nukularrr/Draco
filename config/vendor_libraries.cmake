@@ -658,7 +658,7 @@ macro( setupNDI )
 
     #===========================================================================
     # Include some information that can be printed by the build system.
-    set_package_properties( EOSPAC PROPERTIES
+    set_package_properties( NDI PROPERTIES
       URL "https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html"
       DESCRIPTION "Access nuclear data."
       TYPE OPTIONAL
