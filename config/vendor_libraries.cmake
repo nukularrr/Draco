@@ -224,22 +224,22 @@ macro( setupLAPACKLibraries )
         set( lapack_url "http://www.openblas.net")
         add_library( lapack SHARED IMPORTED)
         add_library( blas   SHARED IMPORTED)
-        if(WIN32)        
-          string( REPLACE ".lib" ".dll" BLAS_openblas_LIBRARY_DLL_libdir 
+        if(WIN32)
+          string( REPLACE ".lib" ".dll" BLAS_openblas_LIBRARY_DLL_libdir
             "${BLAS_openblas_LIBRARY}" )
-          string( REPLACE "/lib/" "/bin/" BLAS_openblas_LIBRARY_DLL_bindir 
+          string( REPLACE "/lib/" "/bin/" BLAS_openblas_LIBRARY_DLL_bindir
             "${BLAS_openblas_LIBRARY_DLL_libdir}" )
           if( EXISTS "${BLAS_openblas_LIBRARY_DLL_libdir}" )
-            set( BLAS_openblas_LIBRARY_DLL 
+            set( BLAS_openblas_LIBRARY_DLL
               "${BLAS_openblas_LIBRARY_DLL_libdir}")
           elseif( EXISTS "${BLAS_openblas_LIBRARY_DLL_bindir}" )
-            set( BLAS_openblas_LIBRARY_DLL 
-              "${BLAS_openblas_LIBRARY_DLL_bindir}") 
+            set( BLAS_openblas_LIBRARY_DLL
+              "${BLAS_openblas_LIBRARY_DLL_bindir}")
           else()
             # only static libs available.
-            set( BLAS_openblas_LIBRARY_DLL "${BLAS_openblas_LIBRARY}") 
+            set( BLAS_openblas_LIBRARY_DLL "${BLAS_openblas_LIBRARY}")
           endif()
-          
+
         set_target_properties( blas PROPERTIES
           IMPORTED_LOCATION                 "${BLAS_openblas_LIBRARY_DLL}"
           IMPORTED_IMPLIB                   "${BLAS_openblas_LIBRARY}"
@@ -641,6 +641,33 @@ macro( setupEOSPAC )
 endmacro()
 
 #------------------------------------------------------------------------------
+# Setup NDI (https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html)
+#------------------------------------------------------------------------------
+macro( setupNDI )
+
+  if( NOT TARGET NDI::ndi )
+    message( STATUS "Looking for NDI..." )
+
+    find_package( NDI QUIET )
+
+    if( NDI_FOUND )
+      message( STATUS "Looking for NDI....found ${NDI_LIBRARY}" )
+    else()
+      message( STATUS "Looking for NDI....not found" )
+    endif()
+
+    #===========================================================================
+    # Include some information that can be printed by the build system.
+    set_package_properties( EOSPAC PROPERTIES
+      URL "https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html"
+      DESCRIPTION "Access nuclear data."
+      TYPE OPTIONAL
+      PURPOSE "Required for building the cdi_ndi component." )
+  endif()
+
+endmacro()
+
+#------------------------------------------------------------------------------
 # Setup COMPTON (https://gitlab.lanl.gov/keadyk/CSK_generator)
 #------------------------------------------------------------------------------
 macro( setupCOMPTON )
@@ -677,6 +704,7 @@ macro( SetupVendorLibrariesUnix )
   setupSuperLU_DIST()
   setupCOMPTON()
   setupEospac()
+  setupNDI()
   setupRandom123()
   setupCudaEnv()
   setupPython()
@@ -726,6 +754,7 @@ macro( SetupVendorLibrariesWindows )
   setupRandom123()
   setupCOMPTON()
   setupEospac()
+  setupNDI()
   setupPython()
   setupQt()
   setupCudaEnv()
