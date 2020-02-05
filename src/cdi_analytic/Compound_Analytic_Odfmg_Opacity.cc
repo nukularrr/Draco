@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi_analytic/Compound_Analytic_Odfmg_Opacity.cc
  * \author Thomas M. Evans
  * \date   Tue Nov 13 11:19:59 2001
  * \brief  Compound_Analytic_Odfmg_Opacity class member definitions.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "Compound_Analytic_Odfmg_Opacity.hh"
 #include "Compound_Analytic_MultigroupOpacity.hh"
@@ -15,9 +15,9 @@
 
 namespace rtt_cdi_analytic {
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // CONSTRUCTORS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Constructor for an analytic multigroup opacity model.
  *
@@ -52,7 +52,7 @@ Compound_Analytic_Odfmg_Opacity::Compound_Analytic_Odfmg_Opacity(
   Require(rtt_dsxx::is_strict_monotonic_increasing(bands.begin(), bands.end()));
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Unpacking constructor.
  *
@@ -122,9 +122,9 @@ Compound_Analytic_Odfmg_Opacity::Compound_Analytic_Odfmg_Opacity(
   }
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // OPACITY INTERFACE FUNCTIONS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Return the group opacities given a scalar temperature and density.
  *
@@ -173,7 +173,7 @@ Compound_Analytic_Odfmg_Opacity::getOpacity(double targetTemperature,
   return opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Opacity accessor that returns a vector of multigroupband opacity 2-D
  *        vectors that correspond to the provided vector of temperatures and a
@@ -191,7 +191,7 @@ Compound_Analytic_Odfmg_Opacity::getOpacity(
   return opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Opacity accessor that returns a vector of multigroupband opacity 2-D
  *        vectors that correspond to the provided temperature and a vector of
@@ -209,7 +209,7 @@ Compound_Analytic_Odfmg_Opacity::getOpacity(
   return opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Pack an analytic odfmg opacity.
  *
@@ -267,6 +267,6 @@ Compound_Analytic_Odfmg_Opacity::pack() const {
 
 } // end namespace rtt_cdi_analytic
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of Compound_Analytic_Odfmg_Opacity.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

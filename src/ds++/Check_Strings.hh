@@ -1,10 +1,10 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   ds++/Check_Strings.hh
  * \author John McGhee
  * \date   Sun Jan 30 14:57:09 2000 *
  * \brief  Provides some utilities to check containers of strings.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved.
  *
  * Functions are provided to examine a container of strings: 1) for the
@@ -17,7 +17,7 @@
  * The following code provides examples of how to use the Check_Strings
  * utilities.
  */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_dsxx_Check_Strings_hh
 #define rtt_dsxx_Check_Strings_hh
@@ -99,7 +99,7 @@ std::vector<IT> check_string_chars(IT const &first, IT const &last,
   return result_vector;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Looks through a container of strings to see if the size of any of the
  *        strings in the container is outside the specified range.
@@ -143,7 +143,7 @@ std::vector<IT> check_string_lengths(IT const &first, IT const &last,
   return result_vector;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Looks through a container of strings to see if there are any
  *        duplicates.
@@ -185,6 +185,6 @@ std::vector<IT> check_strings_unique(IT first, IT const &last) {
 
 #endif // rtt_dsxx_Check_Strings_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of ds++/Check_Strings.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

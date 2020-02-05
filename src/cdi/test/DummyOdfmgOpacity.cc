@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi/test/DummyOdfmgOpacity.cc
  * \author Kelly Thompson
  * \date   Mon Jan 8 15:17:16 2001
  * \brief  DummyOdfmgOpacity templated class implementation file.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "DummyOdfmgOpacity.hh"
 #include "ds++/Assert.hh"
@@ -18,7 +18,7 @@ namespace rtt_cdi_test {
 // Constructors //
 // ------------ //
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Constructor for DummyOdfmgOpacity object.
  *
@@ -59,7 +59,7 @@ DummyOdfmgOpacity::DummyOdfmgOpacity(rtt_cdi::Reaction reaction,
     bandBoundaries[i] = std::pow(2.0, static_cast<double>(i) - 4.0);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // Constructor for entering a different group boundary structure than the
 // default
 DummyOdfmgOpacity::DummyOdfmgOpacity(rtt_cdi::Reaction reaction,
@@ -96,7 +96,7 @@ DummyOdfmgOpacity::DummyOdfmgOpacity(rtt_cdi::Reaction reaction,
 // Accessors //
 // --------- //
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Opacity accessor that returns a vector of opacities (one
  *     for each group) that corresponds to the provided
@@ -127,7 +127,7 @@ DummyOdfmgOpacity::getOpacity(double targetTemperature,
   return opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Opacity accessor that returns a vector of multigroup
  *     opacities corresponding to the provided vector of
@@ -151,7 +151,7 @@ DummyOdfmgOpacity::getOpacity(const std::vector<double> &targetTemperature,
   return opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Opacity accessor that returns a vector of multigroup
  *     opacities corresponding to the provided vector of
@@ -177,6 +177,6 @@ DummyOdfmgOpacity::getOpacity(double targetTemperature,
 
 } // end namespace rtt_cdi_test
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of DummyOdfmgOpacity.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

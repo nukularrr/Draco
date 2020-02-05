@@ -3,7 +3,7 @@
 # author Gabriel Rockefeller
 # date   2011 June 13
 # brief  Instructions for building device Makefile.
-# note   Copyright (C) 2016-2019 Triad National Security, LLC.
+# note   Copyright (C) 2016-2020 Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 cmake_minimum_required(VERSION 3.11.0)

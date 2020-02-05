@@ -3,7 +3,7 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   Saturday, Dec 28, 2019, 15:50 pm
 # brief  Instructions for building experimental/test level Makefile.
-# note   Copyright (C) 2019 Triad National Security, LLC.
+# note   Copyright (C) 2019-2020 Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 project( experimental_test CXX )
