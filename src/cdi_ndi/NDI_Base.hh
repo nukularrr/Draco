@@ -14,6 +14,9 @@
 #include "NDI_Common.hh"
 #include "ndi.h"
 #include "ds++/Assert.hh"
+#include <algorithm>
+#include <map>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -56,8 +59,38 @@ protected:
   //! Labels (ZAIDs) for reaction products
   std::vector<int> products;
 
+  //! Map from reaction product ZAID to index
+  std::map<int, int> product_zaid_to_index;
+
+  //! Multiplicities for each reaction product
+  std::vector<int> product_multiplicities;
+
+  //! Temperature support point grid for reaction
+  std::vector<double> reaction_temperature;
+
+  //! Incident energy support point grid for reaction
+  std::vector<double> einbar;
+
+  //! Incident cross section support point grid for reaction
+  std::vector<double> sigvbar;
+
   //! Temperature support point grids for each reaction product
-  std::vector<std::vector<int>> product_temperatures;
+  std::vector<std::vector<double>> product_temperatures;
+
+  //! Distribution support point grids for each reaction product
+  std::vector<std::vector<std::vector<double>>> product_distributions;
+
+  //! Reaction Q value i.e. change in energy
+  double q_reaction;
+
+  //! Number of groups (if multigroup)
+  int num_groups;
+
+  //! Group boundaries (if multigroup)
+  std::vector<double> group_bounds;
+
+  //! Group average energies (if multigroup)
+  std::vector<double> group_energies;
 
 public:
   //! Get the name of the gendir file
@@ -78,8 +111,48 @@ public:
   //! Get the energy discretization
   inline DISCRETIZATION get_discretization() const { return discretization; }
 
+  //! Get number of reaction products
+  inline uint32_t get_num_products() const { return products.size(); }
+
   //! Get vector of reaction products
-  inline std::vector<int> get_products() const { return products; }
+  inline std::vector<int> get_products() const & { return products; }
+
+  //! Get vector of reaction product multiplicities
+  inline std::vector<int> get_product_multiplicities() const & {
+    return product_multiplicities;
+  }
+
+  //! Get vector of reaction temperature grid support points
+  inline std::vector<double> get_reaction_temperature() const & {
+    return reaction_temperature;
+  }
+
+  //! Get vector of incident energy support points
+  inline std::vector<double> get_einbar() const & { return einbar; }
+
+  //! Get vector of cross section support points
+  inline std::vector<double> get_sigvbar() const & { return sigvbar; }
+
+  //! Get change in energy due to reaction
+  inline double get_reaction_q() const { return q_reaction; }
+
+  //! Get number of groups (if multigroup)
+  inline int get_num_groups() const {
+    Require(discretization == DISCRETIZATION::MULTIGROUP);
+    return num_groups;
+  }
+
+  //! Get group boundaries (if multigroup)
+  inline std::vector<double> get_group_bounds() const & {
+    Require(discretization == DISCRETIZATION::MULTIGROUP);
+    return group_bounds;
+  }
+
+  //! Get group energies (if multigroup)
+  inline std::vector<double> get_group_energies() const & {
+    Require(discretization == DISCRETIZATION::MULTIGROUP);
+    return group_energies;
+  }
 };
 
 } // namespace rtt_cdi_ndi
