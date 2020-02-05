@@ -76,7 +76,7 @@ endif()
 
 find_path( NDI_INCLUDE_DIR
   NAMES ndi.h
-  HINTS ${NDI_ROOT_DIR}/include
+  HINTS ${NDI_ROOT_DIR}/include/ndi
   #PATH_SUFFIXES Release Debug
   )
 

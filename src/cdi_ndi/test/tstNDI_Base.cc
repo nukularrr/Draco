@@ -24,18 +24,19 @@ using rtt_cdi_ndi::NDI_TN;
 
 void gendir_test(rtt_dsxx::UnitTest &ut) {
 
-  std::string gendir_in = ut.getTestSourcePath() + "gendir.all";
+  std::string gendir_in = "gendir_reduced.all";
+  std::string gendir_path = ut.getTestSourcePath() + gendir_in;
   std::string library_in = "lanl04";
   std::string reaction_in = "d+t->n+a";
 
-  NDI_TN tn(gendir_in, library_in, reaction_in,
+  NDI_TN tn(gendir_path, library_in, reaction_in,
                 rtt_cdi_ndi::DISCRETIZATION::MULTIGROUP);
 
   printf("gendir \"%s\"\n", tn.get_gendir().c_str());
 
   printf("reaction \"%s\"\n", tn.get_reaction_name().c_str());
 
-  FAIL_IF(tn.get_gendir().find("gendir.all") == std::string::npos);
+  FAIL_IF(tn.get_gendir().find(gendir_in.c_str()) == std::string::npos);
   FAIL_IF_NOT(tn.get_reaction_name() == "d+t->n+a.011ztn");
 
   std::vector<int> products = tn.get_products();

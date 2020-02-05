@@ -12,8 +12,6 @@
 
 namespace rtt_cdi_ndi {
 
-constexpr int c_str_len = 4096;
-
 //----------------------------------------------------------------------------//
 // CONSTRUCTORS
 //----------------------------------------------------------------------------//
@@ -33,7 +31,8 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
                const std::string &reaction_in,
                const DISCRETIZATION discretization_in)
     : NDI_Base(gendir_in, "tn", library_in, reaction_in, discretization_in) {
-  int gendir_handle, dataset_handle;
+  int gendir_handle, dataset_handle, ndi_size_error;
+  constexpr int c_str_len = 4096;
   char c_str_buf[c_str_len];
 
   //! Open gendir file (index of a complete NDI dataset)
@@ -64,6 +63,11 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
   product_temperatures.resize(num_products);
   Require(num_products > 0);
 
+  //! Specify multigroup option
+  SAFE_NDI(NDI2_set_option(dataset_handle, NDI_COLLAPSE, "4_lanl"));
+
+  printf("rn: %s\n", reaction_name.c_str());
+
   //! Loop over reaction products
   for (int n = 0; n < num_products; n++) {
     //! Get ZAID of reaction product
@@ -73,16 +77,27 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
     products[n] = std::stoi(product_zaid);
 
     //! Set NDI to reaction product
-    SAFE_NDI(NDI2_set_option(dataset_handle, NDI_CURR_PART, product_zaid.c_str()));
+    SAFE_NDI(
+        NDI2_set_option(dataset_handle, NDI_CURR_PART, product_zaid.c_str()));
 
-    //! Get number of temperature support points
-    int ndi_edist_temps_error;
-    int num_temps = NDI2_get_size(dataset_handle, NDI_EDIST_TEMPS, &ndi_edist_temps_error);
+    //! Get number of temperature support points (this can depend on reaction
+    //! product)
+    int num_temps =
+        NDI2_get_size(dataset_handle, NDI_EDIST_TEMPS, &ndi_size_error);
+    printf("ndi_size_error = %i\n", ndi_size_error);
+    Require(ndi_size_error == 0);
     product_temperatures[n].resize(num_temps);
+
+    //! Get the number of interp regions... for now just throw an exception if
+    //! this is not equal to 1
+    int num_edist_interp_regions = NDI2_get_size(dataset_handle, NDI_EDIST_INTERP_REG, &ndi_size_error);
+    printf("ndi_size_error = %i\n", ndi_size_error);
+    Require(ndi_size_error == 0);
+    printf("%i\n", num_edist_interp_regions);
+    Insist(num_edist_interp_regions == 1, "Only 1 edist interp region supported!");
   }
 
   //! Close datafile
-
   SAFE_NDI(NDI2_close_gendir(gendir_handle));
 }
 
