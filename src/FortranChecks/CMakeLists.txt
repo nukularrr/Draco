@@ -75,9 +75,6 @@ if( BUILD_TESTING )
       list( APPEND build_system_state
       "-DMPI_C_LIBRARIES=${MPI_C_LIBRARIES}"
       "-DMPI_C_INCLUDE_DIRS=${MPI_C_INCLUDE_DIRS}" )
-      set( deps Lib_FC_Derived_Type;Lib_c4;Lib_dsxx )
-    else()
-      set( deps Lib_FC_Derived_Type;Lib_dsxx )
     endif()
     if( WIN32 )
       # For Win32 builds, DLL and applications are built in the directory
@@ -100,10 +97,10 @@ if( BUILD_TESTING )
       # Creates target named 'FortranChecks_f90sub_build'
       ARCHIVE_DIR  f90sub          # .lib location relative to root binary tree
       RUNTIME_DIR  f90sub          # .dll location relative to root binary tree
-      LIBRARIES    rtt_FC_f90sub   # Sub project will create a library with this name.
-      # --> librtt_FC_f90.dll.
+      LIBRARIES    rtt_FC_f90sub   # create a library with this name.
+                                   # --> librtt_FC_f90.dll.
       TARGET_NAMES Lib_FC_f90sub
-      DEPENDS      ${deps}
+      DEPENDS      "Lib_FC_Derived_Type;Lib_c4;Lib_dsxx"
       NO_EXTERNAL_INSTALL
       CMAKE_COMMAND_LINE "${build_system_state}"
       #VERBOSE

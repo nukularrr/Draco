@@ -40,10 +40,12 @@ using rtt_dsxx::soft_equiv;
 void check_CDI(rtt_dsxx::UnitTest &ut, CDI const &cdi) {
   // check cdi, note that the different combinations of rtt_cdi::Model and
   // rtt_cdi::Reaction will yield the same results because DummyOpacity,
-  // DummyMultigroupOpacity, and DummyEoS all yield the same stuff.  These
-  // have all been tested in tDummyOpacity and tDummyEoS.  Here we just
-  // check the types
+  // DummyMultigroupOpacity, and DummyEoS all yield the same stuff.  These have
+  // all been tested in tDummyOpacity and tDummyEoS.  Here we just check the
+  // types
 
+  // Work around an MSVC ICE in MSC_VER 1925 (VS 2019, 16.5.0 preview 2)
+#if !defined(_MSC_VER) || _MSC_VER < 1900 || _MSC_VER > 1925
   // check for gray
   if (typeid(*cdi.gray(rtt_cdi::PLANCK, rtt_cdi::ABSORPTION)) ==
       typeid(DummyGrayOpacity))
@@ -87,6 +89,7 @@ void check_CDI(rtt_dsxx::UnitTest &ut, CDI const &cdi) {
     PASSMSG("CDI eos() returned the correct type!");
   else
     FAILMSG("CDI eos() did not return the correct type!");
+#endif
 
   // gray test case: Find the value of opacity at T=0.35 keV and rho = 27.2
   // g/cm^3.  For DummyGrayOpacity the value should be .35272 cm^2/g.

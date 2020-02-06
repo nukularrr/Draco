@@ -6,7 +6,7 @@
 #------------------------------------------------------------------------------#
 project( device_test CXX ${CUDA_DBS_STRING} )
 
-# Only build cuda tests if CUDA is available.
+# Only build GPU tests if CUDA is available.
 if( HAVE_CUDA AND USE_CUDA )
 
 # ---------------------------------------------------------------------------- #
@@ -30,7 +30,7 @@ set(cuda_sources
 # Build Unit tests
 # ---------------------------------------------------------------------------- #
 
-# Stuff cuda code into a test library.
+# Stuff GPU code into a test library.
 add_component_library(
    TARGET       Lib_device_test
    TARGET_DEPS  Lib_dsxx Lib_device
