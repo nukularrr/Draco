@@ -11,12 +11,11 @@
 #ifndef cdi_ndi_NDI_TN_hh
 #define cdi_ndi_NDI_TN_hh
 
-#include "NDI_Common.hh"
 #include "NDI_Base.hh"
+#include "NDI_Common.hh"
 #include "ndi.h"
 #include "ds++/Assert.hh"
 #include "rng/Rnd_Control_Inline.hh"
-#include "rng/Counter_RNG.hh"
 #include <memory>
 #include <string>
 
@@ -32,20 +31,17 @@ namespace rtt_cdi_ndi {
  */
 //============================================================================//
 
-class NDI_TN : public NDI_Base{
+class NDI_TN : public NDI_Base {
 
 private:
-  //constexpr static int seed = 1234567;
-  //rtt_rng::Rnd_Control control(seed);
   rtt_rng::Rnd_Control control;
-  rtt_rng::Counter_RNG ran1;
-  //std::unique_ptr<rtt_rng::Counter_RNG_ref> rng_ptr;
+  rtt_rng::Counter_RNG rng;
 
 public:
   //! Constructor
-  NDI_TN(const std::string &gendir_in,
-           const std::string &library_in, const std::string &reaction_in,
-           const DISCRETIZATION discretization_in);
+  NDI_TN(const std::string &gendir_in, const std::string &library_in,
+         const std::string &reaction_in,
+         const DISCRETIZATION discretization_in);
 
   //! Sample energy distribution at given temperature to determine reaction
   //! product energy

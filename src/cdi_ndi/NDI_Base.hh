@@ -84,7 +84,7 @@ protected:
   double q_reaction;
 
   //! Number of groups (if multigroup)
-  int num_groups;
+  uint32_t num_groups;
 
   //! Group boundaries (if multigroup)
   std::vector<double> group_bounds;
@@ -112,7 +112,7 @@ public:
   inline DISCRETIZATION get_discretization() const { return discretization; }
 
   //! Get number of reaction products
-  inline uint32_t get_num_products() const { return products.size(); }
+  inline uint32_t get_num_products() const { return static_cast<uint32_t>(products.size()); }
 
   //! Get vector of reaction products
   inline std::vector<int> get_products() const & { return products; }

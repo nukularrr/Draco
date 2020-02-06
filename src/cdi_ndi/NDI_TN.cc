@@ -31,17 +31,18 @@ namespace rtt_cdi_ndi {
 NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
                const std::string &reaction_in,
                const DISCRETIZATION discretization_in)
-    : NDI_Base(gendir_in, "tn", library_in, reaction_in, discretization_in), control(1234567) {
+    : NDI_Base(gendir_in, "tn", library_in, reaction_in, discretization_in),
+      control(1234567) {
   int gendir_handle, dataset_handle, ndi_size_error;
   constexpr int c_str_len = 4096;
   char c_str_buf[c_str_len];
 
-  control.initialize(1, ran1);
+  control.initialize(1, rng);
 
-  //! Open gendir file (index of a complete NDI dataset)
+  // Open gendir file (index of a complete NDI dataset)
   SAFE_NDI(NDI2_open_gendir(&gendir_handle, gendir.c_str()));
 
-  //! Set dataset option
+  // Set dataset option
   SAFE_NDI(NDI2_set_option_gendir(gendir_handle, NDI_LIB_TYPE_DEFAULT,
                                   dataset.c_str()));
 
@@ -67,7 +68,11 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
   //! Get temperature support points for reaction
   SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_TEMPS,
                                 reaction_temperature.data(),
-                                reaction_temperature.size()));
+                                static_cast<int>(reaction_temperature.size())));
+  // MeV -> keV
+  for (auto &temperature : reaction_temperature) {
+    temperature *= 1000.;
+  }
 
   //! Get number of incident energy support points for reaction
   int num_einbar = NDI2_get_size(dataset_handle, NDI_EINBAR, &ndi_size_error);
@@ -76,7 +81,11 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
 
   //! Get incident energy support points for reaction
   SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_EINBAR, einbar.data(),
-                                einbar.size()));
+                                static_cast<int>(einbar.size())));
+  // MeV -> keV
+  for (auto &energy : einbar) {
+    energy *= 1000.;
+  }
 
   //! Get the number of interp regions... for now just throw an exception if
   //! this is not equal to 1
@@ -94,7 +103,11 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
 
   //! Get cross section support points for reaction
   SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_SIGVBARS, sigvbar.data(),
-                                sigvbar.size()));
+                                static_cast<int>(sigvbar.size())));
+  // cm^3 s^-1 -> cm^3 sh^-1
+  for (auto &sigma : sigvbar) {
+    sigma *= 1.e-8;
+  }
 
   //! Get the number of interp regions... for now just throw an exception if
   //! this is not equal to 1
@@ -116,10 +129,11 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
   //! Get reaction product multiplicity
   SAFE_NDI(NDI2_get_int_vec(dataset_handle, NDI_RPRODS_MLT,
                             product_multiplicities.data(),
-                            product_multiplicities.size()));
+                            static_cast<int>(product_multiplicities.size())));
 
   //! Get change in energy due to reaction
   SAFE_NDI(NDI2_get_float64_val(dataset_handle, NDI_REAC_Q, &q_reaction));
+  q_reaction *= 1000.; // MeV -> keV
 
   Insist(discretization == DISCRETIZATION::MULTIGROUP,
          "Only multigroup discretization currently supported!");
@@ -129,17 +143,28 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
     SAFE_NDI(NDI2_set_option(dataset_handle, NDI_COLLAPSE, "4_lanl"));
 
     //! Get number of groups
-    SAFE_NDI(NDI2_get_int_val(dataset_handle, NDI_NUM_GRPS, &num_groups));
+    int num_groups_int;
+    SAFE_NDI(NDI2_get_int_val(dataset_handle, NDI_NUM_GRPS, &num_groups_int));
+    num_groups = static_cast<uint32_t>(num_groups_int);
     group_bounds.resize(num_groups + 1);
     group_energies.resize(num_groups);
 
     //! Get boundaries of energy groups
-    SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_E_BOUNDS, group_bounds.data(), group_bounds.size()));
+    SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_E_BOUNDS,
+                                  group_bounds.data(), static_cast<int>(group_bounds.size())));
+    // MeV -> keV
+    for (auto &bound : group_bounds) {
+      bound *= 1000;
+    }
 
     //! Get average energies of energy groups
-    SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_E_AVG, group_energies.data(), group_energies.size()));
-
-    printf("rn: %s\n", reaction_name.c_str());
+    SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_E_AVG,
+                                  group_energies.data(),
+                                  static_cast<int>(group_energies.size())));
+    // MeV -> keV
+    for (auto &energy : group_energies) {
+      energy *= 1000;
+    }
 
     //! Loop over reaction products
     for (int n = 0; n < num_products; n++) {
@@ -156,17 +181,20 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
 
       //! Get number of temperature support points (this can depend on reaction
       //! product)
-      int num_temps =
+      int num_product_temps =
           NDI2_get_size(dataset_handle, NDI_EDIST_TEMPS, &ndi_size_error);
-      printf("ndi_size_error = %i\n", ndi_size_error);
       Require(ndi_size_error == 0);
-      product_temperatures[n].resize(num_temps);
-      product_distributions[n].resize(num_temps);
+      product_temperatures[n].resize(num_product_temps);
+      product_distributions[n].resize(num_product_temps);
 
       //! Get temperature support points
       SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_TEMPS,
                                     product_temperatures[n].data(),
-                                    product_temperatures[n].size()));
+                                    static_cast<int>(product_temperatures[n].size())));
+      // MeV -> keV
+      for (auto &temperature : product_temperatures[n]) {
+        temperature *= 1000.;
+      }
 
       //! Get the number of interp regions... for now just throw an exception if
       //! this is not equal to 1
@@ -179,23 +207,16 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
       // Loop over temperatures
       for (size_t m = 0; m < product_temperatures[n].size(); m++) {
         std::ostringstream temp_stream;
-        temp_stream << product_temperatures[n][m];
-        printf("temp = %s\n", temp_stream.str().c_str());
+        temp_stream << product_temperatures[n][m] / 1000; // keV -> MeV
         SAFE_NDI(NDI2_set_option(dataset_handle, NDI_TEMP,
                                  temp_stream.str().c_str()));
-        printf("option set\n");
-        printf("pd[n].size() = %i\n", product_distributions[n].size());
 
         product_distributions[n][m].resize(num_groups);
-        printf("%i\n", product_distributions[n][m].size());
         SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_EDIST,
                                       product_distributions[n][m].data(),
-                                      product_distributions[n][m].size()));
+                                      static_cast<int>(product_distributions[n][m].size())));
       }
     }
-
-    // Now put temperatures and distributions on uniform temperature (and energy?) grid
-    printf("done\n");
   }
 
   //! Close datafile
@@ -206,49 +227,44 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
 /*!
  * \brief Sample reaction product energy distribution at fixed temperature.
  * \param[in] product_zaid ZAID of reaction product to sample
- * \param[in] temperature of plasma
- * \return Sampled reaction product energy
+ * \param[in] temperature of plasma (keV)
+ * \return Sampled reaction product energy (keV)
  */
-double NDI_TN::sample_distribution(const int product_zaid, const double temperature) {
+double NDI_TN::sample_distribution(const int product_zaid,
+                                   const double temperature) {
   const int product_index = product_zaid_to_index[product_zaid];
-
-  /*for (int m = 0; m < product_temperatures[product_index].size(); m++) {
-    printf("T = %e\n", product_temperatures[product_index][m]);
-    if (m > 0) {
-      printf("dT = %e\n", product_temperatures[product_index][m] - product_temperatures[product_index][m-1]);
-      printf("dlT = %e\n", log(product_temperatures[product_index][m]) - log(product_temperatures[product_index][m-1]));
-    }
-  }*/
 
   Require(temperature > product_temperatures[product_index].front());
   Require(temperature < product_temperatures[product_index].back());
 
-  auto temp_1 = std::upper_bound(product_temperatures[product_index].begin(),
-    product_temperatures[product_index].end(), temperature);
-  int index_1 = temp_1 - product_temperatures[product_index].begin();
-  int index_0 = index_1 - 1;
+  auto temp_1 =
+      std::upper_bound(product_temperatures[product_index].begin(),
+                       product_temperatures[product_index].end(), temperature);
+  uint32_t index_1 = static_cast<uint32_t>(temp_1 - product_temperatures[product_index].begin());
+  uint32_t index_0 = index_1 - 1;
   double temp_0 = product_temperatures[product_index][index_0];
-  double fac = 1. - (temperature - temp_0)/(*temp_1 - temp_0);
+  double fac = 1. - (temperature - temp_0) / (*temp_1 - temp_0);
 
   std::vector<double> dist_interp(num_groups);
   double dist_sum = 0.;
-  for (int n = 0; n < num_groups; n++) {
+  for (uint32_t n = 0; n < num_groups; n++) {
     double dist_0 = product_distributions[product_index][index_0][n];
     double dist_1 = product_distributions[product_index][index_1][n];
-    dist_interp[n] = dist_0*fac + dist_1*(1. - fac);
+    dist_interp[n] = dist_0 * fac + dist_1 * (1. - fac);
     dist_sum += dist_interp[n];
   }
 
-  rtt_rng::Counter_RNG_Ref rng = ran1.ref();
-  //printf("got ref\n");
+  // Ensure normalized PDF after interpolation
+  for (uint32_t n = 0; n < num_groups; n++) {
+    dist_interp[n] /= dist_sum;
+  }
 
-  //printf("ran = %e\n", rng.ran());
+  rtt_rng::Counter_RNG_Ref rng_ref = rng.ref();
 
-  int index;
+  uint32_t index;
   do {
-    index = static_cast<int>(std::round(num_groups*rng.ran()));
-    //index = 0;
-  } while (rng.ran() > dist_interp[index]);
+    index = static_cast<uint32_t>(std::round(num_groups * rng_ref.ran()));
+  } while (rng_ref.ran() > dist_interp[index]);
   double energy = group_energies[index];
 
   return energy;
