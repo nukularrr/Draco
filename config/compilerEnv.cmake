@@ -1,7 +1,8 @@
 #-----------------------------*-cmake-*----------------------------------------#
 # file   config/compilerEnv.cmake
 # brief  Default CMake build parameters
-# note   Copyright (C) 2019-2020 Triad National Security, LLC. All rights reserved.
+# note   Copyright (C) 2019-2020 Triad National Security, LLC. 
+#        All rights reserved.
 #------------------------------------------------------------------------------#
 
 include_guard(GLOBAL)
@@ -626,14 +627,14 @@ macro(dbsSetupCuda)
   # set to true if $ENV{FC} points to a working compiler.
   option( HAVE_CUDA "Should we build Cuda parts of the project?" OFF )
 
-  # Is Fortran enabled (it is considered 'optional' for draco)?
+  # Is Cuda enabled (it is considered 'optional' for draco)?
   get_property(_LANGUAGES_ GLOBAL PROPERTY ENABLED_LANGUAGES)
   if( _LANGUAGES_ MATCHES CUDA )
 
-    # We found CUDA, keep track of this information.
+    # We found Cuda, keep track of this information.
     set( HAVE_CUDA ON )
 
-    # User option to disable cuda, even when it is available.
+    # User option to disable Cuda, even when it is available.
     option(USE_CUDA "Use Cuda?" ON)
 
     # Use this string as a toggle when calling add_component_library or
