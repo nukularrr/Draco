@@ -176,47 +176,56 @@ public:
 //----------------------------------------------------------------------------//
 
 //! Throw a rtt_dsxx::assertion for Require, Check, Ensure.
-[[noreturn]] DLL_PUBLIC_dsxx void
-toss_cookies(std::string const &cond, std::string const &file, int const line);
+[[noreturn]] void toss_cookies(std::string const &cond, std::string const &file,
+                               int const line);
 
-[[noreturn]] DLL_PUBLIC_dsxx void toss_cookies_ptr(char const *const cond,
-                                                   char const *const file,
-                                                   int const line);
+[[noreturn]] void toss_cookies_ptr(char const *const cond,
+                                   char const *const file, int const line);
 
 //! Throw a rtt_dsxx::assertion if condition fails
-DLL_PUBLIC_dsxx void check_cookies(bool cond, char const *cond_text,
-                                   char const *file, int line);
+void check_cookies(bool cond, char const *cond_text, char const *file,
+                   int line);
 
 //! Print error w/o throw
-DLL_PUBLIC_dsxx void show_cookies(std::string const &cond,
-                                  std::string const &file, int const line);
+void show_cookies(std::string const &cond, std::string const &file,
+                  int const line);
 
 //! Throw a rtt_dsxx::assertion for Insist.
-[[noreturn]] DLL_PUBLIC_dsxx void insist(std::string const &cond,
-                                         std::string const &msg,
-                                         std::string const &file,
-                                         int const line);
+[[noreturn]] void insist(std::string const &cond, std::string const &msg,
+                         std::string const &file, int const line);
 
 //! Pointer version of insist
-[[noreturn]] DLL_PUBLIC_dsxx void insist_ptr(char const *const cond,
-                                             char const *const msg,
-                                             char const *const file,
-                                             int const line);
+[[noreturn]] void insist_ptr(char const *const cond, char const *const msg,
+                             char const *const file, int const line);
+
+#if defined HAVE_CUDA && defined USE_CUDA
+
+/*! \brief A special version of insist that does not throw.  Useful for GPU
+ *         code. \sa device/config.h.in */
+__host__ __device__ constexpr void no_exception_insist(char const *const cond,
+                                                       char const *const msg,
+                                                       char const *const file,
+                                                       int const line) {
+  printf("Insist: %s, failed in %s, line %d.\n", cond, file, line);
+  printf("The following message was provided: \"%s\"", msg);
+  return;
+}
+
+#endif
 
 #if DBC & 16
 //! Check version of insist
-DLL_PUBLIC_dsxx void check_insist(bool cond, char const *const condstr,
-                                  std::string const &msg,
-                                  char const *const file, int const line);
+void check_insist(bool cond, char const *const condstr, std::string const &msg,
+                  char const *const file, int const line);
 
 //! Check Pointer version of insist
-DLL_PUBLIC_dsxx void check_insist_ptr(bool cond, char const *const condstr,
-                                      char const *const msg,
-                                      char const *const file, int const line);
+void check_insist_ptr(bool cond, char const *const condstr,
+                      char const *const msg, char const *const file,
+                      int const line);
 #endif
 
 //! Add hostname and pid to error messages.
-DLL_PUBLIC_dsxx std::string verbose_error(std::string const &message);
+std::string verbose_error(std::string const &message);
 
 } // namespace rtt_dsxx
 
@@ -274,6 +283,11 @@ DLL_PUBLIC_dsxx std::string verbose_error(std::string const &message);
  * things which you want taken out of production codes (like, the check might
  * inhibit inlining or something like that), but use Insist for those things you
  * want checked even in a production code.
+ *
+ * Special code for CUDA.
+ *
+ * If HAVE_CUDA=ON and USE_CUDA=ON, then alter the behavior of the DbC macros
+ * because cuda code cannot throw.
  */
 /*!
  * \def Require(condition)
@@ -317,18 +331,22 @@ DLL_PUBLIC_dsxx std::string verbose_error(std::string const &message);
 // clang-format off
 
 //----------------------------------------------------------------------------//
-// No-throw versions of DBC [8-15]
+/* No-throw versions of DBC [8-15]
+ *
+ * Eventually, we want the DBC to work in GPU/Cuda code, but for now just
+ * disable DBC.
+ */
 //----------------------------------------------------------------------------//
-#if DBC & 8
+#if ( DBC & 8 ) || ( defined HAVE_CUDA && defined USE_CUDA )
 
-#if DBC & 1
+#if ( DBC & 1 ) && !( defined HAVE_CUDA && defined USE_CUDA )
 #define REQUIRE_ON
 #define Require(c) if (!(c)) rtt_dsxx::show_cookies( #c, __FILE__, __LINE__ )
 #else
 #define Require(c)
 #endif
 
-#if DBC & 2
+#if ( DBC & 2 ) && !( defined HAVE_CUDA && defined USE_CUDA )
 #define CHECK_ON
 #define Check(c) if (!(c)) rtt_dsxx::show_cookies( #c, __FILE__, __LINE__ )
 #define Assert(c) if (!(c)) rtt_dsxx::show_cookies( #c, __FILE__, __LINE__ )
@@ -337,7 +355,7 @@ DLL_PUBLIC_dsxx std::string verbose_error(std::string const &message);
 #define Assert(c)
 #endif
 
-#if DBC & 4
+#if ( DBC & 4 ) && !( defined HAVE_CUDA && defined USE_CUDA )
 #define ENSURE_ON
 #define Ensure(c) if (!(c)) rtt_dsxx::show_cookies( #c, __FILE__, __LINE__ )
 #else
@@ -347,8 +365,12 @@ DLL_PUBLIC_dsxx std::string verbose_error(std::string const &message);
 //----------------------------------------------------------------------------//
 // Always on
 //----------------------------------------------------------------------------//
+#if ( defined HAVE_CUDA && defined USE_CUDA )
+#define Insist(c, m) if(!(c)) rtt_dsxx::no_exception_insist( #c, m, __FILE__, __LINE__)
+#else
 #define Insist(c,m) if (!(c)) rtt_dsxx::insist( #c, m, __FILE__, __LINE__ )
 #define Insist_ptr(c,m) if (!(c)) rtt_dsxx::insist_ptr( #c, m, __FILE__, __LINE__ )
+#endif
 
 #elif DBC & 16
 
@@ -437,7 +459,7 @@ DLL_PUBLIC_dsxx std::string verbose_error(std::string const &message);
 // If any of DBC is on, then make the remember macro active and the NOEXCEPT
 // inactive.
 //----------------------------------------------------------------------------//
-#if DBC
+#if DBC && !( defined HAVE_CUDA && defined USE_CUDA )
 #define REMEMBER_ON
 #define Remember(c) c
 #define NOEXCEPT

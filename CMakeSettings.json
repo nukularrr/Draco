@@ -26,8 +26,21 @@
       "ctestCommandArgs": "-j 8 --output-on-failure",
       "cmakeToolchain": "C:/work/vendors64/vs2019-toolchain.cmake",
       "inheritEnvironments": [ "msvc_x64_x64" ],
-      "variables": [],
-      "cmakeExecutable": "C:/Program Files/CMake/bin/cmake.exe"
+      "variables": []
+    },
+    {
+      "name": "x64-Debug-scalar",
+      "generator": "Visual Studio 16 2019 Win64",
+      "configurationType": "Debug",
+      "buildRoot": "c:/work/vs2019-${name}/draco",
+      "installRoot": "c:/work/vs2019-${name}/install",
+      "cmakeExecutable": "C:/Program Files/CMake/bin/cmake.exe",
+      "cmakeCommandArgs": "-DDRACO_C4=SCALAR",
+      "buildCommandArgs": "-verbosity:minimal -m:8",
+      "ctestCommandArgs": "-j 8 --output-on-failure",
+      "cmakeToolchain": "C:/work/vendors64/vs2019-toolchain.cmake",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": []
     }
   ]
 }
