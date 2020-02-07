@@ -151,7 +151,8 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
 
     //! Get boundaries of energy groups
     SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_E_BOUNDS,
-                                  group_bounds.data(), static_cast<int>(group_bounds.size())));
+                                  group_bounds.data(),
+                                  static_cast<int>(group_bounds.size())));
     // MeV -> keV
     for (auto &bound : group_bounds) {
       bound *= 1000;
@@ -188,9 +189,9 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
       product_distributions[n].resize(num_product_temps);
 
       //! Get temperature support points
-      SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_TEMPS,
-                                    product_temperatures[n].data(),
-                                    static_cast<int>(product_temperatures[n].size())));
+      SAFE_NDI(NDI2_get_float64_vec(
+          dataset_handle, NDI_TEMPS, product_temperatures[n].data(),
+          static_cast<int>(product_temperatures[n].size())));
       // MeV -> keV
       for (auto &temperature : product_temperatures[n]) {
         temperature *= 1000.;
@@ -212,9 +213,9 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
                                  temp_stream.str().c_str()));
 
         product_distributions[n][m].resize(num_groups);
-        SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_EDIST,
-                                      product_distributions[n][m].data(),
-                                      static_cast<int>(product_distributions[n][m].size())));
+        SAFE_NDI(NDI2_get_float64_vec(
+            dataset_handle, NDI_EDIST, product_distributions[n][m].data(),
+            static_cast<int>(product_distributions[n][m].size())));
       }
     }
   }
@@ -240,7 +241,8 @@ double NDI_TN::sample_distribution(const int product_zaid,
   auto temp_1 =
       std::upper_bound(product_temperatures[product_index].begin(),
                        product_temperatures[product_index].end(), temperature);
-  uint32_t index_1 = static_cast<uint32_t>(temp_1 - product_temperatures[product_index].begin());
+  uint32_t index_1 = static_cast<uint32_t>(
+      temp_1 - product_temperatures[product_index].begin());
   uint32_t index_0 = index_1 - 1;
   double temp_0 = product_temperatures[product_index][index_0];
   double fac = 1. - (temperature - temp_0) / (*temp_1 - temp_0);

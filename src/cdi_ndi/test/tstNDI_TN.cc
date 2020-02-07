@@ -14,8 +14,8 @@
 #include "ds++/Release.hh"
 #include "ds++/ScalarUnitTest.hh"
 #include "ds++/dbc.hh"
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <vector>
 
@@ -57,7 +57,8 @@ void gendir_test(rtt_dsxx::UnitTest &ut) {
               rtt_cdi_ndi::DISCRETIZATION::MULTIGROUP);
   FAIL_IF_NOT(tn.get_num_products() == 2);
   auto products = tn.get_products();
-  FAIL_IF_NOT(products.size() == 2 && products[0] == 1001 && products[1] == 3007);
+  FAIL_IF_NOT(products.size() == 2 && products[0] == 1001 &&
+              products[1] == 3007);
   auto multiplicities = tn.get_product_multiplicities();
   FAIL_IF_NOT(multiplicities.size() == 2 && multiplicities[0] == 1 &&
               multiplicities[1] == 1);
@@ -89,8 +90,8 @@ void gendir_test(rtt_dsxx::UnitTest &ut) {
   FAIL_IF_NOT(
       soft_equiv(group_energies.back(), 9.208350000000000080e+01, 1.e-8));
 
-  int product_zaid_1 = 1001;                    // proton
-  int product_zaid_2 = 3007;                    // Lithium-7
+  int product_zaid_1 = 1001;            // proton
+  int product_zaid_2 = 3007;            // Lithium-7
   double material_temperature = 1.1e-1; // keV
   FAIL_IF_NOT(
       soft_equiv(tn.sample_distribution(product_zaid_1, material_temperature),

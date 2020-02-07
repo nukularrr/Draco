@@ -22,7 +22,7 @@
 namespace rtt_cdi_ndi {
 
 enum class DISCRETIZATION {
-  MULTIGROUP = 0, /*!< Multigroup data */
+  MULTIGROUP = 0,       /*!< Multigroup data */
   CONTINUOUS_ENERGY = 1 /*!< Continuous energy data */
 };
 
