@@ -11,7 +11,8 @@
 #ifndef rtt_cdi_NDI_Common_hh
 #define rtt_cdi_NDI_Common_hh
 
-//! Macro for wrapping calls to NDI library and handling exceptions
+//! Macro for wrapping calls to NDI library and handling exceptions. Note that
+//! ndi_error > 0 is for non-fatal warnings.
 #define SAFE_NDI(x)                                                            \
   {                                                                            \
     int ndi_error = x;                                                         \

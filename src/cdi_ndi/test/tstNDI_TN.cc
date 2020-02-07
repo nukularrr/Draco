@@ -35,14 +35,14 @@ void gendir_test(rtt_dsxx::UnitTest &ut) {
   std::ofstream gendir_tmp_file;
   gendir_tmp_file.open(gendir_tmp_path);
   gendir_tmp_file << "tndata\n";
-  gendir_tmp_file << "  z=d+t->n+a.011ztn  d=03/25/2003  l=lanl04\n";
+  gendir_tmp_file << "  z=n+be7->p+li7.040ztn  d=12/20/2004  l=lanl04\n";
   gendir_tmp_file << "    f=" << data_path << "\n";
-  gendir_tmp_file << "    ft=asc  ln=34  o=1512  end\n";
+  gendir_tmp_file << "    ft=asc  ln=73  o=3372  end\n";
   gendir_tmp_file.close();
 
   std::string gendir_path = gendir_tmp_path;
   std::string library_in = "lanl04";
-  std::string reaction_in = "d+t->n+a";
+  std::string reaction_in = "n+be7->p+li7";
 
   NDI_TN tn(gendir_path, library_in, reaction_in,
             rtt_cdi_ndi::DISCRETIZATION::MULTIGROUP);
@@ -51,31 +51,31 @@ void gendir_test(rtt_dsxx::UnitTest &ut) {
   FAIL_IF(tn.get_gendir().find(gendir_in) == std::string::npos);
   FAIL_IF_NOT(tn.get_dataset() == "tn");
   FAIL_IF_NOT(tn.get_library() == "lanl04");
-  FAIL_IF_NOT(tn.get_reaction() == "d+t->n+a");
-  FAIL_IF_NOT(tn.get_reaction_name() == "d+t->n+a.011ztn");
+  FAIL_IF_NOT(tn.get_reaction() == "n+be7->p+li7");
+  FAIL_IF_NOT(tn.get_reaction_name() == "n+be7->p+li7.040ztn");
   FAIL_IF_NOT(tn.get_discretization() ==
               rtt_cdi_ndi::DISCRETIZATION::MULTIGROUP);
   FAIL_IF_NOT(tn.get_num_products() == 2);
   auto products = tn.get_products();
-  FAIL_IF_NOT(products.size() == 2 && products[0] == 1 && products[1] == 2004);
+  FAIL_IF_NOT(products.size() == 2 && products[0] == 1001 && products[1] == 3007);
   auto multiplicities = tn.get_product_multiplicities();
   FAIL_IF_NOT(multiplicities.size() == 2 && multiplicities[0] == 1 &&
               multiplicities[1] == 1);
   auto reaction_temperature = tn.get_reaction_temperature();
-  FAIL_IF_NOT(reaction_temperature.size() == 121);
+  FAIL_IF_NOT(reaction_temperature.size() == 3);
   FAIL_IF_NOT(soft_equiv(reaction_temperature.front(), 1.000000000000000056e-01,
                          1.e-8));
   FAIL_IF_NOT(
-      soft_equiv(reaction_temperature.back(), 1.000000000000000000e+03, 1.e-8));
+      soft_equiv(reaction_temperature.back(), 1.165914400000000045e-01, 1.e-8));
   auto einbar = tn.get_einbar();
-  FAIL_IF_NOT(einbar.size() == 121);
-  FAIL_IF_NOT(soft_equiv(einbar.front(), 1.670479999999999965e+00, 1.e-8));
-  FAIL_IF_NOT(soft_equiv(einbar.back(), 2.561829999999999927e+03, 1.e-8));
+  FAIL_IF_NOT(einbar.size() == 3);
+  FAIL_IF_NOT(soft_equiv(einbar.front(), 2.968071330000000008e-01, 1.e-8));
+  FAIL_IF_NOT(soft_equiv(einbar.back(), 3.458878690000000145e-01, 1.e-8));
   auto sigvbar = tn.get_sigvbar();
-  FAIL_IF_NOT(sigvbar.size() == 121);
-  FAIL_IF_NOT(soft_equiv(sigvbar.front(), 2.695290000000000012e-38, 1.e-8));
-  FAIL_IF_NOT(soft_equiv(sigvbar.back(), 2.517209999999999972e-24, 1.e-8));
-  FAIL_IF_NOT(soft_equiv(tn.get_reaction_q(), 1.758927999999999869e+04, 1.e-8));
+  FAIL_IF_NOT(sigvbar.size() == 3);
+  FAIL_IF_NOT(soft_equiv(sigvbar.front(), 7.504850620000000827e-23, 1.e-8));
+  FAIL_IF_NOT(soft_equiv(sigvbar.back(), 7.467488500000000044e-23, 1.e-8));
+  FAIL_IF_NOT(soft_equiv(tn.get_reaction_q(), 1.644289999999999964e+03, 1.e-8));
   FAIL_IF_NOT(tn.get_num_groups() == 4);
   auto group_bounds = tn.get_group_bounds();
   FAIL_IF_NOT(group_bounds.size() == 5);
@@ -89,14 +89,15 @@ void gendir_test(rtt_dsxx::UnitTest &ut) {
   FAIL_IF_NOT(
       soft_equiv(group_energies.back(), 9.208350000000000080e+01, 1.e-8));
 
-  int product_zaid = 2004;                    // alpha particle
-  double material_temperature = 9.e-1 * 1000; // keV
+  int product_zaid_1 = 1001;                    // proton
+  int product_zaid_2 = 3007;                    // Lithium-7
+  double material_temperature = 1.1e-1; // keV
   FAIL_IF_NOT(
-      soft_equiv(tn.sample_distribution(product_zaid, material_temperature),
-                 5.011000000000000000e+03, 1.e-8));
-  FAIL_IF_NOT(
-      soft_equiv(tn.sample_distribution(product_zaid, material_temperature),
+      soft_equiv(tn.sample_distribution(product_zaid_1, material_temperature),
                  1.208000000000000227e+03, 1.e-8));
+  FAIL_IF_NOT(
+      soft_equiv(tn.sample_distribution(product_zaid_2, material_temperature),
+                 9.208350000000000080e+01, 1.e-8));
 
   bool caught = false;
   try {
