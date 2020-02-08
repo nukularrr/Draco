@@ -250,15 +250,8 @@ function(cmake_add_fortran_subdirectory subdir)
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=${ep_build_type}
                       -P ${build_dir}/config_cafs_proj.cmake
     BUILD_COMMAND     ${CMAKE_COMMAND} -P ${build_dir}/build_cafs_proj.cmake
+    BUILD_ALWAYS 1
     INSTALL_COMMAND   ""
-    )
-  # make the external project always run make with each build
-  externalproject_add_step(${project_name}_build forcebuild
-    COMMAND ${CMAKE_COMMAND} -E remove
-         ${CMAKE_CURRENT_BUILD_DIR}/${project_name}-prefix/src/${project_name}-stamp/${project_name}-build
-    DEPENDEES configure
-    DEPENDERS build
-    ALWAYS 1
     )
   # create imported targets for all libraries
   set(idx 0)
