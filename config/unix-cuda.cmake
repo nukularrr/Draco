@@ -19,6 +19,9 @@ include_guard(GLOBAL)
 
 # Discover CUDA compute capabilities.
 if( NOT DEFINED Draco_CUDA_ARCH )
+  if( NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/config )
+    file(MAKE_DIRECTORY  ${CMAKE_CURRENT_BINARY_DIR}/config )
+  endif()
   set(OUTPUTFILE ${CMAKE_CURRENT_BINARY_DIR}/config/cuda_script)
   set(CUDAFILE ${CMAKE_CURRENT_SOURCE_DIR}/config/query_gpu.cu)
   execute_process( COMMAND ${CMAKE_CUDA_COMPILER}
