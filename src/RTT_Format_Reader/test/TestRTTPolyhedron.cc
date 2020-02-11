@@ -47,7 +47,7 @@ void test_polyhedron(rtt_dsxx::UnitTest &ut) {
   vector<string> filenames = {"rttquad5.mesh", "rttquad9.mesh", "rttquad.mesh"};
 
   for (unsigned i = 0; i < filenames.size(); ++i) {
-    string filename(inpPath+filenames[i]);
+    string filename(inpPath + filenames[i]);
     shared_ptr<RTT_Mesh_Reader> mesh(new RTT_Mesh_Reader(filename));
 
     ostringstream m;
@@ -76,7 +76,7 @@ void test_polyhedron(rtt_dsxx::UnitTest &ut) {
         "rttpolyhedron.3.mesh", "rttpolyhedron.4.mesh"};
 
     for (unsigned i = 0; i < more_filenames.size(); ++i) {
-      string filename(inpPath+more_filenames[i]);
+      string filename(inpPath + more_filenames[i]);
       shared_ptr<RTT_Mesh_Reader> mesh(new RTT_Mesh_Reader(filename));
 
       ostringstream m;
