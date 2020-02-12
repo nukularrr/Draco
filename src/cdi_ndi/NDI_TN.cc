@@ -4,7 +4,7 @@
  * \author Ben R. Ryan
  * \date   2020 Feb 4
  * \brief  NDI_TN member definitions.
- * \note   Copyright (C) 2019-2020 Triad National Security, LLC.
+ * \note   Copyright (C) 2020 Triad National Security, LLC.
  *         All rights reserved. */
 //----------------------------------------------------------------------------//
 
@@ -30,58 +30,73 @@ namespace rtt_cdi_ndi {
  */
 NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
                const std::string &reaction_in,
-               const DISCRETIZATION discretization_in)
-    : NDI_Base(gendir_in, "tn", library_in, reaction_in, discretization_in),
+               const ENERGY_DISCRETIZATION discretization_in,
+               const MG_FORM mg_form_in)
+    : NDI_Base(gendir_in, "tn", library_in, reaction_in, discretization_in, mg_form_in),
       control(1234567) {
-  int gendir_handle, dataset_handle, ndi_size_error;
+  int gendir_handle = -1;
+  int dataset_handle = -1;
+  int ndi_error = -9999;
   constexpr int c_str_len = 4096;
   char c_str_buf[c_str_len];
 
   control.initialize(1, rng);
 
   // Open gendir file (index of a complete NDI dataset)
-  SAFE_NDI(NDI2_open_gendir(&gendir_handle, gendir.c_str()));
+  ndi_error = NDI2_open_gendir(&gendir_handle, gendir.c_str());
+  Require(ndi_error == 0);
+  Insist(gendir_handle != -1, "gendir_handle still has default value!");
 
-  // Set dataset option
-  SAFE_NDI(NDI2_set_option_gendir(gendir_handle, NDI_LIB_TYPE_DEFAULT,
-                                  dataset.c_str()));
+  // Set dataset option by changing default value for this handle
+  ndi_error = NDI2_set_option_gendir(gendir_handle, NDI_LIB_TYPE_DEFAULT,
+                                  dataset.c_str());
+  Require(ndi_error == 0);
 
-  //! Set library option
-  SAFE_NDI(NDI2_set_option_gendir(gendir_handle, NDI_LIBRARY_DEFAULT,
-                                  library.c_str()));
+  //! Set library option by changing default value for this handle
+  ndi_error = NDI2_set_option_gendir(gendir_handle, NDI_LIBRARY_DEFAULT,
+                                  library.c_str());
+  Require(ndi_error == 0);
 
   //! Get dataset handle
-  SAFE_NDI(NDI2_make_handle(gendir_handle, dataset.c_str(), &dataset_handle));
+  ndi_error = NDI2_make_handle(gendir_handle, dataset.c_str(), &dataset_handle);
+  Require(ndi_error == 0);
+  Insist(dataset_handle != -1, "dataset_handle still has default value!");
 
   //! Set reaction
-  SAFE_NDI(NDI2_set_reaction(dataset_handle, reaction.c_str()));
+  ndi_error = NDI2_set_reaction(dataset_handle, reaction.c_str());
+  Require(ndi_error == 0);
 
   //! Store reaction name from NDI file
-  SAFE_NDI(NDI2_get_string_val(dataset_handle, NDI_ZAID, c_str_buf, c_str_len));
+  ndi_error = NDI2_get_string_val(dataset_handle, NDI_ZAID, c_str_buf, c_str_len);
+  Require(ndi_error == 0);
   reaction_name = c_str_buf;
 
   //! Get number of temperature support points for reaction
   int num_temps;
-  SAFE_NDI(NDI2_get_int_val(dataset_handle, NDI_NUM_TEMPS, &num_temps));
+  ndi_error = NDI2_get_int_val(dataset_handle, NDI_NUM_TEMPS, &num_temps);
+  Require(ndi_error == 0);
+  Require(num_temps > 1);
   reaction_temperature.resize(num_temps);
 
   //! Get temperature support points for reaction
-  SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_TEMPS,
+  ndi_error = NDI2_get_float64_vec(dataset_handle, NDI_TEMPS,
                                 reaction_temperature.data(),
-                                static_cast<int>(reaction_temperature.size())));
+                                static_cast<int>(reaction_temperature.size()));
+  Require(ndi_error == 0);
   // MeV -> keV
   for (auto &temperature : reaction_temperature) {
     temperature *= 1000.;
   }
 
   //! Get number of incident energy support points for reaction
-  int num_einbar = NDI2_get_size(dataset_handle, NDI_EINBAR, &ndi_size_error);
-  Require(ndi_size_error == 0);
+  int num_einbar = NDI2_get_size(dataset_handle, NDI_EINBAR, &ndi_error);
+  Require(ndi_error == 0);
   einbar.resize(num_einbar);
 
   //! Get incident energy support points for reaction
-  SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_EINBAR, einbar.data(),
-                                static_cast<int>(einbar.size())));
+  ndi_error = NDI2_get_float64_vec(dataset_handle, NDI_EINBAR, einbar.data(),
+                                static_cast<int>(einbar.size()));
+  Require(ndi_error == 0);
   // MeV -> keV
   for (auto &energy : einbar) {
     energy *= 1000.;
@@ -90,20 +105,21 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
   //! Get the number of interp regions... for now just throw an exception if
   //! this is not equal to 1
   int num_einbar_interp_regions =
-      NDI2_get_size(dataset_handle, NDI_EINBAR_INTERP_REG, &ndi_size_error);
-  Require(ndi_size_error == 0);
+      NDI2_get_size(dataset_handle, NDI_EINBAR_INTERP_REG, &ndi_error);
+  Require(ndi_error == 0);
   Insist(num_einbar_interp_regions == 1,
          "Only 1 einbar interp region supported!");
 
   //! Get number of cross section support points for reaction
   int num_sigvbar =
-      NDI2_get_size(dataset_handle, NDI_SIGVBARS, &ndi_size_error);
-  Require(ndi_size_error == 0);
+      NDI2_get_size(dataset_handle, NDI_SIGVBARS, &ndi_error);
+  Require(ndi_error == 0);
   sigvbar.resize(num_sigvbar);
 
-  //! Get cross section support points for reaction
-  SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_SIGVBARS, sigvbar.data(),
-                                static_cast<int>(sigvbar.size())));
+  //! Get cross section support points (cm^3 s-1 in NDI) for reaction
+  ndi_error = NDI2_get_float64_vec(dataset_handle, NDI_SIGVBARS, sigvbar.data(),
+                                static_cast<int>(sigvbar.size()));
+  Require(ndi_error == 0);
   // cm^3 s^-1 -> cm^3 sh^-1
   for (auto &sigma : sigvbar) {
     sigma *= 1.e-8;
@@ -112,14 +128,16 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
   //! Get the number of interp regions... for now just throw an exception if
   //! this is not equal to 1
   int num_sigvbar_interp_regions =
-      NDI2_get_size(dataset_handle, NDI_SIGVBAR_INTERP_REG, &ndi_size_error);
-  Require(ndi_size_error == 0);
+      NDI2_get_size(dataset_handle, NDI_SIGVBAR_INTERP_REG, &ndi_error);
+  Require(ndi_error == 0);
   Insist(num_sigvbar_interp_regions == 1,
          "Only 1 sigvbar interp region supported!");
 
   //! Get number of reaction products
   int num_products;
-  SAFE_NDI(NDI2_get_int_val(dataset_handle, NDI_NUM_SEC_PARTS, &num_products));
+  ndi_error = NDI2_get_int_val(dataset_handle, NDI_NUM_SEC_PARTS, &num_products);
+  Require(ndi_error == 0);
+  Require(num_products > 0);
   products.resize(num_products);
   product_temperatures.resize(num_products);
   product_distributions.resize(num_products);
@@ -127,41 +145,49 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
   Require(num_products > 0);
 
   //! Get reaction product multiplicity
-  SAFE_NDI(NDI2_get_int_vec(dataset_handle, NDI_RPRODS_MLT,
+  ndi_error = NDI2_get_int_vec(dataset_handle, NDI_RPRODS_MLT,
                             product_multiplicities.data(),
-                            static_cast<int>(product_multiplicities.size())));
+                            static_cast<int>(product_multiplicities.size()));
+  Require(ndi_error == 0);
 
   //! Get change in energy due to reaction
-  SAFE_NDI(NDI2_get_float64_val(dataset_handle, NDI_REAC_Q, &q_reaction));
+  ndi_error = NDI2_get_float64_val(dataset_handle, NDI_REAC_Q, &q_reaction);
+  Require(ndi_error == 0);
   q_reaction *= 1000.; // MeV -> keV
 
-  Insist(discretization == DISCRETIZATION::MULTIGROUP,
+  Insist(discretization == ENERGY_DISCRETIZATION::MULTIGROUP,
          "Only multigroup discretization currently supported!");
 
-  if (discretization == DISCRETIZATION::MULTIGROUP) {
+  if (discretization == ENERGY_DISCRETIZATION::MULTIGROUP) {
     //! Specify multigroup option
-    SAFE_NDI(NDI2_set_option(dataset_handle, NDI_COLLAPSE, "4_lanl"));
+    //ndi_error = NDI2_set_option(dataset_handle, NDI_COLLAPSE, "4_lanl");
+    ndi_error = NDI2_set_option(dataset_handle, NDI_COLLAPSE, mg_form_map[mg_form].c_str());
+    Require(ndi_error == 0);
 
     //! Get number of groups
     int num_groups_int;
-    SAFE_NDI(NDI2_get_int_val(dataset_handle, NDI_NUM_GRPS, &num_groups_int));
+    ndi_error = NDI2_get_int_val(dataset_handle, NDI_NUM_GRPS, &num_groups_int);
+    Require(ndi_error == 0);
+    Require(num_groups_int > 0);
     num_groups = static_cast<uint32_t>(num_groups_int);
     group_bounds.resize(num_groups + 1);
     group_energies.resize(num_groups);
 
     //! Get boundaries of energy groups
-    SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_E_BOUNDS,
-                                  group_bounds.data(),
-                                  static_cast<int>(group_bounds.size())));
+    ndi_error = NDI2_get_float64_vec(dataset_handle, NDI_E_BOUNDS,
+                                 group_bounds.data(),
+                                  static_cast<int>(group_bounds.size()));
+    Require(ndi_error == 0);
     // MeV -> keV
     for (auto &bound : group_bounds) {
       bound *= 1000;
     }
 
     //! Get average energies of energy groups
-    SAFE_NDI(NDI2_get_float64_vec(dataset_handle, NDI_E_AVG,
+    ndi_error = NDI2_get_float64_vec(dataset_handle, NDI_E_AVG,
                                   group_energies.data(),
-                                  static_cast<int>(group_energies.size())));
+                                  static_cast<int>(group_energies.size()));
+    Require(ndi_error == 0);
     // MeV -> keV
     for (auto &energy : group_energies) {
       energy *= 1000;
@@ -170,28 +196,36 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
     //! Loop over reaction products
     for (int n = 0; n < num_products; n++) {
       //! Get ZAID of reaction product
-      SAFE_NDI(NDI2_get_string_val_n(dataset_handle, NDI_SEC_PART_TYPES, n,
-                                     c_str_buf, c_str_len));
-      std::string product_zaid = c_str_buf;
+      ndi_error = NDI2_get_string_val_n(dataset_handle, NDI_SEC_PART_TYPES, n,
+                                     c_str_buf, c_str_len);
+      Require(ndi_error == 0);
+      const std::string product_zaid = c_str_buf;
+
+      // Ensure no duplicate products
+      Require(std::count(products.begin(), products.end(), std::stoi(product_zaid)) == 0);
+
       products[n] = std::stoi(product_zaid);
       product_zaid_to_index.insert(std::pair<int, int>(products[n], n));
 
       //! Set NDI to reaction product
-      SAFE_NDI(
-          NDI2_set_option(dataset_handle, NDI_CURR_PART, product_zaid.c_str()));
+      ndi_error =
+          NDI2_set_option(dataset_handle, NDI_CURR_PART, product_zaid.c_str());
+      Require(ndi_error == 0);
 
       //! Get number of temperature support points (this can depend on reaction
       //! product)
-      int num_product_temps =
-          NDI2_get_size(dataset_handle, NDI_EDIST_TEMPS, &ndi_size_error);
-      Require(ndi_size_error == 0);
+      const int num_product_temps =
+          NDI2_get_size(dataset_handle, NDI_EDIST_TEMPS, &ndi_error);
+      Require(ndi_error == 0);
+      Require(num_product_temps > 1);
       product_temperatures[n].resize(num_product_temps);
       product_distributions[n].resize(num_product_temps);
 
       //! Get temperature support points
-      SAFE_NDI(NDI2_get_float64_vec(
+      ndi_error = NDI2_get_float64_vec(
           dataset_handle, NDI_TEMPS, product_temperatures[n].data(),
-          static_cast<int>(product_temperatures[n].size())));
+          static_cast<int>(product_temperatures[n].size()));
+      Require(ndi_error == 0);
       // MeV -> keV
       for (auto &temperature : product_temperatures[n]) {
         temperature *= 1000.;
@@ -200,8 +234,8 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
       //! Get the number of interp regions... for now just throw an exception if
       //! this is not equal to 1
       int num_edist_interp_regions =
-          NDI2_get_size(dataset_handle, NDI_EDIST_INTERP_REG, &ndi_size_error);
-      Require(ndi_size_error == 0);
+          NDI2_get_size(dataset_handle, NDI_EDIST_INTERP_REG, &ndi_error);
+      Require(ndi_error == 0);
       Insist(num_edist_interp_regions == 1,
              "Only 1 edist interp region supported!");
 
@@ -209,19 +243,22 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
       for (size_t m = 0; m < product_temperatures[n].size(); m++) {
         std::ostringstream temp_stream;
         temp_stream << product_temperatures[n][m] / 1000; // keV -> MeV
-        SAFE_NDI(NDI2_set_option(dataset_handle, NDI_TEMP,
-                                 temp_stream.str().c_str()));
+        ndi_error = NDI2_set_option(dataset_handle, NDI_TEMP,
+                                 temp_stream.str().c_str());
+        Require(ndi_error == 0);
 
         product_distributions[n][m].resize(num_groups);
-        SAFE_NDI(NDI2_get_float64_vec(
+        ndi_error = NDI2_get_float64_vec(
             dataset_handle, NDI_EDIST, product_distributions[n][m].data(),
-            static_cast<int>(product_distributions[n][m].size())));
+            static_cast<int>(product_distributions[n][m].size()));
+        Require(ndi_error == 0);
       }
     }
   }
 
   //! Close datafile
-  SAFE_NDI(NDI2_close_gendir(gendir_handle));
+  ndi_error = NDI2_close_gendir(gendir_handle);
+  Require(ndi_error == 0);
 }
 
 //----------------------------------------------------------------------------//
@@ -232,8 +269,11 @@ NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
  * \return Sampled reaction product energy (keV)
  */
 double NDI_TN::sample_distribution(const int product_zaid,
-                                   const double temperature) {
-  const int product_index = product_zaid_to_index[product_zaid];
+                                   const double temperature) const {
+  Require(std::count(products.begin(), products.end(), product_zaid) == 1);
+
+  const int product_index =
+      (*(product_zaid_to_index.find(product_zaid))).second;
 
   Require(temperature > product_temperatures[product_index].front());
   Require(temperature < product_temperatures[product_index].back());
@@ -245,7 +285,9 @@ double NDI_TN::sample_distribution(const int product_zaid,
       temp_1 - product_temperatures[product_index].begin());
   uint32_t index_0 = index_1 - 1;
   double temp_0 = product_temperatures[product_index][index_0];
+  Check(*temp_1 - temp_0 > std::numeric_limits<double>::min());
   double fac = 1. - (temperature - temp_0) / (*temp_1 - temp_0);
+  Check(fac >= 0 && fac <= 1);
 
   std::vector<double> dist_interp(num_groups);
   double dist_sum = 0.;

@@ -4,7 +4,7 @@
  * \author Ben R. Ryan
  * \date   2019 Nov 4
  * \brief  NDI_TN class definition.
- * \note   Copyright (C) 2019-2020 Triad National Security, LLC.
+ * \note   Copyright (C) 2020 Triad National Security, LLC.
  *         All rights reserved. */
 //----------------------------------------------------------------------------//
 
@@ -12,10 +12,10 @@
 #define cdi_ndi_NDI_TN_hh
 
 #include "NDI_Base.hh"
-#include "NDI_Common.hh"
 #include "ndi.h"
 #include "ds++/Assert.hh"
 #include "rng/Rnd_Control_Inline.hh"
+#include <algorithm>
 #include <memory>
 #include <string>
 
@@ -34,18 +34,29 @@ namespace rtt_cdi_ndi {
 class NDI_TN : public NDI_Base {
 
 private:
+  //! Controller for random number generation
   rtt_rng::Rnd_Control control;
+
+  //! Counter for random number generator
   rtt_rng::Counter_RNG rng;
 
 public:
   //! Constructor
   NDI_TN(const std::string &gendir_in, const std::string &library_in,
          const std::string &reaction_in,
-         const DISCRETIZATION discretization_in);
+         const ENERGY_DISCRETIZATION discretization_in,
+         const MG_FORM mg_form_in);
+
+  //! Disable default constructor
+  NDI_TN() = delete;
+
+  //! Disable copy constructor (meaning no implicit move assignment operator
+  //! or move constructor)
+  NDI_TN(const NDI_TN&) = delete;
 
   //! Sample energy distribution at given temperature to determine reaction
   //! product energy
-  double sample_distribution(const int product_zaid, const double temperature);
+  double sample_distribution(const int product_zaid, const double temperature) const;
 };
 
 } // namespace rtt_cdi_ndi

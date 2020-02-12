@@ -1,7 +1,7 @@
 #-----------------------------*-cmake-*----------------------------------------#
 # file   cdi_ndi/CMakeLists.txt
 # brief  Instructions for building cdi_ndi Makefiles.
-# note   Copyright (C) 2016-2020 Triad National Security, LLC.
+# note   Copyright (C) 2020 Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 cmake_minimum_required(VERSION 3.9.0)

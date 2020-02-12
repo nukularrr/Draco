@@ -4,7 +4,7 @@
  * \author Ben R. Ryan
  * \date   2020 Feb 4
  * \brief  NDI_Base member definitions.
- * \note   Copyright (C) 2019-2020 Triad National Security, LLC.
+ * \note   Copyright (C) 2020 Triad National Security, LLC.
  *         All rights reserved. */
 //----------------------------------------------------------------------------//
 
@@ -32,9 +32,19 @@ namespace rtt_cdi_ndi {
 NDI_Base::NDI_Base(const std::string &gendir_in, const std::string &dataset_in,
                    const std::string &library_in,
                    const std::string &reaction_in,
-                   const DISCRETIZATION discretization_in)
+                   const ENERGY_DISCRETIZATION discretization_in,
+                   const MG_FORM mg_form_in)
     : gendir(gendir_in), dataset(dataset_in), library(library_in),
-      reaction(reaction_in), discretization(discretization_in) {}
+      reaction(reaction_in), discretization(discretization_in), mg_form(mg_form_in) {
+
+  Require(gendir.length() > 0);
+  Require(dataset.length() > 0);
+  Require(library.length() > 0);
+  Require(reaction.length() > 0);
+
+  mg_form_map.insert(mg_pair(MG_FORM::LANL4, "4_lanl"));
+  mg_form_map.insert(mg_pair(MG_FORM::NOT_SET, "No multigroup representation set!"));
+}
 
 } // namespace rtt_cdi_ndi
 

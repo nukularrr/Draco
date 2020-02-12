@@ -4,11 +4,10 @@
  * \author Ben R. Ryan
  * \date   2019 Nov 18
  * \brief  NDI_Base test
- * \note   Copyright (C) 2019-2020 Triad National Security, LLC.
+ * \note   Copyright (C) 2020 Triad National Security, LLC.
  *         All rights reserved. */
 //----------------------------------------------------------------------------//
 
-#include "cdi_ndi/NDI_Common.hh"
 #include "cdi_ndi/NDI_TN.hh"
 #include "cdi/CDI.hh"
 #include "ds++/Release.hh"
@@ -45,7 +44,7 @@ void gendir_test(rtt_dsxx::UnitTest &ut) {
   std::string reaction_in = "n+be7->p+li7";
 
   NDI_TN tn(gendir_path, library_in, reaction_in,
-            rtt_cdi_ndi::DISCRETIZATION::MULTIGROUP);
+            rtt_cdi_ndi::ENERGY_DISCRETIZATION::MULTIGROUP, rtt_cdi_ndi::MG_FORM::LANL4);
 
   // Check return values of getters
   FAIL_IF(tn.get_gendir().find(gendir_in) == std::string::npos);
@@ -54,7 +53,7 @@ void gendir_test(rtt_dsxx::UnitTest &ut) {
   FAIL_IF_NOT(tn.get_reaction() == "n+be7->p+li7");
   FAIL_IF_NOT(tn.get_reaction_name() == "n+be7->p+li7.040ztn");
   FAIL_IF_NOT(tn.get_discretization() ==
-              rtt_cdi_ndi::DISCRETIZATION::MULTIGROUP);
+              rtt_cdi_ndi::ENERGY_DISCRETIZATION::MULTIGROUP);
   FAIL_IF_NOT(tn.get_num_products() == 2);
   auto products = tn.get_products();
   FAIL_IF_NOT(products.size() == 2 && products[0] == 1001 &&
@@ -74,8 +73,8 @@ void gendir_test(rtt_dsxx::UnitTest &ut) {
   FAIL_IF_NOT(soft_equiv(einbar.back(), 3.458878690000000145e-01, 1.e-8));
   auto sigvbar = tn.get_sigvbar();
   FAIL_IF_NOT(sigvbar.size() == 3);
-  FAIL_IF_NOT(soft_equiv(sigvbar.front(), 7.504850620000000827e-23, 1.e-8));
-  FAIL_IF_NOT(soft_equiv(sigvbar.back(), 7.467488500000000044e-23, 1.e-8));
+  FAIL_IF_NOT(soft_equiv(sigvbar.front()/1.e-23, 7.504850620000000827, 1.e-8));
+  FAIL_IF_NOT(soft_equiv(sigvbar.back()/1.e-23, 7.467488500000000044, 1.e-8));
   FAIL_IF_NOT(soft_equiv(tn.get_reaction_q(), 1.644289999999999964e+03, 1.e-8));
   FAIL_IF_NOT(tn.get_num_groups() == 4);
   auto group_bounds = tn.get_group_bounds();
@@ -103,7 +102,8 @@ void gendir_test(rtt_dsxx::UnitTest &ut) {
   bool caught = false;
   try {
     NDI_TN bad_tn(gendir_path, library_in, reaction_in,
-                  rtt_cdi_ndi::DISCRETIZATION::CONTINUOUS_ENERGY);
+                  rtt_cdi_ndi::ENERGY_DISCRETIZATION::CONTINUOUS_ENERGY,
+                  rtt_cdi_ndi::MG_FORM::LANL4);
   } catch (const rtt_dsxx::assertion &error) {
     std::ostringstream message;
     message << "Successfully caught the following exception: \n"
