@@ -73,7 +73,7 @@ macro(dbsSetupCompilers)
 
   # Defaults for 1st pass:
 
-  # shared or static libararies?
+  # shared or static libraries?
   if( ${DRACO_LIBRARY_TYPE} MATCHES "STATIC" )
     # message(STATUS "Building static libraries.")
     set( MD_or_MT "MD" )
@@ -103,7 +103,7 @@ macro(dbsSetupCompilers)
   #  See https://cmake.org/cmake/help/git-stage/policy/CMP0069.html
   if( WIN32 )
     set( USE_IPO OFF CACHE BOOL
-      "Enable Interprocedureal Optimization for Release builds." FORCE )
+      "Enable Interprocedural Optimization for Release builds." FORCE )
   else()
     include(CheckIPOSupported)
     check_ipo_supported(RESULT USE_IPO)

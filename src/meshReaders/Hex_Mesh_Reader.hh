@@ -21,12 +21,13 @@ namespace rtt_meshReaders {
  *
  * \brief Reads a CIC-19 Hex Mesh format mesh data file.
  *
- * \sa The rtt_mesh_element::Element_Definition class provides information on
+  * \sa The rtt_mesh_element::Element_Definition class provides information on
  *     the hex, quad, and line elements used in this class. The \ref
- *     overview_rtt_format_reader page provides an overview of the other utilities
- *     in the rtt_meshReaders namespace. the \ref rtt_meshreaders_hexformat page
- *     provides a description of the Hex file format.
- */
+ *     overview_rtt_format_reader page provides an overview of the other
+ *     utilities in the rtt_meshReaders namespace. the \ref
+ *     rtt_meshreaders_hexformat page provides a description of the Hex file
+ *     format.
+  */
 //============================================================================//
 
 class DLL_PUBLIC_meshReaders Hex_Mesh_Reader
@@ -86,7 +87,7 @@ public:
 
   /*!
    * There is no provision in the Hex format for naming a mesh.  This function
-   * always returns the defualt string: "Untitled -- CIC-19 Hex Mesh"
+   * always returns the default string: "Untitled -- CIC-19 Hex Mesh"
    */
   std::string get_title() const { return "Untitled -- CIC-19 Hex Mesh"; }
 
@@ -176,7 +177,7 @@ private:
  */
 
 /*!
- * \example meshReaders/test/cube.mesh.in
+ * \example meshReaders/test/cube.mesh
  *
  *   The following provides an example of a 3D, 5x5x5 hexahedra CIC-19 Hex mesh
  *   format file. The mesh has 125 cells, 125 vacuum boundary faces, 25
