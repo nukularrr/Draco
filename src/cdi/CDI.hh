@@ -16,7 +16,6 @@
 #include "EoS.hh"
 #include "GrayOpacity.hh"
 #include "MultigroupOpacity.hh"
-#include "OdfmgOpacity.hh"
 #include "ds++/Constexpr_Functions.hh"
 #include "ds++/Soft_Equivalence.hh"
 #include <algorithm>
@@ -466,7 +465,6 @@ class CDI {
   // NESTED CLASSES AND TYPEDEFS
   typedef std::shared_ptr<const GrayOpacity> SP_GrayOpacity;
   typedef std::shared_ptr<const MultigroupOpacity> SP_MultigroupOpacity;
-  typedef std::shared_ptr<const OdfmgOpacity> SP_OdfmgOpacity;
   typedef std::shared_ptr<const EoS> SP_EoS;
   typedef std::shared_ptr<const EICoupling> SP_EICoupling;
   typedef std::shared_ptr<const CPEloss> SP_CPEloss;
@@ -474,8 +472,6 @@ class CDI {
   typedef std::vector<SF_GrayOpacity> VF_GrayOpacity;
   typedef std::vector<SP_MultigroupOpacity> SF_MultigroupOpacity;
   typedef std::vector<SF_MultigroupOpacity> VF_MultigroupOpacity;
-  typedef std::vector<SP_OdfmgOpacity> SF_OdfmgOpacity;
-  typedef std::vector<SF_OdfmgOpacity> VF_OdfmgOpacity;
   typedef std::vector<SP_CPEloss> SF_CPEloss;
   typedef std::string std_string;
   // Typedefs for CPT mapping:
@@ -507,9 +503,6 @@ class CDI {
    */
   VF_MultigroupOpacity multigroupOpacities;
 
-  //! Array that stores the list of possible OdfmgOpacity types.
-  VF_OdfmgOpacity odfmgOpacities;
-
   //! Array that stores CP Eloss types.
   SF_CPEloss CPElosses;
   //! Map vector index -> particle/target pair
@@ -526,15 +519,6 @@ class CDI {
    * same energy group structure.
    */
   static std::vector<double> frequencyGroupBoundaries;
-
-  /*!
-   * \brief Band boundaries for odf multigroup data.
-   *
-   * This data is stored as static so that the same structure is guaranteed
-   * for all multigroup odf data sets.  Thus, each CDI object will have access
-   * to the same opacity band structure.
-   */
-  static std::vector<double> opacityCdfBandBoundaries;
 
   /*!
    * \brief Smart pointer to the equation of state object.
@@ -592,9 +576,6 @@ public:
   //! Register a multigroup opacity (rtt_cdi::MultigroupOpacity) with CDI.
   void setMultigroupOpacity(const SP_MultigroupOpacity &spMGOp);
 
-  //! Register an ODF Multigroup opacity (rtt_cdi::OdfmgOpacity) with CDI.
-  void setOdfmgOpacity(const SP_OdfmgOpacity &spMGOp);
-
   //! Register an EOS (rtt_cdi::Eos) with CDI.
   void setEoS(const SP_EoS &in_spEoS);
 
@@ -609,7 +590,6 @@ public:
 
   SP_GrayOpacity gray(rtt_cdi::Model m, rtt_cdi::Reaction r) const;
   SP_MultigroupOpacity mg(rtt_cdi::Model m, rtt_cdi::Reaction r) const;
-  SP_OdfmgOpacity odfmg(rtt_cdi::Model m, rtt_cdi::Reaction r) const;
   SP_CPEloss eloss(rtt_cdi::CPModelAngleCutoff mAC, int32_t proj_zaid,
                    int32_t targ_zaid) const;
   SP_EoS eos(void) const;
@@ -646,35 +626,11 @@ public:
       std::vector<double> const &opacity,
       std::vector<double> const &rosselendSpectrum);
 
-  //! Collapse Multigroup+Multiband data to single-interval data with Planck weighting.
-  static double collapseOdfmgOpacitiesPlanck(
-      std::vector<double> const &groupBounds,
-      // double              const & T,
-      std::vector<std::vector<double>> const &opacity,
-      std::vector<double> const &planckSpectrum,
-      std::vector<double> const &bandWidths,
-      std::vector<std::vector<double>> &emission_group_cdf);
-
-  //! Collapse Multigroup+Multiband data to single-interval reciprocal data with Planck weighting.
-  static double collapseOdfmgReciprocalOpacitiesPlanck(
-      std::vector<double> const &groupBounds,
-      std::vector<std::vector<double>> const &opacity,
-      std::vector<double> const &planckSpectrum,
-      std::vector<double> const &bandWidths);
-
-  //! Collapse Multigroup+Multiband data to single-interval data with Rosseland weighting.
-  static double collapseOdfmgOpacitiesRosseland(
-      std::vector<double> const &groupBounds,
-      std::vector<std::vector<double>> const &opacity,
-      std::vector<double> const &rosselendSpectrum,
-      std::vector<double> const &bandWidths);
-
   //! Return material ID string.
   const std_string &getMatID() const { return matID; }
 
   bool isGrayOpacitySet(rtt_cdi::Model, rtt_cdi::Reaction) const;
   bool isMultigroupOpacitySet(rtt_cdi::Model, rtt_cdi::Reaction) const;
-  bool isOdfmgOpacitySet(rtt_cdi::Model, rtt_cdi::Reaction) const;
   bool isCPElossSet(rtt_cdi::CPModelAngleCutoff mAC, int32_t pz,
                     int32_t tz) const;
   bool isEoSSet() const;
@@ -682,11 +638,9 @@ public:
 
   //! Copies the vector of the stored frequency group boundary vector
   static std::vector<double> getFrequencyGroupBoundaries();
-  static std::vector<double> getOpacityCdfBandBoundaries();
 
   //! Returns the number of frequency groups in the stored frequency vector.
   static size_t getNumberFrequencyGroups(void);
-  static size_t getNumberOpacityBands(void);
 
   // INTEGRATORS:
   // ===========

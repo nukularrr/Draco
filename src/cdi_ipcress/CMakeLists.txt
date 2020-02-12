@@ -18,7 +18,6 @@ set( sources
    IpcressDataTable.cc
    IpcressGrayOpacity.cc
    IpcressMultigroupOpacity.cc
-   IpcressOdfmgOpacity.cc
 )
 set( headers
    IpcressFile.hh
@@ -27,7 +26,6 @@ set( headers
    IpcressDataTable.hh
    IpcressGrayOpacity.hh
    IpcressMultigroupOpacity.hh
-   IpcressOdfmgOpacity.hh
 )
 
 # ---------------------------------------------------------------------------- #
