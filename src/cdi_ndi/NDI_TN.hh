@@ -52,11 +52,12 @@ public:
 
   //! Disable copy constructor (meaning no implicit move assignment operator
   //! or move constructor)
-  NDI_TN(const NDI_TN&) = delete;
+  NDI_TN(const NDI_TN &) = delete;
 
   //! Sample energy distribution at given temperature to determine reaction
   //! product energy
-  double sample_distribution(const int product_zaid, const double temperature) const;
+  double sample_distribution(const int product_zaid,
+                             const double temperature) const;
 };
 
 } // namespace rtt_cdi_ndi

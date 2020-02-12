@@ -28,7 +28,7 @@ enum class ENERGY_DISCRETIZATION {
 };
 
 enum class MG_FORM {
-  LANL4 = 0, /*!< "lanl04" 4-group NDI representation */
+  LANL4 = 0,  /*!< "lanl04" 4-group NDI representation */
   NOT_SET = 1 /*!< Default value prior to user input */
 };
 
@@ -56,17 +56,23 @@ protected:
 protected:
   //! Path to gendir file, which indexes an NDI dataset
   const std::string gendir;
+
   //! Type of data to read (NDI supports multigroup_neutron, multigroup_photon,
   //! multigroup_multi, tn, tnreactions, and dosimetry_neutrons)
   const std::string dataset;
+
   //! Name of library in which to find reaction
   const std::string library;
+
   //! Name of reaction to read
   const std::string reaction;
+
   //! Multigroup or continuous energy data
   const ENERGY_DISCRETIZATION discretization;
+
   //! Multigroup representation (if multigroup data used)
   MG_FORM mg_form = MG_FORM::NOT_SET;
+
   //! Conversion from MG_FORM enum to NDI-readable string
   std::map<MG_FORM, std::string> mg_form_map;
 
@@ -113,11 +119,14 @@ protected:
   //! Constructor
   NDI_Base(const std::string &gendir_in, const std::string &dataset_in,
            const std::string &library_in, const std::string &reaction_in,
-           const ENERGY_DISCRETIZATION discretization_in, const MG_FORM mg_form_in);
+           const ENERGY_DISCRETIZATION discretization_in,
+           const MG_FORM mg_form_in);
 
-private:
   //! Default constructor
-  NDI_BASE() {}
+  NDI_Base() = delete;
+
+  //! Default copy constructor
+  NDI_Base(const NDI_Base &) = delete;
 
 public:
   //! Get the name of the gendir file
@@ -136,7 +145,9 @@ public:
   inline std::string get_reaction_name() const & { return reaction_name; }
 
   //! Get the energy discretization
-  inline ENERGY_DISCRETIZATION get_discretization() const { return discretization; }
+  inline ENERGY_DISCRETIZATION get_discretization() const {
+    return discretization;
+  }
 
   //! Get number of reaction products
   inline uint32_t get_num_products() const {

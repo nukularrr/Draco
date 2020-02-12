@@ -44,7 +44,8 @@ void gendir_test(rtt_dsxx::UnitTest &ut) {
   std::string reaction_in = "n+be7->p+li7";
 
   NDI_TN tn(gendir_path, library_in, reaction_in,
-            rtt_cdi_ndi::ENERGY_DISCRETIZATION::MULTIGROUP, rtt_cdi_ndi::MG_FORM::LANL4);
+            rtt_cdi_ndi::ENERGY_DISCRETIZATION::MULTIGROUP,
+            rtt_cdi_ndi::MG_FORM::LANL4);
 
   // Check return values of getters
   FAIL_IF(tn.get_gendir().find(gendir_in) == std::string::npos);
@@ -73,8 +74,9 @@ void gendir_test(rtt_dsxx::UnitTest &ut) {
   FAIL_IF_NOT(soft_equiv(einbar.back(), 3.458878690000000145e-01, 1.e-8));
   auto sigvbar = tn.get_sigvbar();
   FAIL_IF_NOT(sigvbar.size() == 3);
-  FAIL_IF_NOT(soft_equiv(sigvbar.front()/1.e-23, 7.504850620000000827, 1.e-8));
-  FAIL_IF_NOT(soft_equiv(sigvbar.back()/1.e-23, 7.467488500000000044, 1.e-8));
+  FAIL_IF_NOT(
+      soft_equiv(sigvbar.front() / 1.e-23, 7.504850620000000827, 1.e-8));
+  FAIL_IF_NOT(soft_equiv(sigvbar.back() / 1.e-23, 7.467488500000000044, 1.e-8));
   FAIL_IF_NOT(soft_equiv(tn.get_reaction_q(), 1.644289999999999964e+03, 1.e-8));
   FAIL_IF_NOT(tn.get_num_groups() == 4);
   auto group_bounds = tn.get_group_bounds();
