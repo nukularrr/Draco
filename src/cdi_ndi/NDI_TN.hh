@@ -15,7 +15,6 @@
 #include "ndi.h"
 #include "ds++/Assert.hh"
 #include "ds++/Soft_Equivalence.hh"
-#include "rng/Rnd_Control_Inline.hh"
 #include <algorithm>
 #include <memory>
 #include <string>
@@ -33,13 +32,6 @@ namespace rtt_cdi_ndi {
 //============================================================================//
 
 class NDI_TN : public NDI_Base {
-
-private:
-  //! Controller for random number generation
-  rtt_rng::Rnd_Control control;
-
-  //! Counter for random number generator
-  rtt_rng::Counter_RNG rng;
 
 public:
   //! Constructor

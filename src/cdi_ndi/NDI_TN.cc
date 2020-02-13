@@ -30,15 +30,12 @@ namespace rtt_cdi_ndi {
  */
 NDI_TN::NDI_TN(const std::string &gendir_in, const std::string &library_in,
                const std::string &reaction_in, const MG_FORM mg_form_in)
-    : NDI_Base(gendir_in, "tn", library_in, reaction_in, mg_form_in),
-      control(1234567) {
+    : NDI_Base(gendir_in, "tn", library_in, reaction_in, mg_form_in) {
   int gendir_handle = -1;
   int dataset_handle = -1;
   int ndi_error = -9999;
   constexpr int c_str_len = 4096;
   char c_str_buf[c_str_len];
-
-  control.initialize(1, rng);
 
   // Open gendir file (index of a complete NDI dataset)
   ndi_error = NDI2_open_gendir(&gendir_handle, gendir.c_str());
