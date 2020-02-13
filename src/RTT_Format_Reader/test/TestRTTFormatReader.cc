@@ -27,7 +27,7 @@ map<Meshes, bool> Dims_validated;
 
 void runTest(UnitTest &ut) {
   // Find the mesh file
-  string const inpPath = ut.getTestInputPath();
+  string const inpPath = ut.getTestSourcePath();
 
   // New meshes added to this test will have to be added to the enumeration
   // Meshes in the header file.

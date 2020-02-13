@@ -12,7 +12,7 @@ project( draco_src_dir )
 # Provide helper functions used by component CMakeLists.txt files
 include( component_macros )
 
-# Extra 'draco-only' flags 
+# Extra 'draco-only' flags
 if( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
   if( CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.0 )
     toggle_compiler_flag( TRUE "-Wfloat-equal -Wunused-macros" "CXX;C" "DEBUG")
@@ -95,11 +95,13 @@ add_dir_if_exists( quadrature ) # needs mesh_element, parser, special_functions
 
 # Summary
 
-message(" ")
-feature_summary( WHAT ALL
-  INCLUDE_QUIET_PACKAGES
-  FATAL_ON_MISSING_REQUIRED_PACKAGES
-  QUIET_ON_EMPTY )
+if( VERBOSE OR ENV{VERBOSE} )
+  message(" ")
+  feature_summary( WHAT ALL
+    INCLUDE_QUIET_PACKAGES
+    FATAL_ON_MISSING_REQUIRED_PACKAGES
+    QUIET_ON_EMPTY )
+endif()
 
 message("
 Draco build summary:
@@ -115,15 +117,16 @@ Source dir  : ${Draco_SOURCE_DIR}
 Build dir   : ${Draco_BINARY_DIR}
 
 CXX Compiler: ${CMAKE_CXX_COMPILER}")
+include(string_manip)
 if( CMAKE_CONFIGURATION_TYPES )
-  message("CXX FLAGS   : ${CMAKE_CXX_FLAGS} ")
-  message("CXX Debug FL: ${CMAKE_CXX_FLAGS_DEBUG}")
-  message("CXX Release : ${CMAKE_CXX_FLAGS_RELEASE}")
+  hanging_indent( 100 5 "CXX FLAGS: ${CMAKE_CXX_FLAGS} ")
+  hanging_indent( 100 5 "CXX Debug FLAGS: ${CMAKE_CXX_FLAGS_DEBUG}")
+  hanging_indent( 100 5 "CXX Release FLAGS: ${CMAKE_CXX_FLAGS_RELEASE}")
   if( _LANGUAGES_ MATCHES Fortran)
-    message("Fortran     : ${CMAKE_Fortran_COMPILER}")
-    message("FC FLAGS    : ${CMAKE_Fortran_FLAGS}")
-    message("FC Debug FLA: ${CMAKE_Fortran_FLAGS_DEBUG}")
-    message("FC Release F: ${CMAKE_Fortran_FLAGS_RELEASE}")
+    hanging_indent( 100 5 "Fortran: ${CMAKE_Fortran_COMPILER}")
+    hanging_indent( 100 5 "FC FLAGS: ${CMAKE_Fortran_FLAGS}")
+    hanging_indent( 100 5 "FC Debug FLAGS: ${CMAKE_Fortran_FLAGS_DEBUG}")
+    hanging_indent( 100 5 "FC Release FLAGS: ${CMAKE_Fortran_FLAGS_RELEASE}")
   endif()
   if( _LANGUAGES_ MATCHES CUDA)
     message("CUDA        : ${CMAKE_CUDA_COMPILER}")
@@ -132,11 +135,11 @@ if( CMAKE_CONFIGURATION_TYPES )
     message("Cuda Release: ${CMAKE_CUDA_FLAGS_RELEASE}")
   endif()
 else()
-  message("C FLAGS     : ${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${Draco_BUILD_TYPE}}")
-  message("CXX FLAGS   : ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${Draco_BUILD_TYPE}}")
+  hanging_indent( 100 5 "C FLAGS: ${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${Draco_BUILD_TYPE}}")
+  hanging_indent( 100 5 "CXX FLAGS: ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${Draco_BUILD_TYPE}}")
   if( _LANGUAGES_ MATCHES Fortran)
-    message("Fortran     : ${CMAKE_Fortran_COMPILER}")
-    message("FC FLAGS    : ${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_${Draco_BUILD_TYPE}}")
+    message("Fortran: ${CMAKE_Fortran_COMPILER}")
+    hanging_indent( 100 5 "FC FLAGS: ${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_${Draco_BUILD_TYPE}}")
   endif()
   if( _LANGUAGES_ MATCHES CUDA)
     message("CUDA        : ${CMAKE_CUDA_COMPILER} (${CMAKE_CUDA_COMPILER_ID})")
@@ -147,8 +150,8 @@ if( CAFS_Fortran_COMPILER )
   message("CAFS Fortran: ${CAFS_Fortran_COMPILER}")
 endif()
 if( "${DRACO_C4}" STREQUAL "MPI" )
-  message(
-  "mpirun cmd  : ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} N ${MPIEXEC_POSTFLAGS}")
+  hanging_indent( 100 5
+  "mpirun command: ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} N ${MPIEXEC_POSTFLAGS}")
 endif()
 message("Library Type: ${DRACO_LIBRARY_TYPE}
 ")

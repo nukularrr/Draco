@@ -613,7 +613,7 @@ macro( setupCOMPTON )
       URL "https://gitlab.lanl.gov/CSK/CSK"
       DESCRIPTION "Access multigroup Compton scattering data."
       TYPE OPTIONAL
-      PURPOSE "Required for bulding the compton component." )
+      PURPOSE "Required for building the Compton component." )
   endif()
 
 endmacro()
