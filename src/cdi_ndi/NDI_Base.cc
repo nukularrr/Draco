@@ -27,16 +27,13 @@ namespace rtt_cdi_ndi {
  * \param[in] dataset_in name of requested dataset (provided by inherited class)
  * \param[in] library_in name of requested NDI data library
  * \param[in] reaction_in name of requested reaction
- * \param[in] discretization_in type of energy discretization to request
+ * \param[in] mg_form_in name of multigroup energy discretization to use
  */
 NDI_Base::NDI_Base(const std::string &gendir_in, const std::string &dataset_in,
                    const std::string &library_in,
-                   const std::string &reaction_in,
-                   const ENERGY_DISCRETIZATION discretization_in,
-                   const MG_FORM mg_form_in)
+                   const std::string &reaction_in, const MG_FORM mg_form_in)
     : gendir(gendir_in), dataset(dataset_in), library(library_in),
-      reaction(reaction_in), discretization(discretization_in),
-      mg_form(mg_form_in) {
+      reaction(reaction_in), mg_form(mg_form_in) {
 
   Require(gendir.length() > 0);
   Require(dataset.length() > 0);

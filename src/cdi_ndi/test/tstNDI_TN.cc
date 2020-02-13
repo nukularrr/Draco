@@ -43,9 +43,7 @@ void gendir_test(rtt_dsxx::UnitTest &ut) {
   std::string library_in = "lanl04";
   std::string reaction_in = "n+be7->p+li7";
 
-  NDI_TN tn(gendir_path, library_in, reaction_in,
-            rtt_cdi_ndi::ENERGY_DISCRETIZATION::MULTIGROUP,
-            rtt_cdi_ndi::MG_FORM::LANL4);
+  NDI_TN tn(gendir_path, library_in, reaction_in, rtt_cdi_ndi::MG_FORM::LANL4);
 
   // Check return values of getters
   FAIL_IF(tn.get_gendir().find(gendir_in) == std::string::npos);
@@ -53,8 +51,6 @@ void gendir_test(rtt_dsxx::UnitTest &ut) {
   FAIL_IF_NOT(tn.get_library() == "lanl04");
   FAIL_IF_NOT(tn.get_reaction() == "n+be7->p+li7");
   FAIL_IF_NOT(tn.get_reaction_name() == "n+be7->p+li7.040ztn");
-  FAIL_IF_NOT(tn.get_discretization() ==
-              rtt_cdi_ndi::ENERGY_DISCRETIZATION::MULTIGROUP);
   FAIL_IF_NOT(tn.get_num_products() == 2);
   auto products = tn.get_products();
   FAIL_IF_NOT(products.size() == 2 && products[0] == 1001 &&
@@ -94,29 +90,23 @@ void gendir_test(rtt_dsxx::UnitTest &ut) {
   int product_zaid_1 = 1001;            // proton
   int product_zaid_2 = 3007;            // Lithium-7
   double material_temperature = 1.1e-1; // keV
-  FAIL_IF_NOT(
-      soft_equiv(tn.sample_distribution(product_zaid_1, material_temperature),
-                 1.208000000000000227e+03, 1.e-8));
-  FAIL_IF_NOT(
-      soft_equiv(tn.sample_distribution(product_zaid_2, material_temperature),
-                 9.208350000000000080e+01, 1.e-8));
 
-  bool caught = false;
-  try {
-    NDI_TN bad_tn(gendir_path, library_in, reaction_in,
-                  rtt_cdi_ndi::ENERGY_DISCRETIZATION::CONTINUOUS_ENERGY,
-                  rtt_cdi_ndi::MG_FORM::LANL4);
-  } catch (const rtt_dsxx::assertion &error) {
-    std::ostringstream message;
-    message << "Successfully caught the following exception: \n"
-            << error.what();
-    PASSMSG(message.str());
-    caught = true;
+  auto pdf_1 = tn.get_PDF(product_zaid_1, material_temperature);
+  for (int n = 0; n < tn.get_num_groups(); n++) {
+    if (n == 2) {
+      FAIL_IF_NOT(soft_equiv(pdf_1[n], 1., 1.e-8));
+    } else {
+      FAIL_IF_NOT(soft_equiv(pdf_1[n], 0., 1.e-8));
+    }
   }
-  if (!caught) {
-    std::ostringstream message;
-    message << "Failed to catch an exception for continuous energy data.";
-    FAILMSG(message.str());
+
+  auto pdf_2 = tn.get_PDF(product_zaid_2, material_temperature);
+  for (int n = 0; n < tn.get_num_groups(); n++) {
+    if (n == 3) {
+      FAIL_IF_NOT(soft_equiv(pdf_2[n], 1., 1.e-8));
+    } else {
+      FAIL_IF_NOT(soft_equiv(pdf_2[n], 0., 1.e-8));
+    }
   }
 
   if (ut.numFails == 0) {

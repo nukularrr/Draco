@@ -22,11 +22,6 @@
 
 namespace rtt_cdi_ndi {
 
-enum class ENERGY_DISCRETIZATION {
-  MULTIGROUP = 0,       /*!< Multigroup data */
-  CONTINUOUS_ENERGY = 1 /*!< Continuous energy data */
-};
-
 enum class MG_FORM {
   LANL4 = 0,  /*!< "lanl04" 4-group NDI representation */
   NOT_SET = 1 /*!< Default value prior to user input */
@@ -44,6 +39,8 @@ enum class MG_FORM {
  *        density functions sum to unity. Unit conversions from NDI data are
  *        done when data is initially read in. For more details on NDI, see
  *        https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html
+ *        Currently only multigroup data is supported, continuous energy data
+ *        is probably best added through a refactor.
  */
 //============================================================================//
 
@@ -67,10 +64,7 @@ protected:
   //! Name of reaction to read
   const std::string reaction;
 
-  //! Multigroup or continuous energy data
-  const ENERGY_DISCRETIZATION discretization;
-
-  //! Multigroup representation (if multigroup data used)
+  //! Multigroup energy discretization
   MG_FORM mg_form = MG_FORM::NOT_SET;
 
   //! Conversion from MG_FORM enum to NDI-readable string
@@ -106,20 +100,19 @@ protected:
   //! Reaction Q value i.e. change in energy
   double q_reaction;
 
-  //! Number of groups (if multigroup)
+  //! Number of groups
   uint32_t num_groups;
 
-  //! Group boundaries (if multigroup) (keV)
+  //! Group boundaries (keV)
   std::vector<double> group_bounds;
 
-  //! Group average energies (if multigroup) (keV)
+  //! Group average energies (keV)
   std::vector<double> group_energies;
 
 protected:
   //! Constructor
   NDI_Base(const std::string &gendir_in, const std::string &dataset_in,
            const std::string &library_in, const std::string &reaction_in,
-           const ENERGY_DISCRETIZATION discretization_in,
            const MG_FORM mg_form_in);
 
   //! Default constructor
@@ -141,13 +134,11 @@ public:
   //! Get the reaction
   inline std::string get_reaction() const & { return reaction; }
 
+  //! Get the multigroup representation
+  inline MG_FORM get_mg_form() const { return mg_form; }
+
   //! Get the name of the reaction from the NDI file
   inline std::string get_reaction_name() const & { return reaction_name; }
-
-  //! Get the energy discretization
-  inline ENERGY_DISCRETIZATION get_discretization() const {
-    return discretization;
-  }
 
   //! Get number of reaction products
   inline uint32_t get_num_products() const {
@@ -176,21 +167,14 @@ public:
   //! Get change in energy due to reaction
   inline double get_reaction_q() const { return q_reaction; }
 
-  //! Get number of groups (if multigroup)
-  inline int get_num_groups() const {
-    Require(discretization == ENERGY_DISCRETIZATION::MULTIGROUP);
-    return num_groups;
-  }
+  //! Get number of groups
+  inline int get_num_groups() const { return num_groups; }
 
-  //! Get group boundaries (if multigroup)
-  inline std::vector<double> get_group_bounds() const & {
-    Require(discretization == ENERGY_DISCRETIZATION::MULTIGROUP);
-    return group_bounds;
-  }
+  //! Get group boundaries
+  inline std::vector<double> get_group_bounds() const & { return group_bounds; }
 
-  //! Get group energies (if multigroup)
+  //! Get group energies
   inline std::vector<double> get_group_energies() const & {
-    Require(discretization == ENERGY_DISCRETIZATION::MULTIGROUP);
     return group_energies;
   }
 };

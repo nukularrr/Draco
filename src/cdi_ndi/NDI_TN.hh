@@ -14,6 +14,7 @@
 #include "NDI_Base.hh"
 #include "ndi.h"
 #include "ds++/Assert.hh"
+#include "ds++/Soft_Equivalence.hh"
 #include "rng/Rnd_Control_Inline.hh"
 #include <algorithm>
 #include <memory>
@@ -43,9 +44,7 @@ private:
 public:
   //! Constructor
   NDI_TN(const std::string &gendir_in, const std::string &library_in,
-         const std::string &reaction_in,
-         const ENERGY_DISCRETIZATION discretization_in,
-         const MG_FORM mg_form_in);
+         const std::string &reaction_in, const MG_FORM mg_form_in);
 
   //! Disable default constructor
   NDI_TN() = delete;
@@ -54,10 +53,9 @@ public:
   //! or move constructor)
   NDI_TN(const NDI_TN &) = delete;
 
-  //! Sample energy distribution at given temperature to determine reaction
-  //! product energy
-  double sample_distribution(const int product_zaid,
-                             const double temperature) const;
+  //! Return spectrum PDF at a given temperature
+  std::vector<double> get_PDF(const int product_zaid,
+                              const double temperature) const;
 };
 
 } // namespace rtt_cdi_ndi
