@@ -118,7 +118,7 @@ add_component_library(
    LIBRARY_NAME ds++
    SOURCES      "${sources}"
    HEADERS      "${dsxx_headers};${dsxx_terminal_headers}" )
-target_link_libraries( Lib_dsxx ${Lib_win_winsock} )
+target_link_libraries( Lib_dsxx PUBLIC ${Lib_win_winsock} coverage_config )
 target_include_directories( Lib_dsxx
   # source directory or install location
   PUBLIC
@@ -132,6 +132,7 @@ target_include_directories( Lib_dsxx
 # ---------------------------------------------------------------------------- #
 
 install( TARGETS Lib_dsxx EXPORT draco-targets DESTINATION ${DBSCFGDIR}lib )
+install( TARGETS coverage_config EXPORT draco-targets )
 install( FILES ${dsxx_headers} ${template_implementations} DESTINATION
   ${DBSCFGDIR}include/ds++ )
 install( FILES
