@@ -61,7 +61,7 @@ if( NOT CXX_FLAGS_INITIALIZED )
 
   # Notes on options:
   # - /wd 4251 disable warning #4251: 'identifier' : class 'type' needs to have
-  #   dll-interface to be used by clients of class 'type2'
+  #            dll-interface to be used by clients of class 'type2'
   # - /arch:[SSE|SSE2|AVX|AVX2|IA32]
   # - /W[1234] Warning levels. Draco is currently using /W4 (see
   #            src/CMakeLists.txt), but clients default to /W2.

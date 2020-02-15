@@ -88,7 +88,7 @@ macro( query_craype )
       # We expect developers to use the Cray compiler wrappers (especially in
       # setupMPI.cmake). See also
       # https://cmake.org/cmake/help/latest/module/FindMPI.html
-      if( NOT "$ENV{CXX}" MATCHES "spack/lib/spack" )
+      if( NOT "$ENV{CXX}" MATCHES "$ENV{SPACK_ROOT}/lib/spack/env/" )
         # skip this check if building from within spack.
         if( NOT "$ENV{CXX}" MATCHES "CC$" OR
             NOT "$ENV{CC}" MATCHES "cc$" OR

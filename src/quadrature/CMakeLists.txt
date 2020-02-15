@@ -1,7 +1,7 @@
 #-----------------------------*-cmake-*----------------------------------------#
 # file   quadrature/CMakeLists.txt
 # brief  Instructions for building quadrature Makefiles.
-# note   Copyright (C) 2010-2016-2020 Triad National Security, LLC.
+# note   Copyright (C) 2010-2020 Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 cmake_minimum_required(VERSION 3.9.0)
@@ -65,27 +65,26 @@ if( BUILD_TESTING )
     # will need some of the current build system parameters:
     set( draco_DIR ${Draco_SOURCE_DIR}/config )
     set( build_system_state
-      # "-DCMAKE_VERBOSE_MAKEFILE=TRUE"
       "-DDRACO_C4=${DRACO_C4}"
       "-DDRACO_LIBRARY_TYPE=${DRACO_LIBRARY_TYPE}"
       "-DDraco_TPL_INCLUDE_DIRS=${tmp}"
-      #"-DPython_EXECUTABLE=${Python_EXECUTABLE}"
-      #"-DRANDOM123_INCLUDE_DIR=${RANDOM123_INCLUDE_DIR}"
-      "-Ddraco_DIR=${draco_DIR}"
+      "-Ddraco_DIR=${draco_DIR}")
+    if( ${DRACO_C4} MATCHES "MPI" )
+      list( APPEND build_system_state
       "-DMPI_C_LIBRARIES=${MPI_C_LIBRARIES}"
-      "-DMPI_C_INCLUDE_DIRS=${MPI_C_INCLUDE_DIRS}"
-      )
+      "-DMPI_C_INCLUDE_DIRS=${MPI_C_INCLUDE_DIRS}" )
+    endif()
     if( WIN32 )
       # For Win32 builds, DLL and applications are built in the directory
       # specified by CMAKE_RUNTIME_OUTPUT_DIRECTORY.
-      list( APPEND build_system_state 
+      list( APPEND build_system_state
         "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${Draco_BINARY_DIR}/\${CMAKE_BUILD_TYPE}" )
       if(CMAKE_TOOLCHAIN_FILE)
-        list( APPEND build_system_state 
+        list( APPEND build_system_state
           "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
       endif()
     else()
-      list( APPEND build_system_state "-DWITH_CUDA=${WITH_CUDA}" )
+      list( APPEND build_system_state "-DHAVE_CUDA=${HAVE_CUDA}" )
     endif()
 
     cmake_add_fortran_subdirectory(
@@ -95,7 +94,7 @@ if( BUILD_TESTING )
       ARCHIVE_DIR  ftest          # .lib location relative to root binary tree
       RUNTIME_DIR  ftest          # .dll location relative to root binary tree
       LIBRARIES    rtt_quadrature_ftest # new library will have this name.
-      # --> librtt_quadrature_ftest.dll.
+                                  # --> librtt_quadrature_ftest.dll.
       TARGET_NAMES Lib_quadrature_ftest
       DEPENDS      "Lib_quadrature_test;Lib_quadrature;Lib_c4;Lib_dsxx"
       NO_EXTERNAL_INSTALL
