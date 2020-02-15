@@ -1,11 +1,11 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   ds++/test/tstatomics.cc
  * \author Tim Kelley
  * \date   Thursday, Sept. 6, 2018, 10:51 am
- * \note   Copyright (C) 2018-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2018-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "ds++/Release.hh"
 #include "ds++/ScalarUnitTest.hh"
@@ -23,7 +23,7 @@ using rtt_dsxx::UnitTest;
  * from any other thread.
  */
 void thread_action(std::atomic<double> &d, size_t N, size_t tid) {
-  double const did = static_cast<double>(tid);
+  auto const did = static_cast<double>(tid);
   double d_i = 1;
   for (size_t i = 0; i < N; ++i) {
     double addend = did * d_i;
@@ -55,11 +55,11 @@ void fetch_add_atomic_core(UnitTest &ut, size_t const n_threads,
   double result = a_d.load();
   double sum = 0.0;
   for (size_t i = 0; i < n_iterations; ++i) {
-    sum += i + 1;
+    sum += static_cast<double>(i + 1);
   }
   double tsum = 0.0;
   for (size_t t = 0; t < n_threads; ++t) {
-    tsum += t;
+    tsum += static_cast<double>(t);
   }
   double expected = sum * tsum;
 
@@ -98,7 +98,7 @@ void test_fetch_add_atomic_1e6(UnitTest &ut) {
  * one of the thread's write (+=) overwrites the other's.
  */
 void thread_action_pod(double &d, size_t N, size_t tid) {
-  double const did = static_cast<double>(tid);
+  auto const did = static_cast<double>(tid);
   double d_i = 1;
   for (size_t i = 0; i < N; ++i) {
     double addend = did * d_i;
@@ -131,11 +131,11 @@ void test_fetch_add_not_atomic(UnitTest & /*ut*/) {
   double result = a_d;
   double sum = 0.0;
   for (size_t i = 0; i < n_iterations; ++i) {
-    sum += i + 1;
+    sum += static_cast<double>(i + 1);
   }
   double tsum = 0.0;
   for (size_t t = 0; t < n_threads; ++t) {
-    tsum += t;
+    tsum += static_cast<double>(t);
   }
   double expected = sum * tsum;
   // check and report
@@ -160,7 +160,7 @@ void test_fetch_add_not_atomic(UnitTest & /*ut*/) {
  * negative of the preceding test.
  */
 void thread_action_sub(std::atomic<double> &d, size_t N, size_t tid) {
-  double const did = static_cast<double>(tid);
+  auto const did = static_cast<double>(tid);
   double d_i = 1;
   for (size_t i = 0; i < N; ++i) {
     double addend = did * d_i;
@@ -192,11 +192,11 @@ void fetch_sub_atomic_core(UnitTest &ut, size_t const n_threads,
   double result = a_d.load();
   double sum = 0.0;
   for (size_t i = 0; i < n_iterations; ++i) {
-    sum += i + 1;
+    sum += static_cast<double>(i + 1);
   }
   double tsum = 0.0;
   for (size_t t = 0; t < n_threads; ++t) {
-    tsum += t;
+    tsum += static_cast<double>(t);
   }
   double expected = -1.0 * sum * tsum;
 
@@ -249,6 +249,6 @@ int main(int argc, char *argv[]) {
   UT_EPILOG(ut);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of ds++/test/tstatomics.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

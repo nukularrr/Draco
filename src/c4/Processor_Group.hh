@@ -1,10 +1,10 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   c4/Processor_Group.hh
  * \brief  Definition of class Processor_Group
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef c4_Processor_Group_hh
 #define c4_Processor_Group_hh
@@ -18,7 +18,7 @@
 
 namespace rtt_c4 {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class Processor_Group
  * \brief Representation of subgroup of processors
@@ -28,7 +28,7 @@ namespace rtt_c4 {
  * to do things like sums over process groups efficiently.  In other words,
  * this class is essentially a representation of an MPI communicator.
  */
-//===========================================================================//
+//============================================================================//
 
 class Processor_Group {
 public:
@@ -37,10 +37,10 @@ public:
   // CREATORS
 
   //! Create a Process_Group based on a stride through the ranks.
-  DLL_PUBLIC_c4 explicit Processor_Group(unsigned const stride);
+  explicit Processor_Group(unsigned const stride);
 
   //! Destructor.
-  DLL_PUBLIC_c4 ~Processor_Group();
+  ~Processor_Group();
 
   // ACCESSORS
 
@@ -98,6 +98,6 @@ private:
 
 #endif // c4_Processor_Group_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of c4/Processor_Group.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

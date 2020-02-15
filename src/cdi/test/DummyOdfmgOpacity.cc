@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi/test/DummyOdfmgOpacity.cc
  * \author Kelly Thompson
  * \date   Mon Jan 8 15:17:16 2001
  * \brief  DummyOdfmgOpacity templated class implementation file.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "DummyOdfmgOpacity.hh"
 #include "ds++/Assert.hh"
@@ -18,13 +18,13 @@ namespace rtt_cdi_test {
 // Constructors //
 // ------------ //
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Constructor for DummyOdfmgOpacity object.
- * 
+ *
  * \sa The constructor assigns fixed values for all of the member
  *     data.  Every instance of this object has the same member
- *     data. 
+ *     data.
  * \code
  *     Temperatures     = { 1.0, 2.0, 3.0 }
  *     Densities        = { 0.1, 0.2 }
@@ -45,21 +45,21 @@ DummyOdfmgOpacity::DummyOdfmgOpacity(rtt_cdi::Reaction reaction,
   bandBoundaries.resize(numBandBoundaries);
 
   for (size_t i = 0; i < numTemperatures; ++i)
-    temperatureGrid[i] = (i + 1) * 1.0;
+    temperatureGrid[i] = static_cast<double>(i + 1);
   for (size_t i = 0; i < numDensities; ++i)
-    densityGrid[i] = (i + 1) * 0.1;
+    densityGrid[i] = static_cast<double>(i + 1) * 0.1;
 
   // due to the way the CDI test is implemented, these group boundaries MUST
   // match the multigroup frequency boundaries
   for (size_t i = 0; i < numGroupBoundaries; ++i)
-    groupBoundaries[i] = 5.0 * std::pow(10.0, (i - 2.0));
+    groupBoundaries[i] = 5.0 * std::pow(10.0, static_cast<double>(i) - 2.0);
 
   bandBoundaries[0] = 0.0;
   for (size_t i = 1; i < numBandBoundaries; ++i)
-    bandBoundaries[i] = std::pow(2, (i - 4.0));
+    bandBoundaries[i] = std::pow(2.0, static_cast<double>(i) - 4.0);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // Constructor for entering a different group boundary structure than the
 // default
 DummyOdfmgOpacity::DummyOdfmgOpacity(rtt_cdi::Reaction reaction,
@@ -78,16 +78,17 @@ DummyOdfmgOpacity::DummyOdfmgOpacity(rtt_cdi::Reaction reaction,
   bandBoundaries.resize(numBandBoundaries);
 
   for (size_t i = 0; i < numTemperatures; ++i)
-    temperatureGrid[i] = (i + 1) * 1.0;
+    temperatureGrid[i] = static_cast<double>(i + 1);
   for (size_t i = 0; i < numDensities; ++i)
-    densityGrid[i] = (i + 1) * 0.1;
+    densityGrid[i] = static_cast<double>(i + 1) * 0.1;
   for (size_t i = 0; i < numGroupBoundaries; ++i)
-    groupBoundaries[i] = 5.0 * std::pow(10.0, (i - 2.0));
+    groupBoundaries[i] = 5.0 * std::pow(10.0, static_cast<double>(i) - 2.0);
 
   bandBoundaries[0] = 0.0;
   for (size_t i = 1; i < numBandBoundaries; ++i)
-    bandBoundaries[i] = std::pow(
-        2.0, static_cast<int>(i) - static_cast<int>(numBandBoundaries) - 1);
+    bandBoundaries[i] =
+        std::pow(2.0, static_cast<double>(i) -
+                          static_cast<double>(numBandBoundaries) - 1.0);
   return;
 }
 
@@ -95,14 +96,14 @@ DummyOdfmgOpacity::DummyOdfmgOpacity(rtt_cdi::Reaction reaction,
 // Accessors //
 // --------- //
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
- * \brief Opacity accessor that returns a vector of opacities (one 
+ * \brief Opacity accessor that returns a vector of opacities (one
  *     for each group) that corresponds to the provided
- *     temperature and density.   
+ *     temperature and density.
  *
  * \code
- *     Opacity = 2 * ( temperature + density/1000 ) 
+ *     Opacity = 2 * ( temperature + density/1000 )
  *                 / ( E_high + E_low ) * 10^(band - 2)
  * \endcode
  */
@@ -126,15 +127,15 @@ DummyOdfmgOpacity::getOpacity(double targetTemperature,
   return opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Opacity accessor that returns a vector of multigroup
  *     opacities corresponding to the provided vector of
- *     temperatures and a single density.  Each multigroup opacity 
+ *     temperatures and a single density.  Each multigroup opacity
  *     is in itself a vector of numGroups opacities.
  *
  * \code
- *     Opacity = 2 * ( temperature + density/1000 ) 
+ *     Opacity = 2 * ( temperature + density/1000 )
  *                 / ( E_high + E_low )
  * \endcode
  */
@@ -150,15 +151,15 @@ DummyOdfmgOpacity::getOpacity(const std::vector<double> &targetTemperature,
   return opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Opacity accessor that returns a vector of multigroup
  *     opacities corresponding to the provided vector of
- *     densities and a single temperature.  Each multigroup opacity 
+ *     densities and a single temperature.  Each multigroup opacity
  *     is in itself a vector of numGroups opacities.
  *
  * \code
- *     Opacity = 2 * ( temperature + density/1000 ) 
+ *     Opacity = 2 * ( temperature + density/1000 )
  *                 / ( E_high + E_low )
  * \endcode
  */
@@ -176,6 +177,6 @@ DummyOdfmgOpacity::getOpacity(double targetTemperature,
 
 } // end namespace rtt_cdi_test
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of DummyOdfmgOpacity.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

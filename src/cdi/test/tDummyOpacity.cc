@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi/test/tDummyOpacity.cc
  * \author Thomas M. Evans
  * \date   Tue Oct  9 15:50:53 2001
  * \brief  GrayOpacity and Multigroup opacity test.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "DummyGrayOpacity.hh"
 #include "DummyMultigroupOpacity.hh"
@@ -23,9 +23,9 @@ using rtt_cdi::MultigroupOpacity;
 using rtt_cdi::OdfmgOpacity;
 using rtt_dsxx::soft_equiv;
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // TESTS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 void simple_tests(rtt_dsxx::UnitTest &ut) {
   // make shared_ptrs to gray and multigroup opacities
@@ -216,7 +216,7 @@ void simple_tests(rtt_dsxx::UnitTest &ut) {
   return;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 void gray_opacity_test(rtt_dsxx::UnitTest &ut) {
   // ---------------------------- //
@@ -306,7 +306,7 @@ void gray_opacity_test(rtt_dsxx::UnitTest &ut) {
   }
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 void multigroup_opacity_test(rtt_dsxx::UnitTest &ut) {
   // ----------------------------------------- //
@@ -479,7 +479,7 @@ void multigroup_opacity_test(rtt_dsxx::UnitTest &ut) {
   return;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void odfmg_opacity_test(rtt_dsxx::UnitTest &ut) {
   // ----------------------------------------- //
   // Create a Dummy Odfmg Opacity object. //
@@ -555,7 +555,7 @@ void odfmg_opacity_test(rtt_dsxx::UnitTest &ut) {
       odfmgRefOpacity[group][band] =
           2.0 * (temp + dens / 1000.0) /
           (energyBoundaries[group] + energyBoundaries[group + 1]) *
-          pow(10.0, band - 2);
+          pow(10.0, static_cast<double>(band) - 2.0);
     }
   }
 
@@ -599,7 +599,7 @@ void odfmg_opacity_test(rtt_dsxx::UnitTest &ut) {
         vRefOpacity[it][group][band] =
             2.0 * (vtemperature[it] + dens / 1000.0) /
             (energyBoundaries[group] + energyBoundaries[group + 1]) *
-            pow(10.0, band - 2);
+            pow(10.0, static_cast<double>(band) - 2.0);
       }
     }
   }
@@ -678,7 +678,7 @@ void odfmg_opacity_test(rtt_dsxx::UnitTest &ut) {
   return;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 int main(int argc, char *argv[]) {
   rtt_dsxx::ScalarUnitTest ut(argc, argv, rtt_dsxx::release);
   try {
@@ -689,6 +689,6 @@ int main(int argc, char *argv[]) {
   UT_EPILOG(ut);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of tDummyOpacity.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

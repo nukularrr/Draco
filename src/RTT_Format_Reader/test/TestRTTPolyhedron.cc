@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   RTT_Format_Reader/test/TestRTTPolyhedron.cc
  * \author James S. Warsa
  * \date   Fri Aug 19 12:31:47 2016
  * \brief  Testing the POLYHEDRON Element_Definition
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "RTT_Format_Reader/RTT_Mesh_Reader.hh"
 #include "ds++/Release.hh"
@@ -23,7 +23,7 @@ using namespace rtt_RTT_Format_Reader;
 class is_cell {
 public:
   //! Construct the predicate for a specified dimensionality.
-  is_cell(size_t const dimensionality) : dimensionality(dimensionality) {}
+  is_cell(size_t const dimensionality_in) : dimensionality(dimensionality_in) {}
 
   /*! \brief Returns \c true if the specified type index has the predicate
    *         dimensionality; \c false otherwise.
@@ -37,9 +37,9 @@ private:
   size_t dimensionality;
 };
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // TESTS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void test_polyhedron(rtt_dsxx::UnitTest &ut) {
 
   vector<string> filenames = {"rttquad5.mesh", "rttquad9.mesh", "rttquad.mesh"};
@@ -183,7 +183,7 @@ void test_polyhedron(rtt_dsxx::UnitTest &ut) {
   }
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 int main(int argc, char *argv[]) {
   ScalarUnitTest ut(argc, argv, release);
   try {
@@ -192,6 +192,6 @@ int main(int argc, char *argv[]) {
   UT_EPILOG(ut);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of TestRTTPolyhedron.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

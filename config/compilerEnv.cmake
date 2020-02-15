@@ -1,8 +1,7 @@
 #-----------------------------*-cmake-*----------------------------------------#
 # file   config/compilerEnv.cmake
 # brief  Default CMake build parameters
-# note   Copyright (C) 2016-2019 Triad National Security, LLC.
-#        All rights reserved.
+# note   Copyright (C) 2019-2020 Triad National Security, LLC. All rights reserved.
 #------------------------------------------------------------------------------#
 
 include_guard(GLOBAL)
@@ -20,8 +19,10 @@ endif()
 # ----------------------------------------
 if( DEFINED ENV{PAPI_HOME} )
   set( HAVE_PAPI 1 CACHE BOOL "Is PAPI available on this machine?" )
-  set( PAPI_INCLUDE $ENV{PAPI_INCLUDE} CACHE PATH "PAPI headers at this location" )
-  set( PAPI_LIBRARY $ENV{PAPI_LIBDIR}/libpapi.so CACHE FILEPATH "PAPI library." )
+  set( PAPI_INCLUDE $ENV{PAPI_INCLUDE} CACHE PATH 
+    "PAPI headers at this location" )
+  set( PAPI_LIBRARY $ENV{PAPI_LIBDIR}/libpapi.so CACHE FILEPATH 
+    "PAPI library." )
 endif()
 
 if( HAVE_PAPI )
@@ -253,7 +254,7 @@ macro(dbsSetupCxx)
   #    - EXE_LINKER_FLAGS
   # 2. Provide these as arguments to cmake as -DC_FLAGS="whatever".
   #----------------------------------------------------------------------------#
-  foreach( lang C CXX Fortran EXE_LINKER )
+  foreach( lang C CXX Fortran EXE_LINKER SHARED_LINKER)
     if( DEFINED ENV{${lang}_FLAGS} )
       string( APPEND ${lang}_FLAGS " $ENV{${lang}_FLAGS}")
     endif()
@@ -328,7 +329,9 @@ endmacro()
 # - CMAKE_CXX_CPPLINT
 # - CMAKE_CXX_LINK_WHAT_YOU_USE
 
-# Ref: https://blog.kitware.com/static-checks-with-cmake-cdash-iwyu-clang-tidy-lwyu-cpplint-and-cppcheck/
+# Refs:
+# - https://blog.kitware.com/static-checks-with-cmake-cdash-iwyu-clang-tidy-lwyu-cpplint-and-cppcheck/
+# - https://github.com/KratosMultiphysics/Kratos/wiki/How-to-use-Clang-Tidy-to-automatically-correct-code
 #------------------------------------------------------------------------------#
 macro(dbsSetupStaticAnalyzers)
 
@@ -339,18 +342,57 @@ macro(dbsSetupStaticAnalyzers)
   if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
 
     # clang-tidy
+    # Ex: cmake -DDRACO_STATIC_ANALYZER=clang-tidy \
+             #  -DCLANG_TIDY_CHECKS="-checks=generate-*" ...
     # https://clang.llvm.org/extra/clang-tidy/
-    if( ${DRACO_STATIC_ANALYZER} STREQUAL "clang-tidy" )
-      find_program( CMAKE_CXX_CLANG_TIDY clang-tidy )
+    if( "${DRACO_STATIC_ANALYZER}" MATCHES "clang-tidy" )
+      if( NOT CMAKE_CXX_CLANG_TIDY )
+        find_program( CMAKE_CXX_CLANG_TIDY clang-tidy )
+        get_filename_component(CT_BPATH ${CMAKE_CXX_CLANG_TIDY} DIRECTORY )
+        get_filename_component(CT_BPATH "${CT_BPATH}" DIRECTORY )
+        string(CONCAT CLANG_TIDY_IPATH ${CT_BPATH} "/include/c++/v1")
+        unset( CT_BPATH )
+      endif()
       if( CMAKE_CXX_CLANG_TIDY )
-        if( NOT "${CMAKE_CXX_CLANG_TIDY}" MATCHES "[-]checks[=]" )
-          set( CMAKE_CXX_CLANG_TIDY "${CMAKE_CXX_CLANG_TIDY};-checks=mpi-*,bugprone-*,performance-*"
+        if( NOT CLANG_TIDY_OPTIONS )
+          set( CLANG_TIDY_OPTIONS "-header-filter=.*[.]hh" )
+        endif()
+        set( CLANG_TIDY_OPTIONS "${CLANG_TIDY_OPTIONS}" CACHE STRING
+          "clang-tidy extra options (eg: -header-filter=.*[.]hh;-fix)" FORCE )
+
+        if( NOT CLANG_TIDY_CHECKS )
+          # -checks=mpi-*,bugprone-*,performance-*,modernize-*
+          # See full list: `clang-tidy -check=* -list-checks'
+          set( CLANG_TIDY_CHECKS "-checks=modernize-*" )
+        endif()
+        set( CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS}" CACHE STRING
+          "clang-tidy check options (eg: -checks=bugprone-*,mpi-*)" FORCE )
+
+        set( CLANG_TIDY_IPATH "${CLANG_TIDY_IPATH}" CACHE STRING
+          "clang-tidy extra include directories" FORCE )
+        if( NOT "${CLANG_TIDY_CHECKS}" MATCHES "[-]checks[=]" )
+          message( FATAL_ERROR "Option CLANG_TIDY_CHECKS string must start"
+                   " with the string '-check='")
+        endif()
+        # re-create clang-tidy command
+        if( "${CMAKE_CXX_CLANG_TIDY}" MATCHES "[-]checks[=]" )
+          list( GET CMAKE_CXX_CLANG_TIDY 0 CMAKE_CXX_CLANG_TIDY )
+        endif()
+        set( CMAKE_CXX_CLANG_TIDY
+            "${CMAKE_CXX_CLANG_TIDY};${CLANG_TIDY_CHECKS};${CLANG_TIDY_OPTIONS}"
             CACHE STRING "Run clang-tidy on each source file before compile."
             FORCE)
-        endif()
       else()
         unset( CMAKE_CXX_CLANG_TIDY )
         unset( CMAKE_CXX_CLANG_TIDY CACHE )
+      endif()
+      # Sanity check
+      if( NOT CLANG_TIDY_IPATH OR NOT CLANG_TIDY_CHECKS OR NOT CMAKE_CXX_CLANG_TIDY )
+        message(FATAL_ERROR "clang-tidy mode requested but some required"
+          " variables were not found:
+           - CLANG_TIDY_IPATH     = ${CLANG_TIDY_IPATH}
+           - CLANG_TIDY_CHECKS    = ${CLANG_TIDY_CHECKS}
+           - CMAKE_CXX_CLANG_TIDY = ${CMAKE_CXX_CLANG_TIDY}")
       endif()
     endif()
 
@@ -526,22 +568,25 @@ macro(dbsSetupFortran)
   else()
     # If CMake doesn't know about a Fortran compiler, $ENV{FC}, then
     # also look for a compiler to use with CMakeAddFortranSubdirectory.
-    message( STATUS "Looking for CMakeAddFortranSubdirectory Fortran compiler...")
+    message( STATUS "Looking for CMakeAddFortranSubdirectory Fortran "
+      "compiler...")
 	set( CAFS_Fortran_COMPILER "NOTFOUND" )
 
     # Try to find a Fortran compiler (use MinGW gfortran for MSVC).
     find_program( CAFS_Fortran_COMPILER
       NAMES ${CAFS_Fortran_COMPILER} $ENV{CAFS_Fortran_COMPILER} gfortran
       PATHS
+        c:/msys64/mingw64/bin
         c:/MinGW/bin
-        c:/msys64/usr/bin
-        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\MinGW;InstallLocation]/bin" )
+        c:/msys64/usr/bin )
 
     if( EXISTS ${CAFS_Fortran_COMPILER} )
       set( HAVE_Fortran ON )
-      message( STATUS "Looking for CMakeAddFortranSubdirectory Fortran compiler... found ${CAFS_Fortran_COMPILER}")
+      message( STATUS "Looking for CMakeAddFortranSubdirectory Fortran "
+        "compiler... found ${CAFS_Fortran_COMPILER}")
     else()
-      message( STATUS "Looking for CMakeAddFortranSubdirectory Fortran compiler... not found")
+      message( STATUS "Looking for CMakeAddFortranSubdirectory Fortran "
+        "compiler... not found")
     endif()
 
   endif()
@@ -608,11 +653,12 @@ macro( toggle_compiler_flag switch compiler_flag
     if( NOT ${comp} STREQUAL "C" AND
         NOT ${comp} STREQUAL "CXX" AND
         NOT ${comp} STREQUAL "Fortran" AND
-        NOT ${comp} STREQUAL "EXE_LINKER")
-      message(FATAL_ERROR "When calling
-toggle_compiler_flag(switch, compiler_flag, compiler_flag_var_names),
-compiler_flag_var_names must be set to one or more of these valid
-names: C;CXX;EXE_LINKER.")
+        NOT ${comp} STREQUAL "EXE_LINKER" AND
+        NOT ${comp} STREQUAL "SHARED_LINKER")
+      message(FATAL_ERROR "When calling "
+"toggle_compiler_flag(switch, compiler_flag, compiler_flag_var_names), "
+"compiler_flag_var_names must be set to one or more of these valid "
+"names: C;CXX;EXE_LINKER.")
     endif()
 
     string( REPLACE "+" "x" safe_CMAKE_${comp}_FLAGS

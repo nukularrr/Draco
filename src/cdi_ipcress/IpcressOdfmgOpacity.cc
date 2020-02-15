@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi_ipcress/IpcressOdfmgOpacity.cc
  * \author Kelly Thompson
  * \date   Mon Jan 22 15:24210 2001
  * \brief  IpcressOdfmgOpacity templated class implementation file.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "IpcressOdfmgOpacity.hh"
 #include "ds++/Packing_Utils.hh"
@@ -55,7 +55,7 @@ IpcressOdfmgOpacity::IpcressOdfmgOpacity(
 
 } // end of IpcressData constructor
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Unpacking constructor for IpcressOdfmgOpacity object.
  *
@@ -150,7 +150,7 @@ IpcressOdfmgOpacity::IpcressOdfmgOpacity(std::vector<char> const &packed)
   loadGroupsAndBands(numBands);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void IpcressOdfmgOpacity::loadGroupsAndBands(size_t const numBands) {
   using rtt_dsxx::soft_equiv;
   using std::cerr;
@@ -208,7 +208,7 @@ void IpcressOdfmgOpacity::loadGroupsAndBands(size_t const numBands) {
       // Also, loosen the tolerance for more groups.
       if (!soft_equiv(bandBoundaries.begin(), bandBoundaries.end(),
                       currentBandStructure.begin(), currentBandStructure.end(),
-                      numEffGroups * 1.e-12)) {
+                      static_cast<double>(numEffGroups) * 1.e-12)) {
         cerr << "Band boundaries do not match.\nFirst (reverse, tops-style) ba"
              << "nd structure, " << group << "th band structure: \n";
         for (size_t i = 0; i <= numBands; i++) {
@@ -365,7 +365,7 @@ IpcressOdfmgOpacity::getOpacity(double targetTemperature,
   return opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Opacity accessor that returns a vector of multigroupband opacity 2-D
  *     vectors that correspond to the provided vector of temperatures and a
@@ -382,7 +382,7 @@ IpcressOdfmgOpacity::getOpacity(std::vector<double> const &targetTemperature,
   return opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Opacity accessor that returns a vector of multigroupband
  *     opacity 2-D vectors that correspond to the provided
@@ -399,25 +399,25 @@ std::vector<std::vector<std::vector<double>>> IpcressOdfmgOpacity::getOpacity(
   return opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // Returns a vector of temperatures that define the cached opacity data table.
 std::vector<double> IpcressOdfmgOpacity::getTemperatureGrid() const {
   return spIpcressDataTable->getTemperatures();
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 //! Returns the size of the temperature grid.
 size_t IpcressOdfmgOpacity::getNumTemperatures() const {
   return spIpcressDataTable->getNumTemperatures();
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 //! Returns a vector of densities that define the cached opacity data table.
 std::vector<double> IpcressOdfmgOpacity::getDensityGrid() const {
   return spIpcressDataTable->getDensities();
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 //!  Returns the size of the density grid.
 size_t IpcressOdfmgOpacity::getNumDensities() const {
   return spIpcressDataTable->getNumDensities();
@@ -427,7 +427,7 @@ size_t IpcressOdfmgOpacity::getNumDensities() const {
 // Packing //
 // ------- //
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * Pack the IpcressOdfmgOpacity state into a char string represented by a
  * vector<char>. This can be used for persistence, communication, etc. by
@@ -488,6 +488,6 @@ std::vector<char> IpcressOdfmgOpacity::pack() const {
 
 } // end namespace rtt_cdi_ipcress
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of IpcressOdfmgOpacity.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

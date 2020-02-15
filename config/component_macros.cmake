@@ -4,7 +4,7 @@
 # date   2010 Dec 1
 # brief  Provide extra macros to simplify CMakeLists.txt for component
 #        directories.
-# note   Copyright (C) 2016-2019 Triad National Security, LLC.
+# note   Copyright (C) 2016-2020 Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 
@@ -51,6 +51,14 @@ function( dbs_std_tgt_props target )
     endif()
     set_target_properties( ${target} PROPERTIES ${Draco_std_target_props} )
   endforeach()
+
+  # Helper for clang-tidy that points to very old gcc STL files.  We need STL
+  # files from clang.
+  get_target_property( tgt_sources ${target} SOURCES )
+  if( "${DRACO_STATIC_ANALYZER}" MATCHES "clang-tidy" )
+    set_source_files_properties( ${tgt_sources} PROPERTIES INCLUDE_DIRECTORIES
+      ${CLANG_TIDY_IPATH} )
+  endif()
 
 endfunction()
 
@@ -185,7 +193,7 @@ or the target must be labeled NOEXPORT.")
     target_link_libraries( ${ace_TARGET} ${ace_VENDOR_LIBS} )
   endif()
   if( ace_VENDOR_INCLUDE_DIRS )
-    set_property(TARGET ${ace_TARGET} APPEND PROPERTY 
+    set_property(TARGET ${ace_TARGET} APPEND PROPERTY
       INTERFACE_INCLUDE_DIRECTORIES "${ace_VENDOR_INCLUDE_DIRS}")
   endif()
 
@@ -346,7 +354,7 @@ macro( add_component_library )
   # Add headers to Visual Studio or Xcode solutions
   #
   if( acl_HEADERS )
-    if( MSVC_IDE OR ${CMAKE_GENERATOR} MATCHES Xcode )
+    if( MSVC_IDE OR "${CMAKE_GENERATOR}" MATCHES Xcode )
       list( APPEND acl_SOURCES ${acl_HEADERS} )
     endif()
   endif()
@@ -371,7 +379,7 @@ macro( add_component_library )
     OUTPUT_NAME ${acl_LIBRARY_NAME_PREFIX}${acl_LIBRARY_NAME}
     FOLDER      ${folder_name}
     WINDOWS_EXPORT_ALL_SYMBOLS ON )
-  if( DEFINED DRACO_LINK_OPTIONS )
+  if( DEFINED DRACO_LINK_OPTIONS AND NOT "${DRACO_LINK_OPTIONS}x" STREQUAL "x")
     set_target_properties( ${acl_TARGET} PROPERTIES
       LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
   endif()
@@ -386,7 +394,7 @@ macro( add_component_library )
     target_link_libraries( ${acl_TARGET} ${acl_VENDOR_LIBS} )
   endif()
   if( acl_VENDOR_INCLUDE_DIRS )
-    set_property(TARGET ${acl_TARGET} APPEND PROPERTY 
+    set_property(TARGET ${acl_TARGET} APPEND PROPERTY
       INTERFACE_INCLUDE_DIRECTORIES "${acl_VENDOR_INCLUDE_DIRS}")
   endif()
 
@@ -427,7 +435,7 @@ macro( add_component_library )
     list(APPEND iid "${CMAKE_INSTALL_PREFIX}/${DBSCFGDIR}include" )
   else()
     set( iid "${CMAKE_INSTALL_PREFIX}/${DBSCFGDIR}include" )
-  endif()  
+  endif()
   list(REMOVE_DUPLICATES iid)
   set( ${acl_PREFIX}_EXPORT_TARGET_PROPERTIES
     "${${acl_PREFIX}_EXPORT_TARGET_PROPERTIES}
@@ -910,13 +918,14 @@ macro( add_scalar_tests test_sources )
 
     get_filename_component( testname ${file} NAME_WE )
     add_executable( Ut_${compname}_${testname}_exe ${file} )
-    dbs_std_tgt_props( Ut_${compname}_${testname}_exe)
+    dbs_std_tgt_props( Ut_${compname}_${testname}_exe )
     set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
       OUTPUT_NAME ${testname}
       VS_KEYWORD  ${testname}
       FOLDER      ${compname}_test
       COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\"" )
-    if( DEFINED DRACO_LINK_OPTIONS )
+    if( DEFINED DRACO_LINK_OPTIONS AND 
+        NOT "${DRACO_LINK_OPTIONS}x" STREQUAL "x")
       set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
         LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
     endif()
@@ -1064,7 +1073,8 @@ macro( add_parallel_tests )
       VS_KEYWORD  ${testname}
       FOLDER      ${compname}_test
       COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\"" )
-    if( DEFINED DRACO_LINK_OPTIONS )
+    if( DEFINED DRACO_LINK_OPTIONS AND 
+        NOT "${DRACO_LINK_OPTIONS}x" STREQUAL "x" )
       set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
         LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
     endif()

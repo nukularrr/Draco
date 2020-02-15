@@ -4,7 +4,7 @@
  * \author Ryan Wollaeger <wollaeger@lanl.gov>
  * \date   Thursday, Jun 07, 2018, 15:43 pm
  * \brief  Draco_Mesh class unit test.
- * \note   Copyright (C) 2018-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2018-2020 Triad National Security, LLC.
  *         All rights reserved. */
 //----------------------------------------------------------------------------//
 
@@ -166,11 +166,11 @@ void cartesian_mesh_2d(rtt_c4::ParallelUnitTest &ut) {
   // check that each cell has the correct neighbors
   {
     std::map<unsigned, std::vector<unsigned>> test_cell_map;
-    for (unsigned j = 0; j < num_ydir; ++j) {
-      for (unsigned i = 0; i < num_xdir; ++i) {
+    for (size_t j = 0; j < num_ydir; ++j) {
+      for (size_t i = 0; i < num_xdir; ++i) {
 
         // calculate the cell index
-        unsigned cell = i + j * num_xdir;
+        unsigned cell = static_cast<unsigned>(i + j * num_xdir);
 
         // calculate neighbor cell indices
         if (i > 0)
@@ -178,7 +178,7 @@ void cartesian_mesh_2d(rtt_c4::ParallelUnitTest &ut) {
         if (i < num_xdir - 1)
           test_cell_map[cell].push_back(cell + 1);
         if (j > 0)
-          test_cell_map[cell].push_back(cell - num_xdir);
+          test_cell_map[cell].push_back(cell - static_cast<unsigned>(num_xdir));
       }
     }
 

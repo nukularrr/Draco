@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   ds++/UnitTest.hh
  * \author Kelly Thompson
  * \date   Thu May 18 15:46:19 2006
  * \brief  Provide some common functions for unit testing within Draco
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef dsxx_UnitTest_hh
 #define dsxx_UnitTest_hh
@@ -19,7 +19,7 @@
 
 namespace rtt_dsxx {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class UnitTest
  * \brief Object to encapsulate unit testing of Draco classes and functions.
@@ -55,14 +55,14 @@ namespace rtt_dsxx {
  * ds++/test/tstScalarUnitTest.cc, including the early exit caused by
  * \c --version on the command line.
  */
-//===========================================================================//
+//============================================================================//
 
 class UnitTest {
 public:
   // NESTED CLASSES AND TYPEDEFS
 
   //! Typedef for function pointer to this package's release function.
-  typedef std::string const (*string_fp_void)(void);
+  using string_fp_void = const std::string (*)();
 
   // CREATORS
 
@@ -74,7 +74,7 @@ public:
   UnitTest(UnitTest const &rhs) = delete;
 
   //! Destructor is virtual because this class will be inherited from.
-  virtual ~UnitTest(void){/*empty*/};
+  virtual ~UnitTest(){/*empty*/};
 
   // MANIPULATORS
 
@@ -115,7 +115,7 @@ public:
    * This pure virtual function must be provided by the inherited class.  It
    * should provide output concerning the status of UnitTest.
    */
-  void status(void) const {
+  void status() const {
     out << resultMessage() << std::endl;
     return;
   }
@@ -126,13 +126,13 @@ public:
     return;
   }
 
-  bool dbcRequire(void) const { return m_dbcRequire; }
-  bool dbcCheck(void) const { return m_dbcCheck; }
-  bool dbcEnsure(void) const { return m_dbcEnsure; }
-  bool dbcNothrow(void) const { return m_dbcNothrow; }
-  bool dbcOn(void) const { return m_dbcRequire || m_dbcCheck || m_dbcEnsure; }
-  std::string getTestPath(void) const { return testPath; }
-  std::string getTestName(void) const { return testName; }
+  bool dbcRequire() const { return m_dbcRequire; }
+  bool dbcCheck() const { return m_dbcCheck; }
+  bool dbcEnsure() const { return m_dbcEnsure; }
+  bool dbcNothrow() const { return m_dbcNothrow; }
+  bool dbcOn() const { return m_dbcRequire || m_dbcCheck || m_dbcEnsure; }
+  std::string getTestPath() const { return testPath; }
+  std::string getTestName() const { return testName; }
   /*!
    * \brief Returns the path of the test binary directory (useful for locating
    *        input files).
@@ -144,7 +144,7 @@ public:
    * set_target_property( unit_test_target_name
    *    COMPILE_DEFINITIONS PROJECT_BINARY_DIR="${PROJECT_BINARY_DIR}" )
    */
-  static inline std::string getTestInputPath(void) {
+  static inline std::string getTestInputPath() {
 #ifdef PROJECT_BINARY_DIR
     std::string sourcePath(rtt_dsxx::getFilenameComponent(PROJECT_BINARY_DIR,
                                                           rtt_dsxx::FC_NATIVE));
@@ -172,7 +172,7 @@ public:
    * set_target_property( unit_test_target_name
    *    COMPILE_DEFINITIONS PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}" )
    */
-  static inline std::string getTestSourcePath(void) {
+  static inline std::string getTestSourcePath() {
 #ifdef PROJECT_SOURCE_DIR
     std::string sourcePath(rtt_dsxx::getFilenameComponent(PROJECT_SOURCE_DIR,
                                                           rtt_dsxx::FC_NATIVE));
@@ -201,7 +201,7 @@ public:
 
 protected:
   // IMPLEMENTATION
-  std::string resultMessage(void) const;
+  std::string resultMessage() const;
 
   // DATA
 
@@ -283,6 +283,6 @@ protected:
 
 #endif // dsxx_UnitTest_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of ds++/UnitTest.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

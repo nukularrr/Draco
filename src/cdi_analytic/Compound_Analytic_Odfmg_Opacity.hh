@@ -1,21 +1,21 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi_analytic/Compound_Analytic_Odfmg_Opacity.hh
  * \author Thomas M. Evans
  * \date   Tue Nov 13 11:19:59 2001
  * \brief  Compound_Analytic_Odfmg_Opacity class definition.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
-#ifndef __cdi_analytic_Compound_Analytic_Odfmg_Opacity_hh__
-#define __cdi_analytic_Compound_Analytic_Odfmg_Opacity_hh__
+#ifndef rtt_cdi_analytic_Compound_Analytic_Odfmg_Opacity_hh
+#define rtt_cdi_analytic_Compound_Analytic_Odfmg_Opacity_hh
 
 #include "Analytic_Odfmg_Opacity.hh"
 
 namespace rtt_cdi_analytic {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class Compound_Analytic_Odfmg_Opacity
  *
@@ -23,7 +23,7 @@ namespace rtt_cdi_analytic {
  *
  * Primarily code from Analytic_Multigroup_Opacity.
  */
-//===========================================================================//
+//============================================================================//
 
 class Compound_Analytic_Odfmg_Opacity : public Analytic_Odfmg_Opacity {
 public:
@@ -90,7 +90,7 @@ public:
   sf_char pack() const;
 };
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 //! Return a string describing the opacity model.
 Compound_Analytic_Odfmg_Opacity::std_string
 Compound_Analytic_Odfmg_Opacity::getDataDescriptor() const {
@@ -112,8 +112,8 @@ Compound_Analytic_Odfmg_Opacity::getDataDescriptor() const {
 
 } // end namespace rtt_cdi_analytic
 
-#endif // __cdi_analytic_Compound_Analytic_Odfmg_Opacity_hh__
+#endif // rtt_cdi_analytic_Compound_Analytic_Odfmg_Opacity_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of cdi_analytic/Compound_Analytic_Odfmg_Opacity.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

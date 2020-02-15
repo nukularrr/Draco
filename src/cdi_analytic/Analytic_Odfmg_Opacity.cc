@@ -1,21 +1,21 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi_analytic/Analytic_Odfmg_Opacity.cc
  * \author Thomas M. Evans
  * \date   Tue Nov 13 11:19:59 2001
  * \brief  Analytic_Odfmg_Opacity class member definitions.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "Analytic_Odfmg_Opacity.hh"
 #include "ds++/Packing_Utils.hh"
 
 namespace rtt_cdi_analytic {
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // CONSTRUCTORS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Constructor for an analytic multigroup opacity model.
  *
@@ -47,7 +47,7 @@ Analytic_Odfmg_Opacity::Analytic_Odfmg_Opacity(const sf_double &groups,
           reaction == rtt_cdi::SCATTERING);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Unpacking constructor.
  *
@@ -103,7 +103,7 @@ Analytic_Odfmg_Opacity::Analytic_Odfmg_Opacity(const sf_char &packed)
         reaction == rtt_cdi::TOTAL);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Pack an analytic odfmg opacity.
  *
@@ -146,7 +146,7 @@ Analytic_Odfmg_Opacity::sf_char Analytic_Odfmg_Opacity::pack() const {
   return packed;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 unsigned Analytic_Odfmg_Opacity::packed_size() const {
   // This must match the size calculated in the previous function
   Check(4 * sizeof(int) + groupBoundaries.size() * sizeof(double) +
@@ -159,6 +159,6 @@ unsigned Analytic_Odfmg_Opacity::packed_size() const {
 
 } // end namespace rtt_cdi_analytic
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of Analytic_Odfmg_Opacity.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

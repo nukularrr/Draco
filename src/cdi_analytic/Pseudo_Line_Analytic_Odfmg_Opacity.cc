@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi_analytic/Pseudo_Line_Analytic_Odfmg_Opacity.cc
  * \author Thomas M. Evans
  * \date   Tue Nov 13 11:19:59 2001
  * \brief  Pseudo_Line_Analytic_Odfmg_Opacity class member definitions.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "Pseudo_Line_Analytic_Odfmg_Opacity.hh"
 #include "Pseudo_Line_Analytic_MultigroupOpacity.hh"
@@ -26,7 +26,7 @@ using namespace rtt_cdi;
 rtt_parser::Unit const keV = {2, 1, -2, 0, 0,
                               0, 0, 0,  0, 1e3 * rtt_units::electronChargeSI};
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void Pseudo_Line_Analytic_Odfmg_Opacity::precalculate(
     vector<double> const &groups, vector<double> const &bands,
     double const Tref) {
@@ -62,7 +62,7 @@ void Pseudo_Line_Analytic_Odfmg_Opacity::precalculate(
   }
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 Pseudo_Line_Analytic_Odfmg_Opacity::Pseudo_Line_Analytic_Odfmg_Opacity(
     const sf_double &groups, const sf_double &bands,
     rtt_cdi::Reaction reaction_in,
@@ -80,7 +80,7 @@ Pseudo_Line_Analytic_Odfmg_Opacity::Pseudo_Line_Analytic_Odfmg_Opacity(
   precalculate(groups, bands, Tref);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 Pseudo_Line_Analytic_Odfmg_Opacity::Pseudo_Line_Analytic_Odfmg_Opacity(
     const sf_double &groups, const sf_double &bands,
     rtt_cdi::Reaction reaction_in, string const &cont_file, int number_of_lines,
@@ -97,7 +97,7 @@ Pseudo_Line_Analytic_Odfmg_Opacity::Pseudo_Line_Analytic_Odfmg_Opacity(
   precalculate(groups, bands, Tref);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 Pseudo_Line_Analytic_Odfmg_Opacity::Pseudo_Line_Analytic_Odfmg_Opacity(
     const sf_double &groups, const sf_double &bands,
     rtt_cdi::Reaction reaction_in, double nu0, double C, double Bn, double Bd,
@@ -115,9 +115,9 @@ Pseudo_Line_Analytic_Odfmg_Opacity::Pseudo_Line_Analytic_Odfmg_Opacity(
   precalculate(groups, bands, Tref);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // OPACITY INTERFACE FUNCTIONS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Return the group opacities given a scalar temperature and density.
  *
@@ -230,7 +230,7 @@ Pseudo_Line_Analytic_Odfmg_Opacity::getOpacity(double targetTemperature,
   return Result;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Opacity accessor that returns a vector of multigroupband opacity 2-D
  *        vectors that correspond to the provided vector of temperatures and a
@@ -248,7 +248,7 @@ Pseudo_Line_Analytic_Odfmg_Opacity::getOpacity(
   return opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Opacity accessor that returns a vector of multigroupband opacity 2-D
  *        vectors that correspond to the provided temperature and a vector of
@@ -266,7 +266,7 @@ Pseudo_Line_Analytic_Odfmg_Opacity::getOpacity(
   return opacity;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 Pseudo_Line_Analytic_Odfmg_Opacity::std_string
 Pseudo_Line_Analytic_Odfmg_Opacity::getDataDescriptor() const {
   std_string descriptor;
@@ -286,7 +286,7 @@ Pseudo_Line_Analytic_Odfmg_Opacity::getDataDescriptor() const {
   return descriptor;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Packing function for Pseudo_Line_Analytic_Odfmg_Opacity
  */
@@ -303,6 +303,6 @@ Pseudo_Line_Analytic_Odfmg_Opacity::pack() const {
 
 } // end namespace rtt_cdi_analytic
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of Pseudo_Line_Analytic_Odfmg_Opacity.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

@@ -1,15 +1,16 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   ds++/Assert.hh
  * \brief  Header file for Draco specific exception class definition
  *         (rtt_dsxx::assertion). Also define Design-by-Contract macros.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef RTT_dsxx_Assert_HH
 #define RTT_dsxx_Assert_HH
 
+#include "DracoTerminal.hh"
 #include "ds++/config.h"
 #include <stdexcept>
 #include <string>
@@ -31,7 +32,7 @@
 
 namespace rtt_dsxx {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class assertion
  *
@@ -122,9 +123,9 @@ namespace rtt_dsxx {
  *
  * \sa http://akrzemi1.wordpress.com/2013/01/04/preconditions-part-i/
  */
-//===========================================================================//
+//============================================================================//
 
-class DLL_PUBLIC_dsxx assertion : public std::logic_error {
+class assertion : public std::logic_error {
 public:
   /*!
    * \brief Default constructor for ds++/assertion class.
@@ -162,7 +163,7 @@ public:
 
   /*! \brief Destructor for ds++/assertion class.
    * We do not allow the destructor to throw! */
-  virtual ~assertion() throw();
+  ~assertion() noexcept override;
 
   /*! Helper function to build error message that includes source file name and
    *  line number. */
@@ -170,9 +171,9 @@ public:
                                    std::string const &file, int const line);
 };
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // FREE NAMESPACE FUNCTIONS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 //! Throw a rtt_dsxx::assertion for Require, Check, Ensure.
 [[noreturn]] DLL_PUBLIC_dsxx void
@@ -219,7 +220,7 @@ DLL_PUBLIC_dsxx std::string verbose_error(std::string const &message);
 
 } // namespace rtt_dsxx
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \page Draco_DBC Using the Draco Design-by-Contract Macros
  *
@@ -311,13 +312,13 @@ DLL_PUBLIC_dsxx std::string verbose_error(std::string const &message);
  * Same as Insist, except that it uses char pointers, rather than strings.  This
  * is more efficient when inlined.
  */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 // clang-format off
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // No-throw versions of DBC [8-15]
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 #if DBC & 8
 
 #if DBC & 1
@@ -343,15 +344,15 @@ DLL_PUBLIC_dsxx std::string verbose_error(std::string const &message);
 #define Ensure(c)
 #endif
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // Always on
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 #define Insist(c,m) if (!(c)) rtt_dsxx::insist( #c, m, __FILE__, __LINE__ )
 #define Insist_ptr(c,m) if (!(c)) rtt_dsxx::insist_ptr( #c, m, __FILE__, __LINE__ )
 
 #elif DBC & 16
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // Regular (exception throwing) versions of DBC, but with the check deferred.
 // This eliminates numerous untestable branches for coverage analysis, but can
 // be costly in run time.
@@ -388,17 +389,17 @@ DLL_PUBLIC_dsxx std::string verbose_error(std::string const &message);
 #define Ensure(c)
 #endif
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // Always on
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 #define Insist(c, m) rtt_dsxx::check_insist(!!(c), #c, m, __FILE__, __LINE__)
 #define Insist_ptr(c,m) rtt_dsxx::check_insist_ptr( !!(c), #c, m, __FILE__, __LINE__ )
 
 #else // not DBC & 8 or DBC & 16
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // Regular (exception throwing) versions of DBC
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 #if DBC & 1
 #define REQUIRE_ON
 #define Require(c) if (!(c)) rtt_dsxx::toss_cookies( #c, __FILE__, __LINE__ )
@@ -424,18 +425,18 @@ DLL_PUBLIC_dsxx std::string verbose_error(std::string const &message);
 #define Ensure(c)
 #endif
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // Always on
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 #define Insist(c,m) if (!(c)) rtt_dsxx::insist( #c, m, __FILE__, __LINE__ )
 #define Insist_ptr(c,m) if (!(c)) rtt_dsxx::insist_ptr( #c, m, __FILE__, __LINE__ )
 
 #endif // DBC & 8
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // If any of DBC is on, then make the remember macro active and the NOEXCEPT
 // inactive.
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 #if DBC
 #define REMEMBER_ON
 #define Remember(c) c
@@ -527,6 +528,6 @@ DLL_PUBLIC_dsxx std::string verbose_error(std::string const &message);
 
 #endif // RTT_dsxx_Assert_HH
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of ds++/Assert.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
