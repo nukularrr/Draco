@@ -118,7 +118,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
 
   { // T = int
 
-    if(pid==0)
+    if (pid == 0)
       std::cout << "\nStarting send_is<int> tests..." << std::endl;
 
     // C4_Req communication handles.
@@ -172,7 +172,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
   { // T=double
 
     rtt_c4::global_barrier();
-    if(pid==0)
+    if (pid == 0)
       std::cout << "\nStarting send_is<double> tests..." << std::endl;
 
     // C4_Req communication handles.
@@ -227,7 +227,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
   { // T=float
 
     rtt_c4::global_barrier();
-    if(pid==0)
+    if (pid == 0)
       std::cout << "\nStarting send_is<float> tests..." << std::endl;
 
     // C4_Req communication handles.
@@ -283,7 +283,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
   { // T=long double
 
     rtt_c4::global_barrier();
-    if(pid==0)
+    if (pid == 0)
       std::cout << "\nStarting send_is<long double> tests..." << std::endl;
 
     // C4_Req communication handles.
@@ -339,7 +339,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
   { // T=unsigned int
 
     rtt_c4::global_barrier();
-    if(pid==0)
+    if (pid == 0)
       std::cout << "\nStarting send_is<unsigned int> tests..." << std::endl;
 
     // C4_Req communication handles.
@@ -387,8 +387,8 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       PASSMSG("Successfully caught a ds++ exception while trying to use "
               "send_is<unsigned int>() in a C4_SCALAR buildb.");
 #else
-      FAILMSG(
-          "Encountered a ds++ exception while testing send_is<unsigned int>().");
+      FAILMSG("Encountered a ds++ exception while testing send_is<unsigned "
+              "int>().");
 #endif
     }
   }
@@ -396,7 +396,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
   { // T=unsigned long
 
     rtt_c4::global_barrier();
-    if(pid==0)
+    if (pid == 0)
       std::cout << "\nStarting send_is<unsigned long> tests..." << std::endl;
 
     // C4_Req communication handles.
@@ -453,7 +453,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
   { // T=unsigned short
 
     rtt_c4::global_barrier();
-    if(pid==0)
+    if (pid == 0)
       std::cout << "\nStarting send_is<unsigned short> tests..." << std::endl;
 
     // C4_Req communication handles.
@@ -550,7 +550,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       } else {
         ostringstream msg;
         msg << "Did not find expected unsigned long long data after send_is() "
-            <<  "on node " << pid << ".";
+            << "on node " << pid << ".";
         FAILMSG(msg.str());
       }
     } catch (rtt_dsxx::assertion const & /*error*/) {
@@ -567,8 +567,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
 
     rtt_c4::global_barrier();
     if (pid == 0)
-      std::cout << "\nStarting send_is<long> tests..."
-                << std::endl;
+      std::cout << "\nStarting send_is<long> tests..." << std::endl;
 
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
@@ -600,13 +599,13 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       if (std::equal(expected.begin(), expected.end(), buffer2.begin(),
                      buffer2.end())) {
         ostringstream msg;
-        msg << "Expected long data found after send_is() on node "
-            << pid << ".";
+        msg << "Expected long data found after send_is() on node " << pid
+            << ".";
         PASSMSG(msg.str());
       } else {
         ostringstream msg;
         msg << "Did not find expected long data after send_is() "
-            <<  "on node " << pid << ".";
+            << "on node " << pid << ".";
         FAILMSG(msg.str());
       }
     } catch (rtt_dsxx::assertion const & /*error*/) {
@@ -623,8 +622,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
 
     rtt_c4::global_barrier();
     if (pid == 0)
-      std::cout << "\nStarting send_is<short> tests..."
-                << std::endl;
+      std::cout << "\nStarting send_is<short> tests..." << std::endl;
 
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
@@ -656,13 +654,13 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       if (std::equal(expected.begin(), expected.end(), buffer2.begin(),
                      buffer2.end())) {
         ostringstream msg;
-        msg << "Expected short data found after send_is() on node "
-            << pid << ".";
+        msg << "Expected short data found after send_is() on node " << pid
+            << ".";
         PASSMSG(msg.str());
       } else {
         ostringstream msg;
         msg << "Did not find expected short data after send_is() "
-            <<  "on node " << pid << ".";
+            << "on node " << pid << ".";
         FAILMSG(msg.str());
       }
     } catch (rtt_dsxx::assertion const & /*error*/) {
@@ -680,8 +678,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
 
     rtt_c4::global_barrier();
     if (pid == 0)
-      std::cout << "\nStarting send_is<long long> tests..."
-                << std::endl;
+      std::cout << "\nStarting send_is<long long> tests..." << std::endl;
 
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
@@ -713,13 +710,13 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       if (std::equal(expected.begin(), expected.end(), buffer2.begin(),
                      buffer2.end())) {
         ostringstream msg;
-        msg << "Expected long long data found after send_is() on node "
-            << pid << ".";
+        msg << "Expected long long data found after send_is() on node " << pid
+            << ".";
         PASSMSG(msg.str());
       } else {
         ostringstream msg;
         msg << "Did not find expected long long data after send_is() "
-            <<  "on node " << pid << ".";
+            << "on node " << pid << ".";
         FAILMSG(msg.str());
       }
     } catch (rtt_dsxx::assertion const & /*error*/) {
@@ -891,7 +888,8 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       } else {
         ostringstream msg;
         msg << "Did not find expected unsigned char data after "
-               "send_is<unsigned char>() on node " << pid << ".";
+               "send_is<unsigned char>() on node "
+            << pid << ".";
         FAILMSG(msg.str());
       }
     } catch (rtt_dsxx::assertion const & /*error*/) {

@@ -319,7 +319,6 @@ void tstDeterminateGatherScatterv(UnitTest &ut) {
     }
   }
 
-
   { // int
     vector<int> send(pid, pid);
     vector<vector<int>> receive(number_of_processors);

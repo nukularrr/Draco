@@ -77,7 +77,7 @@ public:
   // Constructors & Destructors
 
   explicit Global_Timer(char const *name); //! default constructor
-  virtual ~Global_Timer() {}; //! default destructor
+  virtual ~Global_Timer(){};               //! default destructor
 
   // Accessors
 

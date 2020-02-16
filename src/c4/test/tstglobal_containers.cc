@@ -89,8 +89,7 @@ void tstglobal_containers(UnitTest &ut) {
         FAILMSG("WRONG element in map");
       }
       if (local_map[p] != static_cast<int>(p) ||
-          local_map[number_of_processors + p] !=
-                                static_cast<int>(2 * p)) {
+          local_map[number_of_processors + p] != static_cast<int>(2 * p)) {
         FAILMSG("WRONG element value in map");
       }
     }

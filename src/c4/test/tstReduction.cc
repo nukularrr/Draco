@@ -184,7 +184,6 @@ void elemental_reduction(rtt_dsxx::UnitTest &ut) {
 
     if (!soft_equiv(xflt, static_cast<float>(rtt_c4::nodes()) - 0.3f))
       ITFAILS;
-
   }
   { // T = double
 
@@ -381,7 +380,7 @@ void elemental_reduction(rtt_dsxx::UnitTest &ut) {
 
     short short_answer = 0;
     for (int i = 0; i < rtt_c4::nodes(); i++)
-      short_answer += static_cast<short int>(i+1);
+      short_answer += static_cast<short int>(i + 1);
     FAIL_IF_NOT(xshort == short_answer);
     FAIL_IF_NOT(xshort_recv == short_answer);
 
@@ -427,7 +426,7 @@ void elemental_reduction(rtt_dsxx::UnitTest &ut) {
 
     unsigned unsigned_answer = 0;
     for (int i = 0; i < rtt_c4::nodes(); i++)
-      unsigned_answer += static_cast<unsigned int>(i+1);
+      unsigned_answer += static_cast<unsigned int>(i + 1);
     FAIL_IF_NOT(xunsigned == unsigned_answer);
     FAIL_IF_NOT(xunsigned_recv == unsigned_answer);
 
@@ -512,7 +511,7 @@ void elemental_reduction(rtt_dsxx::UnitTest &ut) {
 
     long long unsigned_answer = 0;
     for (int i = 0; i < rtt_c4::nodes(); i++)
-      unsigned_answer += static_cast<long long>(i+1);
+      unsigned_answer += static_cast<long long>(i + 1);
     FAIL_IF_NOT(xunsigned == unsigned_answer);
     FAIL_IF_NOT(xunsigned_recv == unsigned_answer);
 
@@ -942,7 +941,6 @@ void array_reduction(rtt_dsxx::UnitTest &ut) {
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
-
   }
   { // T = unsigned long long
 
@@ -1112,7 +1110,6 @@ void array_reduction(rtt_dsxx::UnitTest &ut) {
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
-
   }
 
   if (ut.numFails == 0)

@@ -29,8 +29,8 @@ void tst2Procs(rtt_dsxx::UnitTest &ut) {
   {
     const uint32_t my_nranks = rtt_c4::nranks();
     const int my_nodes = rtt_c4::nodes();
-    FAIL_IF_NOT( static_cast<uint32_t>(my_nodes) == my_nranks );
-    FAIL_IF_NOT( rtt_c4::isMpiInit() );
+    FAIL_IF_NOT(static_cast<uint32_t>(my_nodes) == my_nranks);
+    FAIL_IF_NOT(rtt_c4::isMpiInit());
   }
 
   C4_Status status;
