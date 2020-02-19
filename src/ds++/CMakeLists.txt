@@ -82,7 +82,13 @@ configure_file( config.h.in ${PROJECT_BINARY_DIR}/ds++/config.h )
 
 # Generate the dll_declspec.h file that defines DLL_PUBLIC_<pkg> CPP macros.
 include(generate_dll_declspec)
-generate_dll_declspec( "ds++" "c4;cdi;cdi_test;cdi_analytic;cdi_eospac;cdi_ipcress;cdi_ipcress_test;device;diagnostics;dsxx;fit;FC_Derived_Type;linear;mesh;meshReaders;mesh_element;min;norms;ode;parser;quadrature;quadrature_test;rng;roots;RTT_Format_Reader;special_functions;timestep;timestep_test;units;viz" )
+set( components
+  c4 cdi cdi_test cdi_analytic cdi_CPEloss cdi_CPEless_test cdi_eospac
+  cdi_ipcress cdi_ipcress_test cdi_ndi cdi_ndi_test device diagnostics dsxx fit
+  FC_Derived_Type linear mesh meshReaders mesh_element min norms ode parser
+  quadrature quadrature_test rng roots RTT_Format_Reader special_functions
+  timestep timestep_test units viz )
+generate_dll_declspec( "ds++" "${components}")
 
 # ---------------------------------------------------------------------------- #
 # Source files
@@ -118,7 +124,11 @@ add_component_library(
    LIBRARY_NAME ds++
    SOURCES      "${sources}"
    HEADERS      "${dsxx_headers};${dsxx_terminal_headers}" )
-target_link_libraries( Lib_dsxx ${Lib_win_winsock} )
+if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" )
+  target_link_libraries( Lib_dsxx PUBLIC ${Lib_win_winsock})
+else()
+  target_link_libraries( Lib_dsxx PUBLIC coverage_config )
+endif()
 target_include_directories( Lib_dsxx
   # source directory or install location
   PUBLIC
@@ -132,6 +142,7 @@ target_include_directories( Lib_dsxx
 # ---------------------------------------------------------------------------- #
 
 install( TARGETS Lib_dsxx EXPORT draco-targets DESTINATION ${DBSCFGDIR}lib )
+install( TARGETS coverage_config EXPORT draco-targets )
 install( FILES ${dsxx_headers} ${template_implementations} DESTINATION
   ${DBSCFGDIR}include/ds++ )
 install( FILES
@@ -139,6 +150,10 @@ install( FILES
     ${PROJECT_SOURCE_DIR}/terminal/LICENSE
     ${PROJECT_SOURCE_DIR}/terminal/README.md
   DESTINATION ${DBSCFGDIR}include/terminal )
+if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+  install(FILES $<TARGET_PDB_FILE:Lib_dsxx> DESTINATION ${DBSCFGDIR}lib
+    OPTIONAL)
+endif()
 
 # ---------------------------------------------------------------------------- #
 # Unit tests
@@ -156,3 +171,7 @@ endif()
 # ---------------------------------------------------------------------------- #
 
 process_autodoc_pages()
+
+# ---------------------------------------------------------------------------- #
+# End ds++/CMakeLists.txt
+# ---------------------------------------------------------------------------- #

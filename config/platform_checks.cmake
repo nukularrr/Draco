@@ -1,7 +1,7 @@
 ##---------------------------------------------------------------------------##
 # file   : platform_checks.cmake
 # brief  : Platform Checks for Draco Build System
-# note   : Copyright (C) 2016-2019 Triad National Security, LLC.
+# note   : Copyright (C) 2016-2020 Triad National Security, LLC.
 #          All rights reserved
 ##---------------------------------------------------------------------------##
 
@@ -88,28 +88,31 @@ macro( query_craype )
       # We expect developers to use the Cray compiler wrappers (especially in
       # setupMPI.cmake). See also
       # https://cmake.org/cmake/help/latest/module/FindMPI.html
-      if( NOT "$ENV{CXX}" MATCHES "CC$" OR
-          NOT "$ENV{CC}" MATCHES "cc$" OR
-          NOT "$ENV{FC}" MATCHES "ftn$" OR
-          NOT "$ENV{CRAYPE_LINK_TYPE}" MATCHES "dynamic$" )
-        message( FATAL_ERROR
-"The build system requires that the Cray compiler wrappers (CC, cc, ftn) be "
-" used when configuring this product on a Cray system (CRAY_PE=${CRAY_PE}). The"
-" development environment must also support dynamic linking.  The build system "
-" thinks you are trying to use:\n"
-"  CMAKE_CXX_COMPILER     = ${CMAKE_CXX_COMPILER}\n"
-"  CMAKE_C_COMPILER       = ${CMAKE_C_COMPILER}\n"
-"  CMAKE_Fortran_COMPILER = ${CMAKE_Fortran_COMPILER}\n"
-"  CRAYPE_LINK_TYPE       = $ENV{CRAYPE_LINK_TYPE}\n"
-"If you are working on a system that runs the Cray Programming Environment, try"
-" setting the following variables and rerunning cmake from a clean build"
-" directory:\n"
-"   export CXX=`which CC`\n"
-"   export CC=`which cc`\n"
-"   export FC=`which ftn`\n"
-"   export CRAYPE_LINK_TYPE=dynamic\n"
-"Otherwise please email this error message and other related information to"
-" draco@lanl.gov.\n" )
+      if( NOT "$ENV{CXX}" MATCHES "$ENV{SPACK_ROOT}/lib/spack/env/" )
+        # skip this check if building from within spack.
+        if( NOT "$ENV{CXX}" MATCHES "CC$" OR
+            NOT "$ENV{CC}" MATCHES "cc$" OR
+            NOT "$ENV{FC}" MATCHES "ftn$" OR
+            NOT "$ENV{CRAYPE_LINK_TYPE}" MATCHES "dynamic$" )
+          message( FATAL_ERROR
+            "The build system requires that the Cray compiler wrappers (CC, cc, ftn) be "
+            " used when configuring this product on a Cray system (CRAY_PE=${CRAY_PE}). The"
+            " development environment must also support dynamic linking.  The build system "
+            " thinks you are trying to use:\n"
+            "  CMAKE_CXX_COMPILER     = ${CMAKE_CXX_COMPILER}\n"
+            "  CMAKE_C_COMPILER       = ${CMAKE_C_COMPILER}\n"
+            "  CMAKE_Fortran_COMPILER = ${CMAKE_Fortran_COMPILER}\n"
+            "  CRAYPE_LINK_TYPE       = $ENV{CRAYPE_LINK_TYPE}\n"
+            "If you are working on a system that runs the Cray Programming Environment, try"
+            " setting the following variables and rerunning cmake from a clean build"
+            " directory:\n"
+            "   export CXX=`which CC`\n"
+            "   export CC=`which cc`\n"
+            "   export FC=`which ftn`\n"
+            "   export CRAYPE_LINK_TYPE=dynamic\n"
+            "Otherwise please email this error message and other related information to"
+            " draco@lanl.gov.\n" )
+        endif()
       endif()
       message( STATUS
         "Looking to see if we are building in a Cray Environment..."
@@ -402,45 +405,5 @@ macro( query_fma_on_hardware )
 endmacro()
 
 ##---------------------------------------------------------------------------##
-## Sample platform checks
-##---------------------------------------------------------------------------##
-
-# # Check for nonblocking collectives
-# check_function_exists(MPI_Iallgather HAVE_MPI3_NONBLOCKING_COLLECTIVES)
-# check_function_exists(MPIX_Iallgather HAVE_MPIX_NONBLOCKING_COLLECTIVES)
-
-# # Check for MPI_IN_PLACE (essentially MPI2 support)
-# include(CheckCXXSourceCompiles)
-# set(MPI_IN_PLACE_CODE
-#     "#include \"mpi.h\"
-#      int main( int argc, char* argv[] )
-#      {
-#          MPI_Init( &argc, &argv );
-#          float a;
-#          MPI_Allreduce
-#          ( MPI_IN_PLACE, &a, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD );
-#          MPI_Finalize();
-#          return 0;
-#      }
-#     ")
-# set(CMAKE_REQUIRED_FLAGS ${CXX_FLAGS})
-# set(CMAKE_REQUIRED_INCLUDES ${MPI_CXX_INCLUDE_PATH})
-# set(CMAKE_REQUIRED_LIBRARIES ${MPI_CXX_LIBRARIES})
-# check_cxx_source_compiles("${MPI_IN_PLACE_CODE}" HAVE_MPI_IN_PLACE)
-
-# # Look for restrict support
-# set(RESTRICT_CODE
-#     "int main(void)
-#      {
-#          int* RESTRICT a;
-#          return 0;
-#      }")
-# set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict__")
-# check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict__)
-# if(HAVE___restrict__)
-# ...
-# endif()
-
-
-
+## End of platform_checks.cmake
 ##---------------------------------------------------------------------------##
