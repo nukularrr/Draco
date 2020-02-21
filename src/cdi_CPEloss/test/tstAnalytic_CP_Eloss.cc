@@ -8,10 +8,10 @@
  *         All rights reserved. */
 //----------------------------------------------------------------------------//
 
-#include "cdi/CDI.hh"
 #include "cdi_CPEloss/Analytic_CP_Eloss.hh"
 #include "cdi_CPEloss/Analytic_KP_Alpha_Eloss_Model.hh"
-//#include "cdi_CPEloss/Analytic_Models.hh"
+#include "cdi_CPEloss/Analytic_Spitzer_Eloss_Model.hh"
+#include "cdi/CDI.hh"
 #include "ds++/Release.hh"
 #include "ds++/ScalarUnitTest.hh"
 #include "ds++/dbc.hh"
@@ -38,7 +38,8 @@ void KP_alpha_test(rtt_dsxx::UnitTest &ut) {
   rtt_cdi::CParticle projectile_in(alpha_zaid, alpha_mass);
 
   std::shared_ptr<Analytic_Eloss_Model> model_in(
-      new rtt_cdi_cpeloss::Analytic_KP_Alpha_Eloss_Model(target_in, projectile_in));
+      new rtt_cdi_cpeloss::Analytic_KP_Alpha_Eloss_Model(target_in,
+                                                         projectile_in));
 
   Analytic_CP_Eloss eloss_mod(model_in, target_in, projectile_in,
                               rtt_cdi::CPModelAngleCutoff::NONE);
@@ -107,9 +108,38 @@ void KP_alpha_test(rtt_dsxx::UnitTest &ut) {
   }
 
   if (ut.numFails == 0)
-    PASSMSG("Analytic_CP_Eloss test passes.");
+    PASSMSG("KP_Alpha Eloss test passes.");
   else
-    FAILMSG("Analytic_CP_Eloss test fails.");
+    FAILMSG("KP_Alpha Eloss test fails.");
+
+  return;
+}
+
+void Spitzer_test(rtt_dsxx::UnitTest &ut) {
+
+  // Deuterium:
+  int deuterium_zaid = 1002;
+  double deuterium_mass = 3.34358e-24;
+  rtt_cdi::CParticle target_in(deuterium_zaid, deuterium_mass);
+  // Alpha particle:
+  int alpha_zaid = 2004;
+  double alpha_mass = 6.64424e-24;
+  rtt_cdi::CParticle projectile_in(alpha_zaid, alpha_mass);
+
+  std::shared_ptr<Analytic_Eloss_Model> model_in(
+      new rtt_cdi_cpeloss::Analytic_Spitzer_Eloss_Model(target_in,
+                                                        projectile_in));
+
+  Analytic_CP_Eloss eloss_mod(model_in, target_in, projectile_in,
+                              rtt_cdi::CPModelAngleCutoff::NONE);
+
+  FAIL_IF_NOT(rtt_dsxx::soft_equiv(eloss_mod.getEloss(1., 10., 1.),
+                                   9.823342835413329303e+05, 1.e-8));
+
+  if (ut.numFails == 0)
+    PASSMSG("Spitzer CPEloss test passes.");
+  else
+    FAILMSG("Spitzer CPEloss test fails.");
 
   return;
 }
@@ -120,6 +150,7 @@ int main(int argc, char *argv[]) {
   rtt_dsxx::ScalarUnitTest ut(argc, argv, rtt_dsxx::release);
   try {
     KP_alpha_test(ut);
+    Spitzer_test(ut);
   }
   UT_EPILOG(ut);
 }
