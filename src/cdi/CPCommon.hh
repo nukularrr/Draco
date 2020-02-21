@@ -22,7 +22,7 @@ unsigned int const num_CPModels(3);
 
 enum class CPModelAngleCutoff {
   NONE = 0,  /*!< no angle cutoff */
-  TNBURN = 1 /*!< cutoff angle formula from "TN Burn Project: Minimum Impact 
+  TNBURN = 1 /*!< cutoff angle formula from "TN Burn Project: Minimum Impact
              parameter Scattering Angle Cutoff/Nuclear Interactions */
 };
 
@@ -41,6 +41,14 @@ private:
 
 public:
   int32_t get_zaid() const { return zaid; }
+  int32_t get_z() const {
+    if (zaid != -1) {
+      return zaid / 1000;
+    } else {
+      return -1;
+    }
+  }
+  int32_t get_a() const { return zaid % 1000; }
   double get_mass() const { return mass; }
 
   CParticle(const int32_t zaid_in, const double mass_in)

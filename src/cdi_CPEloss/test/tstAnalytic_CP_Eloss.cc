@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*-----------------------------------//
 /*!
- * \file   cdi_analytic/test/tstAnalytic_CP_Eloss.cc
+ * \file   cdi_cpeloss/test/tstAnalytic_CP_Eloss.cc
  * \author Kendra P. Long
  * \date   Fri Aug  2 14:28:08 2019
  * \brief  Analytic_CP_Eloss test.
@@ -8,10 +8,10 @@
  *         All rights reserved. */
 //----------------------------------------------------------------------------//
 
-#include "cdi_analytic_test.hh"
 #include "cdi/CDI.hh"
-#include "cdi_analytic/Analytic_CP_Eloss.hh"
-#include "cdi_analytic/Analytic_Models.hh"
+#include "cdi_CPEloss/Analytic_CP_Eloss.hh"
+#include "cdi_CPEloss/Analytic_KP_Alpha_Eloss_Model.hh"
+//#include "cdi_CPEloss/Analytic_Models.hh"
 #include "ds++/Release.hh"
 #include "ds++/ScalarUnitTest.hh"
 #include "ds++/dbc.hh"
@@ -20,8 +20,8 @@
 using namespace std;
 
 using rtt_cdi::CDI;
-using rtt_cdi_analytic::Analytic_CP_Eloss;
-using rtt_cdi_analytic::Analytic_Eloss_Model;
+using rtt_cdi_cpeloss::Analytic_CP_Eloss;
+using rtt_cdi_cpeloss::Analytic_Eloss_Model;
 //----------------------------------------------------------------------------//
 // TESTS
 //----------------------------------------------------------------------------//
@@ -38,7 +38,7 @@ void KP_alpha_test(rtt_dsxx::UnitTest &ut) {
   rtt_cdi::CParticle projectile_in(alpha_zaid, alpha_mass);
 
   std::shared_ptr<Analytic_Eloss_Model> model_in(
-      new rtt_cdi_analytic::Analytic_KP_Alpha_Eloss_Model());
+      new rtt_cdi_cpeloss::Analytic_KP_Alpha_Eloss_Model(target_in, projectile_in));
 
   Analytic_CP_Eloss eloss_mod(model_in, target_in, projectile_in,
                               rtt_cdi::CPModelAngleCutoff::NONE);
