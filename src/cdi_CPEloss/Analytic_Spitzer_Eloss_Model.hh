@@ -12,6 +12,7 @@
 #define rtt_cdi_CPEloss_Analytic_Spitzer_Eloss_Model_hh
 
 #include "Analytic_Eloss_Model.hh"
+#include <algorithm>
 
 namespace rtt_cdi_cpeloss {
 //============================================================================//

@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*-----------------------------------//
 /*!
- * \file   cdi_cpeloss/test/tstAnalytic_CP_Eloss.cc
+ * \file   cdi_CPEloss/test/tstAnalytic_CP_Eloss.cc
  * \author Kendra P. Long
  * \date   Fri Aug  2 14:28:08 2019
  * \brief  Analytic_CP_Eloss test.
