@@ -108,9 +108,9 @@ void KP_alpha_test(rtt_dsxx::UnitTest &ut) {
   }
 
   if (ut.numFails == 0)
-    PASSMSG("KP_Alpha Eloss test passes.");
+    PASSMSG("KP_Alpha CPEloss test passes.");
   else
-    FAILMSG("KP_Alpha Eloss test fails.");
+    FAILMSG("KP_Alpha CPEloss test fails.");
 
   return;
 }
@@ -133,8 +133,58 @@ void Spitzer_test(rtt_dsxx::UnitTest &ut) {
   Analytic_CP_Eloss eloss_mod(model_in, target_in, projectile_in,
                               rtt_cdi::CPModelAngleCutoff::NONE);
 
-  FAIL_IF_NOT(rtt_dsxx::soft_equiv(eloss_mod.getEloss(1., 10., 1.),
-                                   9.823342835413329303e+05, 1.e-8));
+  // Check that basic accessors return correct result:
+  // Analytic model should match that passed to constructor
+  FAIL_IF_NOT(rtt_dsxx::soft_equiv(
+      eloss_mod.getEloss(1., 10., 1.),
+      eloss_mod.get_Analytic_Model()->calculate_eloss(1., 10., 1.), 1.0e-3));
+
+  // Model type better be analytic:
+  FAIL_IF_NOT(eloss_mod.getModelType() == rtt_cdi::CPModelType::ANALYTIC_ETYPE);
+
+  // NOT tabular data
+  FAIL_IF(eloss_mod.is_data_in_tabular_form());
+
+  // All sizes should be 0 (again, not tabular data)
+  FAIL_IF_NOT(eloss_mod.getTemperatureGrid().size() ==
+              eloss_mod.getNumTemperatures());
+  FAIL_IF_NOT(eloss_mod.getDensityGrid().size() == eloss_mod.getNumDensities());
+  FAIL_IF_NOT(eloss_mod.getEnergyGrid().size() == eloss_mod.getNumEnergies());
+
+  // Data file name should be an empty string:
+  FAIL_IF_NOT(eloss_mod.getDataFilename().empty());
+
+  // Check that accessors return the correct target and projectile:
+  FAIL_IF_NOT(target_in.get_zaid() == eloss_mod.getTarget().get_zaid());
+  FAIL_IF_NOT(projectile_in.get_zaid() == eloss_mod.getProjectile().get_zaid());
+
+  // Check that accessor returns the correct model angle cutoff
+  FAIL_IF_NOT(eloss_mod.getModelAngleCutoff() ==
+              rtt_cdi::CPModelAngleCutoff::NONE);
+
+  // Get eloss values for some sample data:
+  {
+    double T = 1.0;    // keV
+    double rho = 10.0; // g / cc
+    double vel0 = 1.0; // cm / shk
+
+    double eloss_coeff = eloss_mod.getEloss(T, rho, vel0);
+
+    FAIL_IF_NOT(
+        rtt_dsxx::soft_equiv(eloss_coeff, 9.823342835413329303e+05, 1.0e-8));
+  }
+
+  // Check for large value when 2kT > E
+  {
+    double T = 1.e2;   // keV
+    double rho = 10.0; // g / cc
+    double vel0 = 1.0; // cm / shk
+
+    double eloss_coeff = eloss_mod.getEloss(T, rho, vel0);
+
+    FAIL_IF_NOT(
+        rtt_dsxx::soft_equiv(eloss_coeff, 2.990806261551988840e+27, 1.0e-8));
+  }
 
   if (ut.numFails == 0)
     PASSMSG("Spitzer CPEloss test passes.");

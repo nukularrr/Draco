@@ -29,7 +29,7 @@ private:
 public:
   //! Constructor
   Analytic_Spitzer_Eloss_Model(const rtt_cdi::CParticle &target,
-                                const rtt_cdi::CParticle &projectile)
+                               const rtt_cdi::CParticle &projectile)
       : Analytic_Eloss_Model(target, projectile) {}
 
   //! Calculate the eloss rate in units of shk^-1;

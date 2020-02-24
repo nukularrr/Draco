@@ -11,9 +11,9 @@
 #ifndef rtt_cdi_CPEloss_Analytic_CP_Eloss_hh
 #define rtt_cdi_CPEloss_Analytic_CP_Eloss_hh
 
+#include "Analytic_Eloss_Model.hh"
 #include "cdi/CPCommon.hh"
 #include "cdi/CPEloss.hh"
-#include "Analytic_Eloss_Model.hh"
 #include <memory>
 
 namespace rtt_cdi_cpeloss {
