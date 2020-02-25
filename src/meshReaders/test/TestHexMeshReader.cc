@@ -28,7 +28,7 @@ void runTest(UnitTest &ut) {
   cout << "\n******* CIC-19 Hex Mesh Reader Tests *******" << std::endl;
 
   // Read and test a 1D mesh.g
-  string const inpPath = ut.getTestInputPath();
+  string const inpPath = ut.getTestSourcePath();
 
   std::string filename = inpPath + "slab.mesh";
   std::cout << "Creating mesh from file: " << filename << std::endl;

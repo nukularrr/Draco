@@ -258,7 +258,7 @@ void compton_build_test(rtt_dsxx::UnitTest &ut) {
   const bool induced = false;
   const bool det_bal = false;
 
-  // set the number of angular points to retrieve (legendre or otherwise)
+  // set the number of angular points to retrieve (Legendre or otherwise)
   const size_t nxi = 5;
 
   try {

@@ -37,7 +37,7 @@ bool check_virtual(rtt_dsxx::UnitTest &ut, RTT_Mesh_Reader const &mesh,
 
 void runTest(rtt_dsxx::UnitTest &ut) {
   // Find the mesh file
-  string const inpPath = ut.getTestInputPath();
+  string const inpPath = ut.getTestSourcePath();
 
   // New meshes added to this test will have to be added to the enumeration
   // Meshes in the header file.

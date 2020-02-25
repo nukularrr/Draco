@@ -1,7 +1,8 @@
 #-----------------------------*-cmake-*----------------------------------------#
 # file   config/compilerEnv.cmake
 # brief  Default CMake build parameters
-# note   Copyright (C) 2019-2020 Triad National Security, LLC. All rights reserved.
+# note   Copyright (C) 2019-2020 Triad National Security, LLC.
+#        All rights reserved.
 #------------------------------------------------------------------------------#
 
 include_guard(GLOBAL)
@@ -19,9 +20,9 @@ endif()
 # ----------------------------------------
 if( DEFINED ENV{PAPI_HOME} )
   set( HAVE_PAPI 1 CACHE BOOL "Is PAPI available on this machine?" )
-  set( PAPI_INCLUDE $ENV{PAPI_INCLUDE} CACHE PATH 
+  set( PAPI_INCLUDE $ENV{PAPI_INCLUDE} CACHE PATH
     "PAPI headers at this location" )
-  set( PAPI_LIBRARY $ENV{PAPI_LIBDIR}/libpapi.so CACHE FILEPATH 
+  set( PAPI_LIBRARY $ENV{PAPI_LIBDIR}/libpapi.so CACHE FILEPATH
     "PAPI library." )
 endif()
 
@@ -65,6 +66,9 @@ endmacro()
 #------------------------------------------------------------------------------#
 macro(dbsSetupCompilers)
 
+  if( NOT dbsSetupCompilers_done )
+  set(dbsSetupCompilers_done "ON")
+
   # Bad platform
   if( NOT WIN32 AND NOT UNIX)
     message( FATAL_ERROR "Unsupported platform (not WIN32 and not UNIX )." )
@@ -72,7 +76,7 @@ macro(dbsSetupCompilers)
 
   # Defaults for 1st pass:
 
-  # shared or static libararies?
+  # shared or static libraries?
   if( ${DRACO_LIBRARY_TYPE} MATCHES "STATIC" )
     # message(STATUS "Building static libraries.")
     set( MD_or_MT "MD" )
@@ -102,12 +106,62 @@ macro(dbsSetupCompilers)
   #  See https://cmake.org/cmake/help/git-stage/policy/CMP0069.html
   if( WIN32 )
     set( USE_IPO OFF CACHE BOOL
-      "Enable Interprocedureal Optimization for Release builds." FORCE )
+      "Enable Interprocedural Optimization for Release builds." FORCE )
   else()
     include(CheckIPOSupported)
     check_ipo_supported(RESULT USE_IPO)
   endif()
 
+  #----------------------------------------------------------------------------#
+  # Special build mode for Coverage (gcov+lcov+genthml)
+  # https://github.com/codecov/example-cpp11-cmake
+  #----------------------------------------------------------------------------#
+  option(CODE_COVERAGE "Enable coverage reporting" OFF)
+  if( NOT TARGET coverage_config )
+    add_library(coverage_config INTERFACE)
+  endif()
+  if( NOT CODE_COVERAGE )
+    message( STATUS "Code coverage build ... disabled (CODE_COVERAGE=OFF)" )
+  endif()
+  if( NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    message( STATUS "Code coverage build ... disabled (Compiler not GNU|Clang)")
+  endif()
+  if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    if( CMAKE_BUILD_TYPE STREQUAL Debug )
+      # Add required flags (GCC & LLVM/Clang)
+      target_compile_options(coverage_config INTERFACE
+        --coverage # sets all required flags
+        )
+      target_link_options(coverage_config INTERFACE --coverage)
+
+      # If env variable is set use it, otherwise search for default name.
+      find_program( LCOV NAMES "$ENV{LCOV}" lcov )
+      find_program( GCOV NAMES "$ENV{GCOV}" gcov )
+      if( EXISTS "${LCOV}" AND EXISTS "${GCOV}" )
+        # Add a custom target that prints the coverage report
+        set(lcovopts1 --gcov-tool ${GCOV})
+        set(lcovopts2 ${lcovopts1} --output-file coverage.info)
+        add_custom_target( covrep
+          COMMAND ${LCOV} ${lcovopts2} --capture --directory .
+          COMMAND ${LCOV} ${lcovopts2} --remove coverage.info '/usr/*'
+          COMMAND ${LCOV} ${lcovopts2} --remove coverage.info '*test/*'
+          COMMAND ${LCOV} ${lcovopts2} --remove coverage.info '*/opt/spack/*'
+          COMMAND ${LCOV} ${lcovopts2} --remove coverage.info '*terminal/*'
+          COMMAND genhtml coverage.info --demangle-cpp --output-directory cov-html
+          COMMAND ${LCOV} ${lcovopts1} --list coverage.info )
+          message( STATUS "Code coverage build ... enabled ('make covrep' to "
+            "see a text and/or a html report)")
+        else()
+          message( STATUS "Code coverage build ... disabled (lcov and/or gcov "
+            "not found)" )
+        endif()
+      else()
+        message( STATUS "Code coverage build ... disabled (CMAKE_BUILD_TYPE "
+          "!= Debug" )
+      endif()
+    endif()
+
+    endif() # dbsSetupCompilers_done
 endmacro()
 
 #------------------------------------------------------------------------------#
@@ -593,6 +647,69 @@ macro(dbsSetupFortran)
 
   set( HAVE_Fortran ${HAVE_Fortran} CACHE BOOL
     "Should we build Fortran portions of this project?" FORCE )
+
+endmacro()
+
+#------------------------------------------------------------------------------#
+# Setup Cuda Compiler
+#
+# Use:
+#    include( compilerEnv )
+#    dbsSetupCuda( [QUIET] )
+#
+# Helpers - these environment variables help cmake find/set CUDA envs.
+# - ENV{CUDACXX}
+# - ENV{CUDAFLAGS}
+# - ENV{CUDAHOSTCXX}
+#
+# Returns:
+#    BUILD_SHARED_LIBS - bool
+#    CMAKE_CUDA_FLAGS
+#    CMAKE_CUDA_FLAGS_DEBUG
+#    CMAKE_CUDA_FLAGS_RELEASE
+#    CMAKE_CUDA_FLAGS_RELWITHDEBINFO
+#    CMAKE_CUDA_FLAGS_MINSIZEREL
+#
+# Notes:
+# - https://devblogs.nvidia.com/tag/cuda/
+# - https://devblogs.nvidia.com/building-cuda-applications-cmake/
+#------------------------------------------------------------------------------#
+macro(dbsSetupCuda)
+
+  # Toggle if we should try to build Cuda parts of the project.  This will be
+  # set to true if $ENV{FC} points to a working compiler.
+  option( HAVE_CUDA "Should we build Cuda parts of the project?" OFF )
+
+  # Is Cuda enabled (it is considered 'optional' for draco)?
+  get_property(_LANGUAGES_ GLOBAL PROPERTY ENABLED_LANGUAGES)
+  if( _LANGUAGES_ MATCHES CUDA )
+
+    # We found Cuda, keep track of this information.
+    set( HAVE_CUDA ON )
+
+    # User option to disable Cuda, even when it is available.
+    option(USE_CUDA "Use Cuda?" ON)
+
+    # Use this string as a toggle when calling add_component_library or
+    # add_scalar_tests to force compiling with nvcc.
+    set( COMPILE_WITH_CUDA LINK_LANGUAGE CUDA )
+
+    # setup flags
+    if( "${CMAKE_CUDA_COMPILER_ID}" MATCHES "NVIDIA" )
+      include( unix-cuda )
+    else()
+      message(FATAL_ERROR "Build system does not support "
+        "CUDACXX=${CMAKE_CUDA_COMPILER}")
+    endif()
+  endif()
+
+  # Save the results
+  set( HAVE_CUDA ${HAVE_CUDA} CACHE BOOL
+    "Should we build CUDA portions of this project?" FORCE )
+  if( ${HAVE_CUDA} )
+    set( CUDA_DBS_STRING "CUDA" CACHE STRING
+      "If CUDA is available, this variable is 'CUDA'")
+  endif()
 
 endmacro()
 
