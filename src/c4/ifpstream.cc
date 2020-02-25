@@ -52,7 +52,7 @@ void ifpstream::fill_buffers(unsigned const buffer_size) {
     in_.read(&local_string[0], buffer_size);
     str(local_string);
     // loop over and broadcast remaining buffers
-    for (unsigned node = 1; node < rtt_c4::nodes(); node++) {
+    for (int node = 1; node < rtt_c4::nodes(); node++) {
       std::string broadcast_string(buffer_sizes[node], '\0');
       in_.read(&broadcast_string[0], buffer_sizes[node]);
       rtt_c4::send(&broadcast_string[0], buffer_sizes[node], node);
