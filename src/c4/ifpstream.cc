@@ -36,8 +36,6 @@ ifpstream::ifpstream(std::string const &filename,
  * \param[in] local process buffer size
  */
 void ifpstream::fill_buffers(unsigned const buffer_size) {
-  Insist(buffer_size >= 0,
-         "ifstream::fill_buffers recieved a negative buffer size");
   // initialize N process vector of buffer sizes
   std::vector<unsigned> buffer_sizes(rtt_c4::nodes(), 0);
   // fill in local buffer size
