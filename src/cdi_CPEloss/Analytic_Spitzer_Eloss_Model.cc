@@ -39,7 +39,6 @@ double Analytic_Spitzer_Eloss_Model::calculate_eloss(const double T,
   const double vp = v * 1.e8;
   const double vt = sqrt(2. * pc.k() * Tt / mt);
   const double Ep = 1. / 2. * mp * vp * vp;
-  const double eloss_max = 1e3 * keV * nt;
 
   const double prefac =
       4. * pc.pi() * nt * qtabs * qtabs * qpabs * qpabs / (mt * vp * vp);
@@ -56,7 +55,7 @@ double Analytic_Spitzer_Eloss_Model::calculate_eloss(const double T,
   double eloss = prefac * coulomb_log;
 
   if (Ep < 2. * pc.k() * Tt) {
-    eloss = eloss_max;
+    eloss = rtt_cdi::constants::max_eloss;
   }
 
   return vp * eloss * eloss_unit_fac;

@@ -18,6 +18,9 @@ namespace rtt_cdi {
 namespace constants {
 //! Number of models contained in rtt_cdi::CPModel.
 unsigned int const num_CPModels(3);
+
+//! "Effectively infinite" stopping power (keV sh^-1)
+constexpr double max_eloss = 1.e15;
 } // namespace constants
 
 enum class CPModelAngleCutoff {
@@ -43,8 +46,10 @@ public:
   int32_t get_zaid() const { return zaid; }
   int32_t get_z() const {
     if (zaid != -1) {
+      // Integer division to extract the ZZZ from ZAID format ZZZAAA
       return zaid / 1000;
     } else {
+      // Electrons have special ZAID = -1
       return -1;
     }
   }

@@ -3,7 +3,7 @@
  * \file   cdi_CPEloss/Analytic_Spitzer_Eloss_Model.hh
  * \author Ben R. Ryan
  * \date   Feb 21 2020
- * \brief  Analytic_KP_Alpha_Eloss_Model class definition.
+ * \brief  Analytic_Spitzer_Eloss_Model class definition.
  * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
 //----------------------------------------------------------------------------//

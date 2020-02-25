@@ -28,7 +28,6 @@ namespace rtt_cdi_cpeloss {
  * generation classes as long as it implements the functions required, namely
  *
  * \arg double calculate_eloss(double T, double rho)
- * \arg sf_double get_parameters()
  *
  * This class is a pure virtual base class.
  *
@@ -37,11 +36,6 @@ namespace rtt_cdi_cpeloss {
 //============================================================================//
 
 class Analytic_Eloss_Model {
-public:
-  // Typedefs.
-  typedef std::vector<char> sf_char;
-  typedef std::vector<double> sf_double;
-
 public:
   //! Virtual destructor for proper inheritance destruction.
   virtual ~Analytic_Eloss_Model() { /*...*/

@@ -29,11 +29,11 @@ using rtt_cdi_cpeloss::Analytic_Eloss_Model;
 void KP_alpha_test(rtt_dsxx::UnitTest &ut) {
 
   // Deuterium:
-  int deuterium_zaid = 1002;
+  int32_t deuterium_zaid = 1002;
   double deuterium_mass = 3.34358e-24;
   rtt_cdi::CParticle target_in(deuterium_zaid, deuterium_mass);
   // Alpha particle:
-  int alpha_zaid = 2004;
+  int32_t alpha_zaid = 2004;
   double alpha_mass = 6.64424e-24;
   rtt_cdi::CParticle projectile_in(alpha_zaid, alpha_mass);
 
@@ -118,11 +118,11 @@ void KP_alpha_test(rtt_dsxx::UnitTest &ut) {
 void Spitzer_test(rtt_dsxx::UnitTest &ut) {
 
   // Deuterium:
-  int deuterium_zaid = 1002;
+  int32_t deuterium_zaid = 1002;
   double deuterium_mass = 3.34358e-24;
   rtt_cdi::CParticle target_in(deuterium_zaid, deuterium_mass);
   // Alpha particle:
-  int alpha_zaid = 2004;
+  int32_t alpha_zaid = 2004;
   double alpha_mass = 6.64424e-24;
   rtt_cdi::CParticle projectile_in(alpha_zaid, alpha_mass);
 
@@ -183,7 +183,7 @@ void Spitzer_test(rtt_dsxx::UnitTest &ut) {
     double eloss_coeff = eloss_mod.getEloss(T, rho, vel0);
 
     FAIL_IF_NOT(
-        rtt_dsxx::soft_equiv(eloss_coeff, 2.990806261551988840e+27, 1.0e-8));
+        rtt_dsxx::soft_equiv(eloss_coeff, 6.241509343260178341e+23, 1.0e-8));
   }
 
   if (ut.numFails == 0)
