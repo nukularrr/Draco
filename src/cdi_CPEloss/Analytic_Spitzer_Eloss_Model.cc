@@ -50,7 +50,8 @@ double Analytic_Spitzer_Eloss_Model::calculate_eloss(const double T,
   const double vrel = sqrt(vp * vp + vt * vt);
   const double mreduced = (mt * mp) / (mt + mp);
   const double bmin = qtabs * qpabs / (mreduced * vrel * vrel);
-  const double coulomb_log = log(std::max<double>(1, debye_length / bmin));
+  const double coulomb_log =
+      log(std::max<double>(exp(1.), debye_length / bmin));
 
   double eloss = prefac * coulomb_log;
 
