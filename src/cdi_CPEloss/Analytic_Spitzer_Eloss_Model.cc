@@ -22,7 +22,7 @@ namespace rtt_cdi_cpeloss {
  * \param T material temperature in keV
  * \param rho material density in g/cm^3
  * \param v incident particle speed in cm/shk
- * \return eloss (vector of time coefficients) in keV shk^-1
+ * \return eloss stopping power in keV shk^-1
  */
 double Analytic_Spitzer_Eloss_Model::calculate_eloss(const double T,
                                                      const double rho,
@@ -56,7 +56,7 @@ double Analytic_Spitzer_Eloss_Model::calculate_eloss(const double T,
   double eloss = prefac * coulomb_log;
 
   if (Ep < 2. * pc.k() * Tt) {
-    eloss = rtt_cdi::constants::max_eloss;
+    return rtt_cdi::constants::max_eloss;
   }
 
   return vp * eloss * eloss_unit_fac;

@@ -49,18 +49,25 @@ protected:
   //! Constructor initializes generically useful physical quantities.
   Analytic_Eloss_Model(const rtt_cdi::CParticle &target,
                        const rtt_cdi::CParticle &projectile)
-      : mt(target.get_mass()), qtabs(fabs(target.get_z()) * pc.e()),
+      : zaidt(target.get_zaid()), mt(target.get_mass()),
+        qtabs(fabs(target.get_z()) * pc.e()), zaidp(target.get_zaid()),
         mp(projectile.get_mass()), qpabs(fabs(projectile.get_z()) * pc.e()) {}
 
 protected:
   //! Unit system (use cgs internally)
   rtt_units::PhysicalConstexprs<rtt_units::CGS> pc;
 
+  //! Target ZAID
+  const int zaidt;
+
   //! Target mass
   const double mt;
 
   //! Absolute target electric charge
   const double qtabs;
+
+  //! Projectile ZAID
+  const int zaidp;
 
   //! Projectile mass
   const double mp;

@@ -26,7 +26,7 @@ namespace rtt_cdi_cpeloss {
  * \param T material temperature in keV
  * \param rho material density in g/cm^3
  * \param v incident particle speed in cm/shk
- * \return eloss (vector of time coefficients) in shk^-1
+ * \return eloss stopping power in keV shk^-1
  *
  */
 double Analytic_KP_Alpha_Eloss_Model::calculate_eloss(const double T,

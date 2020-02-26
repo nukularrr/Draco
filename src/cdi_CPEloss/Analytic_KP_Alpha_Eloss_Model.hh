@@ -33,7 +33,6 @@ namespace rtt_cdi_cpeloss {
 //============================================================================//
 
 class Analytic_KP_Alpha_Eloss_Model : public Analytic_Eloss_Model {
-private:
 public:
   //! Constructor
   Analytic_KP_Alpha_Eloss_Model(const rtt_cdi::CParticle &target,

@@ -11,6 +11,7 @@
 #include "cdi_CPEloss/Analytic_CP_Eloss.hh"
 #include "cdi_CPEloss/Analytic_KP_Alpha_Eloss_Model.hh"
 #include "cdi_CPEloss/Analytic_Spitzer_Eloss_Model.hh"
+#include "cdi_CPEloss/Analytic_TR_Eloss_Model.hh"
 #include "cdi/CDI.hh"
 #include "ds++/Release.hh"
 #include "ds++/ScalarUnitTest.hh"
@@ -182,14 +183,119 @@ void Spitzer_test(rtt_dsxx::UnitTest &ut) {
 
     double eloss_coeff = eloss_mod.getEloss(T, rho, vel0);
 
-    FAIL_IF_NOT(
-        rtt_dsxx::soft_equiv(eloss_coeff, 6.241509343260178341e+23, 1.0e-8));
+    FAIL_IF_NOT(rtt_dsxx::soft_equiv(eloss_coeff, 1.e15, 1.0e-8));
   }
 
   if (ut.numFails == 0)
     PASSMSG("Spitzer CPEloss test passes.");
   else
     FAILMSG("Spitzer CPEloss test fails.");
+
+  return;
+}
+
+void TR_test(rtt_dsxx::UnitTest &ut) {
+
+  // Deuterium:
+  int32_t deuterium_zaid = 1002;
+  double deuterium_mass = 3.34358e-24;
+  rtt_cdi::CParticle target_ion(deuterium_zaid, deuterium_mass);
+  // Electron:
+  int32_t electron_zaid = -1;
+  double electron_mass = 9.10938291e-28;
+  rtt_cdi::CParticle target_electron(electron_zaid, electron_mass);
+  // Alpha particle:
+  int32_t alpha_zaid = 2004;
+  double alpha_mass = 6.64424e-24;
+  rtt_cdi::CParticle projectile_in(alpha_zaid, alpha_mass);
+
+  std::shared_ptr<Analytic_Eloss_Model> ion_model_in(
+      new rtt_cdi_cpeloss::Analytic_TR_Eloss_Model(target_ion, projectile_in));
+  std::shared_ptr<Analytic_Eloss_Model> electron_model_in(
+      new rtt_cdi_cpeloss::Analytic_TR_Eloss_Model(target_electron,
+                                                   projectile_in));
+
+  Analytic_CP_Eloss eloss_ion_mod(ion_model_in, target_ion, projectile_in,
+                                  rtt_cdi::CPModelAngleCutoff::NONE);
+  Analytic_CP_Eloss eloss_ele_mod(electron_model_in, target_electron,
+                                  projectile_in,
+                                  rtt_cdi::CPModelAngleCutoff::NONE);
+
+  // Check that basic accessors return correct result:
+  // Analytic model should match that passed to constructor
+  FAIL_IF_NOT(rtt_dsxx::soft_equiv(
+      eloss_ion_mod.getEloss(1., 10., 1.),
+      eloss_ion_mod.get_Analytic_Model()->calculate_eloss(1., 10., 1.),
+      1.0e-3));
+
+  // Model type better be analytic:
+  FAIL_IF_NOT(eloss_ion_mod.getModelType() ==
+              rtt_cdi::CPModelType::ANALYTIC_ETYPE);
+
+  // NOT tabular data
+  FAIL_IF(eloss_ion_mod.is_data_in_tabular_form());
+
+  // All sizes should be 0 (again, not tabular data)
+  FAIL_IF_NOT(eloss_ion_mod.getTemperatureGrid().size() ==
+              eloss_ion_mod.getNumTemperatures());
+  FAIL_IF_NOT(eloss_ion_mod.getDensityGrid().size() ==
+              eloss_ion_mod.getNumDensities());
+  FAIL_IF_NOT(eloss_ion_mod.getEnergyGrid().size() ==
+              eloss_ion_mod.getNumEnergies());
+
+  // Data file name should be an empty string:
+  FAIL_IF_NOT(eloss_ion_mod.getDataFilename().empty());
+
+  // Check that accessors return the correct target and projectile:
+  FAIL_IF_NOT(target_ion.get_zaid() == eloss_ion_mod.getTarget().get_zaid());
+  FAIL_IF_NOT(target_electron.get_zaid() ==
+              eloss_ele_mod.getTarget().get_zaid());
+  FAIL_IF_NOT(projectile_in.get_zaid() ==
+              eloss_ion_mod.getProjectile().get_zaid());
+
+  // Check that accessor returns the correct model angle cutoff
+  FAIL_IF_NOT(eloss_ion_mod.getModelAngleCutoff() ==
+              rtt_cdi::CPModelAngleCutoff::NONE);
+
+  // Get eloss values for some sample ion data:
+  {
+    double T = 1.0;    // keV
+    double rho = 10.0; // g / cc
+    double vel0 = 1.0; // cm / shk
+
+    double eloss_coeff = eloss_ion_mod.getEloss(T, rho, vel0);
+
+    FAIL_IF_NOT(
+        rtt_dsxx::soft_equiv(eloss_coeff, 9.927570982586801983e+05, 1.0e-8));
+  }
+
+  // Get eloss values for some sample electron data:
+  {
+    double T = 1.0;     // keV
+    double rho = 1.e-2; // g / cc
+    double vel0 = 1.0;  // cm / shk
+
+    double eloss_coeff = eloss_ele_mod.getEloss(T, rho, vel0);
+
+    FAIL_IF_NOT(
+        rtt_dsxx::soft_equiv(eloss_coeff, 4.993807286690149340e+05, 1.0e-8));
+  }
+
+  // Check for large value when 2kT > E
+  {
+    double T = 1.e2;   // keV
+    double rho = 10.0; // g / cc
+    double vel0 = 1.0; // cm / shk
+
+    double eloss_coeff = eloss_ion_mod.getEloss(T, rho, vel0);
+
+    FAIL_IF_NOT(rtt_dsxx::soft_equiv(eloss_coeff, 1.e15, 1.0e-8));
+  }
+
+  if (ut.numFails == 0)
+    PASSMSG("TR CPEloss test passes.");
+  else
+    FAILMSG("TR CPEloss test fails.");
 
   return;
 }
@@ -201,6 +307,7 @@ int main(int argc, char *argv[]) {
   try {
     KP_alpha_test(ut);
     Spitzer_test(ut);
+    TR_test(ut);
   }
   UT_EPILOG(ut);
 }
