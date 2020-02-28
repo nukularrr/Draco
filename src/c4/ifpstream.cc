@@ -2,7 +2,7 @@
 /*!
  * \file   c4/ifpstream.cc
  * \author Mathew Cleveland
- * \date   Mon Jun 25 11:36:43 MDT 2018
+ * \date   Feb. 2020
  * \brief  Define methods of class ifpstream
  * \note   Copyright (C) 2018-2020 Triad National Security, LLC.
  *         All rights reserved. */
@@ -33,7 +33,7 @@ ifpstream::ifpstream(std::string const &filename,
 //----------------------------------------------------------------------------//
 /*! Fill parallel buffers with data from the input file
  *
- * \param[in] local process buffer size
+ * \param[in] buffer_size local process buffer size
  */
 void ifpstream::fill_buffers(unsigned const buffer_size) {
   // initialize N process vector of buffer sizes
@@ -42,7 +42,6 @@ void ifpstream::fill_buffers(unsigned const buffer_size) {
   buffer_sizes[rtt_c4::node()] = buffer_size;
   // reduce buffer_size to all ranks
   rtt_c4::global_sum(&buffer_sizes[0], rtt_c4::nodes());
-
 
   if (rtt_c4::node() == 0) {
     // populate node zero buffer
@@ -62,7 +61,6 @@ void ifpstream::fill_buffers(unsigned const buffer_size) {
     str(local_string);
   }
 }
-
 
 } // end namespace rtt_c4
 
