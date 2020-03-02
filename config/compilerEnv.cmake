@@ -124,11 +124,19 @@ macro(dbsSetupCompilers)
     message( STATUS "Code coverage build ... disabled (Compiler not GNU|Clang)")
   endif()
   if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    if( NOT CODE_COVERAGE_IGNORE_REGEX)
+      message( "Setting CODE_COVERAGE_IGNORE_REGEX...")
+      set(CODE_COVERAGE_IGNORE_REGEX
+        /usr/*
+        *test/*
+        */opt/spack/*
+        *terminal/*
+        *FortranChecks/*
+        CACHE STRING "List of regex that lcov will ignore")
+    endif()
     if( CMAKE_BUILD_TYPE STREQUAL Debug )
       # Add required flags (GCC & LLVM/Clang)
-      target_compile_options(coverage_config INTERFACE
-        --coverage # sets all required flags
-        )
+      target_compile_options(coverage_config INTERFACE --coverage )
       target_link_options(coverage_config INTERFACE --coverage)
 
       # If env variable is set use it, otherwise search for default name.
@@ -136,16 +144,21 @@ macro(dbsSetupCompilers)
       find_program( GCOV NAMES "$ENV{GCOV}" gcov )
       if( EXISTS "${LCOV}" AND EXISTS "${GCOV}" )
         # Add a custom target that prints the coverage report
-        set(lcovopts1 --gcov-tool ${GCOV})
+        set(lcovopts1 --gcov-tool ${GCOV} --quiet)
         set(lcovopts2 ${lcovopts1} --output-file coverage.info)
+        unset(lcov_ignore)
+        foreach( myregex ${CODE_COVERAGE_IGNORE_REGEX} )
+          list(APPEND lcov_ignore '${myregex}')
+        endforeach()
         add_custom_target( covrep
           COMMAND ${LCOV} ${lcovopts2} --capture --directory .
-          COMMAND ${LCOV} ${lcovopts2} --remove coverage.info '/usr/*'
-          COMMAND ${LCOV} ${lcovopts2} --remove coverage.info '*test/*'
-          COMMAND ${LCOV} ${lcovopts2} --remove coverage.info '*/opt/spack/*'
-          COMMAND ${LCOV} ${lcovopts2} --remove coverage.info '*terminal/*'
+          COMMAND ${LCOV} ${lcovopts2} --remove coverage.info ${lcov_ignore}
           COMMAND genhtml coverage.info --demangle-cpp --output-directory cov-html
-          COMMAND ${LCOV} ${lcovopts1} --list coverage.info )
+          COMMAND ${LCOV} ${lcovopts1} --list coverage.info
+          COMMAND ${CMAKE_COMMAND} -E echo \" \"
+          COMMAND ${CMAKE_COMMAND} -E echo \"==> View HTML coverage report with command: firefox cov-html/index.html\"
+          COMMAND ${CMAKE_COMMAND} -E echo \"==> Repeat text coverage report with command: lcov --list coverage.info\"
+          BYPRODUCTS "${PROJECT_BINARY_DIR}/coverage.info" )
           message( STATUS "Code coverage build ... enabled ('make covrep' to "
             "see a text and/or a html report)")
         else()
