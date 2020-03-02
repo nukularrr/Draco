@@ -4,7 +4,7 @@
  * \author Mathew Cleveland
  * \date   Feb. 2020
  * \brief  Tests ifpstream class for paralle read
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
+ * \note   Copyright (C) 2020 Triad National Security, LLC.
  *         All rights reserved. */
 //----------------------------------------------------------------------------//
 

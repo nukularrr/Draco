@@ -3,9 +3,14 @@
  * \file   c4/ifpstream.cc
  * \author Mathew Cleveland
  * \date   Feb. 2020
- * \brief  Define methods of class ifpstream
- * \note   Copyright (C) 2018-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \brief  ifpstream class to read processor decomposed data in parallel.
+ * \note   Copyright (C) 2020 Triad National Security, LLC.
+ *         All rights reserved. 
+ * 
+ * This is reader is designed to read parallel decomposed data written by the
+ * ofpstream object. It uses similar logic by reading all data with rank==0 and
+ * broadcasting requested buffers to the remaining processors.
+ */
 //----------------------------------------------------------------------------//
 
 #include "ifpstream.hh"
@@ -15,7 +20,7 @@ namespace rtt_c4 {
 using namespace std;
 
 //----------------------------------------------------------------------------//
-/*! Create an ifpstream to for a parallel file read.
+/*! \brief Create an ifpstream to for a parallel file read.
  *
  * Create an ifpstream that reads and brocasts input file streams to all ranks
  *
@@ -31,7 +36,7 @@ ifpstream::ifpstream(std::string const &filename,
 }
 
 //----------------------------------------------------------------------------//
-/*! Fill parallel buffers with data from the input file
+/*! \brief Fill parallel buffers with data from the input file
  *
  * \param[in] buffer_size local process buffer size
  */

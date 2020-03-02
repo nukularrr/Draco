@@ -2,9 +2,14 @@
 /*!
  * \file   c4/ifpstream.hh
  * \author Mathew Cleveland
- * \brief  Define class ifpstream
- * \note   Copyright (C) 2018-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \date   Feb. 2020
+ * \brief  ifpstream class to read processor decomposed data in parallel.
+ * \note   Copyright (C) 2020 Triad National Security, LLC.
+ *         All rights reserved. 
+ * This is reader is designed to read parallel decomposed data written by the
+ * ofpstream object. It uses similar logic by reading all data with rank==0 and
+ * broadcasting requested buffers to the remaining processors.
+ */
 //----------------------------------------------------------------------------//
 
 #ifndef c4_ifpstream_hh
@@ -22,7 +27,7 @@ namespace rtt_c4 {
 /*!
  * \class ifpstream
  *
- * Input stream for serializing input to all MPI ranks.
+ * \brief Input stream for serializing input to all MPI ranks.
  *
  * This offloads all file IO to a single processor. The master processor reads
  * all data from the file and broadcasts it to the MPI processors.
@@ -40,9 +45,12 @@ public:
   //! Fill buffer for every rank
   void fill_buffers(unsigned const buffer_size);
 
+  //! Delete the default constructor
+  ifpstream() = delete;
+
 private:
-  ios_base::openmode mode_;
-  std::ifstream in_;
+  ios_base::openmode mode_; //!< specify binary or ascii input file type
+  std::ifstream in_;        //!< rank 0 file stream
 };
 
 } // end namespace rtt_c4
