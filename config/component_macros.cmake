@@ -278,7 +278,7 @@ or the target must be labeled NOEXPORT.")
     set( ${ace_PREFIX}_TPL_LIST "${${ace_PREFIX}_TPL_LIST}"  CACHE INTERNAL
       "List of third party libraries known by ${ace_PREFIX}" FORCE)
     set( ${ace_PREFIX}_TPL_INCLUDE_DIRS "${${ace_PREFIX}_TPL_INCLUDE_DIRS}"  CACHE
-      INTERNAL "List of include paths used by ${ace_PREFIX} to find thrid party vendor header files."
+      INTERNAL "List of include paths used by ${ace_PREFIX} to find third party vendor header files."
       FORCE)
     set( ${ace_PREFIX}_TPL_LIBRARIES "${${ace_PREFIX}_TPL_LIBRARIES}"  CACHE INTERNAL
       "List of third party libraries used by ${ace_PREFIX}." FORCE)
