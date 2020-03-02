@@ -32,7 +32,7 @@ Synopsis of Active Draco Packages
   common abstraction for objects and libraries that return material data
   (opacities, atomic cross sections, equation-of-state data, etc.)
 * cdi_analytic - Analytic models for physical data
-* cdi_CPEloss - Energy straggling models for charged particles.
+* cdi_CPEloss - Stopping power models for charged particles.
 * cdi_eospac - Equation-of-State data
   * These classes wrap the EOSPAC6 libraries that read sesame files; Commonly
     used to access gray opacity data and heat capacities.
