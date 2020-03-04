@@ -51,7 +51,8 @@ protected:
                        const rtt_cdi::CParticle &projectile)
       : zaidt(target.get_zaid()), mt(target.get_mass()),
         qtabs(std::abs(target.get_z()) * pc.e()), zaidp(target.get_zaid()),
-        mp(projectile.get_mass()), qpabs(std::abs(projectile.get_z()) * pc.e()) {}
+        mp(projectile.get_mass()),
+        qpabs(std::abs(projectile.get_z()) * pc.e()) {}
 
 protected:
   //! Unit system (use cgs internally)
