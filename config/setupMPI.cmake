@@ -14,6 +14,8 @@
 # DRACO_C4   MPI|SCALAR
 # C4_SCALAR  BOOL
 # C4_MPI     BOOL
+# MPI_FLAVOR openmpi|mpih|intel|mvapich2|spectrum|msmpi
+# MPI_VERSION NN.NN.NN
 #
 #------------------------------------------------------------------------------#
 
@@ -35,7 +37,8 @@ function( setMPIflavorVer )
     set( MPI_FLAVOR "cray" )
   elseif( "${MPIEXEC_EXECUTABLE}" MATCHES "openmpi")
     set( MPI_FLAVOR "openmpi" )
-  elseif( "${MPIEXEC_EXECUTABLE}" MATCHES "mpich")
+  elseif( "${MPIEXEC_EXECUTABLE}" MATCHES "mpich" OR
+      "${MPI_C_HEADER_DIR}" MATCHES "mpich")
     set( MPI_FLAVOR "mpich" )
   elseif( "${MPIEXEC_EXECUTABLE}" MATCHES "impi" OR
       "${MPIEXEC_EXECUTABLE}" MATCHES "clusterstudio" )
@@ -83,9 +86,6 @@ function( setMPIflavorVer )
             DBS_MPI_VER_MINOR ${DBS_MPI_VER} )
           set( MPI_VERSION "${DBS_MPI_VER_MAJOR}.${DBS_MPI_VER_MINOR}" )
         endif()
-      else()
-        message(FATAL_ERROR "DBS did not find the MPI version string (is this "
-          "an older openmpi?)")
       endif()
 
       # if needed, make a 2nd pass at identifying the MPI flavor
@@ -178,8 +178,8 @@ endmacro()
 macro( query_topology )
 
   # These cmake commands, while useful, don't provide the topology detail that
-  # we are interested in (i.e. number of sockets per node). We could use the 
-  # results of these queries to know if hyper-threading is enabled (if logical 
+  # we are interested in (i.e. number of sockets per node). We could use the
+  # results of these queries to know if hyper-threading is enabled (if logical
   # != physical cores)
   # - cmake_host_system_information(RESULT MPI_PHYSICAL_CORES
   #   QUERY NUMBER_OF_PHYSICAL_CORES)
@@ -358,6 +358,26 @@ macro( setupSpectrumMPI )
   # Find cores/cpu, cpu/node, hyper-threading
   query_topology()
 
+  # jsrun options
+  #----------------------------------------
+  # Ref: https://hpc.llnl.gov/training/tutorials/using-lcs-sierra-system#jsrun
+  #----------------------------------------
+  # Basic:
+  # -n Total number of cores
+  #
+  # Using resource sets:
+  # -a Number of tasks per resource set
+  # -n Total number of resource sets for the job
+  # -c Number of CPUs (cores) per resource set
+  # -g Number of GPUs per resource set
+  # -r Number of resource sets per node.
+  #
+  # Examples:
+  # - jsrun -a4 -c1 -g1  => 4 tasks on 4 cores that share 1 gpu.
+  # - jsrun -r4 -n8      => 2 nodes, 4 resource sets per node, 8 resource sets
+  #                         total
+  # - jsrun -a4 -c16 -g2 => 4 tasks, 16 cores, 2 gpus
+
   #
   # Setup for OMP plus MPI
   #
@@ -488,7 +508,7 @@ macro( setupMPILibrariesWindows )
     find_package( MPI QUIET )
 
     if( EXISTS "$ENV{MSMPI_INC}" )
-      # if msmpi is installed via vcpkg, then use the vcpkg include path 
+      # if msmpi is installed via vcpkg, then use the vcpkg include path
       # instead of the system one.
       file(TO_CMAKE_PATH $ENV{MSMPI_INC} MSMPI_INC)
       unset(tmp)
@@ -514,7 +534,7 @@ macro( setupMPILibrariesWindows )
         MPI_C_INCLUDE_DIRS = ${MPI_C_INCLUDE_DIRS}
         MPI_C_VERSION_MAJOR = ${MPI_C_VERSION_MAJOR}")
     endif()
-    
+
     # If this macro is called from a MinGW builds system (for a CAFS
     # subdirectory) and is trying to discover MS-MPI, the above check will fail
     # (when CMake > 3.12). However, MS-MPI is known to be good when linking with
@@ -526,7 +546,7 @@ macro( setupMPILibrariesWindows )
         set( MPI_Fortran_FOUND TRUE )
       endif()
     endif()
-    
+
     if(verbose)
       message("
         MPI_C_FOUND       = ${MPI_C_FOUND}
@@ -540,10 +560,10 @@ macro( setupMPILibrariesWindows )
       get_filename_component( MPI_Fortran_INCLUDE_PATH
         "${first_c_mpi_library}" DIRECTORY )
       if(EXISTS "${MPI_Fortran_INCLUDE_PATH}/../include/mpifptr.h")
-        get_filename_component( MPI_Fortran_INCLUDE_PATH 
+        get_filename_component( MPI_Fortran_INCLUDE_PATH
           "${MPI_Fortran_INCLUDE_PATH}/../include" REALPATH )
       elseif(EXISTS "${MPI_Fortran_INCLUDE_PATH}/../../include/mpifptr.h")
-        get_filename_component( MPI_Fortran_INCLUDE_PATH 
+        get_filename_component( MPI_Fortran_INCLUDE_PATH
           "${MPI_Fortran_INCLUDE_PATH}/../../include" REALPATH )
       else()
         string( REGEX REPLACE "[Ll]ib" "Include" MPI_Fortran_INCLUDE_PATH

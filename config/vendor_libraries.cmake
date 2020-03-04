@@ -224,22 +224,22 @@ macro( setupLAPACKLibraries )
         set( lapack_url "http://www.openblas.net")
         add_library( lapack SHARED IMPORTED)
         add_library( blas   SHARED IMPORTED)
-        if(WIN32)        
-          string( REPLACE ".lib" ".dll" BLAS_openblas_LIBRARY_DLL_libdir 
+        if(WIN32)
+          string( REPLACE ".lib" ".dll" BLAS_openblas_LIBRARY_DLL_libdir
             "${BLAS_openblas_LIBRARY}" )
-          string( REPLACE "/lib/" "/bin/" BLAS_openblas_LIBRARY_DLL_bindir 
+          string( REPLACE "/lib/" "/bin/" BLAS_openblas_LIBRARY_DLL_bindir
             "${BLAS_openblas_LIBRARY_DLL_libdir}" )
           if( EXISTS "${BLAS_openblas_LIBRARY_DLL_libdir}" )
-            set( BLAS_openblas_LIBRARY_DLL 
+            set( BLAS_openblas_LIBRARY_DLL
               "${BLAS_openblas_LIBRARY_DLL_libdir}")
           elseif( EXISTS "${BLAS_openblas_LIBRARY_DLL_bindir}" )
-            set( BLAS_openblas_LIBRARY_DLL 
-              "${BLAS_openblas_LIBRARY_DLL_bindir}") 
+            set( BLAS_openblas_LIBRARY_DLL
+              "${BLAS_openblas_LIBRARY_DLL_bindir}")
           else()
             # only static libs available.
-            set( BLAS_openblas_LIBRARY_DLL "${BLAS_openblas_LIBRARY}") 
+            set( BLAS_openblas_LIBRARY_DLL "${BLAS_openblas_LIBRARY}")
           endif()
-          
+
         set_target_properties( blas PROPERTIES
           IMPORTED_LOCATION                 "${BLAS_openblas_LIBRARY_DLL}"
           IMPORTED_IMPLIB                   "${BLAS_openblas_LIBRARY}"
@@ -307,55 +307,6 @@ macro( setupLAPACKLibraries )
       TYPE OPTIONAL
       PURPOSE "Required for building the lapack_wrap component." )
   endif()
-endmacro()
-
-#------------------------------------------------------------------------------
-# Helper macros for CUDA/Unix
-#
-# https://devblogs.nvidia.com/tag/cuda/
-# https://devblogs.nvidia.com/building-cuda-applications-cmake/
-#------------------------------------------------------------------------------
-macro( setupCudaEnv )
-
-  # if WITH_CUDA is set, use the provided value, otherwise disable CUDA unless
-  # the CUDA_COMPILER exists.
-  if( NOT DEFINED WITH_CUDA )
-    if( EXISTS "${CMAKE_CUDA_COMPILER}" )
-      set( WITH_CUDA ON)
-    else()
-      set( WITH_CUDA OFF)
-    endif()
-  endif()
-  set( WITH_CUDA ${WITH_CUDA} CACHE BOOL "Attempt to compile CUDA kernels." )
-
-  add_feature_info( Cuda WITH_CUDA "Build CUDA kernels for GPU compute.")
-
-  if( WITH_CUDA AND NOT DEFINED CUDA_DBS_STRING )
-    set( CUDA_DBS_STRING "CUDA" CACHE BOOL
-      "If CUDA is available, this variable is 'CUDA'")
-
-    set(OUTPUTFILE ${CMAKE_CURRENT_SOURCE_DIR}/config/cuda_script) # No suffix required
-    set(CUDAFILE ${CMAKE_CURRENT_SOURCE_DIR}/config/query_gpu.cu)
-    execute_process(COMMAND nvcc -lcuda ${CUDAFILE} -o ${OUTPUTFILE})
-    execute_process(COMMAND ${OUTPUTFILE}
-                    RESULT_VARIABLE CUDA_RETURN_CODE OUTPUT_VARIABLE ARCH)
-
-    if (${CUDA_RETURN_CODE} EQUAL 0)
-      message(STATUS "CUDA Architecture: ${ARCH}")
-      # CMAKE currently only allows up to C++14 as the NVCC language level
-      set(CMAKE_CUDA_STANDARD "14")
-      set(CMAKE_CUDA_FLAGS "${ARCH} -g -G --expt-relaxed-constexpr" CACHE STRING "Standard CUDA flags"
-        FORCE)
-      set(CMAKE_CUDA_FLAGS_DEBUG "-O0" CACHE STRING "CUDA debug flags" FORCE)
-      set(CMAKE_CUDA_FLAGS_RELWITHDEBINFO "-O2 --generate-line-info" CACHE
-        STRING "CUDA release with debug information flags" FORCE)
-      set(CMAKE_CUDA_FLAGS_RELEASE "-O2" CACHE STRING "CUDA release flags"
-        FORCE)
-    else()
-      message(WARNING ${ARCH})
-    endif()
-  endif()
-
 endmacro()
 
 #------------------------------------------------------------------------------
@@ -641,6 +592,33 @@ macro( setupEOSPAC )
 endmacro()
 
 #------------------------------------------------------------------------------
+# Setup NDI (https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html)
+#------------------------------------------------------------------------------
+macro( setupNDI )
+
+  if( NOT TARGET NDI::ndi )
+    message( STATUS "Looking for NDI..." )
+
+    find_package( NDI QUIET )
+
+    if( NDI_FOUND )
+      message( STATUS "Looking for NDI....found ${NDI_LIBRARY}" )
+    else()
+      message( STATUS "Looking for NDI....not found" )
+    endif()
+
+    #===========================================================================
+    # Include some information that can be printed by the build system.
+    set_package_properties( NDI PROPERTIES
+      URL "https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html"
+      DESCRIPTION "Access nuclear data."
+      TYPE OPTIONAL
+      PURPOSE "Required for building the cdi_ndi component." )
+  endif()
+
+endmacro()
+
+#------------------------------------------------------------------------------
 # Setup COMPTON (https://gitlab.lanl.gov/keadyk/CSK_generator)
 #------------------------------------------------------------------------------
 macro( setupCOMPTON )
@@ -662,7 +640,7 @@ macro( setupCOMPTON )
       URL "https://gitlab.lanl.gov/CSK/CSK"
       DESCRIPTION "Access multigroup Compton scattering data."
       TYPE OPTIONAL
-      PURPOSE "Required for bulding the compton component." )
+      PURPOSE "Required for building the Compton component." )
   endif()
 
 endmacro()
@@ -677,8 +655,8 @@ macro( SetupVendorLibrariesUnix )
   setupSuperLU_DIST()
   setupCOMPTON()
   setupEospac()
+  setupNDI()
   setupRandom123()
-  setupCudaEnv()
   setupPython()
   setupQt()
   setupLIBQUO()
@@ -726,9 +704,9 @@ macro( SetupVendorLibrariesWindows )
   setupRandom123()
   setupCOMPTON()
   setupEospac()
+  setupNDI()
   setupPython()
   setupQt()
-  setupCudaEnv()
 
   # Doxygen ------------------------------------------------------------------
   message( STATUS "Looking for Doxygen..." )
@@ -888,6 +866,7 @@ Looking for Draco...\")
   setupVendorLibraries()
 
 endmacro()
+
 ")
 
   message( " " )
