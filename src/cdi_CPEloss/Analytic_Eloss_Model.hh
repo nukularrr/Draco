@@ -25,7 +25,7 @@ namespace rtt_cdi_cpeloss {
  * This is a base class that defines the interface given to Analytic_Eloss_Model
  * constructors.  The user can define any derived model class that will work
  * with these analytic opacity generation classes as long as it implements the
- * functions required, namely.
+ * functions required, namely:
  *
  * \arg double calculate_eloss(double T, double rho)
  *
