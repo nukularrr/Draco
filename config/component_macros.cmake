@@ -1063,6 +1063,10 @@ macro( add_parallel_tests )
   if( "${addparalleltest_SOURCES}none" STREQUAL "none" )
     message( FATAL_ERROR "You must provide the keyword SOURCES and a list of sources when using the add_parallel_tests macro.  Please see draco/config/component_macros.cmake::add_parallel_tests() for more information." )
   endif()
+  if( "${addparalleltest_PE_LIST}none" STREQUAL "none" )
+    message( FATAL_ERROR "You must provide the keyword PE_LIST and a list containing the number of cores used to execute this test (e.g. \"PE_LIST  \"1;2;4\"\").  Please see draco/config/component_macros.cmake::add_parallel_tests() for more information." )
+  endif()
+
 
   # Pass/Fail criteria
   if( "${addparalleltest_PASS_REGEX}none" STREQUAL "none" )
