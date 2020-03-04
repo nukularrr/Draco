@@ -3,7 +3,7 @@
 # author Kelly Thompson
 # date   2008 May 30
 # brief  Establish flags for Unix - Intel Fortran
-# note   Copyright (C) 2016-2019 Triad National Security, LLC.
+# note   Copyright (C) 2016-2020 Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 
@@ -30,7 +30,7 @@ if( NOT Fortran_FLAGS_INITIALIZED )
   set( CMAKE_Fortran_FLAGS
     "-warn  -fpp -implicitnone -diag-disable 11060" )
   set( CMAKE_Fortran_FLAGS_DEBUG
-    "-g -O0 -traceback -ftrapuv -check -DDEBUG" )
+    "-g -O0 -traceback -ftrapuv -check -fno-omit-frame-pointer -DDEBUG" )
   set( CMAKE_Fortran_FLAGS_RELEASE
     "-O2 -inline-level=2 -fp-speculation fast -fp-model fast" )
   string(APPEND CMAKE_Fortran_FLAGS_RELEASE

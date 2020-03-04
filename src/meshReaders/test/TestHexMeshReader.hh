@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   meshReaders/test/TestHexMeshReader.hh
  * \author John McGhee
  * \date   Thu Mar  9 08:54:59 2000
  * \brief  Header file for the Hex_Mesh_Reader class unit test.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_meshReaders_test_TestHexMeshReader_hh
 #define rtt_meshReaders_test_TestHexMeshReader_hh
@@ -56,6 +56,6 @@ bool check_get_dims_ndim(UnitTest &ut,
 
 #endif // rtt_meshReaders_test_TestHexMeshReader_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of meshReaders/test/TestHexMeshReader.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

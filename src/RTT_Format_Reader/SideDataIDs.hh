@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   RTT_Format_Reader/SideDataIDs.hh
  * \author Shawn Pautz/B.T. Adams
  * \date   Wed Jun 7 10:33:26 2000
  * \brief  Header file for RTT_Format_Reader/SideDataIDs class.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_RTT_Format_Reader_SideDataIDs_hh
 #define rtt_RTT_Format_Reader_SideDataIDs_hh
@@ -74,6 +74,6 @@ public:
 
 #endif // rtt_RTT_Format_Reader_SideDataIDs_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of RTT_Format_Reader/SideDataIDs.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

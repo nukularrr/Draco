@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   c4/Global_Timer.hh
  * \author Kent G. Budge
  * \date   Mon Mar 25 17:35:07 2002
  * \brief  Define class Global_Timer, a POSIX standard timer.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_c4_Global_Timer_hh
 #define rtt_c4_Global_Timer_hh
@@ -17,7 +17,7 @@
 
 namespace rtt_c4 {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class Global_Timer
  *
@@ -35,17 +35,17 @@ namespace rtt_c4 {
  *
  * Global_Timers are only active on processor 0.
  */
-//===========================================================================//
+//============================================================================//
 
 class Global_Timer : public Timer {
 private:
-  char const *name_; // name assigned by client to this timer, to
-                     // distinguish its output from that of any other timers.
+  char const *name_; // name assigned by client to this timer, to distinguish
+                     // its output from that of any other timers.
 
-  bool active_; // This timer is active. This does not mean it is
-                // currently accumulating timing statistics, but only that it is
-                // flagged to do so when start() is called. If not active, a
-                // call to start() is ignored.
+  bool active_; // This timer is active. This does not mean it is currently
+                // accumulating timing statistics, but only that it is flagged
+                // to do so when start() is called. If not active, a call to
+                // start() is ignored.
 
   //! All Global_Timers are active
   DLL_PUBLIC_c4 static bool global_active_;
@@ -62,16 +62,22 @@ private:
   //! Selected Global_Timers are active
   static active_list_type active_list_;
 
-  //! Disable copy construction
-  Global_Timer(Global_Timer const &rhs);
+  //! Disable default construction
+  Global_Timer() = delete;
 
-  // Disable assignment
-  Global_Timer operator=(Global_Timer const &rhs);
+  //! Disable copy/move construction
+  Global_Timer(Global_Timer const &rhs) = delete;
+  Global_Timer(Global_Timer &&rhs) = delete;
+
+  // Disable copy/move assignment
+  Global_Timer operator=(Global_Timer const &rhs) = delete;
+  Global_Timer operator=(Global_Timer &&rhs) = delete;
 
 public:
-  // Constructors
+  // Constructors & Destructors
 
   explicit Global_Timer(char const *name); //! default constructor
+  virtual ~Global_Timer(){};               //! default destructor
 
   // Accessors
 
@@ -95,8 +101,6 @@ public:
 
   // Statics
 
-  // static bool is_global_active() { return global_active_; }
-
   /*!
    *  \bug no documentation!
    */
@@ -114,6 +118,6 @@ public:
 
 #endif // rtt_c4_Global_Timer_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of c4/Global_Timer.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi_analytic/Analytic_EICoupling.hh
  * \author Mathew Cleveland
  * \date   March 2019
  * \brief  Analytic_EICoupling class definition.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_analytic_Analytic_EICoupling_hh
 #define rtt_cdi_analytic_Analytic_EICoupling_hh
@@ -17,7 +17,7 @@
 
 namespace rtt_cdi_analytic {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class Analytic_EICoupling
  *
@@ -40,7 +40,7 @@ namespace rtt_cdi_analytic {
  * Example usage of Analytic_EICoupling, Analytic_EICoupling_Model, and their
  * incorporation into rtt_cdi::CDI.
  */
-//===========================================================================//
+//============================================================================//
 
 class Analytic_EICoupling : public rtt_cdi::EICoupling {
 public:
@@ -85,6 +85,6 @@ public:
 
 #endif // rtt_cdi_analytic_Analytic_EICoupling_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of cdi_analytic/Analytic_EICoupling.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

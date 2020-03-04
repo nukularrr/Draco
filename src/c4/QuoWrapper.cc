@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   c4/QuoWrapper.cc
  * \author Kelly Thompson
  * \date   Friday, Nov 29, 2019, 18:15 pm
  * \brief  Wrap libquo (github.com/lanl/libquo)
- * \note   Copyright (C) 2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2019-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "QuoWrapper.hh"
 #include "C4_Functions.hh"
@@ -159,6 +159,10 @@ uint32_t QuoWrapper::num_numanodes_per_node() {
 #ifdef HAVE_LIBQUO
   Remember(auto retval =) QUO_nnumanodes(quo, &n);
   Check(QUO_SUCCESS == retval);
+  // If n is set to zero above and no error is returned, then set n to 1.  This
+  // seems to occur for WLS2.
+  if (n == 0)
+    n = 1;
   Ensure(n > 0);
 #else
   n = 0;
@@ -202,6 +206,6 @@ std::string QuoWrapper::bindings() {
 
 } // end namespace rtt_c4
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of QuoWrapper.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

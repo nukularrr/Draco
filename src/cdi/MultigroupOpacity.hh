@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   cdi/MultigroupOpacity.hh
  * \author Kelly Thompson
  * \date   Mon Jan 8 14:58:55 2001
  * \brief  MultigroupOpacity class header file (an abstract class)
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_MultigroupOpacity_hh
 #define rtt_cdi_MultigroupOpacity_hh
@@ -201,6 +201,6 @@ public:
 
 #endif // rtt_cdi_MultigroupOpacity_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of cdi/MultigroupOpacity.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
