@@ -54,7 +54,7 @@ namespace rtt_c4 {
  *
  * \return A string of the form "0-8;16-32;" or "0-63"
  */
-#if APPLE
+#ifdef APPLE
 
 #include <sys/sysctl.h>
 #include <sys/types.h>
@@ -79,19 +79,20 @@ namespace rtt_c4 {
 #define SYSCTL_CORE_COUNT "machdep.cpu.core_count"
 
 typedef struct cpu_set {
-  uint32_t count;
+  uint64_t count;
 } cpu_set_t;
 
 static inline void CPU_ZERO(cpu_set_t *cs) { cs->count = 0; }
 
 static inline void CPU_SET(int num, cpu_set_t *cs) { cs->count |= (1 << num); }
 
-static inline int CPU_ISSET(int num, cpu_set_t *cs) {
-  return (cs->count & (1 << num));
+static inline bool CPU_ISSET(int num, cpu_set_t *cs) {
+  uint64_t teh_bit = 1ull << num;
+  return (cs->count & teh_bit) != 0;
 }
 
 int sched_getaffinity(pid_t pid, size_t cpu_size, cpu_set_t *cpu_set) {
-  int32_t core_count = 0;
+  int64_t core_count = 0;
   size_t len = sizeof(core_count);
   int ret = sysctlbyname(SYSCTL_CORE_COUNT, &core_count, &len, 0, 0);
   if (ret) {
