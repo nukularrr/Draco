@@ -67,8 +67,9 @@ std::string rtt_dsxx::print_stacktrace(std::string const &error_message) {
   // retrieve current stack addresses
   int constexpr max_frames = 64;
   std::array<void *, max_frames> addrlist;
-  int const stack_depth = addrlist.size();
-  // = backtrace(addrlist.data(), sizeof(addrlist.data()) / sizeof(void *));
+  uint32_t constexpr sizeofvoidptr = sizeof(void *);
+  int const stack_depth =
+      backtrace(addrlist.data(), sizeofvoidptr * addrlist.size());
 
   // Print a header for the stack trace
   msg << "\n"
