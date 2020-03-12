@@ -580,7 +580,7 @@ void endian_conversion_test(rtt_dsxx::UnitTest &ut) {
 
   // Verify that char data (being one byte) is unchanged.
   std::string const letters = "abcdefg";
-  constexpr int letter_length = sizeof("abcdefg") / sizeof(char);
+  uint32_t constexpr letter_length = 7;
 
   // Pack
   array<char, letter_length> letter_data;
@@ -595,9 +595,8 @@ void endian_conversion_test(rtt_dsxx::UnitTest &ut) {
     up >> unpacked_letter;
 
   // Check
-  for (int i = 0; i < letter_length; ++i)
-    FAIL_IF_NOT(unpacked_letters[i] == letters[i]);
-
+  FAIL_IF_NOT(std::string(unpacked_letters.begin(), unpacked_letters.end()) ==
+              letters);
   return;
 }
 

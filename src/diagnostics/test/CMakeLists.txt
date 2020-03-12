@@ -16,9 +16,10 @@ file( GLOB test_sources *.cc )
 # ---------------------------------------------------------------------------- #
 # Build Unit tests
 # ---------------------------------------------------------------------------- #
-add_scalar_tests(
+add_parallel_tests(
    SOURCES "${test_sources}"
-   DEPS    Lib_diagnostics )
+   DEPS    Lib_diagnostics
+   PE_LIST "1" )
 
 include( ApplicationUnitTest )
 
