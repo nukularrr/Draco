@@ -46,7 +46,7 @@ void runtest(rtt_dsxx::UnitTest &ut) {
   // (PID:2849) ./tstStackTrace() [0x4054f9] : ??
   // Stack trace: END (PID:2849)
 
-  std::string trace;
+  std::string trace("demo error message");
   sr1(trace);
   std::cout << trace << std::endl;
 
@@ -60,10 +60,8 @@ void runtest(rtt_dsxx::UnitTest &ut) {
       rtt_dsxx::get_word_count(msg, verbose);
 
   // Expected values.
-  if (words[std::string("PID")] != 1)
-    ITFAILS;
-  if (words[std::string("Stack")] < 2)
-    ITFAILS;
+  FAIL_IF_NOT(words[std::string("PID")] == 1);
+  FAIL_IF(words[std::string("Stack")] < 2);
 
   if (ut.numFails == 0)
     PASSMSG("done with testing print_stacktrace.");
