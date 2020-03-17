@@ -98,15 +98,16 @@ Many thanks go to Draco's [contributors](https://github.com/lanl/Draco/graphs/co
 Draco was originally written by staff from Los Alamos's [CCS-2 Computational Physics and Methods Group](http://www.lanl.gov/org/padste/adtsc/computer-computational-statistical-sciences/computational-physics-methods/index.php):
 
 > *CCS-2 Draco Team:* Kelly G. Thompson, Kent G. Budge, Ryan T. Wollaeger,
->   James S. Warsa, Alex R. Long, Kendra P. Long, Jae H. Chang,
->   Matt A. Cleveland, Andrew T. Till, and Tim Kelley.
+>   Ben R. Ryan, Alex R. Long Kendra P. Long, James S. Warsa,
+>   Matt A. Cleveland, Tim Kelley,  Jae H. Chang, Andrew T. Till,
+>   Seth D. Cook, Ondrej Certik, and David Dixon.
 
 > *Prior Contributers:* Gabriel M. Rockefeller, Allan B. Wollaber,
->   Lori A. Pritchett-Sheats, Rob B. Lowrie, Paul W. Talbot, Katherine J. Wang,
->   Peter Ahrens, Daniel Holladay, Jeff D. Densmore, Massimiliano Rosa,
->   Todd J. Urbatsch, Jeff Furnish, John McGhee, Kris C. Garrett, Mike Buksas,
->   Nick Myers, Paul Henning, Randy Roberts, Seth Johnson, Todd Adams, and
->   Tom Evans.
+>   Rob B. Lowrie, Paul W. Talbot, Katherine J. Wang, Peter Ahrens,
+>   Daniel Holladay, Jeff D. Densmore, Massimiliano Rosa,
+>   Todd J. Urbatsch, Jeff Furnish, John McGhee, Kris C. Garrett,
+>   Mike Buksas, Nick Myers, Paul Henning, Randy Roberts, Seth Johnson,
+>   Todd Adams, Lori A. Pritchett-Sheats, and Tom Evans.
 
 Release
 ----------------
