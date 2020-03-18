@@ -30,8 +30,7 @@ void sr1(std::string &msg) {
 
 //----------------------------------------------------------------------------//
 void runtest(rtt_dsxx::UnitTest &ut) {
-  std::cout << "Running tstStackTrace...\n\n"
-            << "Requesting a trace..." << std::endl;
+  std::cout << "Running tstStackTrace...\nRequesting a trace..." << std::endl;
 
   // Create a stack trace.  It should look something like this:
 
@@ -46,7 +45,7 @@ void runtest(rtt_dsxx::UnitTest &ut) {
   // (PID:2849) ./tstStackTrace() [0x4054f9] : ??
   // Stack trace: END (PID:2849)
 
-  std::string trace("demo error message");
+  std::string trace("demo stack trace message");
   sr1(trace);
   std::cout << trace << std::endl;
 
