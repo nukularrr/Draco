@@ -19,7 +19,7 @@ environments="p9gcc730env"
 case $ddir in
 
   #---------------------------------------------------------------------------#
-  draco-7_2* | draco-7_3* | draco-7_4* | draco-7_5*)
+  draco-7_2* | draco-7_3* | draco-7_4* | draco-7_5* | draco-7_6*)
     function p9gcc730env()
     {
       export darwin_queue="-p power9-asc -A asc-priority"
@@ -38,8 +38,7 @@ openmpi/p9/3.1.3-gcc_7.3.0"
       mpiflavor="parmetis/4.0.3-$mflavor
 superlu-dist/5.2.2-${mflavor}-$lflavor trilinos/12.14.1-cuda-10.1-${mflavor}-$lflavor"
 
-      # These aren't built for power architectures?
-      ec_mf="ndi"
+      ec_mf="ndi libquo"
 
       # work around for known openmpi issues:
       # https://rtt.lanl.gov/redmine/issues/1229
