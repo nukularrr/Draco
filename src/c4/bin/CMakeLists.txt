@@ -11,6 +11,8 @@ project( c4_bin CXX )
 # Build package library
 # ---------------------------------------------------------------------------- #
 
+# xthi depends on OpenMP, don't attempt to build it if we don't have it
+if(OPENMP_FOUND)
 add_component_executable(
   TARGET      Exe_xthi
   TARGET_DEPS Lib_c4
@@ -18,6 +20,8 @@ add_component_executable(
   PREFIX       Draco )
 #target_include_directories( Exe_xthi
 #  PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}> )
+install( TARGETS Exe_xthi EXPORT draco-targets DESTINATION ${DBSCFGDIR}bin )
+endif(OPENMP_FOUND)
 
 add_component_executable(
   TARGET      Exe_ythi
@@ -31,7 +35,6 @@ add_component_executable(
 # Installation instructions
 # ---------------------------------------------------------------------------- #
 
-install( TARGETS Exe_xthi EXPORT draco-targets DESTINATION ${DBSCFGDIR}bin )
 install( TARGETS Exe_ythi EXPORT draco-targets DESTINATION ${DBSCFGDIR}bin )
 
 # ---------------------------------------------------------------------------- #
