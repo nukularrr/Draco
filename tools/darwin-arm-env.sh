@@ -33,7 +33,8 @@ case $ddir in
       lapackflavor="lapack-3.8.0"
       noflavor="git gcc/8.2.0 ndi"
       compflavor="cmake/3.14.2-$cflavor gsl/2.5-$cflavor netlib-lapack/3.8.0-$cflavor numdiff/5.9.0-$cflavor random123/1.09-$cflavor metis/5.1.0-$cflavor eospac/6.4.0-$cflavor openmpi/3.1.3-gcc_8.2.0"
-      mpiflavor="libquo parmetis/4.0.3-$mflavor superlu-dist/5.2.2-$mflavor-$lapackflavor trilinos/12.14.1-$mflavor-$lapackflavor"
+      mpiflavor="libquo/1.3-$mflavor parmetis/4.0.3-$mflavor superlu-dist/5.2.2-$mflavor-$lapackflavor trilinos/12.14.1-$mflavor-$lapackflavor"
+      ec_mf="ndi/2.1.3-$cflavor csk/0.5.0-$cflavor"
 
       export dracomodules="$noflavor $compflavor $mpiflavor $ec_mf"
       for m in $dracomodules; do
