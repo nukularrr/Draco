@@ -26,17 +26,19 @@ Synopsis of Active Draco Packages
 ---------------------------------
 
 * c4 - A communications library for message passing interfaces (MPI).
-  * For builds without MPI, all communication commnds will be no-op functions
-    (`DRACO_C4={MPI;SCALAR}`).
+  * For builds without MPI, all communication commnds will be no-op
+    functions (`DRACO_C4={MPI;SCALAR}`). Also proivdes a wrapper to
+    [libquo](https://github.com/lanl/libquo)
 * cdi - Access to material data. The Common Data Interface (CDI) specifies a
   common abstraction for objects and libraries that return material data
   (opacities, atomic cross sections, equation-of-state data, etc.)
 * cdi_analytic - Analytic models for physical data
 * cdi_CPEloss - Stopping power models for charged particles.
 * cdi_eospac - Equation-of-State data
-  * These classes wrap the EOSPAC6 libraries that read sesame files; Commonly
-    used to access gray opacity data and heat capacities.
-   (`EOSPAC_LIB_DIR=<path>`).
+  * These classes wrap the [EOSPAC6
+    libraries](https://laws.lanl.gov/projects/data/eos.html) that read
+    sesame files; Commonly used to access gray opacity data and heat
+    capacities.  (`EOSPAC_LIB_DIR=<path>`).
 * cdi_ipcress - Gray and multigroup opacities
   * The classes in this component will read and parse opacity values from an
     IPCRESS file produced by TOPS.
@@ -44,7 +46,7 @@ Synopsis of Active Draco Packages
     accessing [nuclear data
     tables](https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html).
 * compton - Provides access to Compton scattering models and data as provided
-  by the CSK library.
+  by the [CSK library](https://gitlab.lanl.gov/CSK/CSK)..
 * device - Wrapper for heterogeneous device communication
   * The classes in this component provide access to DaCS (deprecated) and CUDA
     calls for use on heterogeneous architecture platforms (GPU machines).
