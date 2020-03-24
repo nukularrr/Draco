@@ -45,6 +45,9 @@ message(" ")
 message( STATUS "Configuring Level 1 packages --" )
 add_dir_if_exists( ds++ )
 
+# Only test ds++ if CI_CLANG_TIDY is running
+if( NOT CI_CLANG_TIDY )
+
 # Level 2
 message(" ")
 message( STATUS "Configuring Level 2 packages --" )
@@ -59,7 +62,6 @@ add_dir_if_exists( memory )       # needs ds++
 add_dir_if_exists( mesh_element ) # needs ds++
 add_dir_if_exists( ode )          # needs ds++
 add_dir_if_exists( plot2D )
-add_dir_if_exists( rng )          # needs ds++
 add_dir_if_exists( units )        # needs ds++
 add_dir_if_exists( viz )          # needs ds++
 
@@ -78,6 +80,7 @@ add_dir_if_exists( norms )        # needs c4
 add_dir_if_exists( parser )       # needs units, c4, mesh_element
 add_dir_if_exists( roots )        # needs linear
 add_dir_if_exists( VendorChecks ) # needs c4
+add_dir_if_exists( rng )          # needs ds++, device
 
 # Level 4
 message(" ")
@@ -92,6 +95,8 @@ message(" ")
 message( STATUS "Configuring Level 5 packages --" )
 add_dir_if_exists( mesh )       # needs c4, ds++, mesh_element
 add_dir_if_exists( quadrature ) # needs mesh_element, parser, special_functions
+
+endif()
 
 # Summary
 
