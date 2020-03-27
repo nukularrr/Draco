@@ -77,27 +77,21 @@ endif()
 find_path( NDI_INCLUDE_DIR
   NAMES ndi.h
   HINTS ${NDI_ROOT_DIR}/include/ndi
-  #PATH_SUFFIXES Release Debug
   )
-
-# if (APPLE)
-#     set(CMAKE_FIND_LIBRARY_SUFFIXES ".a;.dylib")
-# endif()
 
 set( NDI_LIBRARY_NAME ndipic ndi)
 
 find_library(NDI_LIBRARY
   NAMES ${NDI_LIBRARY_NAME}
   PATHS ${NDI_ROOT_DIR}/lib
-  #PATH_SUFFIXES Release Debug
   )
-
 # Do we also have debug versions?
 find_library( NDI_LIBRARY_DEBUG
   NAMES ${NDI_LIBRARY_NAME}
   HINTS ${NDI_ROOT_DIR}/lib
   PATH_SUFFIXES Debug
 )
+
 set( NDI_INCLUDE_DIRS ${NDI_INCLUDE_DIR} )
 set( NDI_LIBRARIES ${NDI_LIBRARY} )
 
