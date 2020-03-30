@@ -667,7 +667,7 @@ function( copy_dll_link_libraries_to_build_dir target )
 
   # Debug dependencies for a particular target (uncomment the next line and
   # provide the targetname): "Ut_${compname}_${testname}_exe"
-  if( "Ut_FortranChecks_cppmain_exe" STREQUAL ${target} )
+  if( "Ut_FortranChecks_foo_exe" STREQUAL ${target} )
      set(lverbose ON)
   endif()
   if( lverbose )
