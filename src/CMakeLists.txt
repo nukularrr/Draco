@@ -40,10 +40,21 @@ elseif( CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" )
   string( REPLACE "/W2" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" )
 endif()
 
+# <experimental/mdspan> doesn't work with some tool chains...
+option( USE_MDSPAN "Use experimental/mdspan" ON)
+if( (MSVC AND CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR
+    (CMAKE_CXX_COMPILER_ID MATCHES "Intel" AND
+     CMAKE_CXX_COMPILER_VERSION VERSION_LESS 18.0) )
+  set(USE_MDSPAN OFF)
+endif()
+
 # Level 1
 message(" ")
 message( STATUS "Configuring Level 1 packages --" )
 add_dir_if_exists( ds++ )
+
+# Only test ds++ if CI_CLANG_TIDY is running
+if( NOT CI_CLANG_TIDY )
 
 # Level 2
 message(" ")
@@ -52,21 +63,24 @@ add_dir_if_exists( c4 )           # needs ds++
 add_dir_if_exists( cdi )          # needs ds++
 add_dir_if_exists( compton )      # needs ds++, CSK
 add_dir_if_exists( device )       # needs ds++
-add_dir_if_exists( experimental ) # only the tests need ds++
+if( USE_MDSPAN )
+  add_dir_if_exists( experimental ) # only the tests need ds++
+endif()
 add_dir_if_exists( lapack_wrap )  # needs ds++
 add_dir_if_exists( linear )       # needs ds++
 add_dir_if_exists( memory )       # needs ds++
 add_dir_if_exists( mesh_element ) # needs ds++
 add_dir_if_exists( ode )          # needs ds++
 add_dir_if_exists( plot2D )
-add_dir_if_exists( rng )          # needs ds++
 add_dir_if_exists( units )        # needs ds++
 add_dir_if_exists( viz )          # needs ds++
 
 # Level 3
 message(" ")
 message( STATUS "Configuring Level 3 packages --" )
-add_dir_if_exists( cdi_CPEloss )  # needs cdi, units
+if( USE_MDSPAN )
+  add_dir_if_exists( cdi_CPEloss )  # needs cdi, units
+endif()
 add_dir_if_exists( cdi_ipcress )  # needs cdi
 add_dir_if_exists( cdi_ndi )      # needs ds++, rng, cdi
 add_dir_if_exists( diagnostics )  # needs c4
@@ -78,6 +92,7 @@ add_dir_if_exists( norms )        # needs c4
 add_dir_if_exists( parser )       # needs units, c4, mesh_element
 add_dir_if_exists( roots )        # needs linear
 add_dir_if_exists( VendorChecks ) # needs c4
+add_dir_if_exists( rng )          # needs ds++, device
 
 # Level 4
 message(" ")
@@ -92,6 +107,8 @@ message(" ")
 message( STATUS "Configuring Level 5 packages --" )
 add_dir_if_exists( mesh )       # needs c4, ds++, mesh_element
 add_dir_if_exists( quadrature ) # needs mesh_element, parser, special_functions
+
+endif()
 
 # Summary
 

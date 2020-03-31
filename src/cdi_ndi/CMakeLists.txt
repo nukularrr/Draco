@@ -7,7 +7,24 @@
 cmake_minimum_required(VERSION 3.9.0)
 project( cdi_ndi CXX )
 
+# No ndi in the Docker image used by Travis CI.
 if( NDI_FOUND AND NOT DEFINED ENV{TRAVIS} )
+
+if( NOT DEFINED NDI_ROOT_DIR AND DEFINED $ENV{NDI_ROOT_DIR})
+  set(NDI_ROOT_DIR $ENV{NDI_ROOT_DIR})
+endif()
+
+if( NOT DEFINED NDI_ROOT_DIR )
+  # if not set in the environment (by modulefile?), set NDI_ROOT_DIR to the
+  # prefix_path for NDI
+  get_filename_component(NDI_ROOT_DIR "${NDI_LIBRARY}" DIRECTORY)
+  get_filename_component(NDI_ROOT_DIR "${NDI_LIBRARY}" DIRECTORY CACHE)
+endif()
+
+# ---------------------------------------------------------------------------- #
+# Generate config.h (only occurs when cmake is run)
+# ---------------------------------------------------------------------------- #
+configure_file( config.h.in ${PROJECT_BINARY_DIR}/cdi_ndi/config.h )
 
 # ---------------------------------------------------------------------------- #
 # Source files
@@ -15,7 +32,7 @@ if( NDI_FOUND AND NOT DEFINED ENV{TRAVIS} )
 
 file( GLOB sources *.cc )
 file( GLOB headers *.hh )
-#list( REMOVE_ITEM sources ${PROJECT_SOURCE_DIR}/QueryNDI.cc )
+list( APPEND headers ${PROJECT_BINARY_DIR}/cdi_ndi/config.h )
 
 # ---------------------------------------------------------------------------- #
 # Build package library
@@ -23,17 +40,12 @@ file( GLOB headers *.hh )
 
 add_component_library(
    TARGET       Lib_cdi_ndi
-   TARGET_DEPS  "Lib_cdi;Lib_rng;NDI::ndi"
+   TARGET_DEPS  "Lib_cdi;Lib_rng;Lib_units;NDI::ndi"
    LIBRARY_NAME cdi_ndi
    SOURCES      "${sources}"
    HEADERS      "${headers}" )
-target_include_directories( Lib_cdi_ndi PUBLIC ${NDI_INCLUDE_DIR} )
-
-#add_component_executable(
-#  TARGET      Exe_QueryNDI
-#  TARGET_DEPS Lib_cdi_ndi
-#  SOURCES     ${PROJECT_SOURCE_DIR}/QueryNDI.cc
-#  PREFIX       Draco )
+target_include_directories( Lib_cdi_ndi PUBLIC ${NDI_INCLUDE_DIR}
+   PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}> )
 
 # ---------------------------------------------------------------------------- #
 # Installation instructions

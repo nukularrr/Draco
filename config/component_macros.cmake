@@ -35,8 +35,8 @@ set(Draco_std_target_props_CXX
 set(Draco_std_target_props_CUDA
   CUDA_STANDARD 14              # Force strict C++ 14 standard
   CUDA_EXTENSIONS OFF
-  CUDA_STANDARD_REQUIRED ON
-  CUDA_SEPARABLE_COMPILATION ON)
+  CUDA_STANDARD_REQUIRED ON)
+#  CUDA_SEPARABLE_COMPILATION ON)
 #  CUDA_RESOLVE_DEVICE_SYMBOLS ON )
 # target_include_directories (my lib
 #     PUBLIC $<BUILD_INTERFACE:${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}> )
@@ -68,6 +68,10 @@ function( dbs_std_tgt_props target )
   # files from clang.
   get_target_property( tgt_sources ${target} SOURCES )
   if( "${DRACO_STATIC_ANALYZER}" MATCHES "clang-tidy" )
+    if( NOT CLANG_TIDY_IPATH )
+      message(FATAL_ERROR "Unable to configure clang-tidy build because"
+        " CLANG_TIDY_IPATH is empty.")
+    endif()
     set_source_files_properties( ${tgt_sources} PROPERTIES INCLUDE_DIRECTORIES
       ${CLANG_TIDY_IPATH} )
   endif()
@@ -580,11 +584,11 @@ macro( register_parallel_test targetname numPE command cmd_args )
   unset( RUN_CMD )
 
   if( addparalleltest_MPI_PLUS_OMP )
-    string( REPLACE " " ";" mpiexec_omp_postflags_list "${MPIEXEC_OMP_POSTFLAGS}" )
+    string( REPLACE " " ";" mpiexec_omp_preflags_list "${MPIEXEC_OMP_PREFLAGS}" )
     add_test(
       NAME    ${targetname}
       COMMAND ${RUN_CMD} ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${numPE}
-              ${mpiexec_omp_postflags_list}
+              ${mpiexec_omp_preflags_list}
               ${command}
               ${cmdarg}
               )
@@ -592,7 +596,7 @@ macro( register_parallel_test targetname numPE command cmd_args )
     add_test(
       NAME    ${targetname}
       COMMAND ${RUN_CMD} ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${numPE}
-              ${MPIRUN_POSTFLAGS}
+              ${MPIRUN_PREFLAGS}
               ${command}
               ${cmdarg}
               )
@@ -643,22 +647,19 @@ macro( register_parallel_test targetname numPE command cmd_args )
   unset( lverbose )
 endmacro()
 
-#----------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
 # Special post-build options for Win32 platforms
-# ---------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
 # copy_dll_link_libraries_to_build_dir( target )
 #
-# For Win32 with shared libraries, all dll dependencies must be located
-# in the PATH or in the application directory.  This cmake function
-# creates POST_BUILD rules for unit tests and applications to ensure
-# that the most up-to-date versions of all dependencies are in the same
-# directory as the application.
-#
-# Consider replacing this functionality with CMake's BundleUtilities.
-#----------------------------------------------------------------------#
+# For Win32 with shared libraries, all dll dependencies must be located in the
+# PATH or in the application directory.  This cmake function creates POST_BUILD
+# rules for unit tests and applications to ensure that the most up-to-date
+# versions of all dependencies are in the same directory as the application.
+#------------------------------------------------------------------------------#
 function( copy_dll_link_libraries_to_build_dir target )
 
-  if( NOT WIN32 )
+  if( NOT MSVC )
     # Win32 platforms require all dll libraries to be in the local directory
     # (or $PATH)
     return()
@@ -666,7 +667,7 @@ function( copy_dll_link_libraries_to_build_dir target )
 
   # Debug dependencies for a particular target (uncomment the next line and
   # provide the targetname): "Ut_${compname}_${testname}_exe"
-  if( "Ut_rng_ut_gsl_exe_foo" STREQUAL ${target} )
+  if( "Ut_FortranChecks_foo_exe" STREQUAL ${target} )
      set(lverbose ON)
   endif()
   if( lverbose )
@@ -680,7 +681,6 @@ function( copy_dll_link_libraries_to_build_dir target )
   get_target_property( link_libs ${target} LINK_LIBRARIES )
   if( lverbose )
     message("\nDebugging dependencies for target ${target}")
-    # "${compname}_${testname}")
     message("  Dependencies = ${link_libs}\n")
   endif()
   if( "${link_libs}" MATCHES NOTFOUND )
@@ -692,7 +692,8 @@ function( copy_dll_link_libraries_to_build_dir target )
   # dependencies.
   while( NOT "${old_link_libs}" STREQUAL "${link_libs}" )
     if(lverbose)
-       message("Found new libraries (old_link_libs != link_libs).  Restarting search loop...\n")
+       message("Found new libraries (old_link_libs != link_libs).  Restarting"
+       " search loop...\n")
     endif()
     set( old_link_libs ${link_libs} )
     foreach( lib ${link_libs} )
@@ -705,7 +706,8 @@ function( copy_dll_link_libraries_to_build_dir target )
       if( NOT EXISTS ${lib} AND TARGET ${lib} )
           # Must be a CMake target... find it's dependencies...
           # The target may be
-          # 1. A target defined within the current build system (e.g.: Lib_c4), or
+          # 1. A target defined within the current build system (e.g.: Lib_c4),
+          #    or
           # 2. an 'imported' targets like GSL::gsl.
           get_target_property( isimp ${lib} IMPORTED )
           if(isimp)
@@ -728,10 +730,12 @@ function( copy_dll_link_libraries_to_build_dir target )
           message("lib = ${lib} is NOTFOUND --> remove it from the list")
         endif()
       elseif( "${lib}" MATCHES "[$]<")
-        # We have a generator expression.  This routine does not support this, so drop it.
+        # We have a generator expression.  This routine does not support this,
+        # so drop it.
         list( REMOVE_ITEM link_libs ${lib} )
         if( lverbose )
-          message("lib = ${lib} is a generator expression --> remove it from the list")
+          message("lib = ${lib} is a generator expression --> remove it from"
+            " the list")
         endif()
       elseif( "${lib}" MATCHES ".[lL]ib$" )
         # We have a path to a static library. Static libraries do not
@@ -787,25 +791,27 @@ function( copy_dll_link_libraries_to_build_dir target )
       get_target_property(lib_type ${lib} TYPE )
       if( ${lib_type} STREQUAL "INTERFACE_LIBRARY" )
         if( lverbose )
-          message("  I think ${lib} is an INTERFACE_LIBRARY. Skipping to next dependency.")
+          message("  I think ${lib} is an INTERFACE_LIBRARY. Skipping to next "
+            "dependency.")
         endif()
         continue()
       endif()
       get_target_property(is_imported ${lib} IMPORTED )
       if( is_imported )
-        get_target_property(target_loc ${lib} IMPORTED_LOCATION_RELEASE )
-        if( ${target_loc} MATCHES "NOTFOUND" )
-          get_target_property(target_loc ${lib} IMPORTED_LOCATION_DEBUG )
-        endif()
-        if( ${target_loc} MATCHES "NOTFOUND" )
-          get_target_property(target_loc ${lib} IMPORTED_LOCATION )
-        endif()
-        if( ${target_loc} MATCHES "NOTFOUND" )
+        get_target_property(target_loc_rel ${lib} IMPORTED_LOCATION_RELEASE )
+        get_target_property(target_loc_deb ${lib} IMPORTED_LOCATION_DEBUG )
+        get_target_property(target_loc ${lib} IMPORTED_LOCATION )
+        if( ${target_loc_rel} MATCHES "NOTFOUND" AND
+            ${target_loc_deb} MATCHES "NOTFOUND" AND
+            ${target_loc} MATCHES "NOTFOUND" )
           # path not found, ignore.
           if (lverbose )
-            message("  ${lib} does not have an IMPORTED_LOCATION value. skip it.")
+            message("  ${lib} does not have an IMPORTED_LOCATION value. "
+              "skip it.")
           endif()
           continue()
+        else()
+          set(target_loc "$<TARGET_FILE:${lib}>")
         endif()
         get_target_property(target_gnutoms ${lib} GNUtoMS)
       elseif( EXISTS ${lib} )
@@ -828,7 +834,8 @@ function( copy_dll_link_libraries_to_build_dir target )
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_CFG_INTDIR} )
 
       if( lverbose )
-        message("  CMAKE_COMMAND -E copy_if_different ${target_loc} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_CFG_INTDIR}")
+        message("  CMAKE_COMMAND -E copy_if_different ${target_loc} "
+          "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_CFG_INTDIR}")
       endif()
 
     endif()
@@ -900,10 +907,10 @@ macro( add_scalar_tests test_sources )
   # ------------------------------------------------------------
   # On some platforms (Trinity, Sierra), even scalar tests must be run
   # underneath MPIEXEC_EXECUTABLE (srun, jsrun, lrun):
-  separate_arguments(MPIEXEC_POSTFLAGS)
+  separate_arguments(MPIEXEC_PREFLAGS)
   if( "${MPIEXEC_EXECUTABLE}" MATCHES "srun" OR
       "${MPIEXEC_EXECUTABLE}" MATCHES "jsrun" )
-    set( RUN_CMD ${MPIEXEC_EXECUTABLE} ${MPIEXEC_POSTFLAGS} -n 1 )
+    set( RUN_CMD ${MPIEXEC_EXECUTABLE} ${MPIEXEC_PREFLAGS} -n 1 )
   else()
     unset( RUN_CMD )
   endif()
@@ -1089,11 +1096,11 @@ macro( add_parallel_tests )
 
   # Override MPI Flags upon user request
   if ( NOT DEFINED addparalleltest_MPIFLAGS )
-    set( MPIRUN_POSTFLAGS ${MPIEXEC_POSTFLAGS} )
+    set( MPIRUN_PREFLAGS ${MPIEXEC_PREFLAGS} )
   else()
-    set( MPIRUN_POSTFLAGS "${addparalleltest_MPIFLAGS}" )
+    set( MPIRUN_PREFLAGS "${addparalleltest_MPIFLAGS}" )
   endif()
-  separate_arguments( MPIRUN_POSTFLAGS )
+  separate_arguments( MPIRUN_PREFLAGS )
 
   # Loop over each test source files:
   # 1. Compile the executable
