@@ -76,7 +76,7 @@ add_component_executable(
   PREFIX       Draco
   )
 
-if( Qt5Core_DIR )
+if( Qt5Core_DIR AND NOT "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "ppc64le" )
   add_subdirectory( qt )
 endif()
 
