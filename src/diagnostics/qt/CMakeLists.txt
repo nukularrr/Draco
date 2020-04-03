@@ -43,6 +43,14 @@ add_component_executable(
   FOLDER       diagnostics
   NOCOMMANDWINDOW )
 
+# Disable IPO for appliations that link to Qt SDK, as this causes compile
+# warnings for the Intel compiler (and it refuses to run IPO for this
+# application anyway).
+if( CMAKE_CXX_COMPILER_ID MATCHES "Intel")
+  set_target_properties( Exe_draco_info_gui PROPERTIES
+    INTERPROCEDURAL_OPTIMIZATION_RELEASE OFF )
+endif()
+
 # Copy Qt dll files to build directory
 # copy_dll_link_libraries_to_build_dir( Exe_draco_info_gui )
 if (WIN32)
