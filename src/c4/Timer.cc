@@ -9,6 +9,7 @@
 
 #include "Timer.hh"
 #include "ds++/XGetopt.hh"
+#include <array>
 #include <cmath>
 #include <cstdlib>
 #include <iomanip>
@@ -40,11 +41,9 @@ int selected_cache = 2;
 
 //! Constructor
 Timer::Timer()
-    : begin(0.0), end(0.0), tms_begin(DRACO_TIME_TYPE()),
-      tms_end(DRACO_TIME_TYPE()),
+    : tms_begin(DRACO_TIME_TYPE()), tms_end(DRACO_TIME_TYPE()),
       posix_clock_ticks_per_second(static_cast<int>(DRACO_CLOCKS_PER_SEC)),
-      timer_on(false), isMPIWtimeAvailable(setIsMPIWtimeAvailable()),
-      sum_wall(0.0), sum_system(0.0), sum_user(0.0), num_intervals(0) {
+      isMPIWtimeAvailable(setIsMPIWtimeAvailable()) {
 #if defined(WIN32)
   static_assert(DRACO_CLOCKS_PER_SEC < INT32_MAX,
                 "!(DRACO_CLOCKS_PER_SEC < INT32_MAX)");
@@ -179,7 +178,7 @@ bool Timer::setIsMPIWtimeAvailable() const {
 #ifdef HAVE_PAPI
 void Timer::initialize(int &argc, char *argv[])
 #else
-void Timer::initialize(int & /*argc*/, char * /*argv*/ [])
+void Timer::initialize(int & /*argc*/, char ** /*argv*/)
 #endif
 {
 // The initialize function need not be called if the default settings are
@@ -347,8 +346,8 @@ void Timer::printline_mean(std::ostream &out, unsigned const p,
   double s = sum_system_cpu(), s2 = s * s;
   double ww = sum_wall_clock(), ww2 = ww * ww;
 
-  double buffer[8] = {ni, ni2, u, u2, s, s2, ww, ww2};
-  rtt_c4::global_sum(buffer, 8);
+  std::array<double, 8> buffer = {ni, ni2, u, u2, s, s2, ww, ww2};
+  rtt_c4::global_sum(buffer.data(), 8);
 
   ni = buffer[0];
   ni2 = buffer[1];
@@ -363,7 +362,7 @@ void Timer::printline_mean(std::ostream &out, unsigned const p,
   // unsigned or dropping a negative sign.
   Check(ni >= 0.0);
   Check(ni < ranks * std::numeric_limits<unsigned>::max());
-  unsigned mni = static_cast<unsigned>(ni / ranks);
+  auto mni = static_cast<unsigned>(ni / ranks);
   double mu = u / ranks;
   double ms = s / ranks;
   double mww = ww / ranks;

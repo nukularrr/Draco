@@ -23,8 +23,8 @@ void tstCopyConstructor(rtt_dsxx::UnitTest &ut) {
   C4_Req requestA;
   C4_Req requestB(requestA);
 
-  // The behavior of the copy constructor is not obvious.  If requestA has
-  // not been used (inuse() returns false) then requestA != requestB.
+  // The behavior of the copy constructor is not obvious.  If requestA has not
+  // been used (inuse() returns false) then requestA != requestB.
 
   if (!requestA.inuse() && requestA == requestB)
     FAILMSG("requestA.inuse() is false, so requestA cannot == requestB.");
@@ -65,18 +65,13 @@ void tstTraits(rtt_dsxx::UnitTest &ut) {
 #ifdef C4_MPI
   {
     using rtt_c4::MPI_Traits;
-    if (MPI_Traits<unsigned char>::element_type() != MPI_UNSIGNED_CHAR)
-      ITFAILS;
-    if (MPI_Traits<short>::element_type() != MPI_SHORT)
-      ITFAILS;
-    if (MPI_Traits<unsigned short>::element_type() != MPI_UNSIGNED_SHORT)
-      ITFAILS;
-    if (MPI_Traits<unsigned int>::element_type() != MPI_UNSIGNED)
-      ITFAILS;
-    if (MPI_Traits<unsigned long>::element_type() != MPI_UNSIGNED_LONG)
-      ITFAILS;
-    if (MPI_Traits<long double>::element_type() != MPI_LONG_DOUBLE)
-      ITFAILS;
+    FAIL_IF_NOT(MPI_Traits<unsigned char>::element_type() == MPI_UNSIGNED_CHAR);
+    FAIL_IF_NOT(MPI_Traits<short>::element_type() == MPI_SHORT);
+    FAIL_IF_NOT(MPI_Traits<unsigned short>::element_type() ==
+                MPI_UNSIGNED_SHORT);
+    FAIL_IF_NOT(MPI_Traits<unsigned int>::element_type() == MPI_UNSIGNED);
+    FAIL_IF_NOT(MPI_Traits<unsigned long>::element_type() == MPI_UNSIGNED_LONG);
+    FAIL_IF_NOT(MPI_Traits<long double>::element_type() == MPI_LONG_DOUBLE);
   }
 #endif
 
@@ -89,17 +84,16 @@ void tstWait(rtt_dsxx::UnitTest &ut) {
 
   if (rtt_c4::node() > 0) {
     cout << "sending from processor " << get_processor_name() << ':' << endl;
-    int buffer[1];
+    int buffer[1]{};
     buffer[0] = node();
     C4_Req outgoing = send_async(buffer, 1U, 0);
     unsigned result = wait_any(1U, &outgoing);
-    if (result != 0)
-      ITFAILS;
+    FAIL_IF_NOT(result == 0);
   } else {
     cout << "receiving to processor " << get_processor_name() << ':' << endl;
     Check(rtt_c4::nodes() < 5);
     C4_Req requests[4];
-    bool done[4];
+    bool done[4]{false, false, false, false};
     for (int p = 1; p < nodes(); ++p) {
       int buffer[4][1];
       requests[p] = receive_async(buffer[p], 1U, p);
@@ -107,13 +101,9 @@ void tstWait(rtt_dsxx::UnitTest &ut) {
     }
     for (int c = 1; c < nodes(); ++c) {
       unsigned result = wait_any(nodes(), requests);
-      if (done[result])
-        ITFAILS;
+      FAIL_IF(done[result]);
       done[result] = true;
     }
-    for (int p = 1; p < nodes(); ++p)
-      if (!done[p])
-        ITFAILS;
   }
   return;
 }

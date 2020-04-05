@@ -30,31 +30,32 @@ public:
     my_ints[1] = rank * 1000;
     my_ints[2] = rank * 10000;
     my_doubles[0] = static_cast<double>(rank);
-    my_doubles[1] = static_cast<double>(rank * 1000);
+    my_doubles[1] = my_doubles[0] * 1000.0;
     my_longs[0] = rank + 100000000l;
     my_longs[1] = rank + 1000000000l;
   }
-  ~Custom() {}
+  ~Custom() = default;
 
 public:
   static const int mpi_tag = 512;
 #ifdef C4_SCALAR
-  static void commit_mpi_type(void) {}
+  static void commit_mpi_type() {}
   static int MPI_Type;
 #else
   static MPI_Datatype MPI_Type;
-  static void commit_mpi_type(void) {
+  static void commit_mpi_type() {
     MPI_Datatype og_MPI_Custom;
 
     const int custom_entry_count = 3;
 
-    // set the number of entries for each datatype
+    // set the number of entries for each data type
     int num_int(4);
     int num_double(2);
     int num_long(2);
     int custom_array_of_block_length[3] = {num_int, num_double, num_long};
 
-    int int_size, double_size;
+    int int_size(0);
+    int double_size(0);
     MPI_Type_size(MPI_INT, &int_size);
     MPI_Type_size(MPI_DOUBLE, &double_size);
 
@@ -72,19 +73,19 @@ public:
     // Commit the type to MPI so it recognizes it in communication calls
     MPI_Type_commit(&og_MPI_Custom);
 
-    // Duplicate the type so it's recognized when returned out of this
-    // context (I don't know why this is necessary)
+    // Duplicate the type so it's recognized when returned out of this context
+    // (I don't know why this is necessary)
     MPI_Type_dup(og_MPI_Custom, &MPI_Type);
   }
 #endif
 
-  int get_int1(void) const { return my_ints[0]; }
-  int get_int2(void) const { return my_ints[1]; }
-  int get_int3(void) const { return my_ints[2]; }
-  double get_double1(void) const { return my_doubles[0]; }
-  double get_double2(void) const { return my_doubles[1]; }
-  long get_long1(void) const { return my_longs[0]; }
-  long get_long2(void) const { return my_longs[1]; }
+  int get_int1() const { return my_ints[0]; }
+  int get_int2() const { return my_ints[1]; }
+  int get_int3() const { return my_ints[2]; }
+  double get_double1() const { return my_doubles[0]; }
+  double get_double2() const { return my_doubles[1]; }
+  long get_long1() const { return my_longs[0]; }
+  long get_long2() const { return my_longs[1]; }
 
 private:
   int my_ints[3];
@@ -106,9 +107,9 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
   int const pid = rtt_c4::node();
 
   if (pid == 0)
-    cout << "Test send_is() by sending data to proc myid+1..." << endl;
+    cout << "Test send_is() by sending data to processor myid+1..." << endl;
 
-  // for point-to-point communiction we need to know neighbor's identifiers:
+  // for point-to-point communication we need to know neighbor's identifiers:
   // left, right.
   int right = (pid + 1) % rtt_c4::nodes();
   int left = pid - 1;
@@ -124,7 +125,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
 
-    // create some size 10 data to send/recv.
+    // create some size 10 data to send/receive.
     vector<int> buffer2(bsize);
     vector<int> buffer1(bsize);
     for (unsigned i = 0; i < bsize; ++i) {
@@ -143,7 +144,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       // wait for all communication to finish
       rtt_c4::wait_all(static_cast<unsigned>(comm.size()), &comm[0]);
 
-      // exected results
+      // expected results
       vector<int> expected(bsize);
       for (size_t i = 0; i < bsize; ++i) {
         expected[i] = 1000 * left + static_cast<int>(i);
@@ -178,11 +179,11 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
 
-    // create some size 10 data to send/recv.
+    // create some size 10 data to send/receive.
     vector<double> buffer2(bsize);
     vector<double> buffer1(bsize);
     for (unsigned i = 0; i < bsize; ++i) {
-      buffer1[i] = static_cast<double>(1000 * pid + i);
+      buffer1[i] = static_cast<double>(1000.0 * pid + i);
     }
 
     // post asynchronous receives.
@@ -196,10 +197,10 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       // wait for all communication to finish
       rtt_c4::wait_all(static_cast<unsigned>(comm.size()), &comm[0]);
 
-      // exected results
+      // expected results
       vector<double> expected(bsize);
       for (size_t i = 0; i < bsize; ++i) {
-        expected[i] = static_cast<double>(1000 * left + i);
+        expected[i] = static_cast<double>(1000.0 * left + i);
       }
 
       if (soft_equiv(expected.begin(), expected.end(), buffer2.begin(),
@@ -217,7 +218,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     } catch (rtt_dsxx::assertion const & /*error*/) {
 #ifdef C4_SCALAR
       PASSMSG("Successfully caught a ds++ exception while trying to use "
-              "send_is<double>() in a C4_SCALAR buildb.");
+              "send_is<double>() in a C4_SCALAR build.");
 #else
       FAILMSG("Encountered a ds++ exception while testing send_is<double>().");
 #endif
@@ -233,7 +234,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
 
-    // create some size 10 data to send/recv.
+    // create some size 10 data to send/receive.
     vector<float> buffer2(bsize);
     vector<float> buffer1(bsize);
     for (unsigned i = 0; i < bsize; ++i) {
@@ -251,7 +252,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       // wait for all communication to finish
       rtt_c4::wait_all(static_cast<unsigned>(comm.size()), &comm[0]);
 
-      // exected results
+      // expected results
       vector<float> expected(bsize);
       for (size_t i = 0; i < bsize; ++i) {
         expected[i] = static_cast<float>(1000 * left + i);
@@ -273,7 +274,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     } catch (rtt_dsxx::assertion const & /*error*/) {
 #ifdef C4_SCALAR
       PASSMSG("Successfully caught a ds++ exception while trying to use "
-              "send_is<float>() in a C4_SCALAR buildb.");
+              "send_is<float>() in a C4_SCALAR build.");
 #else
       FAILMSG("Encountered a ds++ exception while testing send_is<float>().");
 #endif
@@ -289,11 +290,11 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
 
-    // create some size 10 data to send/recv.
+    // create some size 10 data to send/receive.
     vector<long double> buffer2(bsize);
     vector<long double> buffer1(bsize);
     for (unsigned i = 0; i < bsize; ++i) {
-      buffer1[i] = static_cast<long double>(1000 * pid + i);
+      buffer1[i] = static_cast<long double>(1000.0 * pid + i);
     }
 
     // post asynchronous receives.
@@ -307,10 +308,10 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       // wait for all communication to finish
       rtt_c4::wait_all(static_cast<unsigned>(comm.size()), &comm[0]);
 
-      // exected results
+      // expected results
       vector<long double> expected(bsize);
       for (size_t i = 0; i < bsize; ++i) {
-        expected[i] = static_cast<long double>(1000 * left + i);
+        expected[i] = static_cast<long double>(1000.0 * left + i);
       }
 
       long double const eps = 1.0e-6f;
@@ -329,7 +330,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     } catch (rtt_dsxx::assertion const & /*error*/) {
 #ifdef C4_SCALAR
       PASSMSG("Successfully caught a ds++ exception while trying to use "
-              "send_is<long double>() in a C4_SCALAR buildb.");
+              "send_is<long double>() in a C4_SCALAR build.");
 #else
       FAILMSG(
           "Encountered a ds++ exception while testing send_is<long double>().");
@@ -345,7 +346,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
 
-    // create some size 10 data to send/recv.
+    // create some size 10 data to send/receive.
     vector<unsigned int> buffer2(bsize);
     vector<unsigned int> buffer1(bsize);
     for (unsigned i = 0; i < bsize; ++i) {
@@ -363,7 +364,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       // wait for all communication to finish
       rtt_c4::wait_all(static_cast<unsigned>(comm.size()), &comm[0]);
 
-      // exected results
+      // expected results
       vector<unsigned int> expected(bsize);
       for (size_t i = 0; i < bsize; ++i) {
         expected[i] = static_cast<unsigned int>(1000 * left + i);
@@ -385,7 +386,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     } catch (rtt_dsxx::assertion const & /*error*/) {
 #ifdef C4_SCALAR
       PASSMSG("Successfully caught a ds++ exception while trying to use "
-              "send_is<unsigned int>() in a C4_SCALAR buildb.");
+              "send_is<unsigned int>() in a C4_SCALAR build.");
 #else
       FAILMSG("Encountered a ds++ exception while testing send_is<unsigned "
               "int>().");
@@ -402,7 +403,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
 
-    // create some size 10 data to send/recv.
+    // create some size 10 data to send/receive.
     vector<unsigned long> buffer2(bsize);
     vector<unsigned long> buffer1(bsize);
     for (unsigned i = 0; i < bsize; ++i) {
@@ -420,7 +421,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       // wait for all communication to finish
       rtt_c4::wait_all(static_cast<unsigned>(comm.size()), &comm[0]);
 
-      // exected results
+      // expected results
       vector<unsigned long> expected(bsize);
       for (size_t i = 0; i < bsize; ++i) {
         expected[i] = static_cast<unsigned long>(1000 * left + i);
@@ -442,7 +443,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     } catch (rtt_dsxx::assertion const & /*error*/) {
 #ifdef C4_SCALAR
       PASSMSG("Successfully caught a ds++ exception while trying to use "
-              "send_is<unsigned long>() in a C4_SCALAR buildb.");
+              "send_is<unsigned long>() in a C4_SCALAR build.");
 #else
       FAILMSG("Encountered a ds++ exception while testing send_is<unsigned "
               "long>().");
@@ -459,7 +460,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
 
-    // create some size 10 data to send/recv.
+    // create some size 10 data to send/receive.
     vector<unsigned short> buffer2(bsize);
     vector<unsigned short> buffer1(bsize);
     for (unsigned i = 0; i < bsize; ++i) {
@@ -477,7 +478,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       // wait for all communication to finish
       rtt_c4::wait_all(static_cast<unsigned>(comm.size()), &comm[0]);
 
-      // exected results
+      // expected results
       vector<unsigned short> expected(bsize);
       for (size_t i = 0; i < bsize; ++i) {
         expected[i] = static_cast<unsigned short>(1000 * left + i);
@@ -499,7 +500,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     } catch (rtt_dsxx::assertion const & /*error*/) {
 #ifdef C4_SCALAR
       PASSMSG("Successfully caught a ds++ exception while trying to use "
-              "send_is<unsigned short>() in a C4_SCALAR buildb.");
+              "send_is<unsigned short>() in a C4_SCALAR build.");
 #else
       FAILMSG("Encountered a ds++ exception while testing send_is<unsigned "
               "long>().");
@@ -517,11 +518,11 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
 
-    // create some size 10 data to send/recv.
+    // create some size 10 data to send/receive.
     vector<unsigned long long> buffer2(bsize);
     vector<unsigned long long> buffer1(bsize);
     for (unsigned i = 0; i < bsize; ++i) {
-      buffer1[i] = static_cast<unsigned long long>(1000 * pid + i);
+      buffer1[i] = 1000 * static_cast<unsigned long long>(pid) + i;
     }
 
     // post asynchronous receives.
@@ -535,10 +536,10 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       // wait for all communication to finish
       rtt_c4::wait_all(static_cast<unsigned>(comm.size()), &comm[0]);
 
-      // exected results
+      // expected results
       vector<unsigned long long> expected(bsize);
       for (size_t i = 0; i < bsize; ++i) {
-        expected[i] = static_cast<unsigned long long>(1000 * left + i);
+        expected[i] = 1000 * static_cast<unsigned long long>(left) + i;
       }
 
       if (std::equal(expected.begin(), expected.end(), buffer2.begin(),
@@ -556,7 +557,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     } catch (rtt_dsxx::assertion const & /*error*/) {
 #ifdef C4_SCALAR
       PASSMSG("Successfully caught a ds++ exception while trying to use "
-              "send_is<unsigned long long>() in a C4_SCALAR buildb.");
+              "send_is<unsigned long long>() in a C4_SCALAR build.");
 #else
       FAILMSG("Encountered a ds++ exception while testing send_is<unsigned "
               "long>().");
@@ -572,7 +573,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
 
-    // create some size 10 data to send/recv.
+    // create some size 10 data to send/receive.
     vector<long> buffer2(bsize);
     vector<long> buffer1(bsize);
     for (unsigned i = 0; i < bsize; ++i) {
@@ -590,7 +591,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       // wait for all communication to finish
       rtt_c4::wait_all(static_cast<unsigned>(comm.size()), &comm[0]);
 
-      // exected results
+      // expected results
       vector<long> expected(bsize);
       for (size_t i = 0; i < bsize; ++i) {
         expected[i] = static_cast<long>(1000 * left + i);
@@ -611,7 +612,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     } catch (rtt_dsxx::assertion const & /*error*/) {
 #ifdef C4_SCALAR
       PASSMSG("Successfully caught a ds++ exception while trying to use "
-              "send_is<long>() in a C4_SCALAR buildb.");
+              "send_is<long>() in a C4_SCALAR build.");
 #else
       FAILMSG("Encountered a ds++ exception while testing send_is<unsigned "
               "long>().");
@@ -627,7 +628,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
 
-    // create some size 10 data to send/recv.
+    // create some size 10 data to send/receive.
     vector<short> buffer2(bsize);
     vector<short> buffer1(bsize);
     for (unsigned i = 0; i < bsize; ++i) {
@@ -645,7 +646,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       // wait for all communication to finish
       rtt_c4::wait_all(static_cast<unsigned>(comm.size()), &comm[0]);
 
-      // exected results
+      // expected results
       vector<short> expected(bsize);
       for (size_t i = 0; i < bsize; ++i) {
         expected[i] = static_cast<short>(1000 * left + i);
@@ -666,7 +667,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     } catch (rtt_dsxx::assertion const & /*error*/) {
 #ifdef C4_SCALAR
       PASSMSG("Successfully caught a ds++ exception while trying to use "
-              "send_is<short>() in a C4_SCALAR buildb.");
+              "send_is<short>() in a C4_SCALAR build.");
 #else
       FAILMSG("Encountered a ds++ exception while testing send_is<unsigned "
               "short>().");
@@ -683,11 +684,11 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
 
-    // create some size 10 data to send/recv.
+    // create some size 10 data to send/receive.
     vector<long long> buffer2(bsize);
     vector<long long> buffer1(bsize);
     for (unsigned i = 0; i < bsize; ++i) {
-      buffer1[i] = static_cast<long long>(1000 * pid + i);
+      buffer1[i] = 1000 * static_cast<long long>(pid) + i;
     }
 
     // post asynchronous receives.
@@ -701,10 +702,10 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       // wait for all communication to finish
       rtt_c4::wait_all(static_cast<unsigned>(comm.size()), &comm[0]);
 
-      // exected results
+      // expected results
       vector<long long> expected(bsize);
       for (size_t i = 0; i < bsize; ++i) {
-        expected[i] = static_cast<long long>(1000 * left + i);
+        expected[i] = 1000 * static_cast<long long>(left) + i;
       }
 
       if (std::equal(expected.begin(), expected.end(), buffer2.begin(),
@@ -722,7 +723,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     } catch (rtt_dsxx::assertion const & /*error*/) {
 #ifdef C4_SCALAR
       PASSMSG("Successfully caught a ds++ exception while trying to use "
-              "send_is<long long>() in a C4_SCALAR buildb.");
+              "send_is<long long>() in a C4_SCALAR build.");
 #else
       FAILMSG("Encountered a ds++ exception while testing send_is<unsigned "
               "long long>().");
@@ -739,7 +740,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
 
-    // create some size 10 data to send/recv.
+    // create some size 10 data to send/receive.
     bool buffer2[10];
     bool buffer1[10];
     for (unsigned i = 0; i < 10; ++i) {
@@ -755,7 +756,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       // wait for all communication to finish
       rtt_c4::wait_all(static_cast<unsigned>(comm.size()), &comm[0]);
 
-      // exected results
+      // expected results
       vector<bool> expected(10);
       for (size_t i = 0; i < 10; ++i) {
         expected[i] = i > 5;
@@ -776,7 +777,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     } catch (rtt_dsxx::assertion const & /*error*/) {
 #ifdef C4_SCALAR
       PASSMSG("Successfully caught a ds++ exception while trying to use "
-              "send_is<bool>() in a C4_SCALAR buildb.");
+              "send_is<bool>() in a C4_SCALAR build.");
 #else
       FAILMSG("Encountered a ds++ exception while testing send_is<unsigned "
               "bool>().");
@@ -790,17 +791,17 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     if (pid == 0)
       std::cout << "\nStarting send_is<char> tests..." << std::endl;
 
-    vector<char> alphabet(bsize + rtt_c4::nranks());
+    vector<char> alphabet(static_cast<size_t>(bsize) + rtt_c4::nranks());
     std::iota(alphabet.begin(), alphabet.end(), 'A');
 
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
 
-    // create some size 10 data to send/recv.
+    // create some size 10 data to send/receive.
     vector<char> buffer2(bsize);
     vector<char> buffer1(bsize);
     for (unsigned i = 0; i < bsize; ++i) {
-      buffer1[i] = alphabet[pid + i];
+      buffer1[i] = alphabet[static_cast<size_t>(pid) + i];
     }
 
     // post asynchronous receives.
@@ -814,7 +815,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       // wait for all communication to finish
       rtt_c4::wait_all(static_cast<unsigned>(comm.size()), &comm[0]);
 
-      // exected results
+      // expected results
       vector<char> expected(bsize);
       for (size_t i = 0; i < bsize; ++i) {
         expected[i] = alphabet[left + i];
@@ -828,14 +829,14 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
         PASSMSG(msg.str());
       } else {
         ostringstream msg;
-        msg << "Did not find expected char data after send_is<char>() "
-            << "on node " << pid << ".";
+        msg << "Did not find expected char data after send_is<char>() on node "
+            << pid << ".";
         FAILMSG(msg.str());
       }
     } catch (rtt_dsxx::assertion const & /*error*/) {
 #ifdef C4_SCALAR
       PASSMSG("Successfully caught a ds++ exception while trying to use "
-              "send_is<char>() in a C4_SCALAR buildb.");
+              "send_is<char>() in a C4_SCALAR build.");
 #else
       FAILMSG("Encountered a ds++ exception while testing send_is<"
               "char>().");
@@ -849,17 +850,18 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     if (pid == 0)
       std::cout << "\nStarting send_is<unsigned char> tests..." << std::endl;
 
-    vector<unsigned char> alphabet(bsize + rtt_c4::nranks());
+    vector<unsigned char> alphabet(static_cast<size_t>(bsize) +
+                                   rtt_c4::nranks());
     std::iota(alphabet.begin(), alphabet.end(), 'A');
 
     // C4_Req communication handles.
     vector<rtt_c4::C4_Req> comm(2);
 
-    // create some size 10 data to send/recv.
+    // create some size 10 data to send/receive.
     vector<unsigned char> buffer2(bsize);
     vector<unsigned char> buffer1(bsize);
     for (unsigned i = 0; i < bsize; ++i) {
-      buffer1[i] = alphabet[pid + i];
+      buffer1[i] = alphabet[pid + static_cast<size_t>(i)];
     }
 
     // post asynchronous receives.
@@ -873,7 +875,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       // wait for all communication to finish
       rtt_c4::wait_all(static_cast<unsigned>(comm.size()), &comm[0]);
 
-      // exected results
+      // expected results
       vector<unsigned char> expected(bsize);
       for (size_t i = 0; i < bsize; ++i) {
         expected[i] = alphabet[left + i];
@@ -895,7 +897,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     } catch (rtt_dsxx::assertion const & /*error*/) {
 #ifdef C4_SCALAR
       PASSMSG("Successfully caught a ds++ exception while trying to use "
-              "send_is<unsigned char>() in a C4_SCALAR buildb.");
+              "send_is<unsigned char>() in a C4_SCALAR build.");
 #else
       FAILMSG("Encountered a ds++ exception while testing send_is<"
               "unsigned char>().");
@@ -914,7 +916,7 @@ void test_send_custom(rtt_dsxx::UnitTest &ut) {
   // commit the MPI type for the Custom class. This must be done before
   // send_is_custom is called. DMC checks will throw if the type has not been
   // committed because size comparison will fail and MPI throws an error when an
-  // uncommited type is used in a send/receive
+  // uncommitted type is used in a send/receive
   Custom::commit_mpi_type();
 
 #ifdef C4_SCALAR
@@ -922,8 +924,8 @@ void test_send_custom(rtt_dsxx::UnitTest &ut) {
   std::cout << "an insist failure" << std::endl;
 #else
   if (rtt_c4::node() == 0) {
-    std::cout << "\nTest send_is_custom() by sending data to proc myid+1..."
-              << std::endl;
+    std::cout << "\nTest send_is_custom() by sending data to processor "
+              << "myid+1..." << std::endl;
     int custom_mpi_type_size(0);
     MPI_Type_size(Custom::MPI_Type, &custom_mpi_type_size);
     std::cout << " Size of custom type: " << sizeof(Custom) << std::endl;
@@ -937,14 +939,14 @@ void test_send_custom(rtt_dsxx::UnitTest &ut) {
   // C4_Req communication handles.
   std::vector<rtt_c4::C4_Req> comm_int(2);
 
-  // for point-to-point communiction we need to know neighbor's identifiers:
+  // for point-to-point communication we need to know neighbor's identifiers:
   // left, right.
   int right = (rtt_c4::node() + 1) % rtt_c4::nodes();
   int left = rtt_c4::node() - 1;
   if (left < 0)
     left = rtt_c4::nodes() - 1;
 
-  // create some data to send/recv
+  // create some data to send/receive
   Custom my_custom_object(rtt_c4::node());
 
   // post asynchronous receives.
@@ -972,13 +974,13 @@ void test_send_custom(rtt_dsxx::UnitTest &ut) {
     // make sure only one object was received
     FAIL_IF_NOT(recv_size == 1);
 
-    // check that the exected results match the custom type from the left rank
+    // check that the expected results match the custom type from the left rank
     Custom expected_custom(left);
 
-    std::cout << "Expected ints: " << expected_custom.get_int1() << " "
+    std::cout << "Expected integers: " << expected_custom.get_int1() << " "
               << expected_custom.get_int2() << " " << expected_custom.get_int3()
               << std::endl;
-    std::cout << "Received ints: " << recv_custom_object.get_int1() << " "
+    std::cout << "Received integers: " << recv_custom_object.get_int1() << " "
               << recv_custom_object.get_int2() << " "
               << recv_custom_object.get_int3() << std::endl;
 
@@ -1009,11 +1011,11 @@ void test_send_custom(rtt_dsxx::UnitTest &ut) {
   // do the send receive again with a blocking version of custom sends and
   // receives
 
-  // create some data to send/recv
+  // create some data to send/receive
   Custom my_custom_object_block(rtt_c4::node());
 
 #ifdef C4_SCALAR
-  // in saclar mode make the receive object the same as the on node object
+  // in scalar mode make the receive object the same as the on node object
   Custom recv_custom_object_block(rtt_c4::node());
 #else
   // otherwise make it an invalid object
@@ -1043,14 +1045,14 @@ void test_send_custom(rtt_dsxx::UnitTest &ut) {
     if (recv_size != 1)
       ITFAILS;
 
-    // check that the exected results match the custom type from the left rank
+    // check that the expected results match the custom type from the left rank
     Custom expected_custom(left);
 
-    std::cout << "Expected ints: " << expected_custom.get_int1() << " "
+    std::cout << "Expected integers: " << expected_custom.get_int1() << " "
               << expected_custom.get_int2() << " " << expected_custom.get_int3()
               << std::endl;
-    std::cout << "Received ints: " << recv_custom_object_block.get_int1() << " "
-              << recv_custom_object_block.get_int2() << " "
+    std::cout << "Received integers: " << recv_custom_object_block.get_int1()
+              << " " << recv_custom_object_block.get_int2() << " "
               << recv_custom_object_block.get_int3() << std::endl;
 
     FAIL_IF_NOT(expected_custom.get_int1() ==

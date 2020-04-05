@@ -24,7 +24,7 @@ using namespace rtt_c4;
 //----------------------------------------------------------------------------//
 
 //----------------------------------------------------------------------------//
-bool topology_report(void) {
+bool topology_report() {
   size_t const mpi_ranks = rtt_c4::nodes();
   size_t const my_mpi_rank = rtt_c4::node();
 
@@ -49,8 +49,8 @@ bool topology_report(void) {
     std::vector<std::string> unique_processor_names;
     for (size_t i = 0; i < mpi_ranks; ++i) {
       bool found(false);
-      for (size_t j = 0; j < unique_processor_names.size(); ++j)
-        if (procnames[i] == unique_processor_names[j])
+      for (const auto &unique_processor_name : unique_processor_names)
+        if (procnames[i] == unique_processor_name)
           found = true;
       if (!found)
         unique_processor_names.push_back(procnames[i]);
