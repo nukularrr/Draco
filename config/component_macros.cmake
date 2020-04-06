@@ -65,13 +65,15 @@ function( dbs_std_tgt_props target )
   endforeach()
 
   # Helper for clang-tidy that points to very old gcc STL files.  We need STL
-  # files from clang.
-  get_target_property( tgt_sources ${target} SOURCES )
-  if( "${DRACO_STATIC_ANALYZER}" MATCHES "clang-tidy" )
+  # files from clang (at least for llvm-6.  llvm-9 doesn't need this and it
+  # actually causes issues).
+  if( "${DRACO_STATIC_ANALYZER}" MATCHES "clang-tidy" AND
+      CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0 )
     if( NOT CLANG_TIDY_IPATH )
       message(FATAL_ERROR "Unable to configure clang-tidy build because"
         " CLANG_TIDY_IPATH is empty.")
     endif()
+    get_target_property( tgt_sources ${target} SOURCES )
     set_source_files_properties( ${tgt_sources} PROPERTIES INCLUDE_DIRECTORIES
       ${CLANG_TIDY_IPATH} )
   endif()

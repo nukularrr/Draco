@@ -111,9 +111,16 @@ C4_ReqRefRep::C4_ReqRefRep()
  *
  * This function is non-const because it updates the underlying request data
  * member.
+ *
+ * \bug Clang-analyzer via clang-tidy issues a false positive for this code
+ * \code
+ * draco/src/c4/C4_Req.cc:125:5: warning: Request  has no matching nonblocking\
+ *   call.  [clang-analyzer-optin.mpi.MPI-Checker]
+ * MPI_Wait(&r, s);
+ * \endcode
  */
 // ---------------------------------------------------------------------------//
-#ifdef C4_MPI
+#if defined(C4_MPI) && !defined(__clang_analyzer__)
 
 void C4_ReqRefRep::wait(C4_Status *status) {
   if (assigned) {

@@ -11,6 +11,7 @@
 #include "c4/ParallelUnitTest.hh"
 #include "ds++/Release.hh"
 #include "ds++/Soft_Equivalence.hh"
+#include <array>
 #include <numeric>
 #include <sstream>
 
@@ -46,13 +47,14 @@ public:
   static void commit_mpi_type() {
     MPI_Datatype og_MPI_Custom;
 
-    const int custom_entry_count = 3;
+    constexpr int custom_entry_count = 3;
 
     // set the number of entries for each data type
     int num_int(4);
     int num_double(2);
     int num_long(2);
-    int custom_array_of_block_length[3] = {num_int, num_double, num_long};
+    std::array<int, 3> custom_array_of_block_length = {num_int, num_double,
+                                                       num_long};
 
     int int_size(0);
     int double_size(0);
@@ -60,15 +62,17 @@ public:
     MPI_Type_size(MPI_DOUBLE, &double_size);
 
     // Displacements of each type in the cell
-    MPI_Aint custom_array_of_block_displace[3] = {
+    std::array<MPI_Aint, 3> custom_array_of_block_displace = {
         0, num_int * int_size, num_int * int_size + num_double * double_size};
 
     //Type of each memory block
-    MPI_Datatype custom_array_of_types[3] = {MPI_INT, MPI_DOUBLE, MPI_LONG};
+    std::array<MPI_Datatype, 3> custom_array_of_types = {MPI_INT, MPI_DOUBLE,
+                                                         MPI_LONG};
 
-    MPI_Type_create_struct(custom_entry_count, custom_array_of_block_length,
-                           custom_array_of_block_displace,
-                           custom_array_of_types, &og_MPI_Custom);
+    MPI_Type_create_struct(custom_entry_count,
+                           custom_array_of_block_length.data(),
+                           custom_array_of_block_displace.data(),
+                           custom_array_of_types.data(), &og_MPI_Custom);
 
     // Commit the type to MPI so it recognizes it in communication calls
     MPI_Type_commit(&og_MPI_Custom);
@@ -88,9 +92,9 @@ public:
   long get_long2() const { return my_longs[1]; }
 
 private:
-  int my_ints[3];
-  double my_doubles[2];
-  long my_longs[2];
+  std::array<int, 3> my_ints;
+  std::array<double, 2> my_doubles;
+  std::array<long, 2> my_longs;
 };
 
 #ifdef C4_SCALAR
@@ -200,7 +204,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       // expected results
       vector<double> expected(bsize);
       for (size_t i = 0; i < bsize; ++i) {
-        expected[i] = static_cast<double>(1000.0 * left + i);
+        expected[i] = static_cast<double>(1000 * left + i);
       }
 
       if (soft_equiv(expected.begin(), expected.end(), buffer2.begin(),
@@ -311,7 +315,7 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
       // expected results
       vector<long double> expected(bsize);
       for (size_t i = 0; i < bsize; ++i) {
-        expected[i] = static_cast<long double>(1000.0 * left + i);
+        expected[i] = static_cast<long double>(1000 * left + i);
       }
 
       long double const eps = 1.0e-6f;
@@ -741,8 +745,8 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     vector<rtt_c4::C4_Req> comm(2);
 
     // create some size 10 data to send/receive.
-    bool buffer2[10];
-    bool buffer1[10];
+    std::array<bool, 10> buffer2;
+    std::array<bool, 10> buffer1;
     for (unsigned i = 0; i < 10; ++i) {
       buffer1[i] = i > 5;
     }
@@ -939,6 +943,8 @@ void test_send_custom(rtt_dsxx::UnitTest &ut) {
   // C4_Req communication handles.
   std::vector<rtt_c4::C4_Req> comm_int(2);
 
+#ifndef __clang_analyzer__
+
   // for point-to-point communication we need to know neighbor's identifiers:
   // left, right.
   int right = (rtt_c4::node() + 1) % rtt_c4::nodes();
@@ -955,6 +961,7 @@ void test_send_custom(rtt_dsxx::UnitTest &ut) {
                                Custom::mpi_tag);
 
   try {
+
     // send data using non-blocking synchronous send. Custom sends check to make
     // sure that the type, T is the same size as its MPI type
     rtt_c4::send_is_custom(comm_int[1], &my_custom_object, 1, right,
@@ -998,7 +1005,6 @@ void test_send_custom(rtt_dsxx::UnitTest &ut) {
                            recv_custom_object.get_double2()));
     FAIL_IF_NOT(expected_custom.get_long1() == recv_custom_object.get_long1());
     FAIL_IF_NOT(expected_custom.get_long2() == recv_custom_object.get_long2());
-
   } catch (rtt_dsxx::assertion const & /*error*/) {
 #ifdef C4_SCALAR
     PASSMSG("Successfully caught a ds++ exception while trying to use "
@@ -1007,11 +1013,13 @@ void test_send_custom(rtt_dsxx::UnitTest &ut) {
     FAILMSG("Encountered a ds++ exception while testing send_is_custom().");
 #endif
   }
+#endif
 
   // do the send receive again with a blocking version of custom sends and
   // receives
 
   // create some data to send/receive
+#ifndef __clang_analyzer__
   Custom my_custom_object_block(rtt_c4::node());
 
 #ifdef C4_SCALAR
@@ -1076,6 +1084,9 @@ void test_send_custom(rtt_dsxx::UnitTest &ut) {
     FAIL_IF_NOT(expected_custom.get_long2() ==
                 recv_custom_object_block.get_long2());
   }
+
+#endif // __clang_analyzer__
+
   return;
 }
 

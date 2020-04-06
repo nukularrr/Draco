@@ -10,6 +10,7 @@
 
 #include "c4/ParallelUnitTest.hh"
 #include "ds++/Release.hh"
+#include <array>
 
 using namespace std;
 
@@ -84,23 +85,25 @@ void tstWait(rtt_dsxx::UnitTest &ut) {
 
   if (rtt_c4::node() > 0) {
     cout << "sending from processor " << get_processor_name() << ':' << endl;
-    int buffer[1]{};
+    array<int, 1> buffer;
+    // int buffer[1]{};
     buffer[0] = node();
-    C4_Req outgoing = send_async(buffer, 1U, 0);
+    C4_Req outgoing = send_async(buffer.data(), 1U, 0);
     unsigned result = wait_any(1U, &outgoing);
     FAIL_IF_NOT(result == 0);
   } else {
     cout << "receiving to processor " << get_processor_name() << ':' << endl;
     Check(rtt_c4::nodes() < 5);
-    C4_Req requests[4];
-    bool done[4]{false, false, false, false};
+    array<C4_Req, 4> requests;
+    array<bool, 4> done = {false, false, false, false};
     for (int p = 1; p < nodes(); ++p) {
-      int buffer[4][1];
-      requests[p] = receive_async(buffer[p], 1U, p);
+      array<array<int, 1>, 4> buffer;
+      //int buffer[4][1];
+      requests[p] = receive_async(buffer[p].data(), 1U, p);
       done[p] = false;
     }
     for (int c = 1; c < nodes(); ++c) {
-      unsigned result = wait_any(nodes(), requests);
+      unsigned result = wait_any(nodes(), requests.data());
       FAIL_IF(done[result]);
       done[result] = true;
     }

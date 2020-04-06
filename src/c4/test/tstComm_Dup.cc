@@ -29,7 +29,7 @@ void test_mpi_comm_dup(rtt_dsxx::UnitTest &ut) {
   int snode = 0;
 
   // split up nodes (two communicators) 0 -> 0, 2 -> 1 and 1 -> 0, 3 -> 1
-  MPI_Comm new_comm = 0;
+  MPI_Comm new_comm = nullptr;
 
   if (node == 1) {
     MPI_Comm_split(MPI_COMM_WORLD, 0, 0, &new_comm);
