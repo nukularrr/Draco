@@ -29,10 +29,11 @@ void test_mpi_comm_dup(rtt_dsxx::UnitTest &ut) {
   int snode = 0;
 
   // split up nodes (two communicators) 0 -> 0, 2 -> 1 and 1 -> 0, 3 -> 1
-#ifdef MSMPI_VER
-  MPI_Comm new_comm = 0; // MS_MPI: 'typedef int MPI_Comm;'
-#else
+#if defined(OMPI_MAJOR_VERSION)
   MPI_Comm new_comm = nullptr;
+#else
+  // if defined(MSMPI_VER) || defined(CRAY_MPICH_VERSION)
+  MPI_Comm new_comm = 0; // MS_MPI: 'typedef int MPI_Comm;'
 #endif
 
   if (node == 1) {
