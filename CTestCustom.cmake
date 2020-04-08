@@ -47,7 +47,7 @@ set( CTEST_CUSTOM_COVERAGE_EXCLUDE
 set( CTEST_EXTRA_COVERAGE_GLOB ${CTEST_EXTRA_COVERAGE_GLOB} )
 foreach( extension IN ITEMS cc hh )
   list (APPEND CTEST_EXTRA_COVERAGE_GLOB
-    "${PROJECT_SOURCE_DIR}/src/*\\.${extension}" )
+    "${CTEST_SOURCE_DIRECTORY}/src/*\\.${extension}" )
 endforeach()
 
 # specify maximum number of warnings to display

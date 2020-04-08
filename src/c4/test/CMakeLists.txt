@@ -45,7 +45,7 @@ list( REMOVE_ITEM test_sources ${special_test} )
 
 # This test uses MPI+OMP:
 # - Bullseye doesn't like some OMP directives.
-# - Timing tests are broken if the test has to be pushed to a virtual machine 
+# - Timing tests are broken if the test has to be pushed to a virtual machine
 #   (aprun).
 set( special_test ${PROJECT_SOURCE_DIR}/tstOMP.cc )
 list( REMOVE_ITEM test_sources ${special_test} )
@@ -80,9 +80,12 @@ if( NOT ${DRACO_C4} STREQUAL "SCALAR" )
   if( NOT DEFINED MPI_MAX_NUMPROCS_PHYSICAL )
     message(FATAL_ERROR "need max procs in c4/tests/CMakeLists.txt")
   endif()
-  # Override PROCESSORS property.  Use 'mpirun -np 4 ...' but reserve all cores.
+  # Override PROCESSORS property.  Use 'mpirun -np 4 ...' but reserve half of
+  # the cores. The test will actually use all of the cores, but only very
+  # briefly.
+  math( EXPR half_of_all_cores "${MPI_MAX_NUMPROCS_PHYSICAL} / 2" )
   set_tests_properties( c4_tstQuoWrapper_4 PROPERTIES
-    PROCESSORS "${MPI_MAX_NUMPROCS_PHYSICAL}" )
+    PROCESSORS "${half_of_all_cores}" )
 endif()
 
 # Exclude tstTime from valgrind checks.
