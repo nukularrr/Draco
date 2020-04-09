@@ -65,7 +65,13 @@ Termination_Detector::~Termination_Detector() = default;
 //----------------------------------------------------------------------------//
 //! Return \c true if we have terminated; \c false otherwise.
 bool Termination_Detector::is_terminated() {
-  static std::array<unsigned, 3> buffer;
+
+  // We keep track of three integral values in this buffer container.
+  // - send_count
+  // - receive_count
+  // - work_count
+  size_t constexpr num_counts = 3;
+  std::array<unsigned, num_counts> buffer;
 
   if (ptype_ == ROOT)
   // root processor
@@ -74,7 +80,7 @@ bool Termination_Detector::is_terminated() {
 #ifdef PRINTF_DEBUG
       cout << "0/" << tag_ << ": expecting from " << son_pid_ << endl;
 #endif
-      receive(buffer.data(), 3, son_pid_, tag_);
+      receive(buffer.data(), num_counts, son_pid_, tag_);
 #ifdef PRINTF_DEBUG
       cout << "0/" << tag_ << ": received " << son_pid_ << ": " << buffer[0]
            << ' ' << buffer[1] << ' ' << buffer[2] << endl;
@@ -88,7 +94,7 @@ bool Termination_Detector::is_terminated() {
 #ifdef PRINTF_DEBUG
       cout << "0/" << tag_ << ": expecting from " << daughter_pid_ << endl;
 #endif
-      receive(buffer.data(), 3, daughter_pid_, tag_);
+      receive(buffer.data(), num_counts, daughter_pid_, tag_);
 #ifdef PRINTF_DEBUG
       cout << "0/" << tag_ << ": received " << daughter_pid_ << ": "
            << buffer[0] << ' ' << buffer[1] << ' ' << buffer[2] << endl;
@@ -157,7 +163,7 @@ bool Termination_Detector::is_terminated() {
       buffer[1] = receive_count_;
       buffer[2] = work_count_;
 
-      send(buffer.data(), 3, parent_pid_, tag_);
+      send(buffer.data(), num_counts, parent_pid_, tag_);
 
       state_ = DOWN;
 
@@ -186,7 +192,7 @@ bool Termination_Detector::is_terminated() {
         buffer[1] = receive_count_;
         buffer[2] = work_count_;
 
-        send(buffer.data(), 3, parent_pid_, tag_);
+        send(buffer.data(), num_counts, parent_pid_, tag_);
 
 #ifdef PRINTF_DEBUG
         cout << pid_ << '/' << tag_ << ": sent " << parent_pid_ << ": "
@@ -203,7 +209,7 @@ bool Termination_Detector::is_terminated() {
 #ifdef PRINTF_DEBUG
         cout << pid_ << '/' << tag_ << ": expecting from " << son_pid_ << endl;
 #endif
-        receive(buffer.data(), 3, son_pid_, tag_);
+        receive(buffer.data(), num_counts, son_pid_, tag_);
 #ifdef PRINTF_DEBUG
         cout << pid_ << '/' << tag_ << ": received " << son_pid_ << ": "
              << buffer[0] << ' ' << buffer[1] << ' ' << buffer[2] << endl;
@@ -218,7 +224,7 @@ bool Termination_Detector::is_terminated() {
         cout << pid_ << '/' << tag_ << ": expecting from " << daughter_pid_
              << endl;
 #endif
-        receive(buffer.data(), 3, daughter_pid_, tag_);
+        receive(buffer.data(), num_counts, daughter_pid_, tag_);
 #ifdef PRINTF_DEBUG
         cout << pid_ << '/' << tag_ << ": received " << daughter_pid_ << ": "
              << buffer[0] << ' ' << buffer[1] << ' ' << buffer[2] << endl;
@@ -235,7 +241,7 @@ bool Termination_Detector::is_terminated() {
       buffer[1] = receive_count_ + subtree_receive_count_;
       buffer[2] = work_count_ + subtree_work_count_;
 
-      send(buffer.data(), 3, parent_pid_, tag_);
+      send(buffer.data(), num_counts, parent_pid_, tag_);
 
 #ifdef PRINTF_DEBUG
       cout << pid_ << '/' << tag_ << ": sent " << parent_pid_ << ": "
