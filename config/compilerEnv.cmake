@@ -151,15 +151,24 @@ macro(dbsSetupCompilers)
         foreach( myregex ${CODE_COVERAGE_IGNORE_REGEX} )
           list(APPEND lcov_ignore '${myregex}')
         endforeach()
-        add_custom_target( covrep
+        add_custom_command(
+          OUTPUT "${PROJECT_BINARY_DIR}/covrep_target_aways_out_of_date.txt"
+          BYPRODUCTS
+            "${PROJECT_BINARY_DIR}/coverage.info"
+            "${PROJECT_BINARY_DIR}/coverage.txt"
           COMMAND ${LCOV} ${lcovopts2} --capture --directory .
           COMMAND ${LCOV} ${lcovopts2} --remove coverage.info ${lcov_ignore}
           COMMAND genhtml coverage.info --demangle-cpp --output-directory cov-html
-          COMMAND ${LCOV} ${lcovopts1} --list coverage.info
-          COMMAND ${CMAKE_COMMAND} -E echo \" \"
-          COMMAND ${CMAKE_COMMAND} -E echo \"==> View HTML coverage report with command: firefox cov-html/index.html\"
-          COMMAND ${CMAKE_COMMAND} -E echo \"==> Repeat text coverage report with command: lcov --list coverage.info\"
-          BYPRODUCTS "${PROJECT_BINARY_DIR}/coverage.info" )
+          # COMMAND ${LCOV} ${lcovopts1} --list coverage.info
+          COMMAND "${PROJECT_SOURCE_DIR}/config/capture_lcov.sh" -g "${GCOV}" -l "${LCOV}"
+          )
+        add_custom_target( covrep
+          DEPENDS "${PROJECT_BINARY_DIR}/covrep_target_aways_out_of_date.txt"
+          COMMENT "
+==> View text coverage report in file coverage.txt.
+==> View HTML coverage report with command: firefox cov-html/index.html
+==> Repeat text coverage report with command: lcov --list coverage.info
+" )
         message( STATUS "Code coverage build ... enabled ('make covrep' to "
           "see a text and/or a html report)")
         message("CODE_COVERAGE_IGNORE_REGEX  = ${CODE_COVERAGE_IGNORE_REGEX}")
