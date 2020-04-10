@@ -89,7 +89,7 @@ void Timer::print(std::ostream &out, int p) const {
 
   out << setw(20) << "WALL CLOCK TIME: " << wall_clock() << " sec." << '\n'
       << setw(20) << "  USER CPU TIME: " << user_cpu() << " sec." << '\n'
-      << setw(20) << "SYSTEM CPU TIME: " << system_cpu() << " sec." << '\n\n';
+      << setw(20) << "SYSTEM CPU TIME: " << system_cpu() << " sec\n\n";
 
   if (num_intervals > 1) {
     out << "OVER " << num_intervals << " INTERVALS: " << '\n'
