@@ -183,10 +183,10 @@ public:
   Timer(); //! default constructor
   // Disable copy and assignment operators
   Timer const &
-  operator=(Timer const &rhs) = delete;         //! copy assignment operator
-  Timer const &operator=(Timer &&rhs) = delete; //! move assignment operator
-  Timer(Timer const &rhs) = delete;             //! copy constructor
-  Timer(Timer &&rhs) = delete;                  //! move constructor
+  operator=(Timer const &rhs) = delete;         //!< copy assignment operator
+  Timer const &operator=(Timer &&rhs) = delete; //!< move assignment operator
+  Timer(Timer const &rhs) = delete;             //!< copy constructor
+  Timer(Timer &&rhs) = delete;                  //!< move constructor
   virtual ~Timer() = default;
   inline void start();
   inline void stop();

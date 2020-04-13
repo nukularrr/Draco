@@ -103,15 +103,6 @@ if( TARGET Exe_draco_info )
 endif()
 add_subdirectory( config )  # This must be processed after 'src'
 
-#
-# Dashboard/Regression setup
-#
-# CTest/CDash custom configuration file
-configure_file(
-  ${PROJECT_SOURCE_DIR}/CTestCustom.cmake
-  ${PROJECT_BINARY_DIR}/CTestCustom.cmake
-  COPYONLY )
-
 # install top level documents
 install(
   FILES ChangeLog LICENSE.md README.md
