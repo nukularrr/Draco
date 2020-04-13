@@ -3,7 +3,7 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2012 Aug 1
 # brief  Generate build project files for c4/test.
-# note   Copyright (C) 2016-2019, Triad National Security, LLC.
+# note   Copyright (C) 2016-2020, Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 project( c4_test CXX )
@@ -44,12 +44,9 @@ add_parallel_tests(
 list( REMOVE_ITEM test_sources ${special_test} )
 
 # This test uses MPI+OMP:
-# - Bullseye doesn't like some OMP directives.
-# - Timing tests are broken if the test has to be pushed to a virtual machine
-#   (aprun).
 set( special_test ${PROJECT_SOURCE_DIR}/tstOMP.cc )
 list( REMOVE_ITEM test_sources ${special_test} )
-if( OPENMP_FOUND AND NOT DBS_CXX_IS_BULLSEYE )
+if( OPENMP_FOUND )
    add_parallel_tests(
       SOURCES   "${special_test}"
       DEPS      Lib_c4
