@@ -153,8 +153,13 @@ macro(dbsSetupCompilers)
         endforeach()
         if( EXISTS "${PROJECT_SOURCE_DIR}/config/capture_lcov.sh" )
           set( captureLcov "${PROJECT_SOURCE_DIR}/config/capture_lcov.sh" )
+        elseif( EXISTS "${DRACO_DIR}/cmake/capture_lcov.sh" )
+          set( captureLcov "${DRACO_DIR}/cmake/capture_lcov.sh" )
         else()
-          set( captureLcov "${DRACO_DIR}/config/capture_lcov.sh" )
+          message( FATAL_ERROR "CODE_COVERAGE=ON, but required helper script "
+            "capture_lcov.sh not found.  Looked at "
+            "${PROJECT_SOURCE_DIR}/config/capture_lcov.sh and "
+            "${DRACO_DIR}/cmake/capture_lcov.sh" )
         endif()
         add_custom_command(
           OUTPUT "${PROJECT_BINARY_DIR}/covrep_target_aways_out_of_date.txt"
