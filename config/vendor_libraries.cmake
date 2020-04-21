@@ -315,41 +315,15 @@ endmacro()
 macro( setupQt )
   message( STATUS "Looking for Qt SDK...." )
 
-  # The CMake package information should be found in
-  # $QTDIR/lib/cmake/Qt5Widgets/Qt5WidgetsConfig.cmake.  On CCS Linux
-  # machines, QTDIR is set when loading the qt module
-  # (QTDIR=/ccs/codes/radtran/vendors/Qt53/5.3/gcc_64):
-  if( "${QTDIR}notset" STREQUAL "notset" AND EXISTS "$ENV{QTDIR}" )
-    set( QTDIR $ENV{QTDIR} CACHE PATH "This path should include /lib/cmake/Qt5Widgets" )
-  endif()
-  set( CMAKE_PREFIX_PATH_QT "$ENV{QTDIR}/lib/cmake/Qt5Widgets" )
+  # Find the QtWidgets library
+  find_package(Qt5 COMPONENTS Widgets QUIET)
 
-  if( NOT EXISTS ${CMAKE_PREFIX_PATH_QT}/Qt5WidgetsConfig.cmake )
-    # message( FATAL_ERROR "Could not find cQt cmake macros.  Try
-    # setting CMAKE_PREFIX_PATH_QT to the path that contains
-    # Qt5WidgetsConfig.cmake" )
-    message( STATUS "Looking for Qt SDK....not found." )
-  else()
-    file( TO_CMAKE_PATH "${CMAKE_PREFIX_PATH_QT}" CMAKE_PREFIX_PATH_QT )
-    list( APPEND CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH_QT}" )
-    find_package(Qt5Widgets)
-    find_package(Qt5Core)
-    get_target_property(QtCore_location Qt5::Core LOCATION)
-    if( Qt5Widgets_FOUND )
-      set( QT_FOUND 1 )
-      # Instruct CMake to run moc automatically when needed (only for
-      # subdirectories that need Qt)
-      # set(CMAKE_AUTOMOC ON)
-      message( STATUS "Looking for Qt SDK....found ${QTDIR}." )
-    else()
-      set( QT_FOUND "QT-NOTFOUND" )
-      message( STATUS "Looking for Qt SDK....not found." )
-    endif()
-  endif()
-
-  if( QT_FOUND )
+  if( Qt5Core_DIR )
     mark_as_advanced( Qt5Core_DIR Qt5Gui_DIR Qt5Gui_EGL_LIBRARY
       Qt5Widgets_DIR QTDIR)
+    message( STATUS "Looking for Qt SDK....found ${Qt5Core_DIR}" )
+  else()
+    message( STATUS "Looking for Qt SDK....not found." )
   endif()
 
   set_package_properties( Qt PROPERTIES
@@ -501,39 +475,6 @@ macro( setupParMETIS )
 endmacro()
 
 #------------------------------------------------------------------------------
-# Setup SuperLU_DIST (any)
-#------------------------------------------------------------------------------
-macro( setupSuperLU_DIST )
-
-  if( NOT TARGET SuperLU_DIST::superludist )
-    message( STATUS "Looking for SuperLU_DIST..." )
-
-    find_package( SuperLU_DIST QUIET )
-    if( SuperLU_DIST_FOUND )
-      message( STATUS "Looking for SuperLU_DIST.....found ${SuperLU_DIST_LIBRARY}" )
-    else()
-      message( STATUS "Looking for SuperLU_DIST.....not found" )
-    endif()
-
-    if( ${SuperLU_DIST_VERSION} VERSION_GREATER 5.2.9 )
-      message( FATAL_ERROR "The API change in SuperLU_DIST 5.3+ is not yet
-      supported by Draco. Please use a version of SuperLU_DIST prior to 5.3.")
-    endif()
-
-    #===========================================================================
-    # Include some information that can be printed by the build system.
-    set_package_properties( SuperLU_DIST PROPERTIES
-      URL " http://crd-legacy.lbl.gov/~xiaoye/SuperLU/"
-      DESCRIPTION "SuperLU_DIST"
-      TYPE OPTIONAL
-      PURPOSE "SuperLU is a general purpose library for the direct solution of
-    large, sparse, nonsymmetric systems of linear equations on high performance
-    machines."  )
-  endif()
-
-endmacro()
-
-#------------------------------------------------------------------------------
 # Setup Libquo (https://github.com/lanl/libquo
 #------------------------------------------------------------------------------
 macro( setupLIBQUO )
@@ -652,7 +593,6 @@ macro( SetupVendorLibrariesUnix )
 
   setupGSL()
   setupParMETIS()
-  setupSuperLU_DIST()
   setupCOMPTON()
   setupEospac()
   setupNDI()
@@ -700,7 +640,6 @@ macro( SetupVendorLibrariesWindows )
 
   setupGSL()
   setupParMETIS()
-  setupSuperLU_DIST()
   setupRandom123()
   setupCOMPTON()
   setupEospac()

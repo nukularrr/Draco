@@ -14,11 +14,8 @@ include( component_macros )
 
 # Extra 'draco-only' flags
 if( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
-  if( CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.0 )
-    toggle_compiler_flag( TRUE "-Wfloat-equal -Wunused-macros" "CXX;C" "DEBUG")
-  endif()
   if( CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 6.0 )
-    toggle_compiler_flag( TRUE "-fsanitize=bounds-strict -Wconversion -Wdouble-promotion -Wshadow -Wformat=2" "CXX" "DEBUG")
+    toggle_compiler_flag( TRUE "-Wconversion -Wdouble-promotion" "CXX" "DEBUG")
   endif()
 #  if( CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 8.0)
 #
@@ -54,12 +51,13 @@ message( STATUS "Configuring Level 1 packages --" )
 add_dir_if_exists( ds++ )
 
 # Only test ds++ if CI_CLANG_TIDY is running
-if( NOT CI_CLANG_TIDY )
 
 # Level 2
 message(" ")
 message( STATUS "Configuring Level 2 packages --" )
 add_dir_if_exists( c4 )           # needs ds++
+
+if( NOT CI_CLANG_TIDY )
 add_dir_if_exists( cdi )          # needs ds++
 add_dir_if_exists( compton )      # needs ds++, CSK
 add_dir_if_exists( device )       # needs ds++
