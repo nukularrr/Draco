@@ -101,9 +101,8 @@ private:
 
   public:
     Proxy(SortPermutation::value_type pos_, const std::vector<IT> &iters_)
-        : pos(pos_), iters(iters_) { }
-    Proxy( Proxy const& rhs )
-      : pos(rhs.pos), iters(rhs.iters) {};
+        : pos(pos_), iters(iters_) {}
+    Proxy(Proxy const &rhs) : pos(rhs.pos), iters(rhs.iters){};
     Proxy &operator=(Proxy const &rhs) {
       pos = rhs.pos;
       return *this;
