@@ -46,7 +46,8 @@ function( setMPIflavorVer )
   elseif( "${MPIEXEC_EXECUTABLE}" MATCHES "mvapich2")
     set( MPI_FLAVOR "mvapich2" )
   elseif( "${MPIEXEC_EXECUTABLE}" MATCHES "spectrum-mpi" OR
-      "${MPIEXEC_EXECUTABLE}" MATCHES "jsrun" )
+      "${MPIEXEC_EXECUTABLE}" MATCHES "jsrun" OR
+      "${MPIEXEC_EXECUTABLE}" MATCHES "smpi"  )
     set( MPI_FLAVOR "spectrum")
   endif()
 

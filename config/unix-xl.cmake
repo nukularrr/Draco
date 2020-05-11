@@ -25,7 +25,11 @@ if( NOT CXX_FLAGS_INITIALIZED )
   # On Darwin, we also need this config file:
   # -F/projects/opt/ppc64le/ibm/xlc-16.1.1.2/xlC/16.1.1/etc/xlc.cfg.rhel.7.5.gcc.7.3.0.cuda.9.2
   # -qfloat=nomaf -qxlcompatmacros
-  set( CMAKE_C_FLAGS                "-g --gcc-toolchain=/usr/tce/packages/gcc/gcc-8.3.1" ) # -qarch=auto
+  set( CMAKE_C_FLAGS             "-g" )
+  # ATS-2
+  if( EXISTS /usr/gapps )
+    string( APPEND CMAKE_C_FLAGS " --gcc-toolchain=/usr/tce/packages/gcc/gcc-8.3.1" )
+  endif()
   # Sequoia
   if( CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13.0 )
     string( APPEND CMAKE_C_FLAGS " -qinfo=all -qflags=i:w -qsuppress=1540-0072")
