@@ -764,5 +764,16 @@ macro( setupMPILibrariesWindows )
 endmacro( setupMPILibrariesWindows )
 
 #----------------------------------------------------------------------#
+# Helper
+#----------------------------------------------------------------------#
+macro(setupMPILibraries)
+  if ( UNIX )
+    setupMPILibrariesUnix()
+  elseif( WIN32 )
+    setupMPILibrariesWindows()
+  endif()
+endmacro()
+
+#----------------------------------------------------------------------#
 # End setupMPI.cmake
 #----------------------------------------------------------------------#
