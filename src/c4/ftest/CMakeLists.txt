@@ -16,7 +16,7 @@ project( c4_ftest C Fortran )
 if(NOT TARGET Lib_dsxx)
   include(CMakeAddFortranSubdirectory)
   CAFS_Fortran_dir_boilerplate_setup()
-  CAFS_Fortran_dir_MPI_setup() # returns CAFS_MPI_DEPS
+  CAFS_Fortran_dir_MPI_setup()
 
   # CAFS setup unique to this directory.
   # 1. create import targets that we will link against.
@@ -36,10 +36,7 @@ set( f90sources
 # ---------------------------------------------------------------------------- #
 # Build library for test directory
 # ---------------------------------------------------------------------------- #
-
-# Xcode: Since cafs_create_imported_targets does not set all of the dependencies
-# between the imported libraries, we need to list them explicitly.
-set(target_deps Lib_c4_fc4 Lib_c4 Lib_dsxx ${CAFS_MPI_DEPS} )
+set(target_deps Lib_c4_fc4 Lib_c4 Lib_dsxx )
 add_component_library(
   TARGET        Lib_c4_ftest
   LIBRARY_NAME  c4_ftest

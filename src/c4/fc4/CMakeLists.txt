@@ -13,12 +13,14 @@ project( fc4 C Fortran )
 # If this directory is built via CAFS (ie. MSVC or XCode), then we need to do
 # some extra setup.  When build via CAFS, target Lib_dsxx won't be defined yet.
 #------------------------------------------------------------------------------#
+set(target_deps Lib_c4 Lib_dsxx )
 if(NOT TARGET Lib_dsxx)
   include(CMakeAddFortranSubdirectory)
   CAFS_Fortran_dir_boilerplate_setup()
   CAFS_Fortran_dir_MPI_setup() # returns CAFS_MPI_DEPS
-elseif( "${DRACO_C4}" STREQUAL "MPI")
-  set( CAFS_MPI_DEPS MPI::MPI_Fortran )
+elseif("${DRACO_C4}" STREQUAL "MPI")
+  list(APPEND target_deps MPI::MPI_Fortran)
+  add_definitions( -DC4_MPI )
 endif()
 
 # ---------------------------------------------------------------------------- #
@@ -29,13 +31,12 @@ file( GLOB f90sources *.f90 *.F90 )
 # ---------------------------------------------------------------------------- #
 # Build library
 # ---------------------------------------------------------------------------- #
-set(target_deps Lib_c4 Lib_dsxx )
 add_component_library(
   TARGET       Lib_c4_fc4
   LIBRARY_NAME fc4
   SOURCES      "${f90sources}"
   LINK_LANGUAGE Fortran
-  TARGET_DEPS   "Lib_c4" )
+  TARGET_DEPS   "${target_deps}")
 target_include_directories( Lib_c4_fc4 PUBLIC
     $<INSTALL_INTERFACE:${DBSCFG_IMPORT_PREFIX}/fc4> )
 if( WIN32 )
