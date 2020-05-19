@@ -377,7 +377,11 @@ macro( setupSpectrumMPI )
   #                         total
   # - jsrun -a4 -c16 -g2 => 4 tasks, 16 cores, 2 gpus
 
-  set( MPIEXEC_PREFLAGS "--pack --threads=1 --bind=off -v")
+  set( MPIEXEC_PREFLAGS "--threads=1 --bind=off -v")
+  # --pack ==> -c 1 -g 0.  This is actually bad for us. Disable
+  # lrun -n 2 -c 10 --threads=10 --bind=off ==>
+  # jsrun --np 1 --nrs 1 -c ALL_CPUS -g ALL_GPUS -d plane:1 -b rs -X 1
+  # consider: jsrun --np 2 --nrs 1 -c 10 -g 0 -bind none
 
   #
   # Setup for OMP plus MPI
@@ -385,7 +389,7 @@ macro( setupSpectrumMPI )
 
   if( DEFINED ENV{OMP_NUM_THREADS} )
 #    set( MPIEXEC_OMP_PREFLAGS "-c $ENV{OMP_NUM_THREADS}" )
-    set( MPIEXEC_OMP_PREFLAGS "--pack -c $ENV{OMP_NUM_THREADS} --threads=$ENV{OMP_NUM_THREADS} --bind=off -v" )
+    set( MPIEXEC_OMP_PREFLAGS "-c $ENV{OMP_NUM_THREADS} --threads=$ENV{OMP_NUM_THREADS} --bind=off -v" )
   endif()
 
   set( MPIEXEC_OMP_PREFLAGS ${MPIEXEC_OMP_PREFLAGS}
