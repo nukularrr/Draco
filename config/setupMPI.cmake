@@ -33,7 +33,7 @@ function( setMPIflavorVer )
 
   # First attempt to determine MPI flavor -- scape flavor from full path
   # (this ususally works for HPC or systems with modules)
-  if( CRAY_PE )
+  if( CMAKE_CXX_COMPILER_WRAPPER STREQUAL CrayPrgEnv )
     set( MPI_FLAVOR "cray" )
   elseif( "${MPIEXEC_EXECUTABLE}" MATCHES "openmpi" OR
       "${MPIEXEC_EXECUTABLE}" MATCHES "smpi" )
@@ -51,7 +51,7 @@ function( setMPIflavorVer )
     set( MPI_FLAVOR "spectrum")
   endif()
 
-  if( CRAY_PE )
+  if( CMAKE_CXX_COMPILER_WRAPPER STREQUAL CrayPrgEnv )
     if( DEFINED ENV{CRAY_MPICH2_VER} )
       set( MPI_VERSION $ENV{CRAY_MPICH2_VER} )
     endif()
@@ -421,7 +421,7 @@ macro( setupMPILibrariesUnix )
     # If this is a Cray system and the Cray MPI compile wrappers are used, then
     # do some special setup:
 
-    if( CRAY_PE )
+    if(  CMAKE_CXX_COMPILER_WRAPPER MATCHES CrayPrgEnv )
       if( NOT EXISTS ${MPIEXEC_EXECUTABLE} )
         find_program( MPIEXEC_EXECUTABLE srun )
       endif()
@@ -461,9 +461,9 @@ macro( setupMPILibrariesUnix )
     else()
       message( FATAL_ERROR "
 The Draco build system doesn't know how to configure the build for
-  MPIEXEC_EXECUTABLE     = ${MPIEXEC_EXECUTABLE}
-  DBS_MPI_VER = ${DBS_MPI_VER}
-  CRAY_PE     = ${CRAY_PE}")
+  MPIEXEC_EXECUTABLE         = ${MPIEXEC_EXECUTABLE}
+  DBS_MPI_VER                = ${DBS_MPI_VER}
+  CMAKE_CXX_COMPILER_WRAPPER = ${CMAKE_CXX_COMPILER_WRAPPER}")
     endif()
 
     # Mark some of the variables created by the above logic as 'advanced' so

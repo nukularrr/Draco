@@ -140,14 +140,12 @@ if( NOT CXX_FLAGS_INITIALIZED )
     string( APPEND CMAKE_CXX_FLAGS_DEBUG " -fdiagnostics-show-template-tree")
   endif()
 
-  # [2017-04-15 KT] -march=native doesn't seem to work correctly on toolbox
-  # Systems running CRAY_PE use commpile wrappers to specify this option.
+  # Systems running CrayPE use compile wrappers to specify this option.
   site_name( sitename )
   string( REGEX REPLACE "([A-z0-9]+).*" "\\1" sitename ${sitename} )
   if (HAS_MARCH_NATIVE AND
       NOT APPLE AND
-      NOT CRAY_PE AND
-      NOT "${sitename}" MATCHES "toolbox")
+      NOT CMAKE_CXX_COMPILER_WRAPPER STREQUAL CrayPrgEnv )
     string( APPEND CMAKE_C_FLAGS " -march=native" )
   elseif( ${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "ppc64le")
     string( APPEND CMAKE_C_FLAGS " -mcpu=powerpc64le -mtune=powerpc64le" )
