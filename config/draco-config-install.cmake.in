@@ -38,7 +38,6 @@ set_package_properties( draco PROPERTIES
 
 set( DRACO_LIBRARY_TYPE @DRACO_LIBRARY_TYPE@ )
 set( GCC_ENABLE_GLIBCXX_DEBUG "@GCC_ENABLE_GLIBCXX_DEBUG@" )
-set( CRAY_PE "@CRAY_PE@" )
 
 ## ---------------------------------------------------------------------------
 ## Set library specifications and paths
