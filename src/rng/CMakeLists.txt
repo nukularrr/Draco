@@ -3,63 +3,85 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2012 Aug 1
 # brief  Generate build project files for rng.
-# note   Copyright (C) 2010-2019, Triad National Security, LLC.
+# note   Copyright (C) 2010-2020, Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
-cmake_minimum_required(VERSION 3.9.0)
+cmake_minimum_required(VERSION 3.17.0)
 project( rng CXX )
+
+# Local variables -------------------------------------------------------------#
+string(CONCAT header_prefix_source 
+  "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+  "$<INSTALL_INTERFACE:${DBSCFG_IMPORT_PREFIX}/rng>")
+string(CONCAT header_prefix_binary "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>"
+  "$<INSTALL_INTERFACE:${DBSCFG_IMPORT_PREFIX}>")
 
 # ---------------------------------------------------------------------------- #
 # Generate config.h (only occurs when cmake is run)
 # ---------------------------------------------------------------------------- #
-# default to using C++11 features of Random123.
 set( R123_USE_CXX11 1 )
 configure_file( config.h.in ${PROJECT_BINARY_DIR}/rng/config.h )
+set( pkg_config_h "${header_prefix_binary}/rng/config.h" )
 
 # ---------------------------------------------------------------------------- #
 # Source files
 # ---------------------------------------------------------------------------- #
+file( GLOB sources RELATIVE "${PROJECT_SOURCE_DIR}" *.cc *.c )
+file( GLOB headers RELATIVE "${PROJECT_SOURCE_DIR}" *.hh *.h *.hpp)
 
-file( GLOB sources *.cc *.c )
-file( GLOB headers *.hh *.h *.hpp)
-list( APPEND headers ${PROJECT_BINARY_DIR}/rng/config.h )
+# prefix header files with appropriate paths (build vs install).
+foreach( file ${headers} )
+  list(APPEND headers_public ${header_prefix_source}/${file})
+endforeach()
+list(APPEND headers_public "${pkg_config_h}" )
 
 # ---------------------------------------------------------------------------- #
 # Build package library
 # ---------------------------------------------------------------------------- #
-
+if( HAVE_CUDA AND USE_CUDA )
+  set(deps Lib_dsxx Lib_device GSL::gsl )
+else()
+  set(deps Lib_dsxx GSL::gsl )
+endif()
 add_component_library(
-   TARGET       Lib_rng
-   TARGET_DEPS  "Lib_dsxx;GSL::gsl"
-   LIBRARY_NAME ${PROJECT_NAME}
-   SOURCES      "${sources}"
-   HEADERS      "${headers}"
-   )
-target_include_directories( Lib_rng
-  PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}> # config.h
-    $<BUILD_INTERFACE:${RANDOM123_INCLUDE_DIR}>
-    $<INSTALL_INTERFACE:${RANDOM123_INCLUDE_DIR}> )
+  TARGET       Lib_rng
+  TARGET_DEPS  "${deps}"
+  LIBRARY_NAME ${PROJECT_NAME} )
+# Target sources should list headers as `PUBLIC` but this is broken as of
+# cmake-3.17.0 (might actually be a Visual Studio issue?). Because this is
+# broken we mark headers as `PRIVATE`.
+target_sources( Lib_rng PRIVATE "${headers_public}" PRIVATE "${sources}" )
+set_target_properties(Lib_rng PROPERTIES
+  PUBLIC_HEADER "${headers_public}")
+target_include_directories( Lib_rng PUBLIC
+  $<BUILD_INTERFACE:${draco_src_dir_BINARY_DIR}/device> # remove this when 'device/cmakefiles.txt' is updated?
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+  ${RANDOM123_INCLUDE_DIR} )
 
 # ---------------------------------------------------------------------------- #
 # Installation instructions
 # ---------------------------------------------------------------------------- #
 
-install( TARGETS Lib_rng EXPORT draco-targets DESTINATION ${DBSCFGDIR}lib )
-install( FILES ${headers} DESTINATION ${DBSCFGDIR}include/rng )
+install( TARGETS Lib_rng EXPORT draco-targets
+  LIBRARY DESTINATION "${DBSCFGDIR_LIBRARY}"
+  ARCHIVE DESTINATION "${DBSCFGDIR}lib"
+  RUNTIME DESTINATION "${DBSCFGDIR}bin"
+  PUBLIC_HEADER DESTINATION "${DBSCFGDIR}include/rng" )
+if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+  install(FILES $<TARGET_PDB_FILE:Lib_rng> DESTINATION ${DBSCFGDIR}bin
+    OPTIONAL)
+endif()
 
 # ---------------------------------------------------------------------------- #
 # Unit tests
 # ---------------------------------------------------------------------------- #
-
 if( BUILD_TESTING )
-   add_subdirectory( test )
+  add_subdirectory( test )
 endif()
 
 # ---------------------------------------------------------------------------- #
 # Autodoc
 # ---------------------------------------------------------------------------- #
-
 process_autodoc_pages()
 
 #------------------------------------------------------------------------------#

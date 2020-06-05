@@ -1,13 +1,13 @@
 #-----------------------------*-cmake-*----------------------------------------#
 # file   cdi_eospac/CMakeLists.txt
 # brief  Instructions for building cdi_eospac Makefiles.
-# note   Copyright (C) 2016-2019 Triad National Security, LLC.
+# note   Copyright (C) 2016-2020 Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 cmake_minimum_required(VERSION 3.9.0)
 project( cdi_eospac CXX )
 
-if( EOSPAC_FOUND )
+if( EOSPAC_FOUND AND NOT DEFINED ENV{TRAVIS} )
 
 # ---------------------------------------------------------------------------- #
 # Source files
@@ -35,6 +35,13 @@ add_component_executable(
   SOURCES     ${PROJECT_SOURCE_DIR}/QueryEospac.cc
   PREFIX       Draco )
 
+# Copy necessary dll files to the build directory
+if( MSVC AND DRACO_LIBRARY_TYPE STREQUAL SHARED )
+  add_custom_command( TARGET Lib_cdi_eospac POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:EOSPAC::eospac>
+            $<TARGET_FILE_DIR:Lib_cdi_eospac> )
+endif()
+
 # ---------------------------------------------------------------------------- #
 # Installation instructions
 # ---------------------------------------------------------------------------- #
@@ -44,19 +51,21 @@ install( TARGETS Lib_cdi_eospac  EXPORT draco-targets DESTINATION
 install( TARGETS Exe_QueryEospac EXPORT draco-targets DESTINATION
   ${DBSCFGDIR}bin )
 install( FILES ${headers} DESTINATION ${DBSCFGDIR}include/cdi_eospac )
+if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+  install(FILES $<TARGET_PDB_FILE:Lib_cdi_eospac> DESTINATION ${DBSCFGDIR}lib
+    OPTIONAL)
+endif()
 
 # ---------------------------------------------------------------------------- #
 # Unit tests
 # ---------------------------------------------------------------------------- #
-
-if( BUILD_TESTING )
+if( BUILD_TESTING AND NOT DEFINED ENV{APPVEYOR} )
   add_subdirectory( test )
 endif()
 
 # ---------------------------------------------------------------------------- #
 # Autodoc
 # ---------------------------------------------------------------------------- #
-
 process_autodoc_pages()
 
 endif() # EOSPAC_FOUND

@@ -3,7 +3,7 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2010 April 28
 # brief  Instructions for building ds++/test level Makefile.
-# note   Copyright (C) 2016-2019 Triad National Security, LLC.
+# note   Copyright (C) 2016-2020 Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 project( dsxx_test CXX )
@@ -44,17 +44,22 @@ add_scalar_tests(
    DEPS    Lib_dsxx
    )
 
+# tstatomics will use 19 hw threads. Help ctest schedule this job by setting
+# test properties. We don't need to reserve 19 cores, but let's reserve 10
+# (assume 2 hw threads per physical core.)
+set_tests_properties( dsxx_tstatomics PROPERTIES PROCESSORS 10 )
+
 # (2013-11-13 KT):: tstdbc intentionally divides by zero (to test the isinfinity
 # function). PGI issues a warning for this case that we don't care about.  Since
-# PGI does not appear to use pragmas to supress warnings, I am turning off
+# PGI does not appear to use pragmas to suppress warnings, I am turning off
 # warnings for Ut_dsxx_tstdbc_exe when the compiler is PGI.
-if( draco_isPGI )
-   set_source_files_properties(
-      ${PROJECT_SOURCE_DIR}/tstdbc.cc
-      PROPERTIES
-        COMPILE_FLAGS --no_warnings
-   )
-endif()
+# if( draco_isPGI )
+#    set_source_files_properties(
+#       ${PROJECT_SOURCE_DIR}/tstdbc.cc
+#       PROPERTIES
+#         COMPILE_FLAGS --no_warnings
+#    )
+# endif()
 
 # tstData_Table.cc will fail for RelWithDebugInfo. Set extra CPP macros as a
 # work-around:
@@ -67,6 +72,7 @@ target_link_libraries( Exe_do_exception Lib_dsxx )
 set_target_properties( Exe_do_exception PROPERTIES
   FOLDER dsxx_test
   OUTPUT_NAME do_exception )
+dbs_std_tgt_props( Exe_do_exception )
 
 include( ApplicationUnitTest )
 add_app_unit_test(

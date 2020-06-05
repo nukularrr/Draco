@@ -1,115 +1,108 @@
 ##---------------------------------------------------------------------------##
 # file   : platform_checks.cmake
 # brief  : Platform Checks for Draco Build System
-# note   : Copyright (C) 2016-2019 Triad National Security, LLC.
+# note   : Copyright (C) 2016-2020 Triad National Security, LLC.
 #          All rights reserved
 ##---------------------------------------------------------------------------##
 
-if( NOT DEFINED CRAY_PE )
-  message("
-Platform Checks...
-")
+include_guard(GLOBAL)
 
-  # ----------------------------------------------------------------------------
-  # Identify machine and save name in ds++/config.h
-  # ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# Identify machine and save name in ds++/config.h
+# ----------------------------------------------------------------------------
+
+function(dbs_set_sitename)
+
+  if( DEFINED SITENAME )
+    if( DEFINED SITENAME_FAMILY)
+      return()
+    else()
+      unset(SITENAME)
+    endif()
+  endif()
+
   site_name( SITENAME )
   string( REGEX REPLACE "([A-z0-9]+).*" "\\1" SITENAME ${SITENAME} )
+  set( SITENAME_FAMILY "unknown" )
   if( ${SITENAME} MATCHES "ba")
     set( SITENAME "Badger" )
+    set( SITENAME_FAMILY "CTS-1" )
   elseif( ${SITENAME} MATCHES "ccscs[0-9]+" )
-    # do nothing (keep the fullname)
+    set( SITENAME_FAMILY "CCS-NET" )
   elseif( ${SITENAME} MATCHES "fi")
     set( SITENAME "Fire" )
+    set( SITENAME_FAMILY "CTS-1" )
   elseif( ${SITENAME} MATCHES "ic")
     set( SITENAME "Ice" )
+    set( SITENAME_FAMILY "CTS-1" )
   elseif( ${SITENAME} MATCHES "nid")
     if( "$ENV{SLURM_CLUSTER_NAME}" MATCHES "trinity" )
       set( SITENAME "Trinity" )
+      set( SITENAME_FAMILY "ATS-1" )
     else()
       set( SITENAME "Trinitite" )
+      set( SITENAME_FAMILY "ATS-1" )
     endif()
   elseif( ${SITENAME} MATCHES "sn")
     set( SITENAME "Snow" )
+    set( SITENAME_FAMILY "CTS-1" )
   elseif( ${SITENAME} MATCHES "tr")
     set( SITENAME "Trinity" )
+      set( SITENAME_FAMILY "ATS-1" )
   elseif( ${SITENAME} MATCHES "tt")
     set( SITENAME "Trinitite" )
+      set( SITENAME_FAMILY "ATS-1" )
   endif()
   set( SITENAME ${SITENAME} CACHE "STRING" "Name of the current machine" FORCE)
+  set( SITENAME_FAMILY ${SITENAME_FAMILY} CACHE "STRING"
+    "Name of the current machine family (ATS-1, CTS-1, etc.)" FORCE)
 
-endif()
+endfunction()
+
+message("
+Platform Checks...
+")
+dbs_set_sitename()
 
 #------------------------------------------------------------------------------#
 # Sanity checks for Cray Programming Environments
 #
-# If this is a Cray PE,
-# - Set CRAY_PE = TRUE
 # - Ensure CMAKE_EXE_LINKER_FLAGS contains "-dynamic"
 # - Ensure that the compilers given to cmake are actually Cray compiler
 #   wrappers.
 #------------------------------------------------------------------------------#
 macro( query_craype )
 
-  if( NOT DEFINED CRAY_PE )
-
-    # Is this a Cray machine?
-    message( STATUS "Looking to see if we are building in a Cray Environment...")
-    if( DEFINED ENV{CRAYPE_VERSION} )
-      set( CRAY_PE ON CACHE BOOL
-        "Are we building in a Cray Programming Environment?")
-
-      # override default compiler wrapper flags for linking so that dynamic
-      # libraries are allowed.  This does not prevent us from generating static
-      # libraries if requested with DRACO_LIBRARY_TYPE=STATIC.
-      # if( DEFINED ENV{CMAKE_EXE_LINKER_FLAGS} )
-      #   set( CMAKE_EXE_LINKER_FLAGS "$ENV{CMAKE_EXE_LINKER_FLAGS}")
-      # else()
-      #   if( DEFINED CMAKE_EXE_LINKER_FLAGS )
-      #     string( APPEND CMAKE_EXE_LINKER_FLAGS " -dynamic" )
-      #   else()
-      #     set( CMAKE_EXE_LINKER_FLAGS "-dynamic" )
-      #   endif()
-      # endif()
-      # set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}" CACHE STRING
-      #   "Extra flags for linking executables")
-
-      # We expect developers to use the Cray compiler wrappers (especially in
-      # setupMPI.cmake). See also
-      # https://cmake.org/cmake/help/latest/module/FindMPI.html
-      if( NOT "$ENV{CXX}" MATCHES "CC$" OR
-          NOT "$ENV{CC}" MATCHES "cc$" OR
-          NOT "$ENV{FC}" MATCHES "ftn$" OR
-          NOT "$ENV{CRAYPE_LINK_TYPE}" MATCHES "dynamic$" )
-        message( FATAL_ERROR
-"The build system requires that the Cray compiler wrappers (CC, cc, ftn) be "
-" used when configuring this product on a Cray system (CRAY_PE=${CRAY_PE}). The"
-" development environment must also support dynamic linking.  The build system "
-" thinks you are trying to use:\n"
-"  CMAKE_CXX_COMPILER     = ${CMAKE_CXX_COMPILER}\n"
-"  CMAKE_C_COMPILER       = ${CMAKE_C_COMPILER}\n"
-"  CMAKE_Fortran_COMPILER = ${CMAKE_Fortran_COMPILER}\n"
-"  CRAYPE_LINK_TYPE       = $ENV{CRAYPE_LINK_TYPE}\n"
-"If you are working on a system that runs the Cray Programming Environment, try"
-" setting the following variables and rerunning cmake from a clean build"
-" directory:\n"
-"   export CXX=`which CC`\n"
-"   export CC=`which cc`\n"
-"   export FC=`which ftn`\n"
-"   export CRAYPE_LINK_TYPE=dynamic\n"
-"Otherwise please email this error message and other related information to"
-" draco@lanl.gov.\n" )
-      endif()
-      message( STATUS
-        "Looking to see if we are building in a Cray Environment..."
-        "found version $ENV{CRAYPE_VERSION}.")
-    else()
-      set( CRAY_PE OFF CACHE BOOL
-        "Are we building in a Cray Programming Environment?")
-      message( STATUS
-        "Looking to see if we are building in a Cray Environment...no.")
+  # We expect developers to use the Cray compiler wrappers. See also
+  # https://cmake.org/cmake/help/latest/module/FindMPI.html
+  #
+  # Skip this check if building from within spack.
+  if( CMAKE_CXX_COMPILER_WRAPPER STREQUAL CrayPrgEnv AND
+      NOT "$ENV{CXX}" MATCHES "$ENV{SPACK_ROOT}/lib/spack/env/" )
+    if( NOT "$ENV{CXX}" MATCHES "CC$" OR
+        NOT "$ENV{CC}" MATCHES "cc$" OR
+        NOT "$ENV{FC}" MATCHES "ftn$" OR
+        NOT "$ENV{CRAYPE_LINK_TYPE}" MATCHES "dynamic$" )
+      message( FATAL_ERROR
+        "The build system requires that the Cray compiler wrappers (CC, cc, "
+        "ftn) be used when configuring this product on a Cray system "
+        "(CMAKE_CXX_COMPILER_WRAPPER = ${CMAKE_CXX_COMPILER_WRAPPER}). The "
+        "development environment must also support dynamic linking.  The "
+        "build system thinks you are trying to use:\n"
+        "  CMAKE_CXX_COMPILER     = ${CMAKE_CXX_COMPILER}\n"
+        "  CMAKE_C_COMPILER       = ${CMAKE_C_COMPILER}\n"
+        "  CMAKE_Fortran_COMPILER = ${CMAKE_Fortran_COMPILER}\n"
+        "  CRAYPE_LINK_TYPE       = $ENV{CRAYPE_LINK_TYPE}\n"
+        "If you are working on a system that runs the Cray Programming "
+        "Environment, try setting the following variables and rerunning cmake "
+        "from a clean build directory:\n"
+        "   export CXX=`which CC`\n"
+        "   export CC=`which cc`\n"
+        "   export FC=`which ftn`\n"
+        "   export CRAYPE_LINK_TYPE=dynamic\n"
+        "Otherwise please email this error message and other related "
+        "information to draco@lanl.gov.\n" )
     endif()
-
   endif()
 endmacro()
 
@@ -147,43 +140,43 @@ endmacro()
 macro( query_have_gethostname )
     # Platform checks for gethostname()
     include( CheckIncludeFiles )
-    check_include_files( unistd.h    HAVE_UNISTD_H )
-    check_include_files( limits.h    HAVE_LIMITS_H )
-    check_include_files( winsock2.h  HAVE_WINSOCK2_H )
-    check_include_files( direct.h    HAVE_DIRECT_H )
-    check_include_files( sys/param.h HAVE_SYS_PARAM_H )
-    # Used to demangle symbols for stack trace
-    # check_include_files( cxxabi.h    HAVE_CXXABI_H )
+    if( WIN32 )
+      check_include_files( winsock2.h  HAVE_WINSOCK2_H )
+    else()
+      check_include_files( unistd.h    HAVE_UNISTD_H )
+      check_include_files( sys/param.h HAVE_SYS_PARAM_H )
+    endif()
 
     # -------------- Checks for hostname and len(hostname) ---------------- #
-    # gethostname()
+
     include( CheckFunctionExists )
-    check_function_exists( gethostname HAVE_GETHOSTNAME )
+    if( NOT WIN32 )
+      check_function_exists( gethostname HAVE_GETHOSTNAME )
 
-    # HOST_NAME_MAX
-    include( CheckSymbolExists )
-    unset( hlist )
-    if( HAVE_UNISTD_H )
-       list( APPEND hlist unistd.h )
-    endif()
-    if( HAVE_WINSOCK2_H )
-       list( APPEND hlist winsock2.h )
-    endif()
-    if( HAVE_LIMITS_H )
-       list( APPEND hlist limits.h )
-    endif()
-    check_symbol_exists( HOST_NAME_MAX "${hlist}" HAVE_HOST_NAME_MAX )
-    if( NOT HAVE_HOST_NAME_MAX )
-       unset( HAVE_GETHOSTNAME )
-    endif()
+      # HOST_NAME_MAX
+      include( CheckSymbolExists )
+      unset( hlist )
+      if( HAVE_UNISTD_H )
+         list( APPEND hlist unistd.h )
+      endif()
+      if( HAVE_WINSOCK2_H )
+         list( APPEND hlist winsock2.h )
+      endif()
+      list( APPEND hlist limits.h )
 
-    check_symbol_exists( _POSIX_HOST_NAME_MAX "posix1_lim.h"
-      HAVE_POSIX_HOST_NAME_MAX )
+      check_symbol_exists( HOST_NAME_MAX "${hlist}" HAVE_HOST_NAME_MAX )
+      if( NOT HAVE_HOST_NAME_MAX )
+         unset( HAVE_GETHOSTNAME )
+      endif()
 
-    # HOST_NAME_MAX
-    check_symbol_exists( MAXHOSTNAMELEN "sys/param.h" HAVE_MAXHOSTNAMELEN )
-    if( NOT HAVE_MAXHOSTNAMELEN )
-       unset( HAVE_MAXHOSTNAMELEN )
+      check_symbol_exists( _POSIX_HOST_NAME_MAX "posix1_lim.h"
+        HAVE_POSIX_HOST_NAME_MAX )
+
+      # HOST_NAME_MAX
+      check_symbol_exists( MAXHOSTNAMELEN "sys/param.h" HAVE_MAXHOSTNAMELEN )
+      if( NOT HAVE_MAXHOSTNAMELEN )
+         unset( HAVE_MAXHOSTNAMELEN )
+      endif()
     endif()
 
 endmacro()
@@ -195,20 +188,20 @@ endmacro()
 ## Used by ds++/SystemCall.cc and ds++/path.cc
 ##---------------------------------------------------------------------------##
 macro( query_have_maxpathlen )
+    include(CheckSymbolExists)
+
     # MAXPATHLEN
     unset( hlist )
     if( HAVE_UNISTD_H )
        list( APPEND hlist unistd.h )
     endif()
-    if( HAVE_LIMITS_H )
-       list( APPEND hlist limits.h )
-    endif()
+    list( APPEND hlist limits.h )
     if( HAVE_SYS_PARAM_H )
        list( APPEND hlist sys/param.h )
     endif()
     check_symbol_exists( MAXPATHLEN "${hlist}" HAVE_MAXPATHLEN )
     if( NOT HAVE_MAXPATHLEN )
-        unset( HAVE_MAXPATHLEN )
+      unset( HAVE_MAXPATHLEN )
     endif()
 endmacro()
 
@@ -335,7 +328,7 @@ macro( query_fma_on_hardware )
     #   # - looking at $ENV{PROCESSOR_IDENTIFIER}. This will be something like:
     #   #   "Intel64 Family 6 Model 45 Stepping 7, GenuineIntel" This string
     #   #   would need to be decoded to know if the processor supports FMA.
-    #   # - running 'wmic cpu get * /fomrat:list'. This lists a lot of
+    #   # - running 'wmic cpu get * /format:list'. This lists a lot of
     #   #   information about the cpu, but it does not itemize features like
     #   #   fma. Optionally, 'wmic cpu get name'
     #   # - run a 3rd party application like cpuz64.
@@ -391,45 +384,5 @@ macro( query_fma_on_hardware )
 endmacro()
 
 ##---------------------------------------------------------------------------##
-## Sample platform checks
-##---------------------------------------------------------------------------##
-
-# # Check for nonblocking collectives
-# check_function_exists(MPI_Iallgather HAVE_MPI3_NONBLOCKING_COLLECTIVES)
-# check_function_exists(MPIX_Iallgather HAVE_MPIX_NONBLOCKING_COLLECTIVES)
-
-# # Check for MPI_IN_PLACE (essentially MPI2 support)
-# include(CheckCXXSourceCompiles)
-# set(MPI_IN_PLACE_CODE
-#     "#include \"mpi.h\"
-#      int main( int argc, char* argv[] )
-#      {
-#          MPI_Init( &argc, &argv );
-#          float a;
-#          MPI_Allreduce
-#          ( MPI_IN_PLACE, &a, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD );
-#          MPI_Finalize();
-#          return 0;
-#      }
-#     ")
-# set(CMAKE_REQUIRED_FLAGS ${CXX_FLAGS})
-# set(CMAKE_REQUIRED_INCLUDES ${MPI_CXX_INCLUDE_PATH})
-# set(CMAKE_REQUIRED_LIBRARIES ${MPI_CXX_LIBRARIES})
-# check_cxx_source_compiles("${MPI_IN_PLACE_CODE}" HAVE_MPI_IN_PLACE)
-
-# # Look for restrict support
-# set(RESTRICT_CODE
-#     "int main(void)
-#      {
-#          int* RESTRICT a;
-#          return 0;
-#      }")
-# set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict__")
-# check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict__)
-# if(HAVE___restrict__)
-# ...
-# endif()
-
-
-
+## End of platform_checks.cmake
 ##---------------------------------------------------------------------------##

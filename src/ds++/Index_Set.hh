@@ -1,21 +1,22 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   ds++/Index_Set.hh
  * \author Mike Buksas
  * \date   Thu Feb  2 10:01:46 2006
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef dsxx_Index_Set_hh
 #define dsxx_Index_Set_hh
 
 #include "Assert.hh"
 #include <algorithm>
+#include <array>
 
 namespace rtt_dsxx {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class Index_Set
  * \brief Represents a D-dimensional set if indices.
@@ -24,14 +25,13 @@ namespace rtt_dsxx {
 /*!
  * \example ds++/test/tstIndex_Set.cc
  */
-//===========================================================================//
+//============================================================================//
 template <unsigned D, int OFFSET> class Index_Set {
 public:
   // CREATORS
 
   //! Default constructors.
-  Index_Set() : m_array_size(0) { /* ... */
-  }
+  Index_Set() = default;
 
   //! Construct with pointer to sizes
   explicit Index_Set(unsigned const *const dimensions) : m_array_size(0) {
@@ -44,8 +44,7 @@ public:
   }
 
   //! Destructor
-  virtual ~Index_Set() { /* ... */
-  }
+  virtual ~Index_Set() = default;
 
   //! Comparison operator
   bool operator==(const Index_Set &rhs) const;
@@ -96,17 +95,18 @@ public:
 private:
   void compute_size();
 
-  unsigned m_array_size;    //!< Sizes of the whole index range
-  unsigned m_dimensions[D]; //!< Sizes of each dimension
+  unsigned m_array_size{0};             //!< Sizes of the whole index range
+  std::array<unsigned, D> m_dimensions; //!< Sizes of each dimension
 
 protected:
   // Make sure the index sizes are all positive when creating or resizing:
   bool sizes_okay() const {
-    return (std::find(m_dimensions, m_dimensions + D, 0u) == m_dimensions + D);
+    return (std::find(m_dimensions.begin(), m_dimensions.begin() + D, 0u) ==
+            m_dimensions.begin() + D);
   }
 
   // Allow derived classes const access to the dimensions.
-  unsigned const *get_dimensions() const { return m_dimensions; }
+  std::array<unsigned, D> const get_dimensions() const { return m_dimensions; }
 };
 
 } // end namespace rtt_dsxx
@@ -115,6 +115,6 @@ protected:
 
 #endif // dsxx_Index_Set_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of ds++/Index_Set.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

@@ -3,7 +3,7 @@
 # author Kelly Thompson
 # date   2010 Nov 1
 # brief  Establish flags for Linux64 - Intel C++
-# note   Copyright (C) 2016-2019 Triad National Security, LLC.
+# note   Copyright (C) 2016-2020 Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 
@@ -47,8 +47,7 @@ if( NOT CXX_FLAGS_INITIALIZED )
   set( CMAKE_C_FLAGS_RELWITHDEBINFO
     "-g -debug inline-debug-info -O3 -pthread -fp-model precise -fp-speculation safe -fno-omit-frame-pointer" )
 
-  set( CMAKE_CXX_FLAGS
-    "${CMAKE_C_FLAGS} -std=c++11" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
   set( CMAKE_CXX_FLAGS_DEBUG
     "${CMAKE_C_FLAGS_DEBUG} -early-template-check")
   set( CMAKE_CXX_FLAGS_RELEASE
@@ -91,13 +90,9 @@ set( CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}" CACHE
 
 # If this is a Cray, the compile wrappers take care of any xHost flags that are
 # needed.
-if( NOT CRAY_PE )
-# include(CheckCCompilerFlag)
-# check_c_compiler_flag(-xHost HAS_XHOST)
- set( HAS_XHOST TRUE )
- toggle_compiler_flag( HAS_XHOST "-xHost" "C;CXX" "")
-#else()
- # -craype-verbose
+if( NOT CMAKE_CXX_COMPILER_WRAPPER STREQUAL CrayPrgEnv )
+  set( HAS_XHOST TRUE )
+  toggle_compiler_flag( HAS_XHOST "-xHost" "C;CXX" "")
 endif()
 toggle_compiler_flag( OPENMP_FOUND ${OpenMP_C_FLAGS} "C;CXX" "" )
 

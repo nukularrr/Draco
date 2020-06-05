@@ -3,9 +3,11 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2010 June 5
 # brief  Default CMake build parameters
-# note   Copyright (C) 2016-2019 Triad National Security, LLC.
+# note   Copyright (C) 2016-2020 Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
+
+include_guard(GLOBAL)
 
 #------------------------------------------------------------------------------#
 # Build Parameters
@@ -18,7 +20,8 @@ macro( dbsSetDefaults )
   # if undefined, force build_type to "release"
   if( NOT CMAKE_CONFIGURATION_TYPES )
      if( "${CMAKE_BUILD_TYPE}x" STREQUAL "x" )
-        set( CMAKE_BUILD_TYPE "Debug" CACHE STRING "Release, Debug, RelWithDebInfo" FORCE )
+        set( CMAKE_BUILD_TYPE "Debug" CACHE STRING
+          "Release, Debug, RelWithDebInfo" FORCE )
      endif()
      # constrain pull down values in cmake-gui
      set_property( CACHE CMAKE_BUILD_TYPE
@@ -29,7 +32,8 @@ macro( dbsSetDefaults )
   if( "${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local" OR
       "${CMAKE_INSTALL_PREFIX}" MATCHES "C:/Program Files" )
      set( CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/../install" )
-     get_filename_component( CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" ABSOLUTE )
+     get_filename_component( CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}"
+      ABSOLUTE )
      set( CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" CACHE PATH
         "Install path prefix, prepended onto install directories" FORCE)
   endif()
@@ -43,7 +47,8 @@ macro( dbsSetDefaults )
      if( CMAKE_CONFIGURATION_TYPES )
         set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} )
      else() # nmake or mingw32-make
-        set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE} )
+        set( CMAKE_RUNTIME_OUTPUT_DIRECTORY
+          ${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE} )
      endif()
   endif()
 
@@ -91,15 +96,27 @@ macro( dbsSetDefaults )
 
   if( CMAKE_CONFIGURATION_TYPES )
     # This generator expression will be expanded when the project is installed
-    # (CMake-3.4.0+)
     set(DBSCFGDIR "\$<CONFIG>/" CACHE STRING
       "Install subdirectory for multiconfig build tools.")
+    set(DBSCFGDIR_LIBRARY "\$<CONFIG>/bin" CACHE STRING
+      "Shared object library install subdirectory for multiconfig build tools.")
+    set(DBSCFG_IMPORT_PREFIX
+      "$<INSTALL_PREFIX>/$<CONFIG>/include"
+      CACHE STRING
+      "Prefix hack to properly set path to header files listed in draco-targets cmake.")
     # Generate a complete installation directory structure to avoid errors of
     # the form "imported target includes non-existent path" when configuring
     # Jayenne.
     foreach( config ${CMAKE_CONFIGURATION_TYPES} )
       file( MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/${config}/include )
     endforeach()
+  else()
+    set(DBSCFGDIR_LIBRARY "lib" CACHE STRING
+      "Shared object library install subdirectory for multiconfig build tools.")
+    set(DBSCFG_IMPORT_PREFIX
+      "$<INSTALL_PREFIX>/include"
+      CACHE STRING
+      "Prefix hack to properly set path to header files listed in draco-targets cmake.")
   endif()
 
   # ----------------------------------------
@@ -122,7 +139,9 @@ macro( dbsSetDefaults )
   set_property( CACHE DRACO_LIBRARY_TYPE PROPERTY STRINGS SHARED STATIC)
 
   # Enable parallel build for Eclipse:
-  set( CMAKE_ECLIPSE_MAKE_ARGUMENTS "-j ${MPIEXEC_MAX_NUMPROCS}" )
+  cmake_host_system_information( RESULT logical_cores QUERY
+    NUMBER_OF_LOGICAL_CORES )
+  set( CMAKE_ECLIPSE_MAKE_ARGUMENTS "-j ${logical_cores}" )
 
   # Set RPATH for all libraries on Apple platform
   if (APPLE)
@@ -130,8 +149,8 @@ macro( dbsSetDefaults )
   endif()
 
   if( "${DRACO_LIBRARY_TYPE}" MATCHES "SHARED" )
-     # Set replacement RPATH for installed libraries and executables
-     # See http://www.cmake.org/Wiki/CMake_RPATH_handling
+     # Set replacement RPATH for installed libraries and executables. See
+     # http://www.cmake.org/Wiki/CMake_RPATH_handling
 
      # Do not skip the full RPATH for the build tree
      set( CMAKE_SKIP_BUILD_RPATH OFF )
@@ -139,8 +158,8 @@ macro( dbsSetDefaults )
      # installing)
      set( CMAKE_BUILD_WITH_INSTALL_RPATH OFF )
 
-     # For libraries created within the build tree, replace the RPATH
-     # in the installed files with the install location.
+     # For libraries created within the build tree, replace the RPATH in the
+     # installed files with the install location.
      set( CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH
        "RPATH to embed in dynamic libraries and executables when
 targets are installed." FORCE )
@@ -156,7 +175,7 @@ endmacro()
 ## dbsInitExportTargets
 ##
 ## These fields are constructed during Draco configure and are
-## saved/installed to lib/cmake/draco-X.X/draco-config.cmake.
+## saved/installed to cmake/draco-config.cmake.
 ##---------------------------------------------------------------------------##
 macro( dbsInitExportTargets PREFIX )
   # Data for exporting during install
@@ -166,7 +185,8 @@ macro( dbsInitExportTargets PREFIX )
    set( ${PREFIX}_TPL_LIST ""  CACHE INTERNAL
       "List of third party libraries known by this package" FORCE)
    set( ${PREFIX}_TPL_INCLUDE_DIRS ""  CACHE
-      INTERNAL "List of include paths used by this package to find thrid party vendor header files."
+      INTERNAL
+      "List of include paths used by this package to find TPL header files."
       FORCE)
    set( ${PREFIX}_TPL_LIBRARIES ""  CACHE INTERNAL
       "List of third party libraries used by this package." FORCE)
@@ -180,7 +200,7 @@ macro( dbsConfigInfo )
    set( DBS_OPERATING_SYSTEM "${CMAKE_SYSTEM_NAME}")
    set( DBS_OPERATING_SYSTEM_VER "${CMAKE_SYSTEM}")
 
-   # Suppliment with system commands as needed:
+   # Supplement with system commands as needed:
    if( UNIX )
 
       # Get some extra version information if this is RedHat.
@@ -190,38 +210,33 @@ macro( dbsConfigInfo )
          set( DBS_OPERATING_SYSTEM_VER "${redhat_version} (${CMAKE_SYSTEM})" )
       endif( EXISTS "/etc/redhat-release" )
 
-      # How many local cores
-      if( EXISTS "/proc/cpuinfo" )
-         file( READ "/proc/cpuinfo" cpuinfo )
-         # string( STRIP "${cpuinfo}" cpuinfo )
-         # convert one big string into a set of strings, one per line
-         string( REGEX REPLACE "\n" ";" cpuinfo ${cpuinfo} )
-         set( proc_ids "" )
-         foreach( line ${cpuinfo} )
-            if( ${line} MATCHES "processor" )
-               list( APPEND proc_ids ${line} )
-            endif()
-         endforeach()
-         list( LENGTH proc_ids DRACO_NUM_CORES )
-         set( MPIEXEC_MAX_NUMPROCS ${DRACO_NUM_CORES} CACHE STRING
-            "Number of cores on the local machine." )
-      endif()
-
    elseif() # WIN32
 
       # OS version information
-      # Windows XP
-      GET_FILENAME_COMPONENT( win_prod_name "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion;ProductName]" NAME )
-      GET_FILENAME_COMPONENT( win_sp "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion;CSDVersion]" NAME )
-      get_filename_component( win_ver "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion;CurrentVersion]" NAME )
-      get_filename_component( win_build "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion;CurrentBuildNumber]" NAME )
-      get_filename_component( win_buildlab "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion;BuildLab]" NAME )
+      # Windows
+      get_filename_component( win_prod_name
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion;ProductName]"
+        NAME )
+      get_filename_component( win_sp
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion;CSDVersion]"
+      NAME )
+      get_filename_component( win_ver
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion;CurrentVersion]"
+      NAME )
+      get_filename_component( win_build
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion;CurrentBuildNumber]"
+      NAME )
+      get_filename_component( win_buildlab
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion;BuildLab]"
+      NAME )
 
       set( DBS_OPERATING_SYSTEM "${win_prod_name}" )
-      set( DBS_OPERATING_SYSTEM_VER "${win_ver}.${win_build} (${win_buildlab})" )
+      set( DBS_OPERATING_SYSTEM_VER
+        "${win_ver}.${win_build} (${win_buildlab})" )
       if( EXISTS "C:/Program Files (x86)" )
          set( windows_bits "x64" )
-         set( DBS_OPERATING_SYSTEM "${win_prod_name} (${windows_bits}) ${win_sp}" )
+         set( DBS_OPERATING_SYSTEM
+          "${win_prod_name} (${windows_bits}) ${win_sp}" )
       else()
          set( DBS_OPERATING_SYSTEM "${win_prod_name} ${win_sp}" )
       endif()
@@ -246,7 +261,8 @@ macro( dbsConfigInfo )
          COMMAND "c:/windows/system32/ipconfig.exe" "/all"
          OUTPUT_VARIABLE windows_ip_configuration
          )
-      string( REGEX REPLACE ".*Host Name[.: ]+([A-z]+).*Primary.*" "\\1" DBS_TARGET "${windows_ip_configuration}" )
+      string( REGEX REPLACE ".*Host Name[.: ]+([A-z]+).*Primary.*" "\\1"
+        DBS_TARGET "${windows_ip_configuration}" )
 
    endif()
 

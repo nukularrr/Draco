@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   ds++/test/tstStackTrace.cc
  * \author Kelly Thompson
  * \date   Thursday, Dec 19, 2013, 15:09 pm
  * \brief  Demonstrate/Test fpe_trap's print_stacktrace function.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "ds++/DracoStrings.hh"
 #include "ds++/Release.hh"
@@ -14,9 +14,9 @@
 #include "ds++/StackTrace.hh"
 #include <sstream>
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // TESTS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 void sr2(std::string &msg) {
   msg = rtt_dsxx::print_stacktrace("myMessage");
   return;
@@ -30,8 +30,7 @@ void sr1(std::string &msg) {
 
 //----------------------------------------------------------------------------//
 void runtest(rtt_dsxx::UnitTest &ut) {
-  std::cout << "Running tstStackTrace...\n\n"
-            << "Requesting a trace..." << std::endl;
+  std::cout << "Running tstStackTrace...\nRequesting a trace..." << std::endl;
 
   // Create a stack trace.  It should look something like this:
 
@@ -46,7 +45,7 @@ void runtest(rtt_dsxx::UnitTest &ut) {
   // (PID:2849) ./tstStackTrace() [0x4054f9] : ??
   // Stack trace: END (PID:2849)
 
-  std::string trace;
+  std::string trace("demo stack trace message");
   sr1(trace);
   std::cout << trace << std::endl;
 
@@ -60,17 +59,15 @@ void runtest(rtt_dsxx::UnitTest &ut) {
       rtt_dsxx::get_word_count(msg, verbose);
 
   // Expected values.
-  if (words[std::string("PID")] != 1)
-    ITFAILS;
-  if (words[std::string("Stack")] < 2)
-    ITFAILS;
+  FAIL_IF_NOT(words[std::string("PID")] == 1);
+  FAIL_IF(words[std::string("Stack")] < 2);
 
   if (ut.numFails == 0)
     PASSMSG("done with testing print_stacktrace.");
   return;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 int main(int argc, char *argv[]) {
   rtt_dsxx::ScalarUnitTest ut(argc, argv, rtt_dsxx::release);
   try {
@@ -79,6 +76,6 @@ int main(int argc, char *argv[]) {
   UT_EPILOG(ut);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 //  end of tstSafe_Divide.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

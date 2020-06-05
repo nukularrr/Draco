@@ -3,10 +3,11 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2010 June 6
 # brief  Look for any libraries which are required at the top level.
-# note   Copyright (C) 2016-2019 Triad National Security, LLC.
+# note   Copyright (C) 2016-2020 Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 
+include_guard(GLOBAL)
 include( FeatureSummary )
 include( setupMPI ) # defines the macros setupMPILibrariesUnix|Windows
 
@@ -16,17 +17,17 @@ include( setupMPI ) # defines the macros setupMPILibrariesUnix|Windows
 macro( setupPython )
 
   message( STATUS "Looking for Python...." )
-  find_package(PythonInterp 2.7 QUIET REQUIRED)
-  #  PYTHONINTERP_FOUND - Was the Python executable found
-  #  PYTHON_EXECUTABLE  - path to the Python interpreter
+  find_package(Python QUIET REQUIRED COMPONENTS Interpreter)
+  #  Python_Interpreter_FOUND - Was the Python executable found
+  #  Python_EXECUTABLE  - path to the Python interpreter
   set_package_properties( PythonInterp PROPERTIES
     URL "https://www.python.org"
     DESCRIPTION "Python interpreter"
     TYPE REQUIRED
     PURPOSE "Required for running tests and accessing features that rely on matplotlib."
     )
-  if( PYTHONINTERP_FOUND )
-    message( STATUS "Looking for Python....found ${PYTHON_EXECUTABLE}" )
+  if( Python_Interpreter_FOUND )
+    message( STATUS "Looking for Python....found ${Python_EXECUTABLE}" )
   else()
     message( STATUS "Looking for Python....not found" )
   endif()
@@ -35,9 +36,6 @@ endmacro()
 
 #------------------------------------------------------------------------------#
 # Helper macros for Random123
-#
-# Providers: Linux - use spack to install netlib-lapack
-#                    https://github.com/spack/spack
 #------------------------------------------------------------------------------#
 macro( setupRandom123 )
 
@@ -72,40 +70,41 @@ endmacro()
 #------------------------------------------------------------------------------
 macro( setupLAPACKLibraries )
 
+  # defaults
+  set( lapack_url "http://www.netlib.org/lapack" )
+  set( LAPACK_FOUND FALSE ) # for robustness, always do this search.
+
   # There are several flavors of LAPACK.
   # 1. look for netlib-lapack
   # 2. look for MKL (Intel)
   # 3. look for OpenBLAS.
 
+  #----------------------------------------------------------------------------#
+  # netlib-lapack (find_package config mode search)
   message( STATUS "Looking for lapack (netlib)...")
-  set( lapack_FOUND FALSE )
 
-  # Use LAPACK_LIB_DIR, if the user set it, to help find LAPACK.
-  # This first try will also look for BLAS/LAPACK at CMAKE_PREFIX_PATH.
-  if( EXISTS ${LAPACK_LIB_DIR}/cmake )
-    file( GLOB lapack_cmake_prefix_path
-      LIST_DIRECTORIES true
-      ${LAPACK_LIB_DIR}/cmake/lapack-* )
-    list( APPEND CMAKE_PREFIX_PATH ${lapack_cmake_prefix_path} )
+  #----------------------------------------------------------------------------#
+  # Package-config mode: look for lapack-config.cmake in $CMAKE_PREFIX_PATH
+  if( NOT TARGET lapack AND NOT "${LAPACK_FOUND}" )
+    find_package( lapack CONFIG QUIET )
   endif()
-  find_package( lapack CONFIG QUIET )
 
-  if( lapack_FOUND )
+  if( NOT TARGET lapack )
+    message( STATUS "Looking for lapack (netlib)....not found")
+  else()
     set( lapack_flavor "netlib")
-    set( lapack_url "http://www.netlib.org/lapack" )
     foreach( config NOCONFIG DEBUG RELEASE RELWITHDEBINFO )
       get_target_property(tmp lapack IMPORTED_LOCATION_${config} )
       if( EXISTS ${tmp} )
-        set( lapack_FOUND TRUE )
         set( lapack_loc ${tmp} )
+        break()
       endif()
     endforeach()
     message( STATUS "Looking for lapack (netlib)....found ${lapack_loc}")
-    set( lapack_FOUND ${lapack_FOUND} CACHE BOOL "Did we find LAPACK." FORCE )
 
     # The above might define blas, or it might not. Double check:
     if( NOT TARGET blas )
-      find_package( BLAS )
+      find_package( BLAS QUIET)
       if( BLAS_FOUND )
         add_library( blas STATIC IMPORTED)
         set_target_properties( blas PROPERTIES
@@ -122,28 +121,21 @@ macro( setupLAPACKLibraries )
           IMPORTED_LINK_INTERFACE_LIBRARIES blas )
       endif()
     endif()
-
-  else()
-    message( STATUS "Looking for lapack (netlib)....not found")
   endif()
 
-  mark_as_advanced( lapack_DIR lapack_FOUND )
+  #----------------------------------------------------------------------------#
+  # MKL
 
-  # Debug targets:
-  # include(print_target_properties)
-  # print_targets_properties("lapack;blas")
-
-  # Above we tried to find lapack-config.cmake at $LAPACK_LIB_DIR/cmake/lapack.
-  # This is a draco supplied version of lapack.  If that search failed, then try
-  # to find MKL on the local system.
-
-  if( NOT lapack_FOUND )
+  # If the above search failed, then try to find MKL on the local system.
+  if( NOT TARGET lapack AND NOT "${LAPACK_FOUND}" )
     if( DEFINED ENV{MKLROOT} )
       message( STATUS "Looking for lapack (MKL)...")
       # CMake uses the 'Intel10_64lp' enum to indicate MKL. For details see the
       # cmake documentation for FindBLAS.
       set( BLA_VENDOR "Intel10_64lp" )
-      find_package( BLAS QUIET )
+      find_package( Threads QUIET )
+      find_package( BLAS QUIET)
+      find_package( LAPACK QUIET)
 
       # If we link statically, we notice that the mkl library dependencies are
       # cyclic and FindBLAS and FindLAPACK will fail.  If this is the case, but
@@ -165,14 +157,16 @@ macro( setupLAPACKLibraries )
 
       # should we link against libmkl_gnu_thread.so or libmkl_intel_thread.so
       if( ${CMAKE_C_COMPILER_ID} MATCHES GNU )
-        set(tlib "mkl_gnu_thread")
+        set(tlib "gnu")
+        set(lplib "gf")
       else()
-        set(tlib "mkl_intel_thread")
+        set(tlib "intel")
+        set(lplib "intel")
       endif()
 
       if( BLAS_FOUND )
+        unset(lapack_FOUND)
         set( LAPACK_FOUND TRUE CACHE BOOL "lapack (MKL) found?" FORCE)
-        set( lapack_FOUND TRUE CACHE BOOL "lapack (MKL) found?" FORCE)
         set( lapack_DIR "$ENV{MKLROOT}" CACHE PATH "MKLROOT PATH?" FORCE)
         set( lapack_flavor "mkl")
         set( lapack_url "https://software.intel.com/en-us/intel-mkl")
@@ -181,7 +175,7 @@ macro( setupLAPACKLibraries )
         add_library( blas::mkl_thread  ${MKL_LIBRARY_TYPE} IMPORTED)
         add_library( blas::mkl_core    ${MKL_LIBRARY_TYPE} IMPORTED)
         set_target_properties( blas::mkl_thread PROPERTIES
-          IMPORTED_LOCATION                 "${BLAS_${tlib}_LIBRARY}"
+          IMPORTED_LOCATION                 "${BLAS_mkl_${tlib}_thread_LIBRARY}"
           IMPORTED_LINK_INTERFACE_LANGUAGES "C"
           IMPORTED_LINK_INTERFACE_MULTIPLICITY 20 )
         set_target_properties( blas::mkl_core PROPERTIES
@@ -190,16 +184,17 @@ macro( setupLAPACKLibraries )
           IMPORTED_LINK_INTERFACE_LIBRARIES blas::mkl_thread
           IMPORTED_LINK_INTERFACE_MULTIPLICITY 20 )
         set_target_properties( blas PROPERTIES
-          IMPORTED_LOCATION                 "${BLAS_mkl_intel_lp64_LIBRARY}"
+          IMPORTED_LOCATION                 "${BLAS_mkl_${lplib}_lp64_LIBRARY}"
           IMPORTED_LINK_INTERFACE_LANGUAGES "C"
-          IMPORTED_LINK_INTERFACE_LIBRARIES "-Wl,--start-group;${BLAS_mkl_core_LIBRARY};${BLAS_${tlib}_LIBRARY};-Wl,--end-group"
+          IMPORTED_LINK_INTERFACE_LIBRARIES blas::mkl_core
+#          IMPORTED_LINK_INTERFACE_LIBRARIES "-Wl,--start-group;${BLAS_mkl_core_LIBRARY};${BLAS_mkl_${tlib}_thread_LIBRARY};-Wl,--end-group"
           IMPORTED_LINK_INTERFACE_MULTIPLICITY 20)
         set_target_properties( lapack PROPERTIES
-          IMPORTED_LOCATION                 "${BLAS_mkl_intel_lp64_LIBRARY}"
+          IMPORTED_LOCATION                 "${BLAS_mkl_${lplib}_lp64_LIBRARY}"
           IMPORTED_LINK_INTERFACE_LANGUAGES "C"
           IMPORTED_LINK_INTERFACE_LIBRARIES blas
           IMPORTED_LINK_INTERFACE_MULTIPLICITY 20)
-        message(STATUS "Looking for lapack (MKL)...found ${BLAS_mkl_intel_lp64_LIBRARY}")
+        message(STATUS "Looking for lapack (MKL)...found ${BLAS_mkl_${lplib}_lp64_LIBRARY}")
       else()
         message(STATUS "Looking for lapack (MKL)...NOTFOUND")
       endif()
@@ -207,10 +202,13 @@ macro( setupLAPACKLibraries )
     endif()
   endif()
 
+  #----------------------------------------------------------------------------#
+  # OpenBLAS
+
   # If the above searches for LAPACK failed, then try to find OpenBlas on the
   # local system.
 
-  if( NOT lapack_FOUND )
+  if( NOT TARGET lapack AND NOT "${LAPACK_FOUND}" )
       message( STATUS "Looking for lapack (OpenBLAS)...")
       # CMake uses the 'OpenBLAS' enum to help the FindBLAS.cmake macro. For
       # details see the cmake documentation for FindBLAS.
@@ -218,19 +216,47 @@ macro( setupLAPACKLibraries )
       find_package( BLAS QUIET )
 
       if( BLAS_FOUND )
-        set( LAPACK_FOUND TRUE CACHE BOOL "lapack (OpenBlas) found?")
-        set( lapack_FOUND TRUE CACHE BOOL "lapack (OpenBlas) found?")
+        set( LAPACK_FOUND TRUE CACHE BOOL "lapack (OpenBlas) found?" FORCE)
         set( lapack_flavor "openblas")
         set( lapack_url "http://www.openblas.net")
         add_library( lapack SHARED IMPORTED)
         add_library( blas   SHARED IMPORTED)
+        if(WIN32)
+          string( REPLACE ".lib" ".dll" BLAS_openblas_LIBRARY_DLL_libdir
+            "${BLAS_openblas_LIBRARY}" )
+          string( REPLACE "/lib/" "/bin/" BLAS_openblas_LIBRARY_DLL_bindir
+            "${BLAS_openblas_LIBRARY_DLL_libdir}" )
+          if( EXISTS "${BLAS_openblas_LIBRARY_DLL_libdir}" )
+            set( BLAS_openblas_LIBRARY_DLL
+              "${BLAS_openblas_LIBRARY_DLL_libdir}")
+          elseif( EXISTS "${BLAS_openblas_LIBRARY_DLL_bindir}" )
+            set( BLAS_openblas_LIBRARY_DLL
+              "${BLAS_openblas_LIBRARY_DLL_bindir}")
+          else()
+            # only static libs available.
+            set( BLAS_openblas_LIBRARY_DLL "${BLAS_openblas_LIBRARY}")
+          endif()
+
         set_target_properties( blas PROPERTIES
-          IMPORTED_LOCATION                 "${BLAS_openblas_LIBRARY}"
+          IMPORTED_LOCATION                 "${BLAS_openblas_LIBRARY_DLL}"
+          IMPORTED_IMPLIB                   "${BLAS_openblas_LIBRARY}"
           IMPORTED_LINK_INTERFACE_LANGUAGES "C" )
         set_target_properties( lapack PROPERTIES
-          IMPORTED_LOCATION                 "${BLAS_openblas_LIBRARY}"
+          IMPORTED_LOCATION                 "${BLAS_openblas_LIBRARY_DLL}"
+          IMPORTED_IMPLIB                   "${BLAS_openblas_LIBRARY}"
           IMPORTED_LINK_INTERFACE_LANGUAGES "C" )
-        message(STATUS "Looking for lapack (OpenBLAS)...found ${BLAS_openblas_LIBRARY}")
+
+        else()
+           set_target_properties( blas PROPERTIES
+            IMPORTED_LOCATION                 "${BLAS_openblas_LIBRARY}"
+            IMPORTED_LINK_INTERFACE_LANGUAGES "C" )
+          set_target_properties( lapack PROPERTIES
+            IMPORTED_LOCATION                 "${BLAS_openblas_LIBRARY}"
+            IMPORTED_LINK_INTERFACE_LANGUAGES "C" )
+        endif()
+
+        message(STATUS "Looking for lapack (OpenBLAS)...found "
+          "${BLAS_openblas_LIBRARY}")
       else()
         message(STATUS "Looking for lapack (OpenBLAS)...NOTFOUND")
       endif()
@@ -239,13 +265,12 @@ macro( setupLAPACKLibraries )
   # If the above searches for LAPACK failed, then try to find netlib-lapack and
   # netlib-blas on the local system (without the cmake config files).
 
-  if( NOT lapack_FOUND )
-      message( STATUS "Looking for lapack (no cmake config files)...")
+  if( NOT TARGET lapack AND NOT LAPACK_FOUND )
+      MESSAGE( STATUS "Looking for lapack (no cmake config files)...")
       find_package( BLAS QUIET )
 
       if( BLAS_FOUND )
-        find_package( LAPACK QUIET)
-        set( lapack_FOUND TRUE )
+        find_package(LAPACK QUIET)
         add_library( lapack SHARED IMPORTED)
         add_library( blas   SHARED IMPORTED)
         set_target_properties( blas PROPERTIES
@@ -265,67 +290,20 @@ macro( setupLAPACKLibraries )
     DESCRIPTION "Basic Linear Algebra Subprograms"
     TYPE OPTIONAL
     PURPOSE "Required for building the lapack_wrap component." )
-  set_package_properties( lapack PROPERTIES
-    URL "${lapack_url}"
-    DESCRIPTION "Linear Algebra PACKage"
-    TYPE OPTIONAL
-    PURPOSE "Required for building the lapack_wrap component." )
-
-endmacro()
-
-#------------------------------------------------------------------------------
-# Helper macros for CUDA/Unix
-#
-# https://devblogs.nvidia.com/tag/cuda/
-# https://devblogs.nvidia.com/building-cuda-applications-cmake/
-#------------------------------------------------------------------------------
-macro( setupCudaEnv )
-
-  # if WITH_CUDA is set, use the provided value, otherwise disable CUDA unless
-  # the CUDA_COMPILER exists.
-  if( NOT DEFINED WITH_CUDA )
-    if( EXISTS "${CMAKE_CUDA_COMPILER}" )
-      set( WITH_CUDA ON)
-    else()
-      set( WITH_CUDA OFF)
-    endif()
+  if( "${lapack_flavor}" STREQUAL "netlib")
+    set_package_properties( lapack PROPERTIES
+      URL "${lapack_url}"
+      DESCRIPTION "Linear Algebra PACKage"
+      TYPE OPTIONAL
+      PURPOSE "Required for building the lapack_wrap component." )
+  elseif( "${lapack_flavor}" STREQUAL "mkl" OR
+          "${lapack_flavor}" STREQUAL "openblas")
+    set_package_properties( LAPACK PROPERTIES
+      URL "${lapack_url}"
+      DESCRIPTION "Linear Algebra PACKage"
+      TYPE OPTIONAL
+      PURPOSE "Required for building the lapack_wrap component." )
   endif()
-  set( WITH_CUDA ${WITH_CUDA} CACHE BOOL "Attempt to compile CUDA kernels." )
-
-  add_feature_info( Cuda WITH_CUDA "Build CUDA kernels for GPU compute.")
-
-  if( WITH_CUDA )
-    set( CUDA_DBS_STRING "CUDA" CACHE BOOL
-      "If CUDA is available, this variable is 'CUDA'")
-
-    # message("
-    # CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES = ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
-    # CMAKE_CUDA_HOST_COMPILER       = ${CMAKE_CUDA_HOST_COMPILER}
-    # CMAKE_GENERATOR_TOOLSET        = ${CMAKE_GENERATOR_TOOLSET}
-    # CMAKE_VS_PLATFORM_TOOLSET_CUDA = ${CMAKE_VS_PLATFORM_TOOLSET_CUDA}
-    # CUDA_EXTENSIONS = ${CUDA_EXTENSIONS}
-    # CUDAHOSTCXX     = ${CUDAHOSTCXX}
-    # CUDAFLAGS       = ${CUDAFLAGS}
-    # CUDACXX         = ${CUDACXX}
-    # CUDA_STANDARD   = ${CUDA_STANDARD}
-    # CUDA_SEPARABLE_COMPILATION  = ${CUDA_SEPARABLE_COMPILATION}
-    # CUDA_RESOLVE_DEVICE_SYMBOLS = ${CUDA_RESOLVE_DEVICE_SYMBOLS}
-    # CUDA_PTX_COMPILATION        = ${CUDA_PTX_COMPILATION}
-    # ")
-
-    # $ENV{CUDACXX}
-    # $ENV{CUDAFLAGS}
-    # $ENV{CUDAHOSTCXX}
-
-    # target properties
-    # - CUDA_EXTENSIONS
-    # - CUDA_PTX_COMPILATION
-    # - CUDA_RESOLVE_DEVICE_SYMBOLS
-    # - CUDA_SEPARABLE_COMPILATION
-    # - CUDA_STANDARD
-    # - CUDA_STANDARD_REQUIRED
-  endif()
-
 endmacro()
 
 #------------------------------------------------------------------------------
@@ -334,41 +312,15 @@ endmacro()
 macro( setupQt )
   message( STATUS "Looking for Qt SDK...." )
 
-  # The CMake package information should be found in
-  # $QTDIR/lib/cmake/Qt5Widgets/Qt5WidgetsConfig.cmake.  On CCS Linux
-  # machines, QTDIR is set when loading the qt module
-  # (QTDIR=/ccs/codes/radtran/vendors/Qt53/5.3/gcc_64):
-  if( "${QTDIR}notset" STREQUAL "notset" AND EXISTS "$ENV{QTDIR}" )
-    set( QTDIR $ENV{QTDIR} CACHE PATH "This path should include /lib/cmake/Qt5Widgets" )
-  endif()
-  set( CMAKE_PREFIX_PATH_QT "$ENV{QTDIR}/lib/cmake/Qt5Widgets" )
+  # Find the QtWidgets library
+  find_package(Qt5 COMPONENTS Widgets QUIET)
 
-  if( NOT EXISTS ${CMAKE_PREFIX_PATH_QT}/Qt5WidgetsConfig.cmake )
-    # message( FATAL_ERROR "Could not find cQt cmake macros.  Try
-    # setting CMAKE_PREFIX_PATH_QT to the path that contains
-    # Qt5WidgetsConfig.cmake" )
-    message( STATUS "Looking for Qt SDK....not found." )
-  else()
-    file( TO_CMAKE_PATH "${CMAKE_PREFIX_PATH_QT}" CMAKE_PREFIX_PATH_QT )
-    list( APPEND CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH_QT}" )
-    find_package(Qt5Widgets)
-    find_package(Qt5Core)
-    get_target_property(QtCore_location Qt5::Core LOCATION)
-    if( Qt5Widgets_FOUND )
-      set( QT_FOUND 1 )
-      # Instruct CMake to run moc automatically when needed (only for
-      # subdirectories that need Qt)
-      # set(CMAKE_AUTOMOC ON)
-      message( STATUS "Looking for Qt SDK....found ${QTDIR}." )
-    else()
-      set( QT_FOUND "QT-NOTFOUND" )
-      message( STATUS "Looking for Qt SDK....not found." )
-    endif()
-  endif()
-
-  if( QT_FOUND )
+  if( Qt5Core_DIR )
     mark_as_advanced( Qt5Core_DIR Qt5Gui_DIR Qt5Gui_EGL_LIBRARY
       Qt5Widgets_DIR QTDIR)
+    message( STATUS "Looking for Qt SDK....found ${Qt5Core_DIR}" )
+  else()
+    message( STATUS "Looking for Qt SDK....not found." )
   endif()
 
   set_package_properties( Qt PROPERTIES
@@ -486,7 +438,7 @@ macro( setupParMETIS )
     # Include some information that can be printed by the build system.
     set_package_properties( METIS PROPERTIES
       DESCRIPTION "METIS"
-      TYPE OPTIONAL
+      TYPE RECOMMENDED
       URL "http://glaros.dtc.umn.edu/gkhome/metis/metis/overview"
       PURPOSE "METIS is a set of serial programs for partitioning graphs, partitioning finite
    element meshes, and producing fill reducing orderings for sparse matrices."
@@ -520,38 +472,35 @@ macro( setupParMETIS )
 endmacro()
 
 #------------------------------------------------------------------------------
-# Setup SuperLU_DIST (any)
+# Setup Libquo (https://github.com/lanl/libquo
 #------------------------------------------------------------------------------
-macro( setupSuperLU_DIST )
+macro( setupLIBQUO )
 
-  if( NOT TARGET SuperLU_DIST::superludist )
-    message( STATUS "Looking for SuperLU_DIST..." )
+  if( NOT TARGET LIBQUO::libquo AND MPI_C_FOUND)
+    message( STATUS "Looking for LIBQUO..." )
 
-    find_package( SuperLU_DIST QUIET )
-    if( SuperLU_DIST_FOUND )
-      message( STATUS "Looking for SuperLU_DIST.....found ${SuperLU_DIST_LIBRARY}" )
+    find_package( Libquo QUIET )
+
+    if( LIBQUO_FOUND )
+      message( STATUS "Looking for LIBQUO....found ${LIBQUO_LIBRARY}" )
     else()
-      message( STATUS "Looking for SuperLU_DIST.....not found" )
-    endif()
-
-    if( ${SuperLU_DIST_VERSION} VERSION_GREATER 5.2.9 )
-      message( FATAL_ERROR "The API change in SuperLU_DIST 5.3+ is not yet
-      supported by Draco. Please use a version of SuperLU_DIST prior to 5.3.")
+      message( STATUS "Looking for LIBQUO....not found" )
     endif()
 
     #===========================================================================
     # Include some information that can be printed by the build system.
-    set_package_properties( SuperLU_DIST PROPERTIES
-      URL " http://crd-legacy.lbl.gov/~xiaoye/SuperLU/"
-      DESCRIPTION "SuperLU_DIST"
-      TYPE OPTIONAL
-      PURPOSE "SuperLU is a general purpose library for the direct solution of
-   large, sparse, nonsymmetric systems of linear equations on high performance
-   machines."  )
-
+    set_package_properties( Libquo PROPERTIES
+      URL "https://github.com/lanl/libquo"
+      DESCRIPTION "A runtime library that aids in accommodating thread-level
+   heterogeneity in dynamic, phased MPI+X appliations comprising single- and
+   multi-threaded libraries."
+      TYPE RECOMMENDED
+      PURPOSE "Required for allowing draco-clients to switch MPI+X bindings and
+   thread affinities when a library is called instead of at program ivokation.")
   endif()
 
 endmacro()
+
 
 #------------------------------------------------------------------------------
 # Setup Eospac (https://laws.lanl.gov/projects/data/eos.html)
@@ -581,6 +530,33 @@ macro( setupEOSPAC )
 endmacro()
 
 #------------------------------------------------------------------------------
+# Setup NDI (https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html)
+#------------------------------------------------------------------------------
+macro( setupNDI )
+
+  if( NOT TARGET NDI::ndi )
+    message( STATUS "Looking for NDI..." )
+
+    find_package( NDI QUIET )
+
+    if( NDI_FOUND )
+      message( STATUS "Looking for NDI....found ${NDI_LIBRARY}" )
+    else()
+      message( STATUS "Looking for NDI....not found" )
+    endif()
+
+    #===========================================================================
+    # Include some information that can be printed by the build system.
+    set_package_properties( NDI PROPERTIES
+      URL "https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html"
+      DESCRIPTION "Access nuclear data."
+      TYPE OPTIONAL
+      PURPOSE "Required for building the cdi_ndi component." )
+  endif()
+
+endmacro()
+
+#------------------------------------------------------------------------------
 # Setup COMPTON (https://gitlab.lanl.gov/keadyk/CSK_generator)
 #------------------------------------------------------------------------------
 macro( setupCOMPTON )
@@ -602,7 +578,7 @@ macro( setupCOMPTON )
       URL "https://gitlab.lanl.gov/CSK/CSK"
       DESCRIPTION "Access multigroup Compton scattering data."
       TYPE OPTIONAL
-      PURPOSE "Required for bulding the compton component." )
+      PURPOSE "Required for building the Compton component." )
   endif()
 
 endmacro()
@@ -614,13 +590,13 @@ macro( SetupVendorLibrariesUnix )
 
   setupGSL()
   setupParMETIS()
-  setupSuperLU_DIST()
   setupCOMPTON()
   setupEospac()
+  setupNDI()
   setupRandom123()
-  setupCudaEnv()
   setupPython()
   setupQt()
+  setupLIBQUO()
 
   # Grace ------------------------------------------------------------------
   message( STATUS "Looking for Grace...")
@@ -661,10 +637,10 @@ macro( SetupVendorLibrariesWindows )
 
   setupGSL()
   setupParMETIS()
-  setupSuperLU_DIST()
   setupRandom123()
   setupCOMPTON()
   setupEospac()
+  setupNDI()
   setupPython()
   setupQt()
 
@@ -698,7 +674,7 @@ macro( setVendorVersionDefaults )
   #environment variable.
 
   # See if VENDOR_DIR is set.  Try some defaults if it is not set.
-  if( NOT EXISTS "${VENDOR_DIR}" AND IS_DIRECTORY "$ENV{VENDOR_DIR}" )
+  if( NOT DEFINED VENDOR_DIR AND IS_DIRECTORY "$ENV{VENDOR_DIR}" )
     set( VENDOR_DIR $ENV{VENDOR_DIR} )
   endif()
   # If needed, try some obvious places.
@@ -726,7 +702,7 @@ macro( setVendorVersionDefaults )
   # 3. Try to find vendor in $VENDOR_DIR
   # 4. Don't set anything and let the user set a value in the cache
   #    after failed 1st configure attempt.
-  if( NOT LAPACK_LIB_DIR AND IS_DIRECTORY $ENV{LAPACK_LIB_DIR} )
+  if( NOT DEFINED LAPACK_LIB_DIR AND IS_DIRECTORY $ENV{LAPACK_LIB_DIR} )
     set( LAPACK_LIB_DIR $ENV{LAPACK_LIB_DIR} )
     set( LAPACK_INC_DIR $ENV{LAPACK_INC_DIR} )
   endif()
@@ -735,7 +711,7 @@ macro( setVendorVersionDefaults )
     set( LAPACK_INC_DIR "${VENDOR_DIR}/lapack-3.4.2/include" )
   endif()
 
-  if( NOT GSL_LIB_DIR )
+  if( NOT DEFINED GSL_LIB_DIR )
     if( IS_DIRECTORY $ENV{GSL_LIB_DIR}  )
       set( GSL_LIB_DIR $ENV{GSL_LIB_DIR} )
       set( GSL_INC_DIR $ENV{GSL_INC_DIR} )
@@ -745,16 +721,16 @@ macro( setVendorVersionDefaults )
     endif()
   endif()
 
-  if( NOT ParMETIS_ROOT_DIR )
+  if( NOT DEFINED ParMETIS_ROOT_DIR )
     if( IS_DIRECTORY $ENV{ParMETIS_ROOT_DIR}  )
       set( ParMETIS_ROOT_DIR $ENV{ParMETIS_ROOT_DIR} )
     endif()
   endif()
 
-  if( NOT RANDOM123_INC_DIR AND IS_DIRECTORY $ENV{RANDOM123_INC_DIR}  )
+  if( NOT DEFINED RANDOM123_INC_DIR AND IS_DIRECTORY $ENV{RANDOM123_INC_DIR}  )
     set( RANDOM123_INC_DIR $ENV{RANDOM123_INC_DIR} )
   endif()
-  if( NOT RANDOM123_INC_DIR AND
+  if( NOT DEFINED RANDOM123_INC_DIR AND
       IS_DIRECTORY ${VENDOR_DIR}/Random123-1.08/include )
     set( RANDOM123_INC_DIR "${VENDOR_DIR}/Random123-1.08/include" )
   endif()
@@ -777,12 +753,11 @@ macro( setupVendorLibraries )
     setupLAPACKLibraries()
   endif()
 
+  setupMPILibraries()
   # System specific settings
   if ( UNIX )
-    setupMPILibrariesUnix()
     setupVendorLibrariesUnix()
   elseif( WIN32 )
-    setupMPILibrariesWindows()
     setupVendorLibrariesWindows()
   else()
     message( FATAL_ERROR "
@@ -791,38 +766,46 @@ WIN32=0; UNIX=0; CMAKE_SYSTEM=${CMAKE_SYSTEM};
 CMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}" )
   endif()
 
-  # Add commands to draco-config.cmake (which is installed for use by othe
+  # Add commands to draco-config.cmake (which is installed for use by other
   # projects), to setup Draco's vendors
-  set( Draco_EXPORT_TARGET_PROPERTIES "${Draco_EXPORT_TARGET_PROPERTIES}
+  string( APPEND Draco_EXPORT_TARGET_PROPERTIES "
 
-message(\"
+macro( dbs_basic_setup )
+
+  message(\"
 Looking for Draco...\")
-message(\"Looking for Draco...\${draco_DIR}
-\")
+  message(\"Looking for Draco...\${draco_DIR}
+  \")
 
-# Provide helper functions used by component CMakeLists.txt files
-# This block of code generated by draco/config/vendor_libraries.cmake.
+  # Provide helper functions used by component CMakeLists.txt files
+  # This block of code generated by draco/config/vendor_libraries.cmake.
 
-# CMake macros that check the system for features like 'gethostname', etc.
-include( platform_checks )
+  # Setup defaults, value checks, etc.
+  include(buildEnv)
+  dbsSetDefaults()
 
-# Sanity check for Cray Programming Environments
-query_craype()
+  # CMake macros that check the system for features like 'gethostname', etc.
+  include( platform_checks )
+  query_craype()
 
-# Set compiler options
-include( compilerEnv )
-dbsSetupCxx()
-dbsSetupFortran()
-dbsSetupProfilerTools()
+  # Set compiler options
+  include( compilerEnv )
+  dbsSetupCxx()
+  dbsSetupFortran()
+  dbsSetupCuda()
+  dbsSetupProfilerTools()
 
-# CMake macros like 'add_component_library' and 'add_component_executable'
-include( component_macros )
+  # CMake macros like 'add_component_library' and 'add_component_executable'
+  include( component_macros )
 
-# CMake macros to query the availability of TPLs.
-include( vendor_libraries )
+  # CMake macros to query the availability of TPLs.
+  include( vendor_libraries )
 
-# Provide targets for MPI, Metis, etc.
-setupVendorLibraries()
+  # Provide targets for MPI, Metis, etc.
+  setupVendorLibraries()
+
+endmacro()
+
 ")
 
   message( " " )

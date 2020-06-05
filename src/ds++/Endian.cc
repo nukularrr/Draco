@@ -1,31 +1,32 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   ds++/Endian.cc
  * \author Kelly Thompson
  * \date   Wed Nov 09 14:15:14 2011
  * \brief  Function declarations for endian conversions
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "Endian.hh"
+#include <array>
 
 namespace rtt_dsxx {
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Does this platform use big or little endianness
  * \return true if platform uses big endian format
  */
-bool is_big_endian(void) {
+bool is_big_endian() {
   union {
     uint32_t i;
-    char c[4];
+    std::array<char, 4> c;
   } data = {0x01020304};
 
   return data.c[0] == 1;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*!
  * \brief Does this platform support IEEE float representation?
  *
@@ -34,22 +35,23 @@ bool is_big_endian(void) {
  *
  * \return true if we support IEEE float representation.
  */
-bool has_ieee_float_representation(void) {
+bool has_ieee_float_representation() {
   // start by assume IEEE platform (i.e.: not a Cray machine).
   bool i_am_ieee(true);
 
   // Create a double precision value that will be used to test bit
   // representations.
   double d_two(2.0);
-  size_t const size(sizeof(double));
+  size_t constexpr size(sizeof(double));
   // Generate a bit-by-bit view of the double precision value:
-  char char_two[size];
+  std::array<char, size> char_two;
   std::memcpy(&char_two, &d_two, size);
 
   // IEEE reference value:
-  char ieee64_two[size] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40};
+  std::array<char, size> ieee64_two = {0x00, 0x00, 0x00, 0x00,
+                                       0x00, 0x00, 0x00, 0x40};
   if (is_big_endian())
-    char_byte_swap(ieee64_two, size);
+    char_byte_swap(&ieee64_two[0], size);
 
   // Cray reference value:
   // Note The 5th value  of the actual Cray representation causes overflow
@@ -91,6 +93,6 @@ void dsxx_byte_swap_double(double &value) {
 }
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of ds++/Endian.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

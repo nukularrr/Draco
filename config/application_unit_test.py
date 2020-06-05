@@ -5,7 +5,7 @@
 # brief  Provide a python class that aids in creating unit tests that run
 #        interactive user codes (i.e.: run a binary that reads an
 #        input file and diff the resulting output file).
-# note   Copyright (C) 2016-2019, Triad National Security, LLC.
+# note   Copyright (C) 2016-2020, Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 
@@ -427,7 +427,7 @@ class UnitTest:
   #------------------------------------------------------------------------------#
 
   #------------------------------------------------------------------------------#
-  # Check output for capsaicin pass/fail criteria
+  # Check output for client pass/fail criteria
   def capsaicin_output_check(self, driver="serrano", ignore_error_N=False):
 
     print("Parsing {0} output".format(driver))
@@ -528,7 +528,8 @@ class UnitTest:
       if self.gold.strip():
         clean_run_args.append(self.gold.strip())
       for arg in numdiff_args.split():
-        if arg: clean_run_args.append(arg)
+        if arg:
+          clean_run_args.insert(-2,arg)
 
       # run numdiff command, redirecting stdout and stderr, get a unique
       # filename for the numdiff output and error files

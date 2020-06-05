@@ -4,9 +4,81 @@
 # date   2010 Dec 1
 # brief  Provide extra macros to simplify CMakeLists.txt for component
 #        directories.
-# note   Copyright (C) 2016-2019 Triad National Security, LLC.
+# note   Copyright (C) 2016-2020 Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
+
+include_guard(GLOBAL)
+include( compilerEnv )
+
+#------------------------------------------------------------------------------#
+# Ensure order of setup is correct
+#------------------------------------------------------------------------------#
+
+if( NOT DEFINED USE_IPO )
+  dbsSetupCompilers() # sets USE_IPO
+endif()
+
+#------------------------------------------------------------------------------#
+# Common Standards
+#------------------------------------------------------------------------------#
+
+# Apply these properties to all targets (libraries, executables)
+set(Draco_std_target_props_C
+  C_STANDARD 11                # Force strict ANSI-C 11 standard
+  C_EXTENSIONS OFF
+  C_STANDARD_REQUIRED ON )
+set(Draco_std_target_props_CXX
+  CXX_STANDARD 14              # Force strict C++ 14 standard
+  CXX_EXTENSIONS OFF
+  CXX_STANDARD_REQUIRED ON )
+set(Draco_std_target_props_CUDA
+  CUDA_STANDARD 14              # Force strict C++ 14 standard
+  CUDA_EXTENSIONS OFF
+  CUDA_STANDARD_REQUIRED ON)
+#  CUDA_SEPARABLE_COMPILATION ON)
+#  CUDA_RESOLVE_DEVICE_SYMBOLS ON )
+# target_include_directories (my lib
+#     PUBLIC $<BUILD_INTERFACE:${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}> )
+set(Draco_std_target_props
+  INTERPROCEDURAL_OPTIMIZATION_RELEASE ${USE_IPO}
+  POSITION_INDEPENDENT_CODE ON )
+
+#------------------------------------------------------------------------------#
+# Set properties that are common across all packages.  Including the required
+# language standard per target.
+#------------------------------------------------------------------------------#
+function( dbs_std_tgt_props target )
+
+  get_property(project_enabled_languages GLOBAL PROPERTY ENABLED_LANGUAGES)
+  foreach( lang ${project_enabled_languages} )
+    if( ${lang} STREQUAL "C" )
+      set_target_properties( ${target} PROPERTIES ${Draco_std_target_props_C} )
+    elseif( ${lang} STREQUAL "CXX" )
+      set_target_properties( ${target}
+        PROPERTIES ${Draco_std_target_props_CXX} )
+    elseif( ${lang} STREQUAL "CUDA" )
+      set_target_properties( ${target}
+        PROPERTIES ${Draco_std_target_props_CUDA} )
+    endif()
+    set_target_properties( ${target} PROPERTIES ${Draco_std_target_props} )
+  endforeach()
+
+  # Helper for clang-tidy that points to very old gcc STL files.  We need STL
+  # files from clang (at least for llvm-6.  llvm-9 doesn't need this and it
+  # actually causes issues).
+  if( "${DRACO_STATIC_ANALYZER}" MATCHES "clang-tidy" AND
+      CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0 )
+    if( NOT CLANG_TIDY_IPATH )
+      message(FATAL_ERROR "Unable to configure clang-tidy build because"
+        " CLANG_TIDY_IPATH is empty.")
+    endif()
+    get_target_property( tgt_sources ${target} SOURCES )
+    set_source_files_properties( ${tgt_sources} PROPERTIES INCLUDE_DIRECTORIES
+      ${CLANG_TIDY_IPATH} )
+  endif()
+
+endfunction()
 
 #------------------------------------------------------------------------------
 # replacement for built in command 'add_executable'
@@ -49,6 +121,10 @@
 #   SOURCES      "${PROJECT_SOURCE_DIR}/draco_info_main.cc"
 #   FOLDER       diagnostics
 #   )
+#
+# Note: directories listed as VENDOR_INCLUDE_DIRS will be exported in the
+#       INTERFACE_INCLUDE_DIRECTORIES target property.
+#
 #------------------------------------------------------------------------------
 macro( add_component_executable )
 
@@ -64,12 +140,12 @@ macro( add_component_executable )
   # Prefix for export
   if( NOT DEFINED ace_PREFIX AND NOT DEFINED ace_NOEXPORT)
     message( FATAL_ERROR
-      "add_component_executable requires a PREFIX value to allow EXPORT of this target
-or the target must be labeled NOEXPORT.")
+      "add_component_executable requires a PREFIX value to allow EXPORT of this
+target or the target must be labeled NOEXPORT.")
   endif()
 
   # Default link language is C++
-  if( "${ace_LINK_LANGUAGE}x" STREQUAL "x" )
+  if( NOT DEFINED ace_LINK_LANGUAGE )
     set( ace_LINK_LANGUAGE CXX )
   endif()
 
@@ -116,17 +192,11 @@ or the target must be labeled NOEXPORT.")
   else()
     add_executable( ${ace_TARGET} ${ace_SOURCES} )
   endif()
-
-  # Some properties are set at a global scope in compilerEnv.cmake:
-  # - C_STANDARD, C_EXTENSIONS, CXX_STANDARD, CXX_EXTENSIONS,
-  #   CXX_STANDARD_REQUIRED, and POSITION_INDEPENDENT_CODE
+  dbs_std_tgt_props( ${ace_TARGET} )
   set_target_properties( ${ace_TARGET} PROPERTIES
     OUTPUT_NAME ${ace_EXE_NAME}
     FOLDER      ${ace_FOLDER}
-    INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
-#    ENABLE_EXPORTS TRUE # See cmake policy cmp0065
-    COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\""
-    )
+    COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\"" )
   if( DEFINED ace_PROJECT_LABEL )
     set_target_properties( ${ace_TARGET} PROPERTIES PROJECT_LABEL ${ace_PROJECT_LABEL} )
   endif()
@@ -140,93 +210,12 @@ or the target must be labeled NOEXPORT.")
   if( DEFINED ace_VENDOR_LIBS )
     target_link_libraries( ${ace_TARGET} ${ace_VENDOR_LIBS} )
   endif()
-  if( DEFINED ace_VENDOR_INCLUDE_DIRS )
-    include_directories( ${ace_VENDOR_INCLUDE_DIRS} )
+  if( ace_VENDOR_INCLUDE_DIRS )
+    set_property(TARGET ${ace_TARGET} APPEND PROPERTY
+      INTERFACE_INCLUDE_DIRECTORIES "${ace_VENDOR_INCLUDE_DIRS}")
   endif()
 
-  #
-  # Register the library for exported library support
-  #
-
-  # Find target file name and location
-  get_target_property( impname ${ace_TARGET} OUTPUT_NAME )
-
-  # the above command returns the location in the build tree.  We
-  # need to convert this to the install location.
-  # get_filename_component( imploc ${imploc} NAME )
-  if( ${DRACO_SHARED_LIBS} )
-    set( imploc "${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}${impname}${CMAKE_SHARED_LIBRARY_SUFFIX}" )
-  else()
-    set( imploc "${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${impname}${CMAKE_STATIC_LIBRARY_SUFFIX}" )
-  endif()
-
-  set( ilil "")
-  if( "${ace_TARGET_DEPS}x" STREQUAL "x" AND  "${ace_VENDOR_LIBS}x" STREQUAL "x")
-    # do nothing
-  elseif( "${ace_TARGET_DEPS}x" STREQUAL "x" )
-    set( ilil "${ace_VENDOR_LIBS}" )
-  elseif( "${ace_VENDOR_LIBS}x" STREQUAL "x")
-    set( ilil "${ace_TARGET_DEPS}" )
-  else()
-    set( ilil "${ace_TARGET_DEPS};${ace_VENDOR_LIBS}" )
-  endif()
-
-  # For non-test libraries, save properties to the project-config.cmake file
-  if( "${ilil}x" STREQUAL "x" )
-    set( ${ace_PREFIX}_EXPORT_TARGET_PROPERTIES
-      "${${ace_PREFIX}_EXPORT_TARGET_PROPERTIES}
-    set_target_properties(${ace_TARGET} PROPERTIES
-      IMPORTED_LINK_INTERFACE_LANGUAGES \"${ace_LINK_LANGUAGE}\"
-      INTERFACE_INCLUDE_DIRECTORIES     \"${CMAKE_INSTALL_PREFIX}/${DBSCFGDIR}include\" )
-    ")
-  else()
-    set( ${ace_PREFIX}_EXPORT_TARGET_PROPERTIES
-      "${${ace_PREFIX}_EXPORT_TARGET_PROPERTIES}
-    set_target_properties(${ace_TARGET} PROPERTIES
-      IMPORTED_LINK_INTERFACE_LANGUAGES \"${ace_LINK_LANGUAGE}\"
-      INTERFACE_INCLUDE_DIRECTORIES     \"${CMAKE_INSTALL_PREFIX}/${DBSCFGDIR}include\" )
-  ")
-  endif()
-
-  # Only publish information to draco-config.cmake for non-test
-  # libraries.  Also, omit any libraries that are marked as NOEXPORT
-  if( NOT ${ace_NOEXPORT} AND
-      NOT "${CMAKE_CURRENT_SOURCE_DIR}" MATCHES "test" )
-
-    list( APPEND ${ace_PREFIX}_EXECUTABLES ${ace_TARGET} )
-    list( APPEND ${ace_PREFIX}_TPL_LIST ${ace_VENDOR_LIST} )
-    list( APPEND ${ace_PREFIX}_TPL_INCLUDE_DIRS ${ace_VENDOR_INCLUDE_DIRS} )
-    list( APPEND ${ace_PREFIX}_TPL_LIBRARIES ${ace_VENDOR_LIBS} )
-    if( ${ace_PREFIX}_TPL_INCLUDE_DIRS )
-      list( REMOVE_DUPLICATES ${ace_PREFIX}_TPL_INCLUDE_DIRS )
-    endif()
-    if( ${ace_PREFIX}_TPL_LIBRARIES )
-      list( REMOVE_DUPLICATES ${ace_PREFIX}_TPL_LIBRARIES )
-    endif()
-    if( ${ace_PREFIX}_TPL_LIST )
-      list( REMOVE_DUPLICATES ${ace_PREFIX}_TPL_LIST )
-    endif()
-    if( ${ace_PREFIX}_EXECUTABLES )
-      list( REMOVE_DUPLICATES ${ace_PREFIX}_EXECUTABLES )
-    endif()
-
-    set( ${ace_PREFIX}_EXECUTABLES "${${ace_PREFIX}_EXECUTABLES}"  CACHE INTERNAL "List of component targets" FORCE)
-    set( ${ace_PREFIX}_TPL_LIST "${${ace_PREFIX}_TPL_LIST}"  CACHE INTERNAL
-      "List of third party libraries known by ${ace_PREFIX}" FORCE)
-    set( ${ace_PREFIX}_TPL_INCLUDE_DIRS "${${ace_PREFIX}_TPL_INCLUDE_DIRS}"  CACHE
-      INTERNAL "List of include paths used by ${ace_PREFIX} to find thrid party vendor header files."
-      FORCE)
-    set( ${ace_PREFIX}_TPL_LIBRARIES "${${ace_PREFIX}_TPL_LIBRARIES}"  CACHE INTERNAL
-      "List of third party libraries used by ${ace_PREFIX}." FORCE)
-    set( ${ace_PREFIX}_EXPORT_TARGET_PROPERTIES
-      "${${ace_PREFIX}_EXPORT_TARGET_PROPERTIES}" PARENT_SCOPE)
-
-  endif()
-
-  # If Win32, copy dll files into binary directory.
-  copy_dll_link_libraries_to_build_dir( ${ace_TARGET} )
-
-endmacro( add_component_executable )
+endmacro()
 
 #------------------------------------------------------------------------------
 # replacement for built in command 'add_library'
@@ -251,6 +240,7 @@ endmacro( add_component_executable )
 #   SOURCES      "file1.cc;file2.cc;..."
 #   HEADERS      "file1.hh;file2.hh;..."
 #   LIBRARY_NAME_PREFIX "rtt_"
+#   LIBRARY_TYPE "SHARED"
 #   VENDOR_LIST  "MPI;GSL"
 #   VENDOR_LIBS  "${MPI_CXX_LIBRARIES};${GSL_LIBRARIES}"
 #   VENDOR_INCLUDE_DIRS "${MPI_CXX_INCLUDE_DIR};${GSL_INCLUDE_DIR}"
@@ -267,6 +257,9 @@ endmacro( add_component_executable )
 #   SOURCES      "${sources}"
 #   )
 #
+# Note: directories listed as VENDOR_INCLUDE_DIRS will be exported in the
+#       INTERFACE_INCLUDE_DIRECTORIES target property.
+#
 # Note: you must use quotes around ${list_of_sources} to preserve the list.
 #------------------------------------------------------------------------------
 macro( add_component_library )
@@ -277,10 +270,9 @@ macro( add_component_library )
   cmake_parse_arguments(
     acl
     "NOEXPORT"
-    "PREFIX;TARGET;LIBRARY_NAME;LIBRARY_NAME_PREFIX;LINK_LANGUAGE"
+    "PREFIX;TARGET;LIBRARY_NAME;LIBRARY_NAME_PREFIX;LIBRARY_TYPE;LINK_LANGUAGE"
     "HEADERS;SOURCES;TARGET_DEPS;VENDOR_LIST;VENDOR_LIBS;VENDOR_INCLUDE_DIRS"
-    ${ARGV}
-    )
+    ${ARGV} )
 
   #
   # Defaults:
@@ -293,37 +285,48 @@ macro( add_component_library )
   if( NOT acl_LINK_LANGUAGE )
     set( acl_LINK_LANGUAGE CXX )
   endif()
+  if( "${acl_LINK_LANGUAGE}" STREQUAL "CUDA" )
+    set_property( SOURCE ${acl_SOURCES} APPEND PROPERTY LANGUAGE CUDA )
+    set( acl_LIBRARY_TYPE STATIC )
+  endif()
 
   #
   # Add headers to Visual Studio or Xcode solutions
   #
   if( acl_HEADERS )
-    if( MSVC_IDE OR ${CMAKE_GENERATOR} MATCHES Xcode )
+    if( MSVC_IDE OR "${CMAKE_GENERATOR}" MATCHES Xcode )
       list( APPEND acl_SOURCES ${acl_HEADERS} )
     endif()
+  endif()
+
+  # if a library type was not specified use the default Draco setting
+  if(NOT acl_LIBRARY_TYPE)
+    set( acl_LIBRARY_TYPE ${DRACO_LIBRARY_TYPE})
   endif()
 
   #
   # Create the library and set the properties
   #
 
-  # This is a test library.  Find the component name
+  # If this is a test library.  Find the component name
   string( REPLACE "_test" "" comp_target ${acl_TARGET} )
   # extract project name, minus leading "Lib_"
   string( REPLACE "Lib_" "" folder_name ${acl_TARGET} )
 
-  add_library( ${acl_TARGET} ${DRACO_LIBRARY_TYPE} ${acl_SOURCES} )
-  # Some properties are set at a global scope in compilerEnv.cmake:
-  # - C_STANDARD, C_EXTENSIONS, CXX_STANDARD, CXX_EXTENSIONS,
-  #   CXX_STANDARD_REQUIRED, and POSITION_INDEPENDENT_CODE
+  add_library( ${acl_TARGET} ${acl_LIBRARY_TYPE} ${acl_SOURCES} )
+  dbs_std_tgt_props( ${acl_TARGET} )
   set_target_properties( ${acl_TARGET} PROPERTIES
-    # ${compdefs}
-    # Use custom library naming
     OUTPUT_NAME ${acl_LIBRARY_NAME_PREFIX}${acl_LIBRARY_NAME}
     FOLDER      ${folder_name}
-    INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
-    WINDOWS_EXPORT_ALL_SYMBOLS ON
-    )
+    WINDOWS_EXPORT_ALL_SYMBOLS ON )
+ if("${acl_LINK_LANGUAGE}" STREQUAL "CUDA")
+   set_property( TARGET ${acl_TARGET} APPEND PROPERTY
+     COMPILE_DEFINITIONS "USE_CUDA=ON" )
+ endif()
+  if( DEFINED DRACO_LINK_OPTIONS AND NOT "${DRACO_LINK_OPTIONS}x" STREQUAL "x")
+    set_property( TARGET ${acl_TARGET} APPEND PROPERTY
+      LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
+  endif()
 
   #
   # Generate properties related to library dependencies
@@ -334,94 +337,9 @@ macro( add_component_library )
   if( NOT "${acl_VENDOR_LIBS}x" STREQUAL "x" )
     target_link_libraries( ${acl_TARGET} ${acl_VENDOR_LIBS} )
   endif()
-  if( NOT "${acl_VENDOR_INCLUDE_DIRS}x" STREQUAL "x" )
-    include_directories( ${acl_VENDOR_INCLUDE_DIRS} )
-  endif()
-
-  #
-  # Register the library for exported library support
-  #
-
-  # Defaults
-  if( "${acl_PREFIX}x" STREQUAL "x" )
-    set( acl_PREFIX "Draco" )
-  endif()
-
-  # Find target file name and location
-  get_target_property( impname ${acl_TARGET} OUTPUT_NAME )
-
-  # the above command returns the location in the build tree.  We need to
-  # convert this to the install location.
-  if( ${DRACO_SHARED_LIBS} )
-    set( imploc "${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}${impname}${CMAKE_SHARED_LIBRARY_SUFFIX}" )
-  else()
-    set( imploc "${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${impname}${CMAKE_STATIC_LIBRARY_SUFFIX}" )
-  endif()
-
-  set( ilil "")
-  if( "${acl_TARGET_DEPS}x" STREQUAL "x" AND "${acl_VENDOR_LIBS}x" STREQUAL "x")
-    # do nothing
-  elseif( "${acl_TARGET_DEPS}x" STREQUAL "x" )
-    set( ilil "${acl_VENDOR_LIBS}" )
-  elseif( "${acl_VENDOR_LIBS}x" STREQUAL "x")
-    set( ilil "${acl_TARGET_DEPS}" )
-  else()
-    set( ilil "${acl_TARGET_DEPS};${acl_VENDOR_LIBS}" )
-  endif()
-
-  # For non-test libraries, save properties to the project-config.cmake file
-  if( "${ilil}x" STREQUAL "x" )
-    set( ${acl_PREFIX}_EXPORT_TARGET_PROPERTIES
-      "${${acl_PREFIX}_EXPORT_TARGET_PROPERTIES}
-    set_target_properties(${acl_TARGET} PROPERTIES
-      IMPORTED_LINK_INTERFACE_LANGUAGES \"${acl_LINK_LANGUAGE}\"
-      INTERFACE_INCLUDE_DIRECTORIES     \"${CMAKE_INSTALL_PREFIX}/${DBSCFGDIR}include\" )
-    ")
-  else()
-#      IMPORTED_LINK_INTERFACE_LIBRARIES \"${ilil}\"
-    set( ${acl_PREFIX}_EXPORT_TARGET_PROPERTIES
-      "${${acl_PREFIX}_EXPORT_TARGET_PROPERTIES}
-    set_target_properties(${acl_TARGET} PROPERTIES
-      IMPORTED_LINK_INTERFACE_LANGUAGES \"${acl_LINK_LANGUAGE}\"
-      INTERFACE_INCLUDE_DIRECTORIES     \"${CMAKE_INSTALL_PREFIX}/${DBSCFGDIR}include\" )
-  ")
-  endif()
-
-  # Only publish information to draco-config.cmake for non-test libraries.
-  # Also, omit any libraries that are marked as NOEXPORT
-  if( NOT ${acl_NOEXPORT} AND
-      NOT "${acl_TARGET}" MATCHES "test" )
-
-    list( APPEND ${acl_PREFIX}_LIBRARIES ${acl_TARGET} )
-    string( REPLACE "Lib_" "" compname ${acl_TARGET} )
-    list( APPEND ${acl_PREFIX}_PACKAGE_LIST ${compname} )
-
-    list( APPEND ${acl_PREFIX}_TPL_LIST ${acl_VENDOR_LIST} )
-    list( APPEND ${acl_PREFIX}_TPL_INCLUDE_DIRS ${acl_VENDOR_INCLUDE_DIRS} )
-    list( APPEND ${acl_PREFIX}_TPL_LIBRARIES ${acl_VENDOR_LIBS} )
-    if( ${acl_PREFIX}_TPL_INCLUDE_DIRS )
-      list( REMOVE_DUPLICATES ${acl_PREFIX}_TPL_INCLUDE_DIRS )
-    endif()
-    if( ${acl_PREFIX}_TPL_LIBRARIES )
-      list( REMOVE_DUPLICATES ${acl_PREFIX}_TPL_LIBRARIES )
-    endif()
-    if( ${acl_PREFIX}_TPL_LIST )
-      list( REMOVE_DUPLICATES ${acl_PREFIX}_TPL_LIST )
-    endif()
-
-    set( ${acl_PREFIX}_LIBRARIES "${${acl_PREFIX}_LIBRARIES}"  CACHE INTERNAL "List of component targets" FORCE)
-    set( ${acl_PREFIX}_PACKAGE_LIST "${${acl_PREFIX}_PACKAGE_LIST}"  CACHE INTERNAL
-      "List of known ${acl_PREFIX} targets" FORCE)
-    set( ${acl_PREFIX}_TPL_LIST "${${acl_PREFIX}_TPL_LIST}"  CACHE INTERNAL
-      "List of third party libraries known by ${acl_PREFIX}" FORCE)
-    set( ${acl_PREFIX}_TPL_INCLUDE_DIRS "${${acl_PREFIX}_TPL_INCLUDE_DIRS}"  CACHE
-      INTERNAL "List of include paths used by ${acl_PREFIX} to find thrid party vendor header files."
-      FORCE)
-    set( ${acl_PREFIX}_TPL_LIBRARIES "${${acl_PREFIX}_TPL_LIBRARIES}"  CACHE INTERNAL
-      "List of third party libraries used by ${acl_PREFIX}." FORCE)
-    set( ${acl_PREFIX}_EXPORT_TARGET_PROPERTIES
-      "${${acl_PREFIX}_EXPORT_TARGET_PROPERTIES}" PARENT_SCOPE)
-
+  if( acl_VENDOR_INCLUDE_DIRS )
+    set_property(TARGET ${acl_TARGET} APPEND PROPERTY
+      INTERFACE_INCLUDE_DIRECTORIES "${acl_VENDOR_INCLUDE_DIRS}")
   endif()
 
 endmacro()
@@ -498,11 +416,11 @@ macro( register_parallel_test targetname numPE command cmd_args )
   unset( RUN_CMD )
 
   if( addparalleltest_MPI_PLUS_OMP )
-    string( REPLACE " " ";" mpiexec_omp_postflags_list "${MPIEXEC_OMP_POSTFLAGS}" )
+    string( REPLACE " " ";" mpiexec_omp_preflags_list "${MPIEXEC_OMP_PREFLAGS}" )
     add_test(
       NAME    ${targetname}
       COMMAND ${RUN_CMD} ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${numPE}
-              ${mpiexec_omp_postflags_list}
+              ${mpiexec_omp_preflags_list}
               ${command}
               ${cmdarg}
               )
@@ -510,7 +428,7 @@ macro( register_parallel_test targetname numPE command cmd_args )
     add_test(
       NAME    ${targetname}
       COMMAND ${RUN_CMD} ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${numPE}
-              ${MPIRUN_POSTFLAGS}
+              ${MPIRUN_PREFLAGS}
               ${command}
               ${cmdarg}
               )
@@ -562,199 +480,6 @@ macro( register_parallel_test targetname numPE command cmd_args )
 endmacro()
 
 #----------------------------------------------------------------------#
-# Special post-build options for Win32 platforms
-# ---------------------------------------------------------------------#
-# copy_dll_link_libraries_to_build_dir( target )
-#
-# For Win32 with shared libraries, all dll dependencies must be located
-# in the PATH or in the application directory.  This cmake function
-# creates POST_BUILD rules for unit tests and applications to ensure
-# that the most up-to-date versions of all dependencies are in the same
-# directory as the application.
-#
-# Consider replacing this functionality with CMake's BundleUtilities.
-#----------------------------------------------------------------------#
-function( copy_dll_link_libraries_to_build_dir target )
-
-  if( NOT WIN32 )
-    # Win32 platforms require all dll libraries to be in the local directory
-    # (or $PATH)
-    return()
-  endif()
-
-  # Debug dependencies for a particular target (uncomment the next line and
-  # provide the targetname): "Ut_${compname}_${testname}_exe"
-  if( "Ut_rng_ut_gsl_exe_foo" STREQUAL ${target} )
-     set(lverbose ON)
-  endif()
-  if( lverbose )
-     include(print_target_properties)
-  endif()
-
-  # For Win32 with shared libraries, the package dll must be located in the test
-  # directory.
-
-  # Discover all library dependencies for this unit test.
-  get_target_property( link_libs ${target} LINK_LIBRARIES )
-  if( lverbose )
-    message("\nDebugging dependencies for target ${target}")
-    # "${compname}_${testname}")
-    message("  Dependencies = ${link_libs}\n")
-  endif()
-  if( "${link_libs}" MATCHES NOTFOUND )
-     return() # nothing to do
-  endif()
-
-  set( old_link_libs "" )
-  # Walk through the library dependencies to build a list of all .dll
-  # dependencies.
-  while( NOT "${old_link_libs}" STREQUAL "${link_libs}" )
-    if(lverbose)
-       message("Found new libraries (old_link_libs != link_libs).  Restarting search loop...\n")
-    endif()
-    set( old_link_libs ${link_libs} )
-    foreach( lib ${link_libs} )
-      if( lverbose )
-        # message("\n  examine dependencies for lib           = ${lib}\n")
-        print_targets_properties("${lib}")
-      endif()
-      # $lib will either be a cmake target (e.g.: Lib_dsxx, Lib_c4) or an actual
-      # path to a library (c:\lib\gsl.lib).
-      if( NOT EXISTS ${lib} AND TARGET ${lib} )
-          # Must be a CMake target... find it's dependencies...
-          # The target may be
-          # 1. A target defined within the current build system (e.g.: Lib_c4), or
-          # 2. an 'imported' targets like GSL::gsl.
-          get_target_property( isimp ${lib} IMPORTED )
-          if(isimp)
-            get_target_property( link_libs3 ${lib} INTERFACE_LINK_LIBRARIES)
-          else()
-            get_target_property( link_libs2 ${lib} LINK_LIBRARIES )
-          endif()
-          list( APPEND link_libs ${link_libs2} )
-          list( APPEND link_libs ${link_libs3} )
-      endif()
-    endforeach()
-    # Loop through all current dependencies, remove static libraries
-    #(they do not need to be in the run directory).
-    list( REMOVE_DUPLICATES link_libs )
-    foreach( lib ${link_libs} )
-      if( "${lib}" MATCHES "NOTFOUND" )
-        # nothing to add so remove from list
-        list( REMOVE_ITEM link_libs ${lib} )
-        if( lverbose )
-          message("lib = ${lib} is NOTFOUND --> remove it from the list")
-        endif()
-      elseif( "${lib}" MATCHES "[$]<")
-        # We have a generator expression.  This routine does not support this, so drop it.
-        list( REMOVE_ITEM link_libs ${lib} )
-        if( lverbose )
-          message("lib = ${lib} is a generator expression --> remove it from the list")
-        endif()
-      elseif( "${lib}" MATCHES ".[lL]ib$" )
-        # We have a path to a static library. Static libraries do not
-        # need to be copied.
-        list( REMOVE_ITEM link_libs ${lib} )
-        if( lverbose )
-          message("lib = ${lib} is a static lib --> remove it from the list")
-        endif()
-        # However, if there is a corresponding dll, we should add it
-        # to the list.
-        string( REPLACE ".lib" ".dll" dll_lib ${lib} )
-        if( ${dll_lib} MATCHES "[.]dll$" AND EXISTS ${dll_lib} )
-          list( APPEND link_libs "${dll_lib}" )
-          if( lverbose )
-            message("lib = ${lib} has a dll --> replace it with ${dll_lib}")
-          endif()
-        endif()
-      endif()
-    endforeach()
-    if( lverbose )
-      message("Updated dependencies list: ${target} --> ${link_libs}\n")
-    endif()
-
-  endwhile()
-
-  list( REMOVE_DUPLICATES link_libs )
-  # if( ${compname} MATCHES Fortran )
-  # message("   ${compname}_${testname} --> ${link_libs}")
-  # endif()
-
-  if( lverbose )
-    message("Creating post build commands for target = ${target}")
-  endif()
-
-  # Add a post-build command to copy each dll into the test directory.
-  foreach( lib ${link_libs} )
-    # We do not need to the post_build copy command for Draco Lib_* files.
-    # These should already be in the correct location.
-    if( NOT ${lib} MATCHES "Lib_" )
-      if( lverbose )
-        message("  looking at ${lib}")
-      endif()
-      unset( target_loc )
-      if( NOT TARGET ${lib})
-        if (lverbose )
-          message("  ${lib} is not a target. skip it.")
-        endif()
-        continue()
-      endif()
-      # TYPE = {STATIC_LIBRARY, MODULE_LIBRARY, SHARED_LIBRARY,
-      #         INTERFACE_LIBRARY, EXECUTABLE}
-      # We cannot query INTERFACE_LIBRARY targets.
-      get_target_property(lib_type ${lib} TYPE )
-      if( ${lib_type} STREQUAL "INTERFACE_LIBRARY" )
-        if( lverbose )
-          message("  I think ${lib} is an INTERFACE_LIBRARY. Skipping to next dependency.")
-        endif()
-        continue()
-      endif()
-      get_target_property(is_imported ${lib} IMPORTED )
-      if( is_imported )
-        get_target_property(target_loc ${lib} IMPORTED_LOCATION_RELEASE )
-        if( ${target_loc} MATCHES "NOTFOUND" )
-          get_target_property(target_loc ${lib} IMPORTED_LOCATION_DEBUG )
-        endif()
-        if( ${target_loc} MATCHES "NOTFOUND" )
-          get_target_property(target_loc ${lib} IMPORTED_LOCATION )
-        endif()
-        if( ${target_loc} MATCHES "NOTFOUND" )
-          # path not found, ignore.
-          if (lverbose )
-            message("  ${lib} does not have an IMPORTED_LOCATION value. skip it.")
-          endif()
-          continue()
-        endif()
-        get_target_property(target_gnutoms ${lib} GNUtoMS)
-      elseif( EXISTS ${lib} )
-        # If $lib is a full path to a library, add it to the list
-        if (lverbose )
-          message("  ${lib} is the full path to a library; adding to the list.")
-        endif()
-        set( target_loc ${lib} )
-        set( target_gnutoms NOTFOUND )
-      else()
-        if (lverbose )
-          message("  ${lib} is a target that points to $<TARGET:${lib}>.")
-        endif()
-        set( target_loc $<TARGET_FILE:${lib}> )
-        get_target_property( target_gnutoms ${lib} GNUtoMS )
-      endif()
-
-      add_custom_command( TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${target_loc}
-                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_CFG_INTDIR} )
-
-      if( lverbose )
-        message("  CMAKE_COMMAND -E copy_if_different ${target_loc} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_CFG_INTDIR}")
-      endif()
-
-    endif()
-  endforeach()
-  unset( lverbose )
-endfunction( copy_dll_link_libraries_to_build_dir )
-
-#----------------------------------------------------------------------#
 # add_scalar_tests
 #
 # Given a list of sources, create unit test executables, one exe for
@@ -789,18 +514,39 @@ macro( add_scalar_tests test_sources )
   cmake_parse_arguments(
     addscalartest
     "APPLICATION_UNIT_TEST;LINK_WITH_FORTRAN;NONE"
-    "LABEL"
+    "LABEL;LINK_LANGUAGE"
     "DEPS;FAIL_REGEX;PASS_REGEX;RESOURCE_LOCK;RUN_AFTER;SOURCES;TEST_ARGS"
-    ${ARGV}
-    )
+    ${ARGV} )
+
+  # Sanity Checks
+  # ------------------------------------------------------------
+  if( "${addscalartest_SOURCES}none" STREQUAL "none" )
+    message( FATAL_ERROR "You must provide the keyword SOURCES and a list of "
+      "sources when using the add_scalar_tests macro.  Please see "
+      "draco/config/component_macros.cmake::add_scalar_tests() for more "
+      "information." )
+  endif()
+
+  # Defaults:
+  # ------------------------------------------------------------
+
+  # Default link language is C++
+  if( NOT addscalartest_LINK_LANGUAGE )
+    set( addscalartest_LINK_LANGUAGE CXX )
+  endif()
+ if( "${addscalartest_LINK_LANGUAGE}" STREQUAL "CUDA" )
+   set_source_files_properties( ${addscalartest_SOURCES}
+     PROPERTIES LANGUAGE CUDA )
+ endif()
 
   # Special Cases:
   # ------------------------------------------------------------
-  # On some platforms (Trinity), even scalar tests must be run underneath
-  # MPIEXEC_EXECUTABLE (aprun):
-  separate_arguments(MPIEXEC_POSTFLAGS)
-  if( "${MPIEXEC_EXECUTABLE}" MATCHES "srun" )
-    set( RUN_CMD ${MPIEXEC_EXECUTABLE} ${MPIEXEC_POSTFLAGS} -n 1 )
+  # On some platforms (Trinity, Sierra), even scalar tests must be run
+  # underneath MPIEXEC_EXECUTABLE (srun, jsrun, lrun):
+  separate_arguments(MPIEXEC_PREFLAGS)
+  if( "${MPIEXEC_EXECUTABLE}" MATCHES "srun" OR
+      "${MPIEXEC_EXECUTABLE}" MATCHES "jsrun" )
+    set( RUN_CMD ${MPIEXEC_EXECUTABLE} ${MPIEXEC_PREFLAGS} -n 1 )
   else()
     unset( RUN_CMD )
   endif()
@@ -808,13 +554,6 @@ macro( add_scalar_tests test_sources )
   # Special cases for tests that use the ApplicationUnitTest
   # framework (see c4/ApplicationUnitTest.hh).
   if( addscalartest_APPLICATION_UNIT_TEST )
-    # This is a special case for Cray environments. For application unit tests,
-    # the main test runs on the 'login' node (1 rank only) and the real test is
-    # run under 'aprun'.  So we do not prefix the test command with 'aprun'.
-    if( "${MPIEXEC_EXECUTABLE}" MATCHES "aprun" )
-      unset( RUN_CMD )
-    endif()
-
     # If this is an ApplicationUnitTest based test then the TEST_ARGS will look
     # like "--np 1;--np 2;--np 4".  For the case where DRACO_C4 = SCALAR, we
     # will automatically demote these arguments to "--np scalar."
@@ -822,12 +561,6 @@ macro( add_scalar_tests test_sources )
       set( addscalartest_TEST_ARGS "--np scalar" )
     endif()
 
-  endif()
-
-  # Sanity Checks
-  # ------------------------------------------------------------
-  if( "${addscalartest_SOURCES}none" STREQUAL "none" )
-    message( FATAL_ERROR "You must provide the keyword SOURCES and a list of sources when using the add_scalar_tests macro.  Please see draco/config/component_macros.cmake::add_scalar_tests() for more information." )
   endif()
 
   # Pass/Fail criteria
@@ -848,6 +581,8 @@ macro( add_scalar_tests test_sources )
 
   # What is the component name (always use Lib_${compname} as a dependency).
   string( REPLACE "_test" "" compname ${PROJECT_NAME} )
+  string( REPLACE "_ftest" "" compname ${compname} )
+  string( REPLACE "_cudatest" "" compname ${compname} )
 
   # Loop over each test source files:
   # 1. Compile the executable
@@ -859,32 +594,34 @@ macro( add_scalar_tests test_sources )
 
     get_filename_component( testname ${file} NAME_WE )
     add_executable( Ut_${compname}_${testname}_exe ${file} )
-    # Some properties are set at a global scope in compilerEnv.cmake:
-    # - C_STANDARD, C_EXTENSIONS, CXX_STANDARD, CXX_EXTENSIONS,
-    #   CXX_STANDARD_REQUIRED, and POSITION_INDEPENDENT_CODE
-    set_target_properties( Ut_${compname}_${testname}_exe
-      PROPERTIES
-      OUTPUT_NAME ${testname}
-      VS_KEYWORD  ${testname}
-      FOLDER      ${compname}_test
-      INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
-      COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\""
-      )
-    # Do we need to use the Fortran compiler as the linker?
+    dbs_std_tgt_props( Ut_${compname}_${testname}_exe )
+    set_property( TARGET Ut_${compname}_${testname}_exe APPEND PROPERTY
+      OUTPUT_NAME ${testname} )
+    set_property( TARGET Ut_${compname}_${testname}_exe APPEND PROPERTY
+      VS_KEYWORD  ${testname} )
+    set_property( TARGET Ut_${compname}_${testname}_exe APPEND PROPERTY
+      FOLDER      ${compname}_test )
+    set_property( TARGET Ut_${compname}_${testname}_exe APPEND PROPERTY
+      COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\"" )
+    set_property( TARGET Ut_${compname}_${testname}_exe APPEND PROPERTY
+      COMPILE_DEFINITIONS "PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\"" )
+    if("${addscalartest_LINK_LANGUAGE}" STREQUAL "CUDA")
+      set_property( TARGET Ut_${compname}_${testname}_exe APPEND PROPERTY
+        COMPILE_DEFINITIONS "USE_CUDA=ON" )
+    endif()
+    if( DEFINED DRACO_LINK_OPTIONS AND
+        NOT "${DRACO_LINK_OPTIONS}x" STREQUAL "x")
+      set_property( TARGET Ut_${compname}_${testname}_exe APPEND PROPERTY
+        LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
+    endif()
     if( addscalartest_LINK_WITH_FORTRAN )
-      set_target_properties( Ut_${compname}_${testname}_exe
-        PROPERTIES LINKER_LANGUAGE Fortran )
+      set_property( TARGET Ut_${compname}_${testname}_exe APPEND
+        PROPERTY LINKER_LANGUAGE Fortran )
     endif()
     target_link_libraries(
       Ut_${compname}_${testname}_exe
       ${test_lib_target_name}
-      ${addscalartest_DEPS}
-      )
-
-    # Special post-build options for Win32 platforms
-    # ------------------------------------------------------------
-    copy_dll_link_libraries_to_build_dir( Ut_${compname}_${testname}_exe )
-
+      ${addscalartest_DEPS} )
   endforeach()
 
   # Register the unit test
@@ -923,8 +660,8 @@ endmacro(add_scalar_tests)
 # Optional parameters that require arguments.
 #
 #    SOURCES         - semi-colon delimited list of files.
-#    PE_LIST         - semi-colon deliminte list of integers (number
-#                      of MPI ranks).
+#    PE_LIST         - semi-colon delimited list of integers (number of MPI
+#                      ranks).
 #    DEPS            - CMake target dependencies.
 #    TEST_ARGS       - Command line arguments to use when running the test.
 #    PASS_REGEX      - This regex must exist in the output to produce
@@ -963,6 +700,10 @@ macro( add_parallel_tests )
   if( "${addparalleltest_SOURCES}none" STREQUAL "none" )
     message( FATAL_ERROR "You must provide the keyword SOURCES and a list of sources when using the add_parallel_tests macro.  Please see draco/config/component_macros.cmake::add_parallel_tests() for more information." )
   endif()
+  if( "${addparalleltest_PE_LIST}none" STREQUAL "none" )
+    message( FATAL_ERROR "You must provide the keyword PE_LIST and a list containing the number of cores used to execute this test (e.g. \"PE_LIST  \"1;2;4\"\").  Please see draco/config/component_macros.cmake::add_parallel_tests() for more information." )
+  endif()
+
 
   # Pass/Fail criteria
   if( "${addparalleltest_PASS_REGEX}none" STREQUAL "none" )
@@ -985,11 +726,11 @@ macro( add_parallel_tests )
 
   # Override MPI Flags upon user request
   if ( NOT DEFINED addparalleltest_MPIFLAGS )
-    set( MPIRUN_POSTFLAGS ${MPIEXEC_POSTFLAGS} )
+    set( MPIRUN_PREFLAGS ${MPIEXEC_PREFLAGS} )
   else()
-    set( MPIRUN_POSTFLAGS "${addparalleltest_MPIFLAGS}" )
+    set( MPIRUN_PREFLAGS "${addparalleltest_MPIFLAGS}" )
   endif()
-  separate_arguments( MPIRUN_POSTFLAGS )
+  separate_arguments( MPIRUN_PREFLAGS )
 
   # Loop over each test source files:
   # 1. Compile the executable
@@ -999,29 +740,26 @@ macro( add_parallel_tests )
     get_filename_component( testname ${file} NAME_WE )
     if( lverbose )
       message( "   add_executable( Ut_${compname}_${testname}_exe ${file} )
-   set_target_properties(
-      Ut_${compname}_${testname}_exe
-      PROPERTIES
+   set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
       OUTPUT_NAME ${testname}
       VS_KEYWORD  ${testname}
       FOLDER      ${compname}_test
-      INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
       COMPILE_DEFINITIONS \"PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\"\"
-      )")
+      ${Draco_std_target_props} )
+      ")
     endif()
     add_executable( Ut_${compname}_${testname}_exe ${file} )
-    # Some properties are set at a global scope in compilerEnv.cmake:
-    # - C_STANDARD, C_EXTENSIONS, CXX_STANDARD, CXX_EXTENSIONS,
-    #   CXX_STANDARD_REQUIRED, and POSITION_INDEPENDENT_CODE
-    set_target_properties(
-      Ut_${compname}_${testname}_exe
-      PROPERTIES
+    dbs_std_tgt_props( Ut_${compname}_${testname}_exe )
+    set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
       OUTPUT_NAME ${testname}
       VS_KEYWORD  ${testname}
       FOLDER      ${compname}_test
-      INTERPROCEDURAL_OPTIMIZATION_RELEASE;${USE_IPO}
-      COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\""
-      )
+      COMPILE_DEFINITIONS "PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\";PROJECT_BINARY_DIR=\"${PROJECT_BINARY_DIR}\"" )
+    if( DEFINED DRACO_LINK_OPTIONS AND
+        NOT "${DRACO_LINK_OPTIONS}x" STREQUAL "x" )
+      set_target_properties( Ut_${compname}_${testname}_exe PROPERTIES
+        LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
+    endif()
     if( addparalleltest_MPI_PLUS_OMP )
       if( ${CMAKE_GENERATOR} MATCHES Xcode )
         set_target_properties( Ut_${compname}_${testname}_exe
@@ -1043,12 +781,7 @@ macro( add_parallel_tests )
     target_link_libraries(
       Ut_${compname}_${testname}_exe
       ${test_lib_target_name}
-      ${addparalleltest_DEPS}
-      )
-
-    # Special post-build options for Win32 platforms
-    # ------------------------------------------------------------
-    copy_dll_link_libraries_to_build_dir( Ut_${compname}_${testname}_exe )
+      ${addparalleltest_DEPS} )
 
   endforeach()
 
@@ -1152,6 +885,9 @@ macro( provide_aux_files )
       endif()
     endif()
     set( outfile ${PROJECT_BINARY_DIR}/${srcfilenameonly} )
+    if( "${file}x" STREQUAL "x" OR "${outfile}x" STREQUAL "x")
+    message( FATAL_ERROR " COMMAND ${CMAKE_COMMAND} -E copy_if_different ${file} ${outfile}")
+    endif()
     add_custom_command(
       OUTPUT  ${outfile}
       COMMAND ${CMAKE_COMMAND} -E copy_if_different ${file} ${outfile}
@@ -1183,8 +919,7 @@ targets for copying support files.")
   endif()
   set_target_properties(
     Ut_${compname}_install_inputs_${Ut_${compname}_install_inputs_iarg}
-    PROPERTIES FOLDER ${folder_name}
-    )
+    PROPERTIES FOLDER ${folder_name} )
 
 endmacro()
 

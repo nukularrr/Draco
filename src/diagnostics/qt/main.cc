@@ -1,17 +1,17 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   diagnostics/qt/main.cc
  * \author Kelly Thompson
  * \date   Monday, Aug 11, 2016, 17:05 pm
  * \brief  Main program for Gui version of draco info.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
- *         All rights reserved.
- */
-//---------------------------------------------------------------------------//
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
+ *         All rights reserved. */
+//----------------------------------------------------------------------------//
 
-//---------------------------------------------------------------------------//
 #include "mainwindow.hh"
 #include <QApplication>
+
+//! \example https://github.com/jasondegraw/Qt-CMake-HelloWorld
 
 int main(int argc, char *argv[]) {
   // http://qt-project.org/doc/qt-5/qtwidgets-mainwindows-mainwindow-main-cpp.html
@@ -23,6 +23,6 @@ int main(int argc, char *argv[]) {
   return app.exec();
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of diagnostics/qt/main.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

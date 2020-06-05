@@ -1,19 +1,19 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   c4/opstream.cc
  * \author Kent G. Budge
  * \date   Mon Jun 25 12:12:31 MDT 2018
  * \brief  Define methods of class opstream
- * \note   Copyright (C) 2018-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2018-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "opstream.hh"
 #include "C4_Functions.hh"
 
 namespace rtt_c4 {
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*! Write all buffered data to console.
  *
  * Causes all buffered data to be written to console in MPI rank order; that is,
@@ -40,7 +40,7 @@ void opstream::mpibuf::send() {
   } else {
 
     Check(buffer_.size() < UINT_MAX);
-    unsigned N = static_cast<unsigned>(buffer_.size());
+    auto N = static_cast<unsigned>(buffer_.size());
     rtt_c4::send(&N, 1, 0);
     if (N > 0)
       rtt_c4::send(&buffer_[0], N, 0);
@@ -49,19 +49,19 @@ void opstream::mpibuf::send() {
   rtt_c4::global_barrier();
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*! Add the specified character to the buffer.
  *
- * For simplicity, opstream is currently implemented by treating every
- * character write as an overflow which is intercepted and added to the
- * internal buffer. This is not actually that inefficient for this class,
- * since it means that when the stream using the buffer wants to insert
- * data, it checks the buffer's cursor pointer, always finds that it is null,
- * and calls overflow instead. These are not expensive operations. Should
- * we see any evidence this class is taking significant time, which should not
- * happen for its intended use (synchronizing diagnostic output), we can
- * re-implement to let the stream do explicitly buffered insertions without
- * this change affecting any user code -- this interface is all private.
+ * For simplicity, opstream is currently implemented by treating every character
+ * write as an overflow which is intercepted and added to the internal
+ * buffer. This is not actually that inefficient for this class, since it means
+ * that when the stream using the buffer wants to insert data, it checks the
+ * buffer's cursor pointer, always finds that it is null, and calls overflow
+ * instead. These are not expensive operations. Should we see any evidence this
+ * class is taking significant time, which should not happen for its intended
+ * use (synchronizing diagnostic output), we can re-implement to let the stream
+ * do explicitly buffered insertions without this change affecting any user code
+ * -- this interface is all private.
  *
  * \param[in] c Next character to add to the internal buffer.
  *
@@ -72,7 +72,7 @@ void opstream::mpibuf::send() {
   return c;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*! Shrink the buffer to fit the current data.
  *
  * This is included for completeness, and also to let a user who is really
@@ -84,6 +84,6 @@ void opstream::mpibuf::shrink_to_fit() { buffer_.shrink_to_fit(); }
 
 } // end namespace rtt_c4
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of opstream.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

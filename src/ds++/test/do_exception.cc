@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   ds++/test/do_exception.cc
  * \author Rob Lowrie
  * \date   Thu Oct 13 14:33:59 2005
  * \brief  Does a floating-point exception.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "ds++/Assert.hh"
 #include "ds++/StackTrace.hh"
@@ -27,7 +27,7 @@
 
 using namespace std;
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 /*
  * Usage: 'do_exception <integer_value>'
  *
@@ -54,7 +54,7 @@ using namespace std;
  * When run through via \c ctest, the output from these tests is captured in the
  * files \c do_exception_[0-9]+.out and \c do_exception_[0-9]+.err.
  */
-void run_test(int /*argc*/, char *argv[]) {
+void run_test(int /*argc*/, char **argv) {
 
   bool const abortWithInsist(true);
   rtt_dsxx::fpe_trap fpet(abortWithInsist);
@@ -126,7 +126,7 @@ void run_test(int /*argc*/, char *argv[]) {
   return;
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 int main(int argc, char *argv[]) {
   Insist(argc == 2, "Wrong number of args.");
 
@@ -157,6 +157,6 @@ int main(int argc, char *argv[]) {
 #pragma warning(pop)
 #endif
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of do_exception.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

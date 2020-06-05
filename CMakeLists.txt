@@ -3,7 +3,7 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2010 April 28
 # brief  Instructions for building root level Makefile.
-# note   Copyright (C) 2016-2019 Triad National Security, LLC.
+# note   Copyright (C) 2019-2020 Triad National Security, LLC.
 #        All rights reserved.
 #------------------------------------------------------------------------------#
 
@@ -11,11 +11,10 @@
 #   https://rtt.lanl.gov/redmine/projects/draco/wiki/
 #   https://rtt.lanl.gov/redmine/projects/draco/wiki/Common_Configure_Options
 
-cmake_minimum_required(VERSION 3.11.0 FATAL_ERROR)
-project( Draco
-  VERSION 7.1
-  DESCRIPTION "An object-oriented component library supporting radiation transport applications."
-  LANGUAGES CXX C )
+cmake_minimum_required(VERSION 3.17.0 FATAL_ERROR)
+set(ddesc "An object-oriented component library supporting radiation")
+string(APPEND ddesc " transport applications.")
+project( Draco DESCRIPTION ${ddesc} VERSION 7.7 LANGUAGES CXX C)
 
 # Do not look for Fortran/CUDA for
 # 1. XCode based Generators, or
@@ -29,7 +28,7 @@ if( ${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
   if( DEFINED ENV{FC} OR DEFINED CMAKE_Fortran_COMPILER )
     enable_language( Fortran OPTIONAL )
   endif()
-  if( DEFINED ENV{CUDADIR} )
+  if( DEFINED ENV{CUDADIR} OR DEFINED ENV{CUDACXX} OR DEFINED ENV{CUDA_HOME} )
     enable_language( CUDA OPTIONAL )
   endif()
 endif()
@@ -86,6 +85,7 @@ include( compilerEnv )
 dbsSetupCompilers()
 dbsSetupCxx()
 dbsSetupFortran()
+dbsSetupCuda()
 dbsSetupProfilerTools()
 dbsSetupStaticAnalyzers()
 
@@ -98,36 +98,20 @@ setupVendorLibraries()
 # Build Draco components:
 #
 add_subdirectory( src )
-add_subdirectory( autodoc ) # This must be processed after 'src'
+if( TARGET Exe_draco_info )
+  add_subdirectory( autodoc ) # This must be processed after 'src'
+endif()
 add_subdirectory( config )  # This must be processed after 'src'
-
-#
-# Dashboard/Regression setup
-#
-# CTest/CDash custom configuration file
-configure_file(
-  ${PROJECT_SOURCE_DIR}/CTestCustom.cmake
-  ${PROJECT_BINARY_DIR}/CTestCustom.cmake
-  COPYONLY )
 
 # install top level documents
 install(
-  FILES ChangeLog Copyright README.md
+  FILES ChangeLog LICENSE.md README.md
   DESTINATION ${CMAKE_INSTALL_PREFIX} )
-
-# Add support for the 'uninstall' target
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/config/cmake_uninstall.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-  @ONLY )
-add_custom_target( uninstall
-  COMMAND "${CMAKE_COMMAND}" -P
-          "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake" )
 
 # Export targets
 install(
   EXPORT draco-targets
-  DESTINATION cmake/draco
+  DESTINATION cmake
   EXPORT_LINK_INTERFACE_LIBRARIES )
 
 ##---------------------------------------------------------------------------##

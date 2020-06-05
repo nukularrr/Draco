@@ -1,12 +1,12 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   ds++/Homogeneous_New.hh
  * \author Kent Budge
  * \date   Tue Nov 28 08:27:37 2006
  * \brief  Definition of class Homogeneous_New
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #ifndef dsxx_Homogeneous_New_hh
 #define dsxx_Homogeneous_New_hh
@@ -15,7 +15,7 @@
 
 namespace rtt_dsxx {
 
-//===========================================================================//
+//============================================================================//
 /*!
  * \class Homogeneous_New
  * \brief Allocator for large number of individual objects of identical size
@@ -81,28 +81,29 @@ namespace rtt_dsxx {
  * The concepts underlying this class are from a paper by Andy Koenig
  * presented at a USENIX meeting in the early 1990s.
  */
-//===========================================================================//
+//============================================================================//
 
-class DLL_PUBLIC_dsxx Homogeneous_New {
+class Homogeneous_New {
 public:
   // NESTED CLASSES AND TYPEDEFS
 
-  enum {
-
-#ifdef isLinux
-    DEFAULT_BLOCK_SIZE = 4096
-#else
-    DEFAULT_BLOCK_SIZE = 4096
-#endif
-
-  };
+  enum { DEFAULT_BLOCK_SIZE = 4096 };
 
   // CREATORS
 
-  //! Create an allocator for objects of the specified size, using the
-  //! specified block byte count (defaulting to a system-tuned value.)
+  //! Create an allocator for objects of the specified size, using the specified
+  //! block byte count (defaulting to a system-tuned value.)
   Homogeneous_New(unsigned object_size,
                   unsigned default_block_size = DEFAULT_BLOCK_SIZE);
+
+  //! Copy constructor: not implemented
+  Homogeneous_New(const Homogeneous_New &rhs) = delete;
+  //! Move constructor: not implemented
+  Homogeneous_New(const Homogeneous_New &&rhs) = delete;
+  //! Assignment copy operator for Homogeneous_New: not implemented.
+  Homogeneous_New &operator=(const Homogeneous_New &rhs) = delete;
+  //! Assignment move operator for Homogeneous_New: not implemented.
+  Homogeneous_New &operator=(const Homogeneous_New &&rhs) = delete;
 
   //! Destructor.
   ~Homogeneous_New();
@@ -127,12 +128,6 @@ private:
 
   // IMPLEMENTATION
 
-  //! Copy constructor: not implemented
-  Homogeneous_New(const Homogeneous_New &rhs);
-
-  //! Assignment operator for Homogeneous_New: not implemented.
-  Homogeneous_New &operator=(const Homogeneous_New &rhs);
-
   void allocate_block_(unsigned const block_size);
 
   // DATA
@@ -148,6 +143,6 @@ private:
 
 #endif // dsxx_Homogeneous_New_hh
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of ds++/Homogeneous_New.hh
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//

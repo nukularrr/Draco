@@ -1,23 +1,24 @@
-//----------------------------------*-C++-*----------------------------------//
+//----------------------------------*-C++-*-----------------------------------//
 /*!
  * \file   ds++/test/tstSlice.cc
  * \author Kent Budge
  * \date   Thu Jul  8 08:02:51 2004
  * \brief  Test the Slice subset container class.
- * \note   Copyright (C) 2016-2019 Triad National Security, LLC.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 #include "ds++/Release.hh"
 #include "ds++/ScalarUnitTest.hh"
 #include "ds++/Slice.hh"
+#include <array>
 
 using namespace std;
 using namespace rtt_dsxx;
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // TESTS
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 void tstSlice(UnitTest &ut) {
   vector<unsigned> v = {0, 1, 2, 3, 4};
@@ -121,8 +122,8 @@ void tstSlice(UnitTest &ut) {
   else
     FAILMSG("size of Slice is NOT correct");
 
-  double da[6];
-  Slice<double *> das(da, 2, 3);
+  array<double, 6> da;
+  Slice<double *> das(da.data(), 2, 3);
   if (das.size() == 2)
     PASSMSG("size of Slice is correct");
   else
@@ -164,7 +165,7 @@ void tstSlice(UnitTest &ut) {
     FAILMSG("emptiness of const Slice is NOT correct");
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 int main(int argc, char *argv[]) {
   ScalarUnitTest ut(argc, argv, release);
   try {
@@ -173,6 +174,6 @@ int main(int argc, char *argv[]) {
   UT_EPILOG(ut);
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 // end of tstSlice.cc
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
