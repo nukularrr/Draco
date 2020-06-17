@@ -37,6 +37,8 @@ namespace rtt_dsxx {
  *       not set in the environment, it returns the default_value that the
  *       caller provides. The first argument of the pair describes whether the
  *       key was defined.
+ *
+ * \example ds++/test/tstQuery_Env.cc
  */
 template <typename T>
 std::pair<bool, T> get_env_val(std::string const &key, T default_value = T{}) {

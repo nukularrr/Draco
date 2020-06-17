@@ -31,6 +31,8 @@ namespace rtt_c4 {
  *
  * Draco's unit tests don't really make sure that's the case, so if SLURM
  * changes, this may break. */
+//----------------------------------------------------------------------------//
+
 class SLURM_Task_Info {
 public:
   /**\brief Get SLURM_CPUS_PER_TASK */

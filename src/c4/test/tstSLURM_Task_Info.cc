@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*-----------------------------------//
 /*!
- * \file   c4/test/tstQueryEnv.cc
+ * \file   c4/test/tstSLURM_Task_Info.cc
  * \author Tim Kelley
  * \date   Fri Jun 7 08:06:53 2019
  * \note   Copyright (C) 2019-2020 Triad National Security, LLC.
