@@ -161,7 +161,7 @@ private:
  */
 
 /*!
- * \def TIMER_START(segmant_name, timer_name)
+ * \def TIMER_START(segment_name, timer_name)
  *
  * If DRACO_TIMING > 0 and DRACO_CALIPER is false
  * TIMER_START(segment_name, timer_name) expands to:
@@ -186,6 +186,7 @@ private:
  * \code
  *     timer_name.stop()
  * \endcode
+ * (Note that the segment_name is ignored.)
  * If DRACO_TIMING > 0 and DRACO_CALIPER is true, then
  * TIMER_STOP(segment_name, timer_name) expands to:
  * \code
