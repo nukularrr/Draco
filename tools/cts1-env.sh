@@ -14,7 +14,7 @@ else
 fi
 
 # The following toolchains will be used when releasing code
-export environments="intel1904env intel1704env gcc830env"
+export environments="intel1904env intel1704env gcc830env gcc740env"
 
 # Extra cmake options
 export CONFIG_BASE+=" -DCMAKE_VERBOSE_MAKEFILE=ON"
@@ -76,6 +76,19 @@ case $ddir in
       run "module load friendly-testing user_contrib"
       run "module load cmake/3.17.0 git numdiff python/3.6-anaconda-5.0.1"
       run "module load gcc/8.3.0 openmpi/2.1.2"
+      run "unset MPI_ROOT"
+      run "module load random123 eospac/6.4.0 gsl"
+      run "module load mkl metis ndi csk qt quo"
+      run "module load parmetis superlu-dist/5.1.3 trilinos/12.10.1"
+      run "module list"
+    }
+    function gcc740env()
+    {
+      run "module purge"
+      run "module use --append ${VENDOR_DIR}-ec/modulefiles"
+      run "module load friendly-testing user_contrib"
+      run "module load cmake/3.17.2 git numdiff python/3.6-anaconda-5.0.1"
+      run "module load gcc/7.4.0 openmpi/2.1.2"
       run "unset MPI_ROOT"
       run "module load random123 eospac/6.4.0 gsl"
       run "module load mkl metis ndi csk qt quo"

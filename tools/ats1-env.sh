@@ -142,7 +142,7 @@ case $ddir in
       run "module load intel/17.0.4"
       run "module load cmake/3.17.0 numdiff git"
       run "module load gsl random123 eospac/6.4.0 ndi python/3.6-anaconda-5.0.1"
-      run "module load trilinos/12.14.1 metis parmetis/4.0.3 superlu-dist quo"
+      run "module load trilinos/12.14.1 metis parmetis/4.0.3 superlu-dist" # quo
       run "module use --append ${VENDOR_DIR}-ec/modulefiles"
       run "module load csk"
       run "module list"
@@ -175,7 +175,7 @@ case $ddir in
       run "module load intel/17.0.4"
       run "module load cmake/3.17.0 numdiff git"
       run "module load gsl random123 eospac/6.4.0 ndi python/3.6-anaconda-5.0.1"
-      run "module load trilinos/12.14.1 metis parmetis/4.0.3 superlu-dist quo"
+      run "module load trilinos/12.14.1 metis parmetis/4.0.3 superlu-dist" # quo
       run "module use --append ${VENDOR_DIR}-ec/modulefiles"
       run "module load csk"
       run "module swap craype-haswell craype-mic-knl"

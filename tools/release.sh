@@ -90,7 +90,7 @@ if ! [[ $package ]]; then
     die "Unable to find environment file draco-cmake-opts.sh"
   fi
   # CMake options that will be included in the configuration step
-  export CONFIG_BASE+=" -DDRACO_VERSION_PATCH=`echo $ddir | sed -e 's/.*_//'`"
+  export CONFIG_BASE+=" -DDraco_VERSION_PATCH=`echo $ddir | sed -e 's/.*_//'`"
 fi
 
 scratchdir=`selectscratchdir`

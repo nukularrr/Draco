@@ -106,13 +106,7 @@ fi
 ## ENVIRONMENTS - once per login
 ##---------------------------------------------------------------------------##
 
-# Darwin salloc inherits the user environment, so we need to bypass the
-# "already-done" logic
-if [[ ${SLURM_CLUSTER_NAME} == "darwin" ]]; then
-  export DRACO_BASHRC_DONE=no
-fi
-
-if [[ ${DRACO_BASHRC_DONE:-no} == no ]] && [[ ${INTERACTIVE} == true ]]; then
+if [[ ${INTERACTIVE} == true ]]; then
 
   # Append PATHS (not linux specific, not ccs2 specific).
   add_to_path ${DRACO_ENV_DIR}/bin
@@ -216,9 +210,6 @@ if [[ ${DRACO_BASHRC_DONE:-no} == no ]] && [[ ${INTERACTIVE} == true ]]; then
   if [[ "${DRACO_ENV_LOAD:-OFF}" == "ON" ]]; then
     dracoenv
   fi
-
-  # Mark that we have already done this setup
-  export DRACO_BASHRC_DONE=yes
 
 fi
 
