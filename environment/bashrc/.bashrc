@@ -57,7 +57,7 @@ case ${-} in
 
     # Attempt to find DRACO
     if ! [[ $DRACO_SRC_DIR ]]; then
-      _BINDIR=$(dirname "${BASH_ARGV[@]:1}")
+      _BINDIR=$(dirname "${BASH_ARGV[0]}")
       DRACO_SRC_DIR=$(cd "$_BINDIR/../.." || exit; pwd)
       export DRACO_SRC_DIR
       export DRACO_ENV_DIR="${DRACO_SRC_DIR}/environment"
