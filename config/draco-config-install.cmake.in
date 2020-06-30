@@ -98,3 +98,9 @@ set(Draco_TPL_LIST "@Draco_TPL_LIST@")
 ## ---------------------------------------------------------------------------
 
 @Draco_EXPORT_TARGET_PROPERTIES@
+
+set( DRACO_CALIPER @DRACO_CALIPER@ )
+if( DRACO_CALIPER )
+  include(CMakeFindDependencyMacro)
+  setupCaliper()
+endif()
