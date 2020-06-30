@@ -508,8 +508,7 @@ macro( setupCaliper)
 
   if( NOT TARGET CALIPER::caliper )
     message( STATUS "Looking for Caliper...")
-    find_package( Caliper QUIET
-      HINTS $ENV{CALIPER_ROOT_DIR}/share/cmake )
+    find_package( Caliper QUIET )
     if(CALIPER_FOUND)
       message(STATUS "Looking for Caliper...${CALIPER_LIBRARY}")
     else()
