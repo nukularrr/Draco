@@ -75,8 +75,8 @@ endif()
 # lib/i386-linux-gnu (Debian)).
 
 find_path( CALIPER_INCLUDE_DIR
-  NAMES Caliper.h
-  HINTS ${CALIPER_ROOT_DIR}/include/caliper
+  NAMES caliper/Caliper.h
+  HINTS ${CALIPER_ROOT_DIR}/include
   PATH_SUFFIXES caliper
   )
 
