@@ -28,7 +28,7 @@ void tstquad(UnitTest &ut) {
                        const vector<double> &yscal, double &hdid, double &hnext,
                        Quad_To_ODE<double (*)(double)>);
 
-  typedef double (*fpdd)(double);
+  using fpdd = double (*)(double);
   fpdd exp_fpdd = &foo_exp;
 
   double eps = 1.0e-12;
