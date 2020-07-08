@@ -101,13 +101,14 @@ Element_Definition::Element_Definition(
       dimension(dimension_), number_of_nodes(number_of_nodes_),
       number_of_sides(number_of_sides_), elem_defs(elem_defs_),
       side_type(side_type_), side_nodes(side_nodes_) {
-  //--------------------------------------------------------------------------//
+
   // Check input first, before any modifications
   Require(number_of_nodes_ > 0);
 
-  for (const auto &elem_def : elem_defs_) {
+#ifdef REQUIRE_ON
+  for (const auto &elem_def : elem_defs_)
     Require(elem_def.get_dimension() + 1 == dimension_);
-  }
+#endif
   Require(side_type_.size() == number_of_sides_);
   for (unsigned i = 0; i < number_of_sides_; ++i) {
     Require(static_cast<unsigned>(side_type_[i]) < elem_defs_.size());
@@ -116,10 +117,10 @@ Element_Definition::Element_Definition(
   for (unsigned i = 0; i < number_of_sides_; ++i) {
     Require(side_nodes_[i].size() ==
             elem_defs_[side_type_[i]].get_number_of_nodes());
-
-    for (unsigned const side_node : side_nodes_[i]) {
+#ifdef REQUIRE_ON
+    for (unsigned const side_node : side_nodes_[i])
       Require(side_node < number_of_nodes_);
-    }
+#endif
   }
 
   // Only time this constructor should be called
