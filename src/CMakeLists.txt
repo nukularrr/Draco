@@ -62,7 +62,7 @@ add_dir_if_exists( linear )        # needs ds++
 add_dir_if_exists( memory )        # needs ds++
 add_dir_if_exists( mesh_element  ) # needs ds++
 add_dir_if_exists( ode )           # needs ds++
-add_dir_if_exists( units )        # needs ds++
+add_dir_if_exists( units )         # needs ds++
 
 if( NOT CI_CLANG_TIDY )
 add_dir_if_exists( cdi )          # needs ds++
