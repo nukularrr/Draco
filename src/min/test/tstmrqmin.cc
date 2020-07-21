@@ -22,7 +22,7 @@ using namespace rtt_min;
 // TESTS
 //----------------------------------------------------------------------------//
 
-typedef void Model(vector<double> const &x, vector<double> const &a, double &y,
+using Model = void(vector<double> const &x, vector<double> const &a, double &y,
                    vector<double> &dyda);
 
 void model(vector<double> const &x, vector<double> const &a, double &y,
