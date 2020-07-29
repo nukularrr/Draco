@@ -13,7 +13,7 @@ project( c4_test CXX )
 # ---------------------------------------------------------------------------- #
 file( GLOB test_sources *.cc )
 
-# Remove some tests from the generic list. These will be process individually 
+# Remove some tests from the generic list. These will be process individually
 # with custom build options
 list( REMOVE_ITEM test_sources ${PROJECT_SOURCE_DIR}/tstfc4_hw.cc )
 
@@ -48,15 +48,21 @@ add_parallel_tests(
 list( REMOVE_ITEM test_sources ${special_test} )
 
 # This test uses MPI+OMP:
-set( special_test ${PROJECT_SOURCE_DIR}/tstOMP.cc )
-list( REMOVE_ITEM test_sources ${special_test} )
-if( OPENMP_FOUND )
-   add_parallel_tests(
-      SOURCES   "${special_test}"
+set( special_tests
+  ${PROJECT_SOURCE_DIR}/tstOMP.cc
+  ${PROJECT_SOURCE_DIR}/tstOMP_API_off.cc
+  ${PROJECT_SOURCE_DIR}/tstOMP_API_on.cc
+)
+foreach( omptest ${special_tests})
+  list( REMOVE_ITEM test_sources ${omptest} )
+  if( OPENMP_FOUND )
+    add_parallel_tests(
+      SOURCES   "${omptest}"
       DEPS      Lib_c4
-      PE_LIST   "1;2"
+      PE_LIST   "1;2;4"
       MPI_PLUS_OMP )
-endif()
+  endif()
+endforeach()
 
 # Tests that expect exactly 2 PE (omit for DRACO_C4=SCALAR builds):
 set( two_pe_tests ${PROJECT_SOURCE_DIR}/tstPingPong.cc )
@@ -124,14 +130,14 @@ if( TARGET Exe_ythi)
     TEST_ARGS 2
     PE_LIST   "1;2" )
 endif()
-  
+
 #------------------------------------------------------------------------------#
 # Wrap f90 tests
 #------------------------------------------------------------------------------#
 if( HAVE_Fortran AND DRACO_C4 STREQUAL MPI )
   add_parallel_tests(
     SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/tstfc4_hw.cc"
-    DEPS    "Lib_c4_ftest;Lib_c4_fc4;Lib_c4;Lib_dsxx" 
+    DEPS    "Lib_c4_ftest;Lib_c4_fc4;Lib_c4;Lib_dsxx"
     PE_LIST "1;2")
 endif()
 
