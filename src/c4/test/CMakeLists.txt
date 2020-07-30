@@ -53,16 +53,23 @@ set( special_tests
   ${PROJECT_SOURCE_DIR}/tstOMP_API_off.cc
   ${PROJECT_SOURCE_DIR}/tstOMP_API_on.cc
 )
+if( DEFINED ENV{TRAVIS} )
+  # TRAVIS has severe limits on number of ranks/threads
+  set( omp_test_pe_list "1" )
+else()
+  set( omp_test_pe_list "1;2" )
+endif()
 foreach( omptest ${special_tests})
   list( REMOVE_ITEM test_sources ${omptest} )
   if( OPENMP_FOUND )
     add_parallel_tests(
       SOURCES   "${omptest}"
       DEPS      Lib_c4
-      PE_LIST   "1;2;4"
+      PE_LIST   "${omp_test_pe_list}"
       MPI_PLUS_OMP )
   endif()
 endforeach()
+unset( omp_test_pe_list )
 
 # Tests that expect exactly 2 PE (omit for DRACO_C4=SCALAR builds):
 set( two_pe_tests ${PROJECT_SOURCE_DIR}/tstPingPong.cc )
