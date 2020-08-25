@@ -53,6 +53,7 @@ jobs:
         env:
           DEFAULT_BRANCH: develop
           VALIDATE_ALL_CODEBASE: false
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ANSIBLE: false
           VALIDATE_BASH: true
           VALIDATE_DOCKERFILE: true
