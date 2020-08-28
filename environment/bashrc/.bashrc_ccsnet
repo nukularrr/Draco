@@ -1,10 +1,10 @@
 #!/bin/bash
 ##-*- Mode: bash -*-
 ##---------------------------------------------------------------------------##
-## File  : environment/bashrc/.bashrc_linux64
-## Date  : Tuesday, May 31, 2016, 14:48 pm
-## Author: Kelly Thompson
-## Note  : Copyright (C) 2016-2019, Triad National Security, LLC.
+## File  : environment/bashrc/.bashrc_ccsnet
+## Date  : Friday, Aug 28, 2020, 16:10 pm
+## Author: Kelly Thompson <kgt@lanl.gov>
+## Note  : Copyright (C) 2020, Triad National Security, LLC.
 ##         All rights are reserved.
 ##
 ##  Bash configuration file upon bash shell startup
@@ -37,33 +37,19 @@ add_to_path ${VENDOR_DIR}/bin PATH
 target=`uname -n`
 case $target in
   ccscs[1-9]*)
-    # Add /scratch/vendors/Modules.lmod (totalview, ddt, etc.)
-    # Add /scratch/vendors/Modules.core (spack generated modules).
     if [[ "${MODULEPATH}x" == "x" ]]; then
       export MODULEPATH=/ccs/opt/modulefiles
     fi
     module load user_contrib/2020.04
     module use --append /ccs/codes/radtran/Modules
     module load draco/gcc930
-#     dm_core="ack dia doxygen git graphviz htop mscgen numdiff python random123 \
-# tk totalview"
-#     dm_gcc="gcc cmake eospac/6.3.1_r20161202150449 gsl metis netlib-lapack qt"
-#     dm_openmpi="openmpi parmetis superlu-dist trilinos"
-#     if [[ `groups | grep -c ccsrad` != 0 ]]; then
-#       dm_openmpi="$dm_openmpi csk ndi"
-#     fi
-#     export dracomodules="$dm_core $dm_gcc $dm_openmpi"
     ;;
   ccsnet[23]*|rtt*)
     module load user_contrib/2020.04
     module use --append /ccs/codes/radtran/Modules
     ;;
 *)
-    #setup_tcl_modules
-    #module use /ccs/codes/radtran/vendors/Modules
-    #export dracomodules="gcc openmpi emacs/24.4 totalview cmake \
-#lapack random123 eospac dracoscripts git svn dia graphviz doxygen \
-#metis parmetis superlu-dist trilinos ndi csk"
+    die "I don't know how to setup modules for $target"
     ;;
 esac
 
@@ -73,5 +59,5 @@ add_to_path ${DRACO_SRC_DIR}/environment/bibtex BSTINPUTS
 add_to_path ${DRACO_SRC_DIR}/environment/bibfiles BIBINPUTS
 
 ##---------------------------------------------------------------------------##
-## end of .bashrc_linux64
+## end of .bashrc_ccsnet
 ##---------------------------------------------------------------------------##
