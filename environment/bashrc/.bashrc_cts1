@@ -53,11 +53,7 @@ else
 
   module use --append /usr/projects/draco/Modules/snow
   module load user_contrib/2020.08
-  export dracomodules="ack htop clang-format python \
- intel/19.0.4 openmpi/2.1.2 openblas gsl \
- cmake/3.17.2 numdiff git \
- metis parmetis random123 eospac/6.4.0 libquo caliper \
- superlu-dist trilinos csk ndi/2.1.3"
+  module load draco/intel19
 
 fi
 
