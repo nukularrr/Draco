@@ -9,10 +9,46 @@
 //----------------------------------------------------------------------------//
 
 #include "NDI_AtomicMass.hh"
+#include "ds++/DracoStrings.hh"
 #include "ds++/SystemCall.hh"
 #include <array>
 
 namespace rtt_cdi_ndi {
+
+//----------------------------------------------------------------------------//
+/*!
+ * \brief Constructor for NDI atomic mass weight reader, using custom path to
+ *        NDI gendir file.
+ * \param[in] gendir_path_in path to gendir file
+ *
+ * Print a warning if the gendir version and the ndi library version are not
+ * compatible.
+ */
+NDI_AtomicMass::NDI_AtomicMass(std::string gendir_path_in)
+    : gendir_path(std::move(gendir_path_in)), pc() {
+  Insist(rtt_dsxx::fileExists(gendir_path),
+         "Specified NDI library is not available. gendir_path = " +
+             gendir_path);
+#ifdef NDI_FOUND
+  { // Print a warning if versions mismatch
+    std::string gendir_ver = rtt_dsxx::extract_version(gendir_path, 2);
+    std::string ndi_ver = rtt_dsxx::extract_version(NDI_ROOT_DIR, 2);
+    if (gendir_ver.size() == 0)
+      gendir_ver = "version unknown";
+    if (ndi_ver.size() == 0)
+      ndi_ver = "version unknown";
+    if (gendir_ver != ndi_ver) {
+      using DT = Term::DracoTerminal;
+      std::cout << "\n"
+                << Term::ccolor(DT::error) << "WARNING: In the "
+                << "cdi_ndi/NDI_AtomicMass constructor, the NDI library "
+                << "version (" << ndi_ver << ") is different than the NDI "
+                << "GENDIR version (" << gendir_ver << ").\n"
+                << Term::ccolor(DT::reset) << std::endl;
+    }
+  }
+#endif
+}
 
 //----------------------------------------------------------------------------//
 /*!

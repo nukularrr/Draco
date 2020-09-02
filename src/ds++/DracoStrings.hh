@@ -262,6 +262,39 @@ inline std::string remove_color(std::string const &colored_string) {
   return std::regex_replace(colored_string, color_regex, "");
 }
 
+//----------------------------------------------------------------------------//
+/*!
+ * \brief Extract version of the form M.m.p from a string.
+ *
+ * \param[in] string_in String that contains a version number as a substring.
+ * \param[in] digits number of version digits to print. Default = 3.
+ * \return The version as a substring.
+ *
+ * Given the string "/ccs/opt/vendors-ec/ndi/2.1.3/share/gendir.all", return
+ * "2.1.3".
+ */
+inline std::string extract_version(std::string const &string_in,
+                                   size_t digits = 3) {
+  // build up a regex that will be used for version extraction.
+  std::string regexString{".*[A-Za-z/\\\\]([[:digit:]]+)"};
+  for (size_t i = 1; i < digits; ++i)
+    regexString += "[.]([[:digit:]]+)";
+  regexString += ".*";
+  // instantiate the regex object and create variable for results.
+  std::regex VerNumRegex{regexString.c_str()};
+  std::smatch matchResults;
+  // Search
+  std::regex_match(string_in, matchResults, VerNumRegex);
+  // Build the resulting version string
+  std::string version;
+  if (matchResults.size() > 0) {
+    version += matchResults.str(1);
+    for (size_t i = 2; i <= digits; ++i)
+      version += "." + matchResults.str(i);
+  }
+  return version;
+}
+
 } // namespace rtt_dsxx
 
 // Template functions
