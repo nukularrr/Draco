@@ -174,7 +174,6 @@ public:
 
   //! Helper function to format a warning message.
   static void warn_ndi_version_mismatch(std::string const &gendir);
-
 };
 
 } // namespace rtt_cdi_ndi

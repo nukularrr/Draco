@@ -256,29 +256,29 @@ void test_extract_version(UnitTest &ut) {
   // version, only print 2 digits
   ndi_path = "/usr/projects/data/nuclear/ndi/2.1.3/share/gendir";
   std::cout << "Case 6: " << extract_version(ndi_path, 2) << std::endl;
-  FAIL_IF_NOT(extract_version(ndi_path,2) == "2.1");
+  FAIL_IF_NOT(extract_version(ndi_path, 2) == "2.1");
 
   // version, only print 1 digit
   std::cout << "Case 7: " << extract_version(ndi_path, 1) << std::endl;
-  FAIL_IF_NOT(extract_version(ndi_path,1) == "2");
+  FAIL_IF_NOT(extract_version(ndi_path, 1) == "2");
 
   // version, only print 2 digits (with 'beta')
   ndi_path = "/usr/projects/data/nuclear/ndi/2.1.3beta/share/gendir";
   std::cout << "Case 8: " << extract_version(ndi_path, 2) << std::endl;
-  FAIL_IF_NOT(extract_version(ndi_path,2) == "2.1");
+  FAIL_IF_NOT(extract_version(ndi_path, 2) == "2.1");
 
   // version, only print 1 digit (with 'beta')
   std::cout << "Case 9: " << extract_version(ndi_path, 1) << std::endl;
-  FAIL_IF_NOT(extract_version(ndi_path,1) == "2");
+  FAIL_IF_NOT(extract_version(ndi_path, 1) == "2");
 
   // version, 'alpha' for middle digit.
   ndi_path = "/usr/projects/data/nuclear/ndi/2.1alpha.3beta/share/gendir";
   std::cout << "Case 10: " << extract_version(ndi_path, 2) << std::endl;
-  FAIL_IF_NOT(extract_version(ndi_path,2) == "2.1alpha");
+  FAIL_IF_NOT(extract_version(ndi_path, 2) == "2.1alpha");
 
   // version, 'alpha' for middle digit, only print major version.
   std::cout << "Case 11: " << extract_version(ndi_path, 1) << std::endl;
-  FAIL_IF_NOT(extract_version(ndi_path,1) == "2");
+  FAIL_IF_NOT(extract_version(ndi_path, 1) == "2");
 
   if (ut.numFails == nf)
     PASSMSG("test_extract_version: All tests pass.");
