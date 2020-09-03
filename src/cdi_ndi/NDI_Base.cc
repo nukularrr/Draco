@@ -17,7 +17,7 @@
 namespace rtt_cdi_ndi {
 
 //----------------------------------------------------------------------------//
-// File local helper functions
+// Auxillary functions
 //----------------------------------------------------------------------------//
 
 #ifdef NDI_FOUND
@@ -25,10 +25,10 @@ namespace rtt_cdi_ndi {
  * \brief Warn if NDI library version doesn't match GENDIR version to 2 digits.
  *
  * \param[in] gendir path to the gendir file
- * 
- * This function is a no-op if \c NDI_FOUND is false. 
+ *
+ * This function is a no-op if \c NDI_FOUND is false.
  */
-void warn_ndi_version_mismatch(std::string const &gendir) {
+void NDI_Base::warn_ndi_version_mismatch(std::string const &gendir) {
 
   std::string gendir_ver = rtt_dsxx::extract_version(gendir, 2);
   std::string ndi_ver = rtt_dsxx::extract_version(NDI_ROOT_DIR, 2);
@@ -50,7 +50,7 @@ void warn_ndi_version_mismatch(std::string const &gendir) {
 /*!
  * \brief Warn if NDI library version doesn't match GENDIR version to 2 digits.
  *        No-op when NDI_FOUND is false. */
-void warn_ndi_version_mismatch(std::string const & /*gendir*/) {}
+void NDI_Base::warn_ndi_version_mismatch(std::string const & /*gendir*/) {}
 #endif
 
 //----------------------------------------------------------------------------//

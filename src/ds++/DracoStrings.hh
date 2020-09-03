@@ -14,7 +14,6 @@
 #include "ds++/config.h"
 #include <locale>
 #include <map>
-#include <regex>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -256,11 +255,7 @@ std::map<std::string, unsigned> get_word_count(std::string const &filename,
  * sed 's/\x1b\[[0-9;]*[mGKF]//g'      # Remove color and move sequences
  * \endcode
  */
-inline std::string remove_color(std::string const &colored_string) {
-  std::regex color_regex("\033["
-                         "[[:digit:]]+[m]");
-  return std::regex_replace(colored_string, color_regex, "");
-}
+std::string remove_color(std::string const &colored_string);
 
 //----------------------------------------------------------------------------//
 /*!
@@ -270,30 +265,13 @@ inline std::string remove_color(std::string const &colored_string) {
  * \param[in] digits number of version digits to print. Default = 3.
  * \return The version as a substring.
  *
- * Given the string "/ccs/opt/vendors-ec/ndi/2.1.3/share/gendir.all", return
+ * Ex: Given the string "/ccs/opt/vendors-ec/ndi/2.1.3/share/gendir.all", return
  * "2.1.3".
+ *
+ * A version includes any integers separated by a period.  A text postfix
+ * 'alpha' or 'beta' is also supported for any portion of the version string.
  */
-inline std::string extract_version(std::string const &string_in,
-                                   size_t digits = 3) {
-  // build up a regex that will be used for version extraction.
-  std::string regexString{".*[A-Za-z/\\\\]([[:digit:]]+)"};
-  for (size_t i = 1; i < digits; ++i)
-    regexString += "[.]([[:digit:]]+)";
-  regexString += ".*";
-  // instantiate the regex object and create variable for results.
-  std::regex VerNumRegex{regexString.c_str()};
-  std::smatch matchResults;
-  // Search
-  std::regex_match(string_in, matchResults, VerNumRegex);
-  // Build the resulting version string
-  std::string version;
-  if (matchResults.size() > 0) {
-    version += matchResults.str(1);
-    for (size_t i = 2; i <= digits; ++i)
-      version += "." + matchResults.str(i);
-  }
-  return version;
-}
+std::string extract_version(std::string const &string_in, size_t digits = 3);
 
 } // namespace rtt_dsxx
 

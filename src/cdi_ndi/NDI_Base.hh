@@ -169,6 +169,12 @@ public:
   inline std::vector<double> get_group_energies() const & {
     return group_energies;
   }
+
+  // >> Non-interacting helper functions.
+
+  //! Helper function to format a warning message.
+  static void warn_ndi_version_mismatch(std::string const &gendir);
+
 };
 
 } // namespace rtt_cdi_ndi
