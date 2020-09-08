@@ -158,7 +158,7 @@ std::string DracoInfo::fullReport() const {
               << (diagnostics_timing ? "enabled" : "disabled");
 
   // Compilers and Flags
-  size_t const max_width(80);
+  size_t const max_width(100);
   size_t const hanging_indent(std::string("    CXX Compiler      : ").length());
   infoMessage << "\n    CXX Compiler      : ";
   print_text_with_word_wrap(cxx, hanging_indent, max_width, infoMessage, "/");
@@ -184,7 +184,7 @@ std::string DracoInfo::briefReport() const {
 
   // Print version and copyright information to the screen:
   infoMessage << "\n";
-  print_text_with_word_wrap(release, 5, 80, infoMessage, ";");
+  print_text_with_word_wrap(release, 5, 100, infoMessage, ";");
   infoMessage << "\n\n" << copyright << "\n" << contact << "\n" << std::endl;
   return infoMessage.str();
 }
@@ -193,7 +193,7 @@ std::string DracoInfo::briefReport() const {
 //! extract the single-line version info from release and return it
 std::string DracoInfo::versionReport() const {
   std::ostringstream infoMessage;
-  print_text_with_word_wrap(release, 5, 80, infoMessage, ";");
+  print_text_with_word_wrap(release, 5, 100, infoMessage, ";");
   infoMessage << "\n" << std::endl;
   return infoMessage.str();
 }
