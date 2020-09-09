@@ -803,7 +803,6 @@ Looking for Draco...\")
 
   # CMake macros that check the system for features like 'gethostname', etc.
   include( platform_checks )
-  query_craype()
 
   # Set compiler options
   include( compilerEnv )
