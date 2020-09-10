@@ -2,10 +2,8 @@
 # file   config/component_macros.cmake
 # author Kelly G. Thompson, kgt@lanl.gov
 # date   2010 Dec 1
-# brief  Provide extra macros to simplify CMakeLists.txt for component
-#        directories.
-# note   Copyright (C) 2016-2020 Triad National Security, LLC.
-#        All rights reserved.
+# brief  Provide extra macros to simplify CMakeLists.txt for component directories.
+# note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
 
 include_guard(GLOBAL)
@@ -14,7 +12,6 @@ include( compilerEnv )
 #--------------------------------------------------------------------------------------------------#
 # Ensure order of setup is correct
 #--------------------------------------------------------------------------------------------------#
-
 if( NOT DEFINED USE_IPO )
   dbsSetupCompilers() # sets USE_IPO
 endif()
@@ -45,8 +42,8 @@ set(Draco_std_target_props
   POSITION_INDEPENDENT_CODE ON )
 
 #--------------------------------------------------------------------------------------------------#
-# Set properties that are common across all packages.  Including the required
-# language standard per target.
+# Set properties that are common across all packages.  Including the required language standard per
+# target.
 #--------------------------------------------------------------------------------------------------#
 function( dbs_std_tgt_props target )
 
