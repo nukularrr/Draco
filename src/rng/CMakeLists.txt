@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.17.0)
 project( rng CXX )
 
 # Local variables -------------------------------------------------------------#
-string(CONCAT header_prefix_source 
+string(CONCAT header_prefix_source
   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
   "$<INSTALL_INTERFACE:${DBSCFG_IMPORT_PREFIX}/rng>")
 string(CONCAT header_prefix_binary "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>"
@@ -43,33 +43,43 @@ if( HAVE_CUDA AND USE_CUDA )
 else()
   set(deps Lib_dsxx GSL::gsl )
 endif()
+
+# remove 'src/device' when 'device/CMakeFiles.txt' is updated?
+set( include_dirs PUBLIC
+  $<BUILD_INTERFACE:${draco_src_dir_BINARY_DIR}/device>
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+  ${RANDOM123_INCLUDE_DIR} )
 add_component_library(
   TARGET       Lib_rng
   TARGET_DEPS  "${deps}"
-  LIBRARY_NAME ${PROJECT_NAME} )
+  INCLUDE_DIRS "${include_dirs}"
+  LIBRARY_NAME ${PROJECT_NAME}
+  NOEXPORT ) # explict install instructions are below.
+
 # Target sources should list headers as `PUBLIC` but this is broken as of
 # cmake-3.17.0 (might actually be a Visual Studio issue?). Because this is
 # broken we mark headers as `PRIVATE`.
-target_sources( Lib_rng PRIVATE "${headers_public}" PRIVATE "${sources}" )
-set_target_properties(Lib_rng PROPERTIES
-  PUBLIC_HEADER "${headers_public}")
-target_include_directories( Lib_rng PUBLIC
-  $<BUILD_INTERFACE:${draco_src_dir_BINARY_DIR}/device> # remove this when 'device/cmakefiles.txt' is updated?
-  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
-  ${RANDOM123_INCLUDE_DIR} )
+target_sources(Lib_rng PRIVATE "${headers_public}" PRIVATE "${sources}" )
+set_target_properties(Lib_rng PROPERTIES PUBLIC_HEADER "${headers_public}")
+if(TARGET Objlib_rng)
+  target_sources(Objlib_rng PRIVATE "${headers_public}" PRIVATE "${sources}" )
+  set_target_properties(Objlib_rng PROPERTIES PUBLIC_HEADER "${headers_public}")
+endif()
 
 # ---------------------------------------------------------------------------- #
 # Installation instructions
 # ---------------------------------------------------------------------------- #
-
 install( TARGETS Lib_rng EXPORT draco-targets
   LIBRARY DESTINATION "${DBSCFGDIR_LIBRARY}"
   ARCHIVE DESTINATION "${DBSCFGDIR}lib"
   RUNTIME DESTINATION "${DBSCFGDIR}bin"
   PUBLIC_HEADER DESTINATION "${DBSCFGDIR}include/rng" )
-if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-  install(FILES $<TARGET_PDB_FILE:Lib_rng> DESTINATION ${DBSCFGDIR}bin
-    OPTIONAL)
+if(TARGET Objlib_rng)
+  install( TARGETS Objlib_rng EXPORT draco-targets
+    LIBRARY DESTINATION "${DBSCFGDIR_LIBRARY}"
+    ARCHIVE DESTINATION "${DBSCFGDIR}lib"
+    RUNTIME DESTINATION "${DBSCFGDIR}bin"
+    PUBLIC_HEADER DESTINATION "${DBSCFGDIR}include/rng" )
 endif()
 
 # ---------------------------------------------------------------------------- #

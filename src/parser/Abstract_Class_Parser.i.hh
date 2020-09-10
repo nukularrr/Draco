@@ -160,5 +160,5 @@ bool Abstract_Class_Parser<Class, get_parse_table, get_parsed_object,
 #endif // utils_Abstract_Class_Parser_i_hh
 
 //----------------------------------------------------------------------------//
-// end of utils/Abstract_Class_Parser.i.hh
+// end of parser/Abstract_Class_Parser.i.hh
 //----------------------------------------------------------------------------//

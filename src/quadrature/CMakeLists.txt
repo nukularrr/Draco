@@ -29,10 +29,15 @@ endforeach()
 add_component_library(
    TARGET       Lib_quadrature
    TARGET_DEPS  "Lib_special_functions;Lib_parser;Lib_mesh_element"
-   LIBRARY_NAME ${PROJECT_NAME} )
+   LIBRARY_NAME ${PROJECT_NAME} 
+   NOEXPORT) # handle installation instructions below.
+
 target_sources( Lib_quadrature PRIVATE "${headers_public}" "${sources}" )
-set_target_properties(Lib_quadrature PROPERTIES
-  PUBLIC_HEADER "${headers_public}")
+set_target_properties( Lib_quadrature PROPERTIES PUBLIC_HEADER "${headers_public}")
+if(TARGET Objlib_quadrature)
+  target_sources( Objlib_quadrature PRIVATE "${headers_public}" "${sources}" )
+  set_target_properties( Objlib_quadrature PROPERTIES PUBLIC_HEADER "${headers_public}")
+endif()
 
 # ---------------------------------------------------------------------------- #
 # Installation instructions
@@ -42,12 +47,14 @@ install( TARGETS Lib_quadrature EXPORT draco-targets
   ARCHIVE DESTINATION "${DBSCFGDIR}lib"
   RUNTIME DESTINATION "${DBSCFGDIR}bin"
   PUBLIC_HEADER DESTINATION "${DBSCFGDIR}include/quadrature" )
-install( FILES ${f90sources}
-  DESTINATION ${DBSCFGDIR}include/quadrature )
-if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-  install(FILES $<TARGET_PDB_FILE:Lib_quadrature> DESTINATION ${DBSCFGDIR}bin
-    OPTIONAL)
+if(TARGET Objlib_quadrature)
+  install( TARGETS Objlib_quadrature EXPORT draco-targets
+    LIBRARY DESTINATION "${DBSCFGDIR_LIBRARY}"
+    ARCHIVE DESTINATION "${DBSCFGDIR}lib"
+    RUNTIME DESTINATION "${DBSCFGDIR}bin"
+    PUBLIC_HEADER DESTINATION "${DBSCFGDIR}include/quadrature" )
 endif()
+install( FILES ${f90sources} DESTINATION ${DBSCFGDIR}include/quadrature )
 
 # ---------------------------------------------------------------------------- #
 # Unit tests
