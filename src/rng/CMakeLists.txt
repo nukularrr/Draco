@@ -3,8 +3,7 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2012 Aug 1
 # brief  Generate build project files for rng.
-# note   Copyright (C) 2010-2020, Triad National Security, LLC.
-#        All rights reserved.
+# note   Copyright (C) 2010-2020, Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
 cmake_minimum_required(VERSION 3.17.0)
 project( rng CXX )

@@ -72,7 +72,6 @@ dbsConfigInfo()
 # Platform Checks: Is HOST_NAME_MAX defined?  Is WinSock2.h available?  Is
 # gethostname() available?
 include( platform_checks )
-query_craype()
 set_draco_uname()
 query_have_gethostname()
 query_have_maxpathlen()

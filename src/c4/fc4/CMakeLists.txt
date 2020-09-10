@@ -3,15 +3,14 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2020 April 20
 # brief  Generate build project files for Fortran.
-# note   Copyright (C) 2016-2020, Triad National Security, LLC.
-#        All rights reserved.
+# note   Copyright (C) 2016-2020, Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
 cmake_minimum_required(VERSION 3.17.0)
 project( fc4 C Fortran )
 
 #--------------------------------------------------------------------------------------------------#
-# If this directory is built via CAFS (ie. MSVC or XCode), then we need to do
-# some extra setup.  When build via CAFS, target Lib_dsxx won't be defined yet.
+# If this directory is built via CAFS (ie. MSVC or XCode), then we need to do some extra setup.
+# When build via CAFS, target Lib_dsxx won't be defined yet.
 #--------------------------------------------------------------------------------------------------#
 set(target_deps Lib_c4 Lib_dsxx )
 if(NOT TARGET Lib_dsxx)
