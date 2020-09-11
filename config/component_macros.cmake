@@ -96,7 +96,6 @@ endfunction()
 #   TARGET       "target name"
 #   EXE_NAME     "output executable name"
 #   TARGET_DEPS  "dep1;dep2;..."
-#   PREFIX       "ClubIMC"
 #   SOURCES      "file1.cc;file2.cc;..."
 #   HEADERS      "file1.hh;file2.hh;..."
 #   VENDOR_LIST  "MPI;GSL"
@@ -105,6 +104,8 @@ endfunction()
 #   FOLDER       "myfolder"
 #   PROJECT_LABEL "myproject42"
 #   NOEXPORT        - do not export target or dependencies to draco-config.cmake
+#   EXPORT_NAME     - not currently used; but will be used to install a binary and add its
+#                     information to <project>-config.cmake.
 #   NOCOMMANDWINDOW - On win32, do not create a command window (qt)
 #   )
 #
@@ -114,7 +115,6 @@ endfunction()
 #   TARGET       Exe_draco_info
 #   EXE_NAME     draco_info
 #   TARGET_DEPS  Lib_diagnostics
-#   PREFIX       Draco
 #   SOURCES      "${PROJECT_SOURCE_DIR}/draco_info_main.cc"
 #   FOLDER       diagnostics
 #   )
@@ -129,17 +129,10 @@ macro( add_component_executable )
   cmake_parse_arguments(
     ace
     "NOEXPORT;NOCOMMANDWINDOW"
-    "PREFIX;TARGET;EXE_NAME;LINK_LANGUAGE;FOLDER;PROJECT_LABEL"
+    "EXPORT_NAME;TARGET;EXE_NAME;LINK_LANGUAGE;FOLDER;PROJECT_LABEL"
     "HEADERS;SOURCES;TARGET_DEPS;VENDOR_LIST;VENDOR_LIBS;VENDOR_INCLUDE_DIRS"
     ${ARGV}
     )
-
-  # Prefix for export
-  if( NOT DEFINED ace_PREFIX AND NOT DEFINED ace_NOEXPORT)
-    message( FATAL_ERROR
-      "add_component_executable requires a PREFIX value to allow EXPORT of this
-target or the target must be labeled NOEXPORT.")
-  endif()
 
   # Default link language is C++
   if( NOT DEFINED ace_LINK_LANGUAGE )
@@ -233,7 +226,7 @@ endmacro()
 #   TARGET       "target name"
 #   LIBRARY_NAME "output library name"
 #   TARGET_DEPS  "dep1;dep2;..."
-#   PREFIX       "ClubIMC"
+#   INCLUDE_DIRS "PUBLIC;$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>"
 #   SOURCES      "file1.cc;file2.cc;..."
 #   HEADERS      "file1.hh;file2.hh;..."
 #   LIBRARY_NAME_PREFIX "rtt_"
@@ -250,7 +243,6 @@ endmacro()
 #   TARGET       Lib_quadrature
 #   LIBRARY_NAME quadrature
 #   TARGET_DEPS  "Lib_parser;Lib_special_functions;Lib_mesh_element"
-#   PREFIX       "Draco"
 #   SOURCES      "${sources}"
 #   )
 #
@@ -265,7 +257,7 @@ macro( add_component_library )
   cmake_parse_arguments(
     acl
     "NOEXPORT"
-    "PREFIX;TARGET;LIBRARY_NAME;LIBRARY_NAME_PREFIX;LIBRARY_TYPE;LINK_LANGUAGE;EXPORT_NAME"
+    "EXPORT_NAME;TARGET;LIBRARY_NAME;LIBRARY_NAME_PREFIX;LIBRARY_TYPE;LINK_LANGUAGE"
     "HEADERS;SOURCES;INCLUDE_DIRS;TARGET_DEPS;VENDOR_LIST;VENDOR_LIBS;VENDOR_INCLUDE_DIRS"
     ${ARGV} )
 
@@ -318,7 +310,7 @@ macro( add_component_library )
     set_property( TARGET ${acl_TARGET} APPEND PROPERTY
       LINK_OPTIONS ${DRACO_LINK_OPTIONS} )
   endif()
-  
+
   if(DBS_GENERATE_OBJECT_LIBRARIES)
     # Generate an object library.  This can be used instead of the regular library for better
     # interprocedural optimization at link time.

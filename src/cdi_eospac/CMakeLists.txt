@@ -30,8 +30,7 @@ add_component_library(
 add_component_executable(
   TARGET      Exe_QueryEospac
   TARGET_DEPS Lib_cdi_eospac
-  SOURCES     ${PROJECT_SOURCE_DIR}/QueryEospac.cc
-  PREFIX       Draco )
+  SOURCES     ${PROJECT_SOURCE_DIR}/QueryEospac.cc)
 
 # Copy necessary dll files to the build directory
 if( MSVC AND DRACO_LIBRARY_TYPE STREQUAL SHARED )

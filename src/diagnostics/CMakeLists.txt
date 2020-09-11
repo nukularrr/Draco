@@ -75,16 +75,14 @@ add_component_library(
   INCLUDE_DIRS "PUBLIC;$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>"
   LIBRARY_NAME ${PROJECT_NAME}
   SOURCES      "${sources}"
-  HEADERS      "${headers}"
-  PREFIX       Draco )
+  HEADERS      "${headers}")
 
 add_component_executable(
   TARGET      Exe_draco_info
   TARGET_DEPS Lib_diagnostics
   EXE_NAME    draco_info
   SOURCES     ${PROJECT_SOURCE_DIR}/draco_info_main.cc
-  HEADERS     ${PROJECT_SOURCE_DIR}/draco_info.hh
-  PREFIX       Draco )
+  HEADERS     ${PROJECT_SOURCE_DIR}/draco_info.hh)
 
 if( Qt5Core_DIR AND NOT "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "ppc64le" )
   add_subdirectory( qt )

@@ -39,8 +39,7 @@ add_component_library(
 add_component_executable(
   TARGET      Exe_Ipcress_Interpreter
   TARGET_DEPS "Lib_cdi_ipcress"
-  SOURCES     ${PROJECT_SOURCE_DIR}/IpcressInterpreter.cc
-  PREFIX       Draco )
+  SOURCES     ${PROJECT_SOURCE_DIR}/IpcressInterpreter.cc)
 
 #--------------------------------------------------------------------------------------------------#
 # Installation instructions
