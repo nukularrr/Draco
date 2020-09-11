@@ -52,34 +52,30 @@ add_component_library(
   TARGET       Lib_rng
   TARGET_DEPS  "${deps}"
   INCLUDE_DIRS "${include_dirs}"
-  LIBRARY_NAME ${PROJECT_NAME}
-  NOEXPORT ) # explict install instructions are below.
+  SOURCES      "${sources}"
+  HEADERS      "${headers_public}"
+  LIBRARY_NAME ${PROJECT_NAME} )
+#  NOEXPORT ) # explict install instructions are below.
 
 # Target sources should list headers as `PUBLIC` but this is broken as of
 # cmake-3.17.0 (might actually be a Visual Studio issue?). Because this is
 # broken we mark headers as `PRIVATE`.
-target_sources(Lib_rng PRIVATE "${headers_public}" PRIVATE "${sources}" )
-set_target_properties(Lib_rng PROPERTIES PUBLIC_HEADER "${headers_public}")
-if(TARGET Objlib_rng)
-  target_sources(Objlib_rng PRIVATE "${headers_public}" PRIVATE "${sources}" )
-  set_target_properties(Objlib_rng PROPERTIES PUBLIC_HEADER "${headers_public}")
-endif()
+# target_sources(Lib_rng PRIVATE "${headers_public}" PRIVATE "${sources}" )
+# set_target_properties(Lib_rng PROPERTIES PUBLIC_HEADER "${headers_public}")
+# if(TARGET Objlib_rng)
+#   target_sources(Objlib_rng PRIVATE "${headers_public}" PRIVATE "${sources}" )
+#   set_target_properties(Objlib_rng PROPERTIES PUBLIC_HEADER "${headers_public}")
+# endif()
 
 #--------------------------------------------------------------------------------------------------#
 # Installation instructions
 #--------------------------------------------------------------------------------------------------#
-install( TARGETS Lib_rng EXPORT draco-targets
-  LIBRARY DESTINATION "${DBSCFGDIR_LIBRARY}"
-  ARCHIVE DESTINATION "${DBSCFGDIR}lib"
-  RUNTIME DESTINATION "${DBSCFGDIR}bin"
-  PUBLIC_HEADER DESTINATION "${DBSCFGDIR}include/rng" )
-if(TARGET Objlib_rng)
-  install( TARGETS Objlib_rng EXPORT draco-targets
-    LIBRARY DESTINATION "${DBSCFGDIR_LIBRARY}"
-    ARCHIVE DESTINATION "${DBSCFGDIR}lib"
-    RUNTIME DESTINATION "${DBSCFGDIR}bin"
-    PUBLIC_HEADER DESTINATION "${DBSCFGDIR}include/rng" )
-endif()
+# install( TARGETS Lib_rng EXPORT draco-targets
+#   LIBRARY DESTINATION "${DBSCFGDIR_LIBRARY}"
+#   ARCHIVE DESTINATION "${DBSCFGDIR}lib"
+#   RUNTIME DESTINATION "${DBSCFGDIR}bin"
+#   PUBLIC_HEADER DESTINATION "${DBSCFGDIR}include/rng" )
+install( FILES ${headers}  DESTINATION ${DBSCFGDIR}include/rng )
 
 #--------------------------------------------------------------------------------------------------#
 # Unit tests

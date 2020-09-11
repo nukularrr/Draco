@@ -370,7 +370,11 @@ macro( add_component_library )
     else()
       string( CONCAT acl_objlib_TARGET "Objlib_" "${acl_TARGET}" )
     endif()
-    add_library( ${acl_objlib_TARGET} OBJECT ${acl_SOURCES} )
+    if( DEFINED acl_SOURCES )
+      add_library( ${acl_objlib_TARGET} OBJECT ${acl_SOURCES} )
+    else()
+      message(FATAL_ERROR "acl_sources NOT defined")
+    endif()
   endif()
 
   #
