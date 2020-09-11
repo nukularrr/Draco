@@ -77,6 +77,37 @@ function( dbs_std_tgt_props target )
 
 endfunction()
 
+#--------------------------------------------------------------------------------------------------#
+# Build a list of dependencies to support object-library mechanism
+#
+# objlib_target - object library target name (e.g. Objlib_c4)
+#
+# Returns ${objlib_target}_TARGET_DEPS by saving it to the CMakeCache.txt
+#--------------------------------------------------------------------------------------------------#
+function( dbs_objlib_build_dep_list objlib_target deplist)
+
+#  message("1. ${objlib_target}_TARGET_DEPS = ${deplist}" )
+  set(itd_beg 0 ) # length of dep list
+  list(LENGTH deplist itd_end)
+#  message("     ${itd_beg}...${itd_end}")
+  while( NOT ${itd_beg} STREQUAL ${itd_end} )
+    foreach(dep ${deplist} )
+      if(NOT "${${dep}_TARGET_DEPS}x" STREQUAL "x")
+#        message("dep = ${dep},    --> ${${dep}_TARGET_DEPS} ")
+#        message("      list(APPEND deplist ${${dep}_TARGET_DEPS} )")
+        list(APPEND deplist ${${dep}_TARGET_DEPS} )
+      endif()
+    endforeach()
+    list(REMOVE_DUPLICATES deplist)
+    set( itd_beg ${itd_end} )
+    list(LENGTH deplist itd_end)
+#    message("     ${itd_beg}...${itd_end}")
+  endwhile()
+#  message("2. ${objlib_target}_TARGET_DEPS = ${deplist}" )
+  set( ${objlib_target}_TARGET_DEPS "${deplist}" CACHE STRING "objlib dependencies" FORCE)
+
+endfunction()
+
 #------------------------------------------------------------------------------
 # replacement for built in command 'add_executable'
 #
@@ -195,7 +226,25 @@ macro( add_component_executable )
   # Generate properties related to library dependencies
   #
   if( DEFINED ace_TARGET_DEPS )
-    target_link_libraries( ${ace_TARGET} ${ace_TARGET_DEPS} )
+    if(DBS_GENERATE_OBJECT_LIBRARIES)
+      unset( ace_objlib_TARGET_DEPS )
+      foreach( lib ${ace_TARGET_DEPS} )
+        string( REPLACE "Lib_" "Objlib_" objlib ${lib} )
+        if( TARGET ${objlib} )
+          list(APPEND ace_objlib_TARGET_DEPS ${objlib} )
+        else()
+          list(APPEND ace_objlib_TARGET_DEPS ${lib} )
+        endif()
+      endforeach()
+      # Keep a list of transitive dependencies; returns ${ace_objlib_TARGET}_TARGET_DEPS
+#      message("dbs_objlib_build_dep_list(${ace_TARGET} \"${ace_objlib_TARGET_DEPS}\")")
+      dbs_objlib_build_dep_list(${ace_TARGET} "${ace_objlib_TARGET_DEPS}")
+
+#      message("target_link_libraries( ${ace_TARGET} ${${ace_TARGET}_TARGET_DEPS})")
+      target_link_libraries( ${ace_TARGET} ${${ace_TARGET}_TARGET_DEPS} )
+    else()
+      target_link_libraries( ${ace_TARGET} ${ace_TARGET_DEPS} )
+    endif()
   endif()
   if( DEFINED ace_VENDOR_LIBS )
     target_link_libraries( ${ace_TARGET} ${ace_VENDOR_LIBS} )
@@ -328,6 +377,22 @@ macro( add_component_library )
   if( DEFINED acl_TARGET_DEPS )
     target_link_libraries( ${acl_TARGET} ${acl_TARGET_DEPS} )
     if(DBS_GENERATE_OBJECT_LIBRARIES)
+      unset( acl_objlib_TARGET_DEPS )
+      foreach( lib ${acl_TARGET_DEPS} )
+        string( REPLACE "Lib_" "Objlib_" objlib ${lib} )
+        if( TARGET ${objlib} )
+          list(APPEND acl_objlib_TARGET_DEPS ${objlib} )
+        else()
+          list(APPEND acl_objlib_TARGET_DEPS ${lib} )
+        endif()
+      endforeach()
+      # Keep a list of transitive dependencies; returns ${acl_objlib_TARGET}_TARGET_DEPS
+      dbs_objlib_build_dep_list(${acl_objlib_TARGET} "${acl_objlib_TARGET_DEPS}")
+
+      # Create the actual dependency.
+      # message("target_link_libraries( ${acl_objlib_TARGET} ${${acl_objlib_TARGET}_TARGET_DEPS} )")
+      target_link_libraries( ${acl_objlib_TARGET} ${${acl_objlib_TARGET}_TARGET_DEPS} )
+    else()
       target_link_libraries( ${acl_objlib_TARGET} ${acl_TARGET_DEPS} )
     endif()
   endif()

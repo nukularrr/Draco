@@ -81,7 +81,7 @@ add_component_executable(
   TARGET      Exe_draco_info
   TARGET_DEPS Lib_diagnostics
   EXE_NAME    draco_info
-  SOURCES     ${PROJECT_SOURCE_DIR}/draco_info_main.cc
+  SOURCES     ${PROJECT_SOURCE_DIR}/bin/draco_info_main.cc
   HEADERS     ${PROJECT_SOURCE_DIR}/draco_info.hh)
 
 if( Qt5Core_DIR AND NOT "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "ppc64le" )
