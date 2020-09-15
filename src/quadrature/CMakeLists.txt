@@ -7,7 +7,7 @@
 cmake_minimum_required(VERSION 3.17.0)
 project( quadrature CXX )
 
-# Local variables -------------------------------------------------------------#
+# Local variables ---------------------------------------------------------------------------------#
 string(CONCAT header_prefix_source "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
     "$<INSTALL_INTERFACE:${DBSCFG_IMPORT_PREFIX}/quadrature>")
 
@@ -56,6 +56,7 @@ add_component_library(
 #     RUNTIME DESTINATION "${DBSCFGDIR}bin"
 #     PUBLIC_HEADER DESTINATION "${DBSCFGDIR}include/quadrature" )
 # endif()
+install( FILES ${headers_public} DESTINATION ${DBSCFGDIR}include/quadrature )
 install( FILES ${f90sources} DESTINATION ${DBSCFGDIR}include/quadrature )
 
 #--------------------------------------------------------------------------------------------------#

@@ -8,7 +8,7 @@
 cmake_minimum_required(VERSION 3.17.0)
 project( rng CXX )
 
-# Local variables -------------------------------------------------------------#
+# Local variables ---------------------------------------------------------------------------------#
 string(CONCAT header_prefix_source
   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
   "$<INSTALL_INTERFACE:${DBSCFG_IMPORT_PREFIX}/rng>")
@@ -75,7 +75,7 @@ add_component_library(
 #   ARCHIVE DESTINATION "${DBSCFGDIR}lib"
 #   RUNTIME DESTINATION "${DBSCFGDIR}bin"
 #   PUBLIC_HEADER DESTINATION "${DBSCFGDIR}include/rng" )
-install( FILES ${headers}  DESTINATION ${DBSCFGDIR}include/rng )
+install( FILES ${headers_public}  DESTINATION ${DBSCFGDIR}include/rng )
 
 #--------------------------------------------------------------------------------------------------#
 # Unit tests
