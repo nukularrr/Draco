@@ -19,6 +19,7 @@ string(CONCAT header_prefix_binary "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>"
 # Generate config.h (only occurs when cmake is run)
 #--------------------------------------------------------------------------------------------------#
 set( R123_USE_CXX11 1 )
+set( R123_USE_STD_RANDOM 1)
 configure_file( config.h.in ${PROJECT_BINARY_DIR}/rng/config.h )
 set( pkg_config_h "${header_prefix_binary}/rng/config.h" )
 
