@@ -12,10 +12,10 @@
 #include "ds++/config.h"
 
 /* Enable Random123 C++11 support */
-#cmakedefine R123_USE_CXX11 @R123_USE_CXX11 @
+#cmakedefine R123_USE_CXX11 @R123_USE_CXX11@
 
 /* Use C++11 std::random */
-#cmakedefine R123_USE_STD_RANDOM @R123_USE_STD_RANDOM @
+#cmakedefine R123_USE_STD_RANDOM @R123_USE_STD_RANDOM@
 
 /* USE STANDARD C INTERFACE */
 #ifndef _MSC_VER

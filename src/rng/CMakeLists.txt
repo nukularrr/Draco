@@ -15,6 +15,13 @@ string(CONCAT header_prefix_source
 string(CONCAT header_prefix_binary "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>"
   "$<INSTALL_INTERFACE:${DBSCFG_IMPORT_PREFIX}>")
 
+# Determine if Random123 version > 1.09.
+if( EXISTS ${RANDOM123_INCLUDE_DIR}/Random123/u01fixedpt.h )
+  set( R123_VERSION 1.13.2 )
+else()
+  set( R123_VERSION 1.09 )
+endif()
+
 #--------------------------------------------------------------------------------------------------#
 # Generate config.h (only occurs when cmake is run)
 #--------------------------------------------------------------------------------------------------#
