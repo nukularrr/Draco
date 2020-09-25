@@ -1,19 +1,19 @@
-#-----------------------------*-cmake-*----------------------------------------#
+#--------------------------------------------*-cmake-*---------------------------------------------#
 # file   config/vendor_libraries.cmake
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2010 June 6
 # brief  Look for any libraries which are required at the top level.
 # note   Copyright (C) 2016-2020 Triad National Security, LLC.
 #        All rights reserved.
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 
 include_guard(GLOBAL)
 include( FeatureSummary )
 include( setupMPI ) # defines the macros setupMPILibrariesUnix|Windows
 
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 # Helper macros for Python
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 macro( setupPython )
 
   message( STATUS "Looking for Python...." )
@@ -34,9 +34,9 @@ macro( setupPython )
 
 endmacro()
 
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 # Helper macros for Random123
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 macro( setupRandom123 )
 
  message( STATUS "Looking for Random123...")
@@ -501,6 +501,22 @@ macro( setupLIBQUO )
 
 endmacro()
 
+#------------------------------------------------------------------------------
+# Setup Caliper (https://github.com/LLNL/Caliper)
+#------------------------------------------------------------------------------
+macro( setupCaliper)
+
+  if( NOT TARGET CALIPER::caliper )
+    message( STATUS "Looking for Caliper...")
+    find_package( Caliper QUIET )
+    if(CALIPER_FOUND)
+      message(STATUS "Looking for Caliper...${CALIPER_LIBRARY}")
+    else()
+      message(STATUS "Looking for Caliper...not found")
+    endif()
+  endif()
+
+endmacro()
 
 #------------------------------------------------------------------------------
 # Setup Eospac (https://laws.lanl.gov/projects/data/eos.html)
@@ -597,6 +613,7 @@ macro( SetupVendorLibrariesUnix )
   setupPython()
   setupQt()
   setupLIBQUO()
+  setupCaliper()
 
   # Grace ------------------------------------------------------------------
   message( STATUS "Looking for Grace...")
@@ -614,7 +631,7 @@ macro( SetupVendorLibrariesUnix )
 
   # Doxygen ------------------------------------------------------------------
   message( STATUS "Looking for Doxygen..." )
-  find_package( Doxygen QUIET OPTIONAL_COMPONENTS dot mscgen dia )
+  find_package( Doxygen QUIET OPTIONAL_COMPONENTS dot mscgen )
   set_package_properties( Doxygen PROPERTIES
     URL "http://www.stack.nl/~dimitri/doxygen"
     DESCRIPTION "Doxygen autodoc generator"
@@ -646,7 +663,7 @@ macro( SetupVendorLibrariesWindows )
 
   # Doxygen ------------------------------------------------------------------
   message( STATUS "Looking for Doxygen..." )
-  find_package( Doxygen QUIET OPTIONAL_COMPONENTS dot mscgen dia )
+  find_package( Doxygen QUIET OPTIONAL_COMPONENTS dot mscgen )
   set_package_properties( Doxygen PROPERTIES
     URL "http://www.stack.nl/~dimitri/doxygen"
     DESCRIPTION "Doxygen autodoc generator"
@@ -786,7 +803,6 @@ Looking for Draco...\")
 
   # CMake macros that check the system for features like 'gethostname', etc.
   include( platform_checks )
-  query_craype()
 
   # Set compiler options
   include( compilerEnv )

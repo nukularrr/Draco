@@ -1,4 +1,4 @@
-//----------------------------------*-C++-*-----------------------------------//
+//--------------------------------------------*-C++-*---------------------------------------------//
 /*!
  * \file   viz/Ensight_Stream.hh
  * \author Rob Lowrie
@@ -6,13 +6,16 @@
  * \brief  Header for Ensight_Stream.
  * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_viz_Ensight_Stream_hh
 #define rtt_viz_Ensight_Stream_hh
 
+#include "c4/ofpstream.hh"
 #include "ds++/config.h"
 #include <fstream>
+#include <iostream>
+#include <memory>
 #include <string>
 
 namespace rtt_viz {
@@ -24,7 +27,7 @@ class Ensight_Stream;
 //! A specific "endl" manipulator for Ensight_Stream.
 DLL_PUBLIC_viz Ensight_Stream &endl(Ensight_Stream &s);
 
-//============================================================================//
+//================================================================================================//
 /*!
  * \class Ensight_Stream
  * \brief Output file stream for Ensight files.
@@ -40,7 +43,7 @@ DLL_PUBLIC_viz Ensight_Stream &endl(Ensight_Stream &s);
  * will be cast to an int.  Note that double floating point accuracy is not
  * preserved by using ascii format, because Ensight requires output as e12.5.
  */
-//============================================================================//
+//================================================================================================//
 
 class DLL_PUBLIC_viz Ensight_Stream {
 private:
@@ -52,10 +55,16 @@ private:
 
   // DATA
 
-  // The actual file stream.
-  std::ofstream d_stream;
+  //! An optional parallel stream for domain decomposed geometry
+  std::unique_ptr<rtt_c4::ofpstream> d_decomposed_stream;
 
-  // If true, in binary mode.  Otherwise, ascii mode.
+  //! An optional serial stream for replicated domain geometry
+  std::unique_ptr<std::ofstream> d_serial_stream;
+
+  //! The standard stream for writing
+  std::ostream *d_stream;
+
+  //! If true, in binary mode.  Otherwise, ascii mode.
   bool d_binary;
 
 public:
@@ -64,7 +73,8 @@ public:
   //! Constructor.
   explicit Ensight_Stream(const std::string &file_name = "",
                           const bool binary = false,
-                          const bool geom_file = false);
+                          const bool geom_file = false,
+                          const bool domain_decomposed = false);
 
   //! Destructor.
   ~Ensight_Stream();
@@ -73,13 +83,22 @@ public:
 
   //! Opens the stream.
   void open(const std::string &file_name, const bool binary = false,
-            const bool geom_file = false);
+            const bool geom_file = false, const bool domain_decomposed = false);
 
   //! Closes the stream.
   void close();
 
+  //! Write parallel buffers
+  void flush() {
+    if (d_decomposed_stream)
+      d_decomposed_stream->send();
+    if (d_serial_stream)
+      d_serial_stream->flush();
+    return;
+  }
+
   //! Expose is_open().
-  bool is_open() { return d_stream.is_open(); }
+  bool is_open() { return bool(d_stream); }
 
   // The supported output stream functions.
 
@@ -102,6 +121,6 @@ private:
 
 #endif // rtt_viz_Ensight_Stream_hh
 
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 // end of viz/Ensight_Stream.hh
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//

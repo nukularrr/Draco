@@ -1,4 +1,4 @@
-//----------------------------------*-C++-*-----------------------------------//
+//--------------------------------------------*-C++-*---------------------------------------------//
 /*! \file   UnitSystemType.hh
  *  \author Kelly Thompson
  *  \brief  Aggregates a collection of FundUnits to create a complete
@@ -6,7 +6,7 @@
  *  \date   Fri Oct 24 15:04:41 2003
  *  \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *          All rights reserved. */
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_units_UnitSystemType_hh
 #define rtt_units_UnitSystemType_hh
@@ -15,7 +15,7 @@
 
 namespace rtt_units {
 
-//============================================================================//
+//================================================================================================//
 /*!
  * \class UnitSystemType
  *
@@ -41,7 +41,7 @@ namespace rtt_units {
  *                                  .t( rtt_units::t_s ) );
  * \endverbatim
  */
-//============================================================================//
+//================================================================================================//
 
 class UnitSystemType {
 public:
@@ -76,19 +76,19 @@ public:
 
   //! Set a FundUnit type for this UnitSystem
 
-  UnitSystemType &L(Ltype myType, double const *cf = L_cf,
+  UnitSystemType &L(Ltype myType, double const *cf = L_cf.data(),
                     std::string const &labels = L_labels);
-  UnitSystemType &M(Mtype myType, double const *cf = M_cf,
+  UnitSystemType &M(Mtype myType, double const *cf = M_cf.data(),
                     std::string const &labels = M_labels);
-  UnitSystemType &t(ttype myType, double const *cf = t_cf,
+  UnitSystemType &t(ttype myType, double const *cf = t_cf.data(),
                     std::string const &labels = t_labels);
-  UnitSystemType &T(Ttype myType, double const *cf = T_cf,
+  UnitSystemType &T(Ttype myType, double const *cf = T_cf.data(),
                     std::string const &labels = T_labels);
-  UnitSystemType &I(Itype myType, double const *cf = I_cf,
+  UnitSystemType &I(Itype myType, double const *cf = I_cf.data(),
                     std::string const &labels = I_labels);
-  UnitSystemType &A(Atype myType, double const *cf = A_cf,
+  UnitSystemType &A(Atype myType, double const *cf = A_cf.data(),
                     std::string const &labels = A_labels);
-  UnitSystemType &Q(Qtype myType, double const *cf = Q_cf,
+  UnitSystemType &Q(Qtype myType, double const *cf = Q_cf.data(),
                     std::string const &labels = Q_labels);
 
   // ACCESSORS
@@ -119,6 +119,6 @@ private:
 
 #endif // rtt_units_UnitSystemType_hh
 
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 // end of UnitSystemType.hh
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//

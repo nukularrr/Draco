@@ -1,11 +1,11 @@
-#-----------------------------*-cmake-*----------------------------------------#
+#--------------------------------------------*-cmake-*---------------------------------------------#
 # file   src/CMakeLists.txt
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2010 April 28
 # brief  Instructions for building src level Makefile.
 # note   Copyright (C) 2016-2020 Triad National Security, LLC.
 #        All rights reserved.
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 cmake_minimum_required(VERSION 3.17.0)
 project( draco_src_dir )
 
@@ -50,53 +50,50 @@ message(" ")
 message( STATUS "Configuring Level 1 packages --" )
 add_dir_if_exists( ds++ )
 
-# Only test ds++ if CI_CLANG_TIDY is running
+# Only test selected components if CI_CLANG_TIDY is running
 
 # Level 2
 message(" ")
 message( STATUS "Configuring Level 2 packages --" )
-add_dir_if_exists( c4 )           # needs ds++
-
-if( NOT CI_CLANG_TIDY )
-add_dir_if_exists( cdi )          # needs ds++
-add_dir_if_exists( compton )      # needs ds++, CSK
-add_dir_if_exists( device )       # needs ds++
-if( USE_MDSPAN )
-  add_dir_if_exists( experimental ) # only the tests need ds++
-endif()
-add_dir_if_exists( lapack_wrap )  # needs ds++
-add_dir_if_exists( linear )       # needs ds++
-add_dir_if_exists( memory )       # needs ds++
-add_dir_if_exists( mesh_element ) # needs ds++
-add_dir_if_exists( ode )          # needs ds++
-add_dir_if_exists( plot2D )
-add_dir_if_exists( units )        # needs ds++
-add_dir_if_exists( viz )          # needs ds++
+add_dir_if_exists( c4 )            # needs ds++
+add_dir_if_exists( cdi )           # needs ds++
+add_dir_if_exists( device )        # needs ds++
+add_dir_if_exists( FortranChecks ) # needs ds++
+add_dir_if_exists( lapack_wrap )   # needs ds++
+add_dir_if_exists( linear )        # needs ds++
+add_dir_if_exists( memory )        # needs ds++
+add_dir_if_exists( mesh_element  ) # needs ds++
+add_dir_if_exists( ode )           # needs ds++
+add_dir_if_exists( units )         # needs ds++
 
 # Level 3
 message(" ")
 message( STATUS "Configuring Level 3 packages --" )
 if( USE_MDSPAN )
-  add_dir_if_exists( cdi_CPEloss )  # needs cdi, units
+  add_dir_if_exists( experimental ) # only the tests need ds++
+  add_dir_if_exists( cdi_CPEloss )  # needs cdi, units, experimental
 endif()
+add_dir_if_exists( cdi_eospac )   # needs parser, ode, cdi
 add_dir_if_exists( cdi_ipcress )  # needs cdi
-add_dir_if_exists( cdi_ndi )      # needs ds++, rng, cdi
 add_dir_if_exists( diagnostics )  # needs c4
 add_dir_if_exists( fit )          # needs linear
-add_dir_if_exists( FortranChecks ) # needs c4
 add_dir_if_exists( meshReaders )  # needs c4
 add_dir_if_exists( min )          # needs linear
 add_dir_if_exists( norms )        # needs c4
 add_dir_if_exists( parser )       # needs units, c4, mesh_element
 add_dir_if_exists( roots )        # needs linear
 add_dir_if_exists( VendorChecks ) # needs c4
+
+if( NOT CI_CLANG_TIDY )
+add_dir_if_exists( compton )      # needs c4, CSK
 add_dir_if_exists( rng )          # needs ds++, device
+add_dir_if_exists( viz )          # needs c4
 
 # Level 4
 message(" ")
 message( STATUS "Configuring Level 4 packages --" )
 add_dir_if_exists( cdi_analytic )      # needs parser, roots, ode, cdi
-add_dir_if_exists( cdi_eospac )        # needs parser, ode, cdi
+add_dir_if_exists( cdi_ndi )           # needs ds++, rng, cdi
 add_dir_if_exists( RTT_Format_Reader)  # needs meshReaders
 add_dir_if_exists( special_functions ) # needs roots, units, GSL
 
@@ -106,7 +103,10 @@ message( STATUS "Configuring Level 5 packages --" )
 add_dir_if_exists( mesh )       # needs c4, ds++, mesh_element
 add_dir_if_exists( quadrature ) # needs mesh_element, parser, special_functions
 
-endif()
+# Deprecated
+add_dir_if_exists( plot2D )
+
+endif( NOT CI_CLANG_TIDY )
 
 # Summary
 

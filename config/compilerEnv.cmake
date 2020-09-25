@@ -1,9 +1,9 @@
-#-----------------------------*-cmake-*----------------------------------------#
+#--------------------------------------------*-cmake-*---------------------------------------------#
 # file   config/compilerEnv.cmake
 # brief  Default CMake build parameters
 # note   Copyright (C) 2019-2020 Triad National Security, LLC.
 #        All rights reserved.
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 
 include_guard(GLOBAL)
 include( FeatureSummary )
@@ -39,13 +39,12 @@ if( HAVE_PAPI )
     "Provide PAPI hardware counters if available." )
 endif()
 
-##---------------------------------------------------------------------------##
-## Query OpenMP availability
-##
-## This feature is usually compiler specific and a compile flag must be added.
-## For this to work the <platform>-<compiler>.cmake files (eg.  unix-g++.cmake)
-## call this macro.
-## ---------------------------------------------------------------------------##
+#-------------------------------------------------------------------------------------------------#
+# Query OpenMP availability
+#
+# This feature is usually compiler specific and a compile flag must be added. For this to work the
+# <platform>-<compiler>.cmake files (e.g.:  unix-g++.cmake) call this macro.
+#-------------------------------------------------------------------------------------------------#
 macro( query_openmp_availability )
   if( NOT PLATFORM_CHECK_OPENMP_DONE )
     set( PLATFORM_CHECK_OPENMP_DONE TRUE CACHE BOOL "Is check for OpenMP done?")
@@ -53,18 +52,53 @@ macro( query_openmp_availability )
     message( STATUS "Looking for OpenMP...")
     find_package(OpenMP QUIET)
     if( OPENMP_FOUND )
-      message( STATUS "Looking for OpenMP... ${OpenMP_C_FLAGS}")
-      set( OPENMP_FOUND ${OPENMP_FOUND} CACHE BOOL "Is OpenMP availalable?"
-        FORCE )
+        message( STATUS "Looking for OpenMP... ${OpenMP_C_FLAGS} (supporting the "
+          "${OpenMP_C_VERSION} standard)")
+      if( OpenMP_C_VERSION VERSION_LESS 3.0 )
+        message( STATUS "OpenMP standard support is too old (< 3.0). Disabling OpenMP build "
+          "features.")
+        set(OPENMP_FOUND FALSE)
+        set(OpenMP_C_FLAGS "" CACHE BOOL "OpenMP disabled (too old)." FORCE)
+      endif()
+      set( OPENMP_FOUND ${OPENMP_FOUND} CACHE BOOL "Is OpenMP available?" FORCE )
     else()
       message(STATUS "Looking for OpenMP... not found")
     endif()
   endif()
 endmacro()
 
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
+# Force save compiler flags to CMakeCache.txt
+#--------------------------------------------------------------------------------------------------#
+function(force_compiler_flags_to_cache)
+  foreach(lang C CXX)
+    foreach( flag FLAGS FLAGS_DEBUG FLAGS_RELEASE FLAGS_MINSIZEREL FLAGS_RELWITHDEBINFO )
+      set( CMAKE_${lang}_${flag} "${CMAKE_${lang}_${flag}}" CACHE STRING "compiler flags" FORCE )
+    endforeach()
+  endforeach()
+  set( DRACO_LINK_OPTIONS "${DRACO_LINK_OPTIONS}" CACHE STRING "link flags" FORCE)
+endfunction()
+
+#--------------------------------------------------------------------------------------------------#
+# De-duplicate compiler flags
+#
+# example: deduplicate_flags(CMAKE_C_FLAGS)
+#
+# ${FLAGS} evaluates to a string like "CMAKE_C_FLAGS"
+# ${${FLAGS}} evalues to a list of compiler options like "-Werror -O2"
+#--------------------------------------------------------------------------------------------------#
+function(deduplicate_flags FLAGS)
+  set(flag_list ${${FLAGS}}) # ${FLAGS} is CMAKE_C_FLAGS, double ${${FLAGS}} is the string of flags.
+  separate_arguments(flag_list)
+  list(REMOVE_DUPLICATES flag_list)
+  string (REGEX REPLACE "([^\\]|^);" "\\1 " _TMP_STR "${flag_list}")
+  string (REGEX REPLACE "[\\](.)" "\\1" _TMP_STR "${_TMP_STR}") #fixes escaping
+  set (${FLAGS} "${_TMP_STR}" PARENT_SCOPE)
+endfunction()
+
+#--------------------------------------------------------------------------------------------------#
 # Setup compilers
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 macro(dbsSetupCompilers)
 
   if( NOT dbsSetupCompilers_done )
@@ -74,6 +108,31 @@ macro(dbsSetupCompilers)
     if( NOT WIN32 AND NOT UNIX)
       message( FATAL_ERROR "Unsupported platform (not WIN32 and not UNIX )." )
     endif()
+
+    #----------------------------------------------------------------------------#
+    # Add user provided options:
+    #
+    # 1. Users may set environment variables
+    #    - C_FLAGS
+    #    - CXX_FLAGS
+    #    - Fortran_FLAGS
+    #    - EXE_LINKER_FLAGS
+    # 2. Provide these as arguments to cmake as -DC_FLAGS="whatever".
+    #----------------------------------------------------------------------------#
+    foreach( lang C CXX Fortran EXE_LINKER SHARED_LINKER)
+      if( DEFINED ENV{${lang}_FLAGS} )
+        string( APPEND ${lang}_FLAGS " $ENV{${lang}_FLAGS}")
+      endif()
+      if( DEFINED ENV{CMAKE_${lang}_FLAGS} )
+        string( APPEND CMAKE_${lang}_FLAGS " $ENV{CMAKE_${lang}_FLAGS}")
+      endif()
+      if( ${lang}_FLAGS )
+        toggle_compiler_flag( TRUE "${${lang}_FLAGS}" ${lang} "" )
+      endif()
+      if( CMAKE_${lang}_FLAGS )
+        toggle_compiler_flag( TRUE "${CMAKE_${lang}_FLAGS}" ${lang} "" )
+      endif()
+    endforeach()
 
     # Defaults for 1st pass:
 
@@ -202,9 +261,9 @@ macro(dbsSetupCompilers)
 
 endmacro()
 
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 # Setup C++ Compiler
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 macro(dbsSetupCxx)
 
   # Static or shared libraries?
@@ -339,25 +398,6 @@ macro(dbsSetupCxx)
     set( CMAKE_REQUIRED_DEFINITIONS "${CMAKE_REQUIRED_DEFINITIONS} -D_DARWIN_C_SOURCE ")
   endif()
 
-  #----------------------------------------------------------------------------#
-  # Add user provided options:
-  #
-  # 1. Users may set environment variables
-  #    - C_FLAGS
-  #    - CXX_FLAGS
-  #    - Fortran_FLAGS
-  #    - EXE_LINKER_FLAGS
-  # 2. Provide these as arguments to cmake as -DC_FLAGS="whatever".
-  #----------------------------------------------------------------------------#
-  foreach( lang C CXX Fortran EXE_LINKER SHARED_LINKER)
-    if( DEFINED ENV{${lang}_FLAGS} )
-      string( APPEND ${lang}_FLAGS " $ENV{${lang}_FLAGS}")
-    endif()
-    if( ${lang}_FLAGS )
-      toggle_compiler_flag( TRUE "${${lang}_FLAGS}" ${lang} "" )
-    endif()
-  endforeach()
-
   if( NOT CCACHE_CHECK_AVAIL_DONE )
     set( CCACHE_CHECK_AVAIL_DONE TRUE CACHE BOOL
       "Have we looked for ccache/f90cache?")
@@ -408,7 +448,7 @@ macro(dbsSetupCxx)
 
 endmacro()
 
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 # Setup Static Analyzer (if any)
 #
 # Enable with:
@@ -427,26 +467,23 @@ endmacro()
 # Refs:
 # - https://blog.kitware.com/static-checks-with-cmake-cdash-iwyu-clang-tidy-lwyu-cpplint-and-cppcheck/
 # - https://github.com/KratosMultiphysics/Kratos/wiki/How-to-use-Clang-Tidy-to-automatically-correct-code
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 macro(dbsSetupStaticAnalyzers)
 
-  set( DRACO_STATIC_ANALYZER "none" CACHE STRING "Enable a static analysis tool"
-    )
+  set( DRACO_STATIC_ANALYZER "none" CACHE STRING "Enable a static analysis tool" )
   set_property( CACHE DRACO_STATIC_ANALYZER PROPERTY STRINGS
     "none" "clang-tidy" "iwyu" "cppcheck" "cpplint" "iwyl" )
 
   # Sanity Checks
-  if( "${DRACO_STATIC_ANALYZER}" STREQUAL "clang-tidy" AND
-      NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
-    message( FATAL_ERROR "When DRACO_STATIC_ANALYZER=clang-tidy, the CXX"
-      " compiler must be clang.")
+  if( "${DRACO_STATIC_ANALYZER}" STREQUAL "clang-tidy" AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL
+      "Clang" )
+    message( FATAL_ERROR "When DRACO_STATIC_ANALYZER=clang-tidy, the CXX compiler must be clang.")
   endif()
 
   if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
 
     # clang-tidy
-    # Ex: cmake -DDRACO_STATIC_ANALYZER=clang-tidy \
-             #  -DCLANG_TIDY_CHECKS="-checks=generate-*" ...
+    # Ex: cmake -DDRACO_STATIC_ANALYZER=clang-tidy -DCLANG_TIDY_CHECKS="-checks=generate-*" ...
     # https://clang.llvm.org/extra/clang-tidy/
     if( "${DRACO_STATIC_ANALYZER}" MATCHES "clang-tidy" )
       if( NOT CMAKE_CXX_CLANG_TIDY )
@@ -460,6 +497,8 @@ macro(dbsSetupStaticAnalyzers)
       if( CMAKE_CXX_CLANG_TIDY )
         if( NOT CLANG_TIDY_OPTIONS )
           set( CLANG_TIDY_OPTIONS "-header-filter=.*[.]hh" )
+          # Only run clang tidy on src, test, examples and skip 3rd party libraries
+#          set( CLANG_TIDY_OPTIONS "\"-header-filter=.*\\b(src|test|examples)\\b\\/(?!lib).*\"")
         endif()
         set( CLANG_TIDY_OPTIONS "${CLANG_TIDY_OPTIONS}" CACHE STRING
           "clang-tidy extra options (eg: -header-filter=.*[.]hh;-fix)" FORCE )
@@ -476,17 +515,16 @@ macro(dbsSetupStaticAnalyzers)
         set( CLANG_TIDY_IPATH "${CLANG_TIDY_IPATH}" CACHE STRING
           "clang-tidy extra include directories" FORCE )
         if( NOT "${CLANG_TIDY_CHECKS}" MATCHES "[-]checks[=]" )
-          message( FATAL_ERROR "Option CLANG_TIDY_CHECKS string must start"
-                   " with the string '-check='")
+          message( FATAL_ERROR "Option CLANG_TIDY_CHECKS string must start with the string "
+            "'-check='")
         endif()
         # re-create clang-tidy command
         if( "${CMAKE_CXX_CLANG_TIDY}" MATCHES "[-]checks[=]" )
           list( GET CMAKE_CXX_CLANG_TIDY 0 CMAKE_CXX_CLANG_TIDY )
         endif()
         set( CMAKE_CXX_CLANG_TIDY
-            "${CMAKE_CXX_CLANG_TIDY};${CLANG_TIDY_CHECKS};${CLANG_TIDY_OPTIONS}"
-            CACHE STRING "Run clang-tidy on each source file before compile."
-            FORCE)
+            "${CMAKE_CXX_CLANG_TIDY};${CLANG_TIDY_CHECKS};${CLANG_TIDY_OPTIONS}" CACHE STRING
+            "Run clang-tidy on each source file before compile." FORCE)
       else()
         unset( CMAKE_CXX_CLANG_TIDY )
         unset( CMAKE_CXX_CLANG_TIDY CACHE )
@@ -508,8 +546,8 @@ macro(dbsSetupStaticAnalyzers)
       if( CMAKE_CXX_INCLUDE_WHAT_YOU_USE )
         if( NOT "${CMAKE_CXX_INCLUDE_WHAT_YOU_USE}" MATCHES "Xiwyu" )
           set( CMAKE_CXX_INCLUDE_WHAT_YOU_USE
-            "${CMAKE_CXX_INCLUDE_WHAT_YOU_USE};-Xiwyu;--transitive_includes_only"
-            CACHE STRING "Run iwyu on each source file before compile." FORCE)
+            "${CMAKE_CXX_INCLUDE_WHAT_YOU_USE};-Xiwyu;--transitive_includes_only" CACHE STRING
+            "Run iwyu on each source file before compile." FORCE)
         endif()
       else()
         unset( CMAKE_CXX_INCLUDE_WHAT_YOU_USE )
@@ -552,11 +590,9 @@ macro(dbsSetupStaticAnalyzers)
   # include-what-you-link
   # https://blog.kitware.com/static-checks-with-cmake-cdash-iwyu-clang-tidy-lwyu-cpplint-and-cppcheck/'
   if( ${DRACO_STATIC_ANALYZER} MATCHES "iwyl" AND UNIX )
-    option( CMAKE_LINK_WHAT_YOU_USE "Report if extra libraries are linked."
-      TRUE )
+    option( CMAKE_LINK_WHAT_YOU_USE "Report if extra libraries are linked." TRUE )
   else()
-    option( CMAKE_LINK_WHAT_YOU_USE "Report if extra libraries are linked."
-      FALSE )
+    option( CMAKE_LINK_WHAT_YOU_USE "Report if extra libraries are linked." FALSE )
   endif()
 
   # Report
@@ -583,7 +619,7 @@ macro(dbsSetupStaticAnalyzers)
 
 endmacro()
 
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 # Setup Fortran Compiler
 #
 # Use:
@@ -602,7 +638,7 @@ endmacro()
 #    DBS_FLOAT_PRECISION     - string (config.h)
 #    PRECISION_DOUBLE | PRECISION_SINGLE - bool
 #
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 macro(dbsSetupFortran)
 
   dbsSetupCompilers()
@@ -701,7 +737,7 @@ macro(dbsSetupFortran)
 
 endmacro()
 
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 # Setup Cuda Compiler
 #
 # Use:
@@ -724,7 +760,7 @@ endmacro()
 # Notes:
 # - https://devblogs.nvidia.com/tag/cuda/
 # - https://devblogs.nvidia.com/building-cuda-applications-cmake/
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 macro(dbsSetupCuda)
 
   # Toggle if we should try to build Cuda parts of the project.  This will be
@@ -741,6 +777,16 @@ macro(dbsSetupCuda)
     # User option to disable Cuda, even when it is available.
     option(USE_CUDA "Use Cuda?" ON)
 
+  endif()
+
+  # Save the results
+  set( HAVE_CUDA ${HAVE_CUDA} CACHE BOOL
+    "Should we build CUDA portions of this project?" FORCE )
+  if( HAVE_CUDA AND USE_CUDA )
+    # Use this string in 'project(foo ${CUDA_DBS_STRING})' commands to enable
+    # cuda per project.
+    set( CUDA_DBS_STRING "CUDA" CACHE STRING
+      "If CUDA is available, this variable is 'CUDA'")
     # Use this string as a toggle when calling add_component_library or
     # add_scalar_tests to force compiling with nvcc.
     set( COMPILE_WITH_CUDA LINK_LANGUAGE CUDA )
@@ -752,14 +798,7 @@ macro(dbsSetupCuda)
       message(FATAL_ERROR "Build system does not support "
         "CUDACXX=${CMAKE_CUDA_COMPILER}")
     endif()
-  endif()
 
-  # Save the results
-  set( HAVE_CUDA ${HAVE_CUDA} CACHE BOOL
-    "Should we build CUDA portions of this project?" FORCE )
-  if( ${HAVE_CUDA} )
-    set( CUDA_DBS_STRING "CUDA" CACHE STRING
-      "If CUDA is available, this variable is 'CUDA'")
   endif()
 
 endmacro()
@@ -880,6 +919,6 @@ macro( toggle_compiler_flag switch compiler_flag
   endforeach()
 endmacro()
 
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#
 # End config/compiler_env.cmake
-#------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------#

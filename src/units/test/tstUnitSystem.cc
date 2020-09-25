@@ -1,10 +1,10 @@
-//----------------------------------*-C++-*-----------------------------------//
+//--------------------------------------------*-C++-*---------------------------------------------//
 /*!
  * \file   src/units/test/tstUnitSystem.cc
  * \brief  test the UnitSystem class.
  * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved */
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 
 #include "ds++/Release.hh"
 #include "ds++/ScalarUnitTest.hh"
@@ -12,9 +12,9 @@
 #include "units/UnitSystem.hh"
 #include <sstream>
 
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 // TESTS
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 
 void test_ctor(rtt_dsxx::UnitTest &ut) {
   using rtt_dsxx::soft_equiv;
@@ -92,7 +92,7 @@ void test_ctor(rtt_dsxx::UnitTest &ut) {
   return;
 }
 
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 
 void test_def_ctor(rtt_dsxx::UnitTest &ut) {
   using rtt_dsxx::soft_equiv;
@@ -136,7 +136,7 @@ void test_def_ctor(rtt_dsxx::UnitTest &ut) {
       FAILMSG(msg.str());
     }
 
-    //----------------------------------------------------------------------------//
+    //------------------------------------------------------------------------------------------------//
 
     // Test the Temperature conversion factor for uDef
     expVal = uSI.T();
@@ -220,7 +220,7 @@ void test_more_accessors(rtt_dsxx::UnitTest &ut) {
     FAILMSG(msg.str());
   }
 
-  //----------------------------------------------------------------------------//
+  //------------------------------------------------------------------------------------------------//
 
   // Test the angle conversion factor
   expVal = 57.295779512896171;
@@ -249,7 +249,7 @@ void test_more_accessors(rtt_dsxx::UnitTest &ut) {
     FAILMSG(msg.str());
   }
 
-  //----------------------------------------------------------------------------//
+  //------------------------------------------------------------------------------------------------//
 
   // Test the quantity conversion factor.
   expVal = 1.0;
@@ -283,7 +283,7 @@ void test_more_accessors(rtt_dsxx::UnitTest &ut) {
   return;
 }
 
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 
 void test_aux_accessors(rtt_dsxx::UnitTest &ut) {
   using rtt_dsxx::soft_equiv;
@@ -314,7 +314,7 @@ void test_aux_accessors(rtt_dsxx::UnitTest &ut) {
 
   return;
 }
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 
 void logic_test(rtt_dsxx::UnitTest &ut) {
   using rtt_dsxx::soft_equiv;
@@ -452,7 +452,7 @@ void logic_test(rtt_dsxx::UnitTest &ut) {
   return;
 }
 
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 
 void test_eq_op(rtt_dsxx::UnitTest &ut) {
   using rtt_dsxx::soft_equiv;
@@ -608,7 +608,7 @@ void test_eq_op(rtt_dsxx::UnitTest &ut) {
   return;
 }
 
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 
 void test_valid_units(rtt_dsxx::UnitTest &ut) {
   using rtt_dsxx::soft_equiv;
@@ -647,19 +647,18 @@ void test_valid_units(rtt_dsxx::UnitTest &ut) {
   }
 
   // Create a faulty UnitSystem (negative cf)
-  double const my_cf[2] = {0.0, -1.0};
+  constexpr std::array<double, 2> my_cf = {0.0, -1.0};
 
   // Fail with L.
   {
     bool with_dbc(true);
     bool found_assert(false);
-    // If DRACO_DBC_LEVE=7, a rtt_dsxx:assertion will be fired when myus
-    // is constructed.  If not, we must test the validUnits() member
-    // funtion explicitly.
+    // If DRACO_DBC_LEVE=7, a rtt_dsxx:assertion will be fired when myus is
+    // constructed.  If not, we must test the validUnits() member function
+    // explicitly.
     try {
-      UnitSystem myus(UnitSystemType().L(rtt_units::L_m, my_cf));
-      // If DRACO_DBC_LEVE=0 we will get here so call validUnits by
-      // manually.
+      UnitSystem myus(UnitSystemType().L(rtt_units::L_m, my_cf.data()));
+      // If DRACO_DBC_LEVE=0 we will get here so call validUnits by manually.
       with_dbc = false;
       if (!myus.validUnits()) {
         ostringstream msg;
@@ -692,10 +691,10 @@ void test_valid_units(rtt_dsxx::UnitTest &ut) {
     bool with_dbc(true);
     bool found_assert(false);
     // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is
-    // constructed.   If not, we must test the validUnits() member
-    // funtion explicitly.
+    // constructed.  If not, we must test the validUnits() member function
+    // explicitly.
     try {
-      UnitSystem myus(UnitSystemType().M(rtt_units::M_kg, my_cf));
+      UnitSystem myus(UnitSystemType().M(rtt_units::M_kg, my_cf.data()));
       // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by
       // manually.
       with_dbc = false;
@@ -729,10 +728,10 @@ void test_valid_units(rtt_dsxx::UnitTest &ut) {
     bool with_dbc(true);
     bool found_assert(false);
     // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is
-    // constructed.   If not, we must test the validUnits() member
-    // funtion explicitly.
+    // constructed.  If not, we must test the validUnits() member function
+    // explicitly.
     try {
-      UnitSystem myus(UnitSystemType().t(rtt_units::t_s, my_cf));
+      UnitSystem myus(UnitSystemType().t(rtt_units::t_s, my_cf.data()));
       // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by
       // manually.
       with_dbc = false;
@@ -763,10 +762,10 @@ void test_valid_units(rtt_dsxx::UnitTest &ut) {
     bool with_dbc(true);
     bool found_assert(false);
     // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is
-    // constructed.   If not, we must test the validUnits() member
-    // funtion explicitly.
+    // constructed.  If not, we must test the validUnits() member function
+    // explicitly.
     try {
-      UnitSystem myus(UnitSystemType().T(rtt_units::T_K, my_cf));
+      UnitSystem myus(UnitSystemType().T(rtt_units::T_K, my_cf.data()));
       // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by
       // manually.
       with_dbc = false;
@@ -797,10 +796,10 @@ void test_valid_units(rtt_dsxx::UnitTest &ut) {
     bool with_dbc(true);
     bool found_assert(false);
     // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is
-    // constructed.   If not, we must test the validUnits() member
-    // funtion explicitly.
+    // constructed.  If not, we must test the validUnits() member function
+    // explicitly.
     try {
-      UnitSystem myus(UnitSystemType().I(rtt_units::I_amp, my_cf));
+      UnitSystem myus(UnitSystemType().I(rtt_units::I_amp, my_cf.data()));
       // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by
       // manually.
       with_dbc = false;
@@ -831,10 +830,10 @@ void test_valid_units(rtt_dsxx::UnitTest &ut) {
     bool with_dbc(true);
     bool found_assert(false);
     // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is
-    // constructed.   If not, we must test the validUnits() member
-    // funtion explicitly.
+    // constructed.  If not, we must test the validUnits() member function
+    // explicitly.
     try {
-      UnitSystem myus(UnitSystemType().A(rtt_units::A_rad, my_cf));
+      UnitSystem myus(UnitSystemType().A(rtt_units::A_rad, my_cf.data()));
       // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by
       // manually.
       with_dbc = false;
@@ -865,10 +864,10 @@ void test_valid_units(rtt_dsxx::UnitTest &ut) {
     bool with_dbc(true);
     bool found_assert(false);
     // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is
-    // constructed.   If not, we must test the validUnits() member
-    // funtion explicitly.
+    // constructed.  If not, we must test the validUnits() member function
+    // explicitly.
     try {
-      UnitSystem myus(UnitSystemType().Q(rtt_units::Q_mol, my_cf));
+      UnitSystem myus(UnitSystemType().Q(rtt_units::Q_mol, my_cf.data()));
       // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by
       // manually.
       with_dbc = false;
@@ -897,8 +896,7 @@ void test_valid_units(rtt_dsxx::UnitTest &ut) {
   return;
 }
 
-//----------------------------------------------------------------------------//
-
+//------------------------------------------------------------------------------------------------//
 int main(int argc, char *argv[]) {
   rtt_dsxx::ScalarUnitTest ut(argc, argv, rtt_dsxx::release);
   try {
@@ -913,6 +911,6 @@ int main(int argc, char *argv[]) {
   UT_EPILOG(ut);
 }
 
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 // end of tstUnitSystem.cc
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//

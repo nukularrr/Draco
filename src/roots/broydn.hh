@@ -1,4 +1,4 @@
-//----------------------------------*-C++-*-----------------------------------//
+//--------------------------------------------*-C++-*---------------------------------------------//
 /*!
  * \file   roots/broydn.hh
  * \author Kent Budge
@@ -6,7 +6,7 @@
  * \brief  Find a solution of a set of nonlinear equations.
  * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
  *         All rights reserved. */
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 
 #ifndef roots_broydn_hh
 #define roots_broydn_hh
@@ -22,7 +22,7 @@
 #include <numeric>
 
 namespace rtt_roots {
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 /*!
  * \brief Use Broyden's method to solve a set of nonlinear equations.
  *
@@ -75,7 +75,7 @@ void broydn(std::vector<Field> &x, const double /*STPMX*/,
   using namespace rtt_roots;
 
   Check(x.size() < UINT_MAX);
-  const unsigned n = static_cast<unsigned>(x.size());
+  const auto n = static_cast<unsigned>(x.size());
 
   vector<Field> c(n);
   vector<Field> d(n);
@@ -249,7 +249,7 @@ void broydn(std::vector<Field> &x, const double /*STPMX*/,
   }
 }
 
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 /*!
  * \brief Use Broyden's method to solve a set of nonlinear equations.
  *
@@ -314,7 +314,7 @@ void broydn(std::vector<Field> &x, const double /*STPMX*/,
   using namespace rtt_roots;
 
   Check(x.size() < UINT_MAX);
-  const unsigned n = static_cast<unsigned>(x.size());
+  const auto n = static_cast<unsigned>(x.size());
 
   vector<Field> c(n);
   vector<Field> d(n);
@@ -479,6 +479,6 @@ void broydn(std::vector<Field> &x, const double /*STPMX*/,
 
 #endif // roots_broydn_hh
 
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 // end of roots/broydn.hh
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
