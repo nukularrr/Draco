@@ -20,21 +20,41 @@ set( random123_unit_tests
   ${PROJECT_SOURCE_DIR}/ut_aes.cpp
   ${PROJECT_SOURCE_DIR}/ut_ars.c
   ${PROJECT_SOURCE_DIR}/ut_carray.cpp
-  ${PROJECT_SOURCE_DIR}/ut_gsl.c
   ${PROJECT_SOURCE_DIR}/ut_M128.cpp
   ${PROJECT_SOURCE_DIR}/ut_uniform.cpp )
 
-# 2020 SEP - ut_Engine.cpp and kat_* tests updated to be compatible with Random123-1.13.2. They are
-# no longer compatible with version 1.09.
-if( R123_USE_CXX11 AND R123_VERSION VERSION_GREATER "1.09" )
-  list( APPEND random123_unit_tests ${PROJECT_SOURCE_DIR}/ut_Engine.cpp )
+# [2020-08-21 KT] The code in ut_gsl.c is not valid C++.  Because this test is a mix of C and C++,
+# it causes issues. Most compilers are happy to compile this code with C, visual studio is not.
+# When marked as C++, this test fails with:
+#
+# "C:\projects\draco\src\rng\test\ut_gsl.c(62,1): error C2086: 'const gsl_rng_type \
+#    *gsl_rng_cbrng': redefinition"
+#
+# Indeed, reviewing the Random123 file gsl_cbrng.h reveals that that gsl_rng_type is declared twice,
+# first on line 68 and then again on line 125 (with an assignment this time). We can continue
+# building and running this tests on platforms that can processs it (all but MSVC right now).
+if( NOT MSVC )
+   list(APPEND random123_unit_tests ${PROJECT_SOURCE_DIR}/ut_gsl.c )
+endif()
+if( R123_USE_CXX11 )
+   list( APPEND random123_unit_tests ${PROJECT_SOURCE_DIR}/ut_Engine.cpp )
 endif()
 
 # Random123 known-answer tests
-if( R123_VERSION VERSION_GREATER "1.09" )
-  set( random123_known_answer_tests
-    ${PROJECT_SOURCE_DIR}/kat_c.c
-    ${PROJECT_SOURCE_DIR}/kat_cpp.cpp )
+set( random123_known_answer_tests
+   ${PROJECT_SOURCE_DIR}/kat_c.c
+   ${PROJECT_SOURCE_DIR}/kat_cpp.cpp
+)
+
+# Some compilers (esp. MSVC) have trouble with compiling these files as C11 code, so tell cmake
+# to treat them as C++14. ut_gsl.c has a bug that prevents it from compiling as C++, so we omit it
+# from this list.
+if( MSVC )
+  set_source_files_properties(
+     ${PROJECT_SOURCE_DIR}/time_serial.c
+     ${PROJECT_SOURCE_DIR}/ut_ars.c
+     ${PROJECT_SOURCE_DIR}/kat_c.c
+     PROPERTIES LANGUAGE CXX )
 endif()
 
 #--------------------------------------------------------------------------------------------------#
@@ -46,22 +66,20 @@ add_scalar_tests(
   DEPS    "Lib_rng" )
 
 add_scalar_tests(
-  SOURCES    "${random123_unit_tests}"
+   SOURCES    "${random123_unit_tests}"
+   DEPS       "Lib_rng"
+   PASS_REGEX "OK|SUCCESS"
+   FAIL_REGEX "failed;error;Failure" )
+
+add_scalar_tests(
+  SOURCES    "${random123_known_answer_tests}"
   DEPS       "Lib_rng"
-  PASS_REGEX "OK|SUCCESS"
-  FAIL_REGEX "failed;error;Failure" )
-target_include_directories( Ut_rng_ut_uniform_exe PRIVATE
-  $<BUILD_INTERFACE:${rng_SOURCE_DIR}> )
+  PASS_REGEX "PASSED"
+  FAIL_REGEX "FAILED" )
+target_include_directories( Ut_rng_ut_uniform_exe
+  PRIVATE $<BUILD_INTERFACE:${rng_SOURCE_DIR}> )
 
-if( R123_VERSION VERSION_GREATER "1.09" )
-  add_scalar_tests(
-    SOURCES    "${random123_known_answer_tests}"
-    DEPS       "Lib_rng"
-    PASS_REGEX "PASSED"
-    FAIL_REGEX "FAILED" )
-endif()
-
-if( USE_CUDA AND NOT CMAKE_CXX_COMPILER_ID MATCHES XL )
+ if( USE_CUDA AND NOT CMAKE_CXX_COMPILER_ID MATCHES XL )
   set( test_sources_cuda ${PROJECT_SOURCE_DIR}/kat_cuda.cu)
   set( test_deps_cuda "Lib_rng" )
   add_scalar_tests(
