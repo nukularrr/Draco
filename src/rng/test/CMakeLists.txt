@@ -36,7 +36,7 @@ set( random123_unit_tests
 if( NOT MSVC )
   list(APPEND random123_unit_tests ${PROJECT_SOURCE_DIR}/ut_gsl.c )
 endif()
-if( R123_USE_CXX11 )
+if( R123_VERSION VERSION_GREATER 1.09 )
   list( APPEND random123_unit_tests ${PROJECT_SOURCE_DIR}/ut_Engine.cpp )
 endif()
 
