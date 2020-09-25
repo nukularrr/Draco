@@ -34,27 +34,26 @@ set( random123_unit_tests
 # first on line 68 and then again on line 125 (with an assignment this time). We can continue
 # building and running this tests on platforms that can processs it (all but MSVC right now).
 if( NOT MSVC )
-   list(APPEND random123_unit_tests ${PROJECT_SOURCE_DIR}/ut_gsl.c )
+  list(APPEND random123_unit_tests ${PROJECT_SOURCE_DIR}/ut_gsl.c )
 endif()
 if( R123_USE_CXX11 )
-   list( APPEND random123_unit_tests ${PROJECT_SOURCE_DIR}/ut_Engine.cpp )
+  list( APPEND random123_unit_tests ${PROJECT_SOURCE_DIR}/ut_Engine.cpp )
 endif()
 
 # Random123 known-answer tests
 set( random123_known_answer_tests
-   ${PROJECT_SOURCE_DIR}/kat_c.c
-   ${PROJECT_SOURCE_DIR}/kat_cpp.cpp
-)
+  ${PROJECT_SOURCE_DIR}/kat_c.c
+  ${PROJECT_SOURCE_DIR}/kat_cpp.cpp )
 
 # Some compilers (esp. MSVC) have trouble with compiling these files as C11 code, so tell cmake
 # to treat them as C++14. ut_gsl.c has a bug that prevents it from compiling as C++, so we omit it
 # from this list.
 if( MSVC )
   set_source_files_properties(
-     ${PROJECT_SOURCE_DIR}/time_serial.c
-     ${PROJECT_SOURCE_DIR}/ut_ars.c
-     ${PROJECT_SOURCE_DIR}/kat_c.c
-     PROPERTIES LANGUAGE CXX )
+    ${PROJECT_SOURCE_DIR}/time_serial.c
+    ${PROJECT_SOURCE_DIR}/ut_ars.c
+    ${PROJECT_SOURCE_DIR}/kat_c.c
+    PROPERTIES LANGUAGE CXX )
 endif()
 
 #--------------------------------------------------------------------------------------------------#
@@ -66,20 +65,19 @@ add_scalar_tests(
   DEPS    "Lib_rng" )
 
 add_scalar_tests(
-   SOURCES    "${random123_unit_tests}"
-   DEPS       "Lib_rng"
-   PASS_REGEX "OK|SUCCESS"
-   FAIL_REGEX "failed;error;Failure" )
+  SOURCES    "${random123_unit_tests}"
+  DEPS       "Lib_rng"
+  PASS_REGEX "OK|SUCCESS"
+  FAIL_REGEX "failed;error;Failure" )
+target_include_directories( Ut_rng_ut_uniform_exe PRIVATE $<BUILD_INTERFACE:${rng_SOURCE_DIR}> )
 
 add_scalar_tests(
   SOURCES    "${random123_known_answer_tests}"
   DEPS       "Lib_rng"
   PASS_REGEX "PASSED"
   FAIL_REGEX "FAILED" )
-target_include_directories( Ut_rng_ut_uniform_exe
-  PRIVATE $<BUILD_INTERFACE:${rng_SOURCE_DIR}> )
 
- if( USE_CUDA AND NOT CMAKE_CXX_COMPILER_ID MATCHES XL )
+if( USE_CUDA AND NOT CMAKE_CXX_COMPILER_ID MATCHES XL )
   set( test_sources_cuda ${PROJECT_SOURCE_DIR}/kat_cuda.cu)
   set( test_deps_cuda "Lib_rng" )
   add_scalar_tests(
