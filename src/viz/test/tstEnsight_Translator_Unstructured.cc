@@ -1,11 +1,10 @@
-//-----------------------------------*-C++-*----------------------------------//
+//--------------------------------------------*-C++-*---------------------------------------------//
 /*!
  * \file   viz/test/tstEnsight_Translator_Unstructured.cc
  * \author Thomas M. Evans, Ryan T. Wollaeger
  * \date   Wednesday, Oct 03, 2018, 15:27 pm
  * \brief  Ensight_Translator unstructured mesh test.
- * \note   Copyright (C) 2018-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2018-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "c4/ParallelUnitTest.hh"

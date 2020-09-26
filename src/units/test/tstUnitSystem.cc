@@ -2,8 +2,7 @@
 /*!
  * \file   src/units/test/tstUnitSystem.cc
  * \brief  test the UnitSystem class.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved */
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved */
 //------------------------------------------------------------------------------------------------//
 
 #include "ds++/Release.hh"
@@ -653,9 +652,8 @@ void test_valid_units(rtt_dsxx::UnitTest &ut) {
   {
     bool with_dbc(true);
     bool found_assert(false);
-    // If DRACO_DBC_LEVE=7, a rtt_dsxx:assertion will be fired when myus is
-    // constructed.  If not, we must test the validUnits() member function
-    // explicitly.
+    // If DRACO_DBC_LEVE=7, a rtt_dsxx:assertion will be fired when myus is constructed.  If not, we
+    // must test the validUnits() member function explicitly.
     try {
       UnitSystem myus(UnitSystemType().L(rtt_units::L_m, my_cf.data()));
       // If DRACO_DBC_LEVE=0 we will get here so call validUnits by manually.
@@ -690,13 +688,11 @@ void test_valid_units(rtt_dsxx::UnitTest &ut) {
   {
     bool with_dbc(true);
     bool found_assert(false);
-    // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is
-    // constructed.  If not, we must test the validUnits() member function
-    // explicitly.
+    // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is constructed.  If not, we
+    // must test the validUnits() member function explicitly.
     try {
       UnitSystem myus(UnitSystemType().M(rtt_units::M_kg, my_cf.data()));
-      // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by
-      // manually.
+      // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by manually.
       with_dbc = false;
       if (myus.validUnits()) {
         ostringstream msg;
@@ -727,13 +723,11 @@ void test_valid_units(rtt_dsxx::UnitTest &ut) {
   {
     bool with_dbc(true);
     bool found_assert(false);
-    // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is
-    // constructed.  If not, we must test the validUnits() member function
-    // explicitly.
+    // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is constructed.  If not, we
+    // must test the validUnits() member function explicitly.
     try {
       UnitSystem myus(UnitSystemType().t(rtt_units::t_s, my_cf.data()));
-      // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by
-      // manually.
+      // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by manually.
       with_dbc = false;
       if (myus.validUnits()) {
         ostringstream msg;
@@ -761,13 +755,11 @@ void test_valid_units(rtt_dsxx::UnitTest &ut) {
   {
     bool with_dbc(true);
     bool found_assert(false);
-    // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is
-    // constructed.  If not, we must test the validUnits() member function
-    // explicitly.
+    // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is constructed.  If not, we
+    // must test the validUnits() member function explicitly.
     try {
       UnitSystem myus(UnitSystemType().T(rtt_units::T_K, my_cf.data()));
-      // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by
-      // manually.
+      // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by manually.
       with_dbc = false;
       if (myus.validUnits()) {
         ostringstream msg;
@@ -795,13 +787,11 @@ void test_valid_units(rtt_dsxx::UnitTest &ut) {
   {
     bool with_dbc(true);
     bool found_assert(false);
-    // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is
-    // constructed.  If not, we must test the validUnits() member function
-    // explicitly.
+    // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is constructed.  If not, we
+    // must test the validUnits() member function explicitly.
     try {
       UnitSystem myus(UnitSystemType().I(rtt_units::I_amp, my_cf.data()));
-      // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by
-      // manually.
+      // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by manually.
       with_dbc = false;
       if (myus.validUnits()) {
         ostringstream msg;
@@ -829,13 +819,11 @@ void test_valid_units(rtt_dsxx::UnitTest &ut) {
   {
     bool with_dbc(true);
     bool found_assert(false);
-    // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is
-    // constructed.  If not, we must test the validUnits() member function
-    // explicitly.
+    // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is constructed.  If not, we
+    // must test the validUnits() member function explicitly.
     try {
       UnitSystem myus(UnitSystemType().A(rtt_units::A_rad, my_cf.data()));
-      // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by
-      // manually.
+      // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by manually.
       with_dbc = false;
       if (myus.validUnits()) {
         ostringstream msg;
@@ -863,13 +851,11 @@ void test_valid_units(rtt_dsxx::UnitTest &ut) {
   {
     bool with_dbc(true);
     bool found_assert(false);
-    // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is
-    // constructed.  If not, we must test the validUnits() member function
-    // explicitly.
+    // If DRACO_DBC_LEVEL=7 a rtt_dsxx:assertion will be fired when myus is constructed.  If not, we
+    // must test the validUnits() member function explicitly.
     try {
       UnitSystem myus(UnitSystemType().Q(rtt_units::Q_mol, my_cf.data()));
-      // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by
-      // manually.
+      // If DRACO_DBC_LEVEL == 0 we will get here so call validUnits by manually.
       with_dbc = false;
       if (myus.validUnits()) {
         ostringstream msg;

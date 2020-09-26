@@ -4,8 +4,7 @@
  * \author Thomas M. Evans
  * \date   Mon Jan 24 11:12:59 2000
  * \brief  Ensight_Translator test.
- * \note   Copyright (C) 2000-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2000-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "c4/ParallelUnitTest.hh"
@@ -176,16 +175,15 @@ void ensight_dump_test(rtt_dsxx::UnitTest &ut, string prefix, bool const binary,
   if (!rtt_dsxx::soft_equiv(dump_times[0], 0.01))
     ITFAILS;
 
-  // build another ensight translator; this should overwrite the existing
-  // directories
+  // build another ensight translator; this should overwrite the existing directories
   Ensight_Translator translator2(prefix, gd_wpath, vdata_names, cdata_names,
                                  false, geom, binary, decomposed);
 
   translator2.ensight_dump(icycle, time, dt, ipar, iel_type, rgn_index, pt_coor,
                            vrtx_data, cell_data, rgn_data, rgn_name);
 
-  // build another ensight translator from the existing dump times list;
-  // thus we will not overwrite the existing directories
+  // build another ensight translator from the existing dump times list; thus we will not overwrite
+  // the existing directories
 
   Ensight_Translator translator3(prefix, gd_wpath, vdata_names, cdata_names,
                                  false, geom, binary, decomposed);

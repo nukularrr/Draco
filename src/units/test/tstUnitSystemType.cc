@@ -3,8 +3,7 @@
  * \file   units/test/tstUnitSystemType.cc
  * \author Kelly Thompson
  * \date   Wed Oct  8 13:50:19 2003
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "ds++/Release.hh"
@@ -57,8 +56,7 @@ void test_default_ctor(rtt_dsxx::UnitTest &ut) {
     FAILMSG(msg.str());
   }
 
-  // Establish a fundamental unit for the length, mass and Temperature portions
-  // of UnitSystemType...
+  // Establish a fundamental unit for the length, mass and Temperature portions of UnitSystemType...
   ust.L(rtt_units::L_m).M(rtt_units::M_kg).T(rtt_units::T_K);
 
   // Check that the object was updated...

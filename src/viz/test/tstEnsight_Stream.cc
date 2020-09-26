@@ -4,8 +4,7 @@
  * \author Rob Lowrie
  * \date   Fri Nov 12 22:52:46 2004
  * \brief  Test for Ensight_Stream.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "c4/ParallelUnitTest.hh"

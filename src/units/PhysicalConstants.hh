@@ -1,11 +1,9 @@
 //--------------------------------------------*-C++-*---------------------------------------------//
 /*! \file   PhysicalConstants.hh
  *  \author Kelly Thompson
- *  \brief  Provide a single place where physical constants (pi, speed of
- *          light, etc) are defined.
+ *  \brief  Provide a single place where physical constants (pi, speed of light, etc) are defined.
  *  \date   Fri Nov 07 10:04:52 2003
- *  \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *          All rights reserved. */
+ *  \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_units_PhysicalConstants_hh
@@ -21,8 +19,8 @@ namespace rtt_units {
 /*!
  * \class PhysicalConstants
  *
- * \brief A class to define and encapsulate physical and mathematical constants
- *        in the current UnitSystem.
+ * \brief A class to define and encapsulate physical and mathematical constants in the current
+ *        UnitSystem.
  *
  * \sa rtt_units::UnitSystem
  * \sa rtt_units::UnitSystemType
@@ -41,18 +39,17 @@ namespace rtt_units {
  * \endverbatim
  *
  * \example test/tstPhysicalConstants.cc
- * This is the unit regression test for the PhysicalConstants class.  It
- * demonstrates typical usage.
+ * This is the unit regression test for the PhysicalConstants class.  It demonstrates typical usage.
  */
-//==============================================================================
+//================================================================================================//
 
 class PhysicalConstants {
 public:
   // Constructors.
-  //------------------------------------------------------------------------------------------------//
+  //----------------------------------------------------------------------------------------------//
   /*!
-   * \brief Default constructor provides physical constants with SI units (kg,
-   *        m, seconds, degree K, amp, radian, mole).
+   * \brief Default constructor provides physical constants with SI units (kg, m, seconds, degree K,
+   *        amp, radian, mole).
    * \return A PhysicalConstants object.
    */
   constexpr PhysicalConstants()

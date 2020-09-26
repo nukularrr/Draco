@@ -1,11 +1,10 @@
 //--------------------------------------------*-C++-*---------------------------------------------//
 /*! \file   PhysicalConstexprs.hh
  *  \author Ben R. Ryan <brryan@lanl.gov>
- *  \brief  Provide a single place where mathematical and physical constants
- *          are defined in an entirely constexpr fashion.
+ *  \brief  Provide a single place where mathematical and physical constants are defined in an
+ *          entirely constexpr fashion.
  *  \date   2019 Nov 25
- *  \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *          All rights reserved. */
+ *  \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_units_PhysicalConstexprs_hh
@@ -50,18 +49,18 @@ struct CGSH {
   static constexpr double Quantity = 1.;                    // Mole
 };
 
-//==============================================================================
+//================================================================================================//
 /*!
  * \class PhysicalConstexprs
  *
- * \brief A class to define and encapsulate physical and mathematical constants
- *        in a purely constexpr way.
+ * \brief A class to define and encapsulate physical and mathematical constants in a purely
+ *        constexpr way.
  *
  * \example test/tstPhysicalConstexprs.cc
- * This is the unit regression test for the PhysicalConstexprs class.  It
- * demonstrates typical usage.
+ * This is the unit regression test for the PhysicalConstexprs class.  It demonstrates typical
+ * usage.
  */
-//==============================================================================
+//================================================================================================//
 template <typename UNITS> class PhysicalConstexprs {
 public:
 

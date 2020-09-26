@@ -2,8 +2,7 @@
 /*! \file   UnitSystem.cc
  *  \author Kelly Thompson
  *  \date   Thu Oct 24 15:10:32 2003
- *  \note   Copyright (C) 2003-2020 Triad National Security, LLC.
- *          All rights reserved. */
+ *  \note   Copyright (C) 2003-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "UnitSystem.hh"
@@ -38,23 +37,9 @@ bool UnitSystem::validUnits() const {
 
 //------------------------------------------------------------------------------------------------//
 /*!
- * \brief Return a new UnitSystem object whose data has the item-by-item ratio
- *        of two UnitSystem objects.
- */
-// UnitSystem operator/( UnitSystem const & op1, UnitSystem const & op2 )
-// {
-//     return UnitSystem( op1.lengthConversion      / op2.lengthConversion,
-// 		  op1.massConversion        / op2.massConversion,
-// 		  op1.timeConversion        / op2.timeConversion,
-// 		  op1.temperatureConversion / op2.temperatureConversion );
-// }
-
-//------------------------------------------------------------------------------------------------//
-/*!
  * \brief Return true if op1 and op2 are identical.
  *
- * \return true if conversion data members are the same between op1 and
- *         op2. Otherwise return false.
+ * \return true if conversion data members are the same between op1 and op2. Otherwise return false.
  *
  * For example:
  * \verbatim

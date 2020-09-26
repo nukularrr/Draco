@@ -1,11 +1,10 @@
 //--------------------------------------------*-C++-*---------------------------------------------//
 /*! \file   PhysicalConstants.cc
  *  \author Kelly Thompson
- *  \brief  Provide a single place where physical constants (pi, speed of
- *          light, etc) are defined for the local UnitSystem.
+ *  \brief  Provide a single place where physical constants (pi, speed of light, etc) are defined
+ *          for the local UnitSystem.
  *  \date   Mon Nov 10 09:24:55 2003
- *  \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *          All rights reserved. */
+ *  \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "PhysicalConstants.hh"
@@ -17,10 +16,10 @@ namespace rtt_units {
 
 //------------------------------------------------------------------------------------------------//
 /*!
- * \brief Constuctor that creates a set of PhysicalConstants using the
- *        provided rtt_units::UnitSystem.
- * \param[in] u A complete UnitSystem.  PhysicalConstants will be formed and
- *        returned using these units (CGS, SI, etc.)
+ * \brief Constuctor that creates a set of PhysicalConstants using the provided
+ *        rtt_units::UnitSystem.
+ * \param[in] u A complete UnitSystem.  PhysicalConstants will be formed and returned using these
+ *        units (CGS, SI, etc.)
  * \return A PhysicalConstants object.
  */
 PhysicalConstants::PhysicalConstants(UnitSystem const &u)

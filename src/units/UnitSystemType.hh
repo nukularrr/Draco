@@ -1,11 +1,9 @@
 //--------------------------------------------*-C++-*---------------------------------------------//
 /*! \file   UnitSystemType.hh
  *  \author Kelly Thompson
- *  \brief  Aggregates a collection of FundUnits to create a complete
- *          UnitSystemType.
+ *  \brief  Aggregates a collection of FundUnits to create a complete UnitSystemType.
  *  \date   Fri Oct 24 15:04:41 2003
- *  \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *          All rights reserved. */
+ *  \note   Copyright (C) 2016-2020 Triad National Security, LLC.,  All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_units_UnitSystemType_hh
@@ -19,9 +17,8 @@ namespace rtt_units {
 /*!
  * \class UnitSystemType
  *
- * \brief Aggregates a collection of FundUnits to create a complete
- *        UnitSystemType.  Also provides a tool for constructing UnitSystems
- *        on the fly.
+ * \brief Aggregates a collection of FundUnits to create a complete UnitSystemType.  Also provides a
+ *        tool for constructing UnitSystems on the fly.
  *
  * \sa UnitSystem
  * \sa test/tstUnitSystemType.cc

@@ -4,8 +4,7 @@
  * \author Thomas M. Evans
  * \date   Fri Jan 21 16:36:10 2000
  * \brief  Ensight_Translator implementation file (non-templated code).
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "Ensight_Translator.hh"
@@ -35,8 +34,8 @@ using std::string;
  *
  * \param icycle Cycle number for this dump.
  * \param time   Time value for this dump.
- * \param dt     Timestep at this dump.  This parameter is only used for
- *               diagnotics and is not placed in the Ensight dump.
+ * \param dt Timestep at this dump.  This parameter is only used for diagnotics and is not placed in
+ *           the Ensight dump.
  */
 void Ensight_Translator::open(const int icycle, const double time,
                               const double dt) {
@@ -183,16 +182,16 @@ void Ensight_Translator::create_filenames(const std_string &prefix) {
 /*!
  * \brief Common initializer for constructors.
  *
- * \param[in] graphics_continue If true, use existing ensight directory. If
- *               false, create or wipe out the existing directory.
+ * \param[in] graphics_continue If true, use existing ensight directory. If false, create or wipe
+ *               out the existing directory.
  */
 void Ensight_Translator::initialize(const bool graphics_continue) {
   using std::strerror;
 
   d_num_cell_types = 16;
 
-  // Assign values to d_cell_names. These are the official "Ensight" names that
-  // must be used in the Ensight file.
+  // Assign values to d_cell_names. These are the official "Ensight" names that must be used in the
+  // Ensight file.
   d_cell_names = {"point",   "bar2",     "bar3",      "tria3",
                   "tria6",   "quad4",    "quad8",     "tetra4",
                   "tetra10", "pyramid5", "pyramid13", "hexa8",
@@ -203,8 +202,7 @@ void Ensight_Translator::initialize(const bool graphics_continue) {
   d_vrtx_cnt = {1, 2, 3, 3, 6, 4, 8, 4, 10, 5, 13, 8, 20, 6, 15, -1};
   Check(d_vrtx_cnt.size() == d_num_cell_types);
 
-  // Assign values to d_cell_type_index. The user will use these to identify
-  // cell types.
+  // Assign values to d_cell_type_index. The user will use these to identify cell types.
   d_cell_type_index = {point,
                        two_node_bar,
                        three_node_bar,
@@ -249,15 +247,14 @@ void Ensight_Translator::initialize(const bool graphics_continue) {
 
     // build the ensight directory if this is not a continuation
     if (!graphics_continue) {
-      // We have guaranteed that our prefix directory exists at this point.  Now,
-      // wipe out files that we might have created in there...
+      // We have guaranteed that our prefix directory exists at this point.  Now, wipe out files
+      // that we might have created in there...
       if (!stat_ret) {
         rtt_dsxx::draco_remove_dir(d_prefix);
         rtt_dsxx::draco_mkdir(d_prefix);
       }
     } else {
-      // We were asked for a continuation.  Complain if we don't have a
-      // case file.
+      // We were asked for a continuation.  Complain if we don't have a case file.
       if (stat_ret) {
         std::ostringstream dir_error;
         dir_error << "EnSight directory \"" << d_prefix
@@ -267,11 +264,10 @@ void Ensight_Translator::initialize(const bool graphics_continue) {
     }
   }
 
-  // Check to make sure the variable names are of acceptable length and contain
-  // no forbidden characters. Ensight prohibits the characters "( ) [ ] + - @ !
-  // # * ^ $ / space", and requires the names be 19 characters or
-  // less. Moreover, since these names will be used to label output and to
-  // create directories, the names should also be unique.
+  // Check to make sure the variable names are of acceptable length and contain no forbidden
+  // characters. Ensight prohibits the characters "( ) [ ] + - @ !  # * ^ $ / space", and requires
+  // the names be 19 characters or less. Moreover, since these names will be used to label output
+  // and to create directories, the names should also be unique.
 
   size_t nvdata = d_vdata_names.size();
   size_t ncdata = d_cdata_names.size();
@@ -347,8 +343,7 @@ void Ensight_Translator::initialize(const bool graphics_continue) {
   for (size_t i = 0; i < d_cdata_names.size(); i++) {
     d_cdata_dirs[i] = d_prefix + rtt_dsxx::dirSep + d_cdata_names[i];
 
-    // if this is not a continuation make the directory (Mat_Erg, Mat_Temp,
-    // Rad_Temp, etc.)
+    // if this is not a continuation make the directory (Mat_Erg, Mat_Temp, Rad_Temp, etc.)
     if (!graphics_continue && rtt_c4::node() == 0)
       rtt_dsxx::draco_mkdir(d_cdata_dirs[i]);
   }
