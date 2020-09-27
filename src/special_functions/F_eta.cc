@@ -70,8 +70,7 @@ double F_eta(double const eta, double const gamma) {
       double const term = 0.75 * sqrt(PI) * e * fac * si / factorial(i);
       if (fabs(term) < fabs(sum) * std::numeric_limits<double>::epsilon())
         break;
-      double const dterm =
-          0.75 * sqrt(PI) * fac * (de * si + e * dsi) / factorial(i);
+      double const dterm = 0.75 * sqrt(PI) * fac * (de * si + e * dsi) / factorial(i);
       sum += term;
       dsum += dterm;
       fac *= 0.25 * gamma * (3 - 2 * i) * (2.5 + i);
@@ -97,25 +96,21 @@ double F_eta(double const eta, double const gamma) {
       if (x < 0.07) {
         n1 = 0.2 * x * x * x * x * x *
              (1 - (5. / 14.) * x * x + (5. / 24.) * x * x * x * x -
-              (25. / 176.) * x * x * x * x * x * x +
-              (35. / 1024.) * x * x * x * x * x * x * x * x);
+              (25. / 176.) * x * x * x * x * x * x + (35. / 1024.) * x * x * x * x * x * x * x * x);
         dn1 = dx * (5 * n1 / x + 0.2 * x * x * x * x * x * x *
-                                     (-5. / 7. + (5. / 6.) * x * x -
-                                      (75. / 88.) * x * x * x * x +
+                                     (-5. / 7. + (5. / 6.) * x * x - (75. / 88.) * x * x * x * x +
                                       (35. / 128.) * x * x * x * x * x * x));
       } else {
         n1 = (x * (2 * x * x - 3) * rad + 3 * log(rad + x)) / 8;
-        dn1 = (dx * (2 * x * x - 3) * rad + 4 * x * x * dx * rad +
-               x * (2 * x * x - 3) * drad + 3 * (drad + dx) / (rad + x)) /
+        dn1 = (dx * (2 * x * x - 3) * rad + 4 * x * x * dx * rad + x * (2 * x * x - 3) * drad +
+               3 * (drad + dx) / (rad + x)) /
               8;
       }
-      double const n3 = 7 * square(square(PI * gamma)) * (2 * x * x - 1) * rad /
-                        (120 * x * x * x);
+      double const n3 = 7 * square(square(PI * gamma)) * (2 * x * x - 1) * rad / (120 * x * x * x);
       double const dn3 = 7 * square(square(PI * gamma / x)) * dx / (40 * rad);
       if (fabs(n3 / n1) < TOL) {
         // Sommerfeld expansion is sufficiently accurate
-        double const dn2 =
-            square(PI * gamma) * (2 * x * x + 1) * dx / (2 * rad);
+        double const dn2 = square(PI * gamma) * (2 * x * x + 1) * dx / (2 * rad);
         return (dn1 + dn2 + dn3) / (2 * gamma * gamma * sqrt(2 * gamma));
       } else {
         Insist(false, std::string("Please add a unit test for this case and ") +

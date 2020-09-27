@@ -110,8 +110,8 @@ static double constexpr EV2K = electronChargeSI / boltzmannSI;
  * \f]
  */
 static double constexpr stefanBoltzmannSI =
-    2.0 * PI * PI * PI * PI * PI * boltzmannSI * boltzmannSI * boltzmannSI *
-    boltzmannSI / (15.0 * planckSI * planckSI * planckSI * cLightSI * cLightSI);
+    2.0 * PI * PI * PI * PI * PI * boltzmannSI * boltzmannSI * boltzmannSI * boltzmannSI /
+    (15.0 * planckSI * planckSI * planckSI * cLightSI * cLightSI);
 
 //! [F] Faraday constant == Na * e
 static double constexpr faradayConstantSI = AVOGADRO * electronChargeSI;

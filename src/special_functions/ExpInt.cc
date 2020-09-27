@@ -33,8 +33,7 @@ namespace rtt_sf {
 double En(unsigned const n, double const x) {
   using std::numeric_limits;
 
-  Insist(!(x < 0.0 || (std::abs(x) < std::numeric_limits<double>::min() &&
-                       (n == 0 || n == 1))),
+  Insist(!(x < 0.0 || (std::abs(x) < std::numeric_limits<double>::min() && (n == 0 || n == 1))),
          "bad arguments in En");
 
   const int MAXIT = 100;

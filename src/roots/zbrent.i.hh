@@ -49,8 +49,7 @@ namespace rtt_roots {
  *       near its zero, due to roundoff.
  */
 template <typename Function, typename Real>
-Real zbrent(Function func, Real x1, Real x2, unsigned itmax, Real &tol,
-            Real &ftol) {
+Real zbrent(Function func, Real x1, Real x2, unsigned itmax, Real &tol, Real &ftol) {
   using std::min;
   using std::numeric_limits;
 
@@ -80,8 +79,7 @@ Real zbrent(Function func, Real x1, Real x2, unsigned itmax, Real &tol,
     }
 
     Real absb = (b > 0. ? b : -b);
-    Real const tol1 =
-        2.0 * numeric_limits<double>::epsilon() * absb + 0.5 * tol;
+    Real const tol1 = 2.0 * numeric_limits<double>::epsilon() * absb + 0.5 * tol;
 
     xm = 0.5 * (c - b);
     Real axm = (xm > 0. ? xm : -xm);

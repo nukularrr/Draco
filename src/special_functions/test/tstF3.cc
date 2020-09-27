@@ -28,9 +28,7 @@ void tstF3(UnitTest &ut) {
     ut.failure("NOT correct F3 for -20.0");
   }
   f3 = F3(1000.0);
-  if (soft_equiv(f3,
-                 pow(1000.0, 4.0) / 4.0 + PI * PI * 3 * pow(1000.0, 2.0) / 6.0,
-                 1.0e-10)) {
+  if (soft_equiv(f3, pow(1000.0, 4.0) / 4.0 + PI * PI * 3 * pow(1000.0, 2.0) / 6.0, 1.0e-10)) {
     ut.passes("correct F3 for 1000.0");
   } else {
     ut.failure("NOT correct F3 for 1000.0");

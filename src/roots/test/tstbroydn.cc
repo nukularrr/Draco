@@ -21,8 +21,7 @@ using namespace rtt_roots;
 
 //------------------------------------------------------------------------------------------------//
 //! Functional form
-static void broydn_test_function(const vector<double> &x,
-                                 vector<double> &fvec) {
+static void broydn_test_function(const vector<double> &x, vector<double> &fvec) {
   fvec.resize(2);
   fvec[0] = cos(x[0] + x[1]);
   fvec[1] = sin(x[0] - x[1]);
@@ -36,8 +35,7 @@ public:
     broydn_test_function(x, fvec);
   }
 
-  void operator()(const vector<double> &x, vector<double> &fvec,
-                  vector<double> &dfvec) const {
+  void operator()(const vector<double> &x, vector<double> &fvec, vector<double> &dfvec) const {
     broydn_test_function(x, fvec);
     dfvec.resize(4);
     dfvec[0 + 2 * 0] = -fvec[1];

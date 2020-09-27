@@ -40,8 +40,8 @@ namespace rtt_roots {
  */
 
 template <class Field, class Function_N_to_N>
-void fdjac(const std::vector<Field> &x, const std::vector<Field> &fvec,
-           std::vector<Field> &df, const Function_N_to_N &vecfunc) {
+void fdjac(const std::vector<Field> &x, const std::vector<Field> &fvec, std::vector<Field> &df,
+           const Function_N_to_N &vecfunc) {
   Require(x.size() == fvec.size());
 
   using std::abs;

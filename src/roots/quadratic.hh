@@ -36,8 +36,7 @@ namespace rtt_roots {
  */
 
 template <class Field>
-void quadratic(Field const &a, Field const &b, Field const &c, Field &r1,
-               Field &r2) {
+void quadratic(Field const &a, Field const &b, Field const &c, Field &r1, Field &r2) {
   using namespace std;
 
   Field det = sqrt(b * b - 4. * a * c);

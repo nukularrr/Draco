@@ -36,12 +36,8 @@ public:
 //------------------------------------------------------------------------------------------------//
 // Use soft_equiv for floating-point types, but not for integral types.
 
-bool compare_vdf_field(double const &v1, double const &v2) {
-  return rtt_dsxx::soft_equiv(v1, v2);
-}
-bool compare_vdf_field(float const &v1, float const &v2) {
-  return rtt_dsxx::soft_equiv(v1, v2);
-}
+bool compare_vdf_field(double const &v1, double const &v2) { return rtt_dsxx::soft_equiv(v1, v2); }
+bool compare_vdf_field(float const &v1, float const &v2) { return rtt_dsxx::soft_equiv(v1, v2); }
 bool compare_vdf_field(int const &v1, int const &v2) { return v1 == v2; }
 
 //------------------------------------------------------------------------------------------------//

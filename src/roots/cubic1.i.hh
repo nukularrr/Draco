@@ -18,8 +18,7 @@
 namespace rtt_roots {
 
 //------------------------------------------------------------------------------------------------//
-template <class Field>
-Field cubic1(Field const &a, Field const &b, Field const &c) {
+template <class Field> Field cubic1(Field const &a, Field const &b, Field const &c) {
   using rtt_dsxx::value;
 
   double const THIRD = 1.0 / 3.0;

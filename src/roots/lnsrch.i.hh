@@ -46,11 +46,9 @@ namespace rtt_roots {
  * \param min_lambda Value of lambda (line search parameter) at which to give up
  */
 template <class RandomContainer, class Function_N_to_N>
-void lnsrch(RandomContainer const &xold, double const fold,
-            RandomContainer const &g, RandomContainer &p, RandomContainer &x,
-            double &f, bool &check, RandomContainer &fvec,
-            Function_N_to_N const &vecfunc, double const ALF,
-            double const min_lambda) {
+void lnsrch(RandomContainer const &xold, double const fold, RandomContainer const &g,
+            RandomContainer &p, RandomContainer &x, double &f, bool &check, RandomContainer &fvec,
+            Function_N_to_N const &vecfunc, double const ALF, double const min_lambda) {
   Require(g.size() == xold.size());
   Require(p.size() == xold.size());
 
@@ -58,8 +56,7 @@ void lnsrch(RandomContainer const &xold, double const fold,
   using rtt_dsxx::square;
   using rtt_linear::fnorm;
 
-  double const eps =
-      std::numeric_limits<typename RandomContainer::value_type>::epsilon();
+  double const eps = std::numeric_limits<typename RandomContainer::value_type>::epsilon();
   const size_t n = xold.size();
 
   x.resize(n);
@@ -90,8 +87,7 @@ void lnsrch(RandomContainer const &xold, double const fold,
     }
     try {
       f = fnorm(x, fvec, vecfunc);
-      if (ALF < 0.0 || (f < fold + ALF * lambda * slope) ||
-          (fold > 0 && f <= 0.5 * fold)) {
+      if (ALF < 0.0 || (f < fold + ALF * lambda * slope) || (fold > 0 && f <= 0.5 * fold)) {
         return;
         // Good enough
       } else if (rtt_dsxx::soft_equiv(f, fold, eps)) {
@@ -116,14 +112,12 @@ void lnsrch(RandomContainer const &xold, double const fold,
           double x2 = f2 - slope * lambda_2 - fold;
           double rden = 1 / (lambda_1 - lambda_2);
           double a = rden * (x1 / square(lambda_1) - x2 / square(lambda_2));
-          double b = rden * (-lambda_2 * x1 / square(lambda_1) +
-                             lambda_1 * x2 / square(lambda_2));
+          double b = rden * (-lambda_2 * x1 / square(lambda_1) + lambda_1 * x2 / square(lambda_2));
           double det = b * b - 3 * a * slope;
           if (det < 0)
             lambda = 0.5 * lambda;
           else
-            lambda =
-                min(0.5 * lambda, max(0.1 * lambda, (sqrt(det) - b) / (3 * a)));
+            lambda = min(0.5 * lambda, max(0.1 * lambda, (sqrt(det) - b) / (3 * a)));
         }
       }
     } catch (...) {

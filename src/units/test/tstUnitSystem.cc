@@ -49,8 +49,7 @@ void test_ctor(rtt_dsxx::UnitTest &ut) {
     } else {
       ostringstream msg;
       msg << "Unit label for X4 UnitSystem is incorrect." << endl
-          << "\tThe value returned was " << uX4.Lname() << " != " << expValS
-          << endl;
+          << "\tThe value returned was " << uX4.Lname() << " != " << expValS << endl;
       FAILMSG(msg.str());
     }
   }
@@ -82,8 +81,7 @@ void test_ctor(rtt_dsxx::UnitTest &ut) {
     } else {
       ostringstream msg;
       msg << "Unit label for SI UnitSystem is incorrect." << endl
-          << "\tThe value returned was " << uSI.Mname() << " != " << expValS
-          << endl;
+          << "\tThe value returned was " << uSI.Mname() << " != " << expValS << endl;
       FAILMSG(msg.str());
     }
   }
@@ -114,10 +112,8 @@ void test_def_ctor(rtt_dsxx::UnitTest &ut) {
       PASSMSG(msg.str());
     } else {
       ostringstream msg;
-      msg << "Time Conversion Value for Default UnitSystem is incorrect."
-          << endl
-          << "\tThe value returned was " << uDef.t() << " != " << expVal
-          << endl;
+      msg << "Time Conversion Value for Default UnitSystem is incorrect." << endl
+          << "\tThe value returned was " << uDef.t() << " != " << expVal << endl;
       FAILMSG(msg.str());
     }
 
@@ -130,8 +126,7 @@ void test_def_ctor(rtt_dsxx::UnitTest &ut) {
     } else {
       ostringstream msg;
       msg << "Time Unit label for Default UnitSystem is incorrect." << endl
-          << "\tThe value returned was " << uDef.tname() << " != " << expValS
-          << endl;
+          << "\tThe value returned was " << uDef.tname() << " != " << expValS << endl;
       FAILMSG(msg.str());
     }
 
@@ -141,15 +136,12 @@ void test_def_ctor(rtt_dsxx::UnitTest &ut) {
     expVal = uSI.T();
     if (soft_equiv(uDef.T(), expVal)) {
       ostringstream msg;
-      msg << "Temperature Conversion Value for Default UnitSystem is correct."
-          << endl;
+      msg << "Temperature Conversion Value for Default UnitSystem is correct." << endl;
       PASSMSG(msg.str());
     } else {
       ostringstream msg;
-      msg << "Temperature Conversion Value for Default UnitSystem is incorrect."
-          << endl
-          << "\tThe value returned was " << uDef.T() << " != " << expVal
-          << endl;
+      msg << "Temperature Conversion Value for Default UnitSystem is incorrect." << endl
+          << "\tThe value returned was " << uDef.T() << " != " << expVal << endl;
       FAILMSG(msg.str());
     }
 
@@ -157,15 +149,12 @@ void test_def_ctor(rtt_dsxx::UnitTest &ut) {
     expValS = uSI.Tname();
     if (uDef.Tname() == expValS) {
       ostringstream msg;
-      msg << "Temperature Unit label for Default UnitSystem is correct."
-          << endl;
+      msg << "Temperature Unit label for Default UnitSystem is correct." << endl;
       PASSMSG(msg.str());
     } else {
       ostringstream msg;
-      msg << "Temperature Unit label for Default UnitSystem is incorrect."
-          << endl
-          << "\tThe value returned was " << uDef.Tname() << " != " << expValS
-          << endl;
+      msg << "Temperature Unit label for Default UnitSystem is incorrect." << endl
+          << "\tThe value returned was " << uDef.Tname() << " != " << expValS << endl;
       FAILMSG(msg.str());
     }
   }
@@ -183,10 +172,7 @@ void test_more_accessors(rtt_dsxx::UnitTest &ut) {
   using std::string;
 
   // Create a custom UnitSystem
-  UnitSystem myus(UnitSystemType()
-                      .I(rtt_units::I_amp)
-                      .A(rtt_units::A_deg)
-                      .Q(rtt_units::Q_mol));
+  UnitSystem myus(UnitSystemType().I(rtt_units::I_amp).A(rtt_units::A_deg).Q(rtt_units::Q_mol));
 
   // Test the electric current conversion factor.
   double expVal(1.0);
@@ -214,8 +200,7 @@ void test_more_accessors(rtt_dsxx::UnitTest &ut) {
   } else {
     ostringstream msg;
     msg << "Electric Current Unit label for UnitSystem is incorrect." << endl
-        << "\tThe value returned was " << myus.Iname() << " != " << expValS
-        << endl;
+        << "\tThe value returned was " << myus.Iname() << " != " << expValS << endl;
     FAILMSG(msg.str());
   }
 
@@ -243,8 +228,7 @@ void test_more_accessors(rtt_dsxx::UnitTest &ut) {
   } else {
     ostringstream msg;
     msg << "Angle Unit label for UnitSystem is incorrect." << endl
-        << "\tThe value returned was " << myus.Aname() << " != " << expValS
-        << endl;
+        << "\tThe value returned was " << myus.Aname() << " != " << expValS << endl;
     FAILMSG(msg.str());
   }
 
@@ -254,13 +238,11 @@ void test_more_accessors(rtt_dsxx::UnitTest &ut) {
   expVal = 1.0;
   if (soft_equiv(myus.Q(), expVal)) {
     ostringstream msg;
-    msg << "Quantity Conversion Value for Default UnitSystem is correct."
-        << endl;
+    msg << "Quantity Conversion Value for Default UnitSystem is correct." << endl;
     PASSMSG(msg.str());
   } else {
     ostringstream msg;
-    msg << "Quantity Conversion Value for Default UnitSystem is incorrect."
-        << endl
+    msg << "Quantity Conversion Value for Default UnitSystem is incorrect." << endl
         << "\tThe value returned was " << myus.Q() << " != " << expVal << endl;
     FAILMSG(msg.str());
   }
@@ -274,8 +256,7 @@ void test_more_accessors(rtt_dsxx::UnitTest &ut) {
   } else {
     ostringstream msg;
     msg << "Quantity Unit label for UnitSystem is incorrect." << endl
-        << "\tThe value returned was " << myus.Qname() << " != " << expValS
-        << endl;
+        << "\tThe value returned was " << myus.Qname() << " != " << expValS << endl;
     FAILMSG(msg.str());
   }
 
@@ -338,8 +319,8 @@ void logic_test(rtt_dsxx::UnitTest &ut) {
       PASSMSG(msg.str());
     } else {
       ostringstream msg;
-      msg << "Length conversion failed. Found " << myL << " " << uX4.Lname()
-          << " = " << myLsi << " " << si.Lname() << endl;
+      msg << "Length conversion failed. Found " << myL << " " << uX4.Lname() << " = " << myLsi
+          << " " << si.Lname() << endl;
       FAILMSG(msg.str());
     }
   }
@@ -354,8 +335,8 @@ void logic_test(rtt_dsxx::UnitTest &ut) {
       PASSMSG(msg.str());
     } else {
       ostringstream msg;
-      msg << "Mass conversion failed. Found " << myM << " " << uX4.Mname()
-          << " = " << myMsi << " " << si.Mname() << endl;
+      msg << "Mass conversion failed. Found " << myM << " " << uX4.Mname() << " = " << myMsi << " "
+          << si.Mname() << endl;
       FAILMSG(msg.str());
     }
   }
@@ -370,9 +351,8 @@ void logic_test(rtt_dsxx::UnitTest &ut) {
       PASSMSG(msg.str());
     } else {
       ostringstream msg;
-      msg << "Velocity conversion failed. Found " << myV << " " << uX4.Lname()
-          << "/" << uX4.tname() << " = " << myVsi << " " << si.Lname() << "/"
-          << si.tname() << endl;
+      msg << "Velocity conversion failed. Found " << myV << " " << uX4.Lname() << "/" << uX4.tname()
+          << " = " << myVsi << " " << si.Lname() << "/" << si.tname() << endl;
       FAILMSG(msg.str());
     }
   }
@@ -387,9 +367,9 @@ void logic_test(rtt_dsxx::UnitTest &ut) {
       PASSMSG(msg.str());
     } else {
       ostringstream msg;
-      msg << "Acceleration conversion failed. Found " << mya << " "
-          << uX4.Lname() << "/" << uX4.tname() << "^2 = " << myasi << " "
-          << si.Lname() << "/" << si.tname() << "^2" << endl;
+      msg << "Acceleration conversion failed. Found " << mya << " " << uX4.Lname() << "/"
+          << uX4.tname() << "^2 = " << myasi << " " << si.Lname() << "/" << si.tname() << "^2"
+          << endl;
       FAILMSG(msg.str());
     }
   }
@@ -404,10 +384,9 @@ void logic_test(rtt_dsxx::UnitTest &ut) {
       PASSMSG(msg.str());
     } else {
       ostringstream msg;
-      msg << "Force conversion failed. Found " << myF << " " << uX4.Mname()
-          << "*" << uX4.Lname() << "/" << uX4.tname() << "^2 = " << myFsi << " "
-          << si.Mname() << "*" << si.Lname() << "/" << si.tname() << "^2"
-          << endl;
+      msg << "Force conversion failed. Found " << myF << " " << uX4.Mname() << "*" << uX4.Lname()
+          << "/" << uX4.tname() << "^2 = " << myFsi << " " << si.Mname() << "*" << si.Lname() << "/"
+          << si.tname() << "^2" << endl;
       FAILMSG(msg.str());
     }
   }
@@ -422,10 +401,9 @@ void logic_test(rtt_dsxx::UnitTest &ut) {
       PASSMSG(msg.str());
     } else {
       ostringstream msg;
-      msg << "Energy conversion failed. Found " << myE << " " << uX4.Mname()
-          << "*" << uX4.Lname() << "^2/" << uX4.tname() << "^2 = " << myEsi
-          << " " << si.Mname() << "*" << si.Lname() << "^2/" << si.tname()
-          << "^2" << endl;
+      msg << "Energy conversion failed. Found " << myE << " " << uX4.Mname() << "*" << uX4.Lname()
+          << "^2/" << uX4.tname() << "^2 = " << myEsi << " " << si.Mname() << "*" << si.Lname()
+          << "^2/" << si.tname() << "^2" << endl;
       FAILMSG(msg.str());
     }
   }
@@ -440,10 +418,9 @@ void logic_test(rtt_dsxx::UnitTest &ut) {
       PASSMSG(msg.str());
     } else {
       ostringstream msg;
-      msg << "Power conversion failed. Found " << myP << " " << uX4.Mname()
-          << "*" << uX4.Lname() << "^2/" << uX4.tname() << "^3 = " << myPsi
-          << " " << si.Mname() << "*" << si.Lname() << "^2/" << si.tname()
-          << "^3" << endl;
+      msg << "Power conversion failed. Found " << myP << " " << uX4.Mname() << "*" << uX4.Lname()
+          << "^2/" << uX4.tname() << "^3 = " << myPsi << " " << si.Mname() << "*" << si.Lname()
+          << "^2/" << si.tname() << "^3" << endl;
       FAILMSG(msg.str());
     }
   }
@@ -515,10 +492,7 @@ void test_eq_op(rtt_dsxx::UnitTest &ut) {
 
   // More thorough branch coverage for equality operator.
   {
-    UnitSystem u1(UnitSystemType()
-                      .L(rtt_units::L_m)
-                      .M(rtt_units::M_kg)
-                      .t(rtt_units::t_s));
+    UnitSystem u1(UnitSystemType().L(rtt_units::L_m).M(rtt_units::M_kg).t(rtt_units::t_s));
     if (si == u1) {
       ostringstream msg;
       msg << "Equality operator failed for T. " << endl;
@@ -531,11 +505,8 @@ void test_eq_op(rtt_dsxx::UnitTest &ut) {
   }
   // More thorough branch coverage for equality operator.
   {
-    UnitSystem u1(UnitSystemType()
-                      .L(rtt_units::L_m)
-                      .M(rtt_units::M_kg)
-                      .t(rtt_units::t_s)
-                      .T(rtt_units::T_K));
+    UnitSystem u1(
+        UnitSystemType().L(rtt_units::L_m).M(rtt_units::M_kg).t(rtt_units::t_s).T(rtt_units::T_K));
     if (si == u1) {
       ostringstream msg;
       msg << "Equality operator failed for I." << endl;

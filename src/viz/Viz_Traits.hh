@@ -47,9 +47,7 @@ public:
   }
 
   //! Overloaded operator().
-  typename FT::value_type operator()(size_t i, size_t j) const {
-    return field(i, j);
-  }
+  typename FT::value_type operator()(size_t i, size_t j) const { return field(i, j); }
 
   //! Row size accessor.
   size_t nrows() const { return field.nrows(); }

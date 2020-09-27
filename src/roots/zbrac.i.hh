@@ -40,8 +40,7 @@ namespace rtt_roots {
  * throwing std::domain_error, then the interval <code>[x1,x2]</code> contains at least one root or
  * singularity of the function.
  */
-template <typename Function, typename Real>
-void zbrac(Function func, Real &x1, Real &x2) {
+template <typename Function, typename Real> void zbrac(Function func, Real &x1, Real &x2) {
   Require(x2 > x1);
 
   using namespace std;
@@ -98,8 +97,7 @@ void zbrac(Function func, Real &x1, Real &x2) {
     } else {
       Real x0 = x1 - 0.5 * scale * (x2 - x1);
       Real x3 = x2 + scale * (x2 - x1);
-      if (rtt_dsxx::soft_equiv(x0, x1, eps) ||
-          rtt_dsxx::soft_equiv(x2, x3, eps)) {
+      if (rtt_dsxx::soft_equiv(x0, x1, eps) || rtt_dsxx::soft_equiv(x2, x3, eps)) {
         throw std::domain_error("zbrac: "
                                 "could not find search interval");
       }

@@ -88,8 +88,7 @@ void tstE0(rtt_dsxx::UnitTest &ut) {
 
   std::ostringstream msg;
   if (soft_equiv(val, expVal)) {
-    msg << "E_" << n << "(" << x << ") returned the expected value, " << expVal
-        << ".";
+    msg << "E_" << n << "(" << x << ") returned the expected value, " << expVal << ".";
     ut.passes(msg.str());
   } else {
     msg << "E_" << n << "(" << x << ") did NOT return the expected value.\n"
@@ -108,8 +107,7 @@ void tstE3_0(rtt_dsxx::UnitTest &ut) {
 
   std::ostringstream msg;
   if (soft_equiv(val, expVal)) {
-    msg << "E_" << n << "(" << x << ") returned the expected value, " << expVal
-        << ".";
+    msg << "E_" << n << "(" << x << ") returned the expected value, " << expVal << ".";
     ut.passes(msg.str());
   } else {
     msg << "E_" << n << "(" << x << ") did NOT return the expected value.\n"
@@ -128,8 +126,7 @@ void tstE4_low(rtt_dsxx::UnitTest &ut) {
 
   std::ostringstream msg;
   if (soft_equiv(val, expVal)) {
-    msg << "E_" << n << "(" << x << ") returned the expected value, " << expVal
-        << ".";
+    msg << "E_" << n << "(" << x << ") returned the expected value, " << expVal << ".";
     ut.passes(msg.str());
   } else {
     msg << "E_" << n << "(" << x << ") did NOT return the expected value.\n"
@@ -148,8 +145,7 @@ void tstE1_high(rtt_dsxx::UnitTest &ut) {
 
   std::ostringstream msg;
   if (soft_equiv(val, expVal)) {
-    msg << "E_" << n << "(" << x << ") returned the expected value, " << expVal
-        << ".";
+    msg << "E_" << n << "(" << x << ") returned the expected value, " << expVal << ".";
     ut.passes(msg.str());
   } else {
     msg << "E_" << n << "(" << x << ") did NOT return the expected value.\n"

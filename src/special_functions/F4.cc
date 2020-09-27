@@ -43,8 +43,7 @@ double F4(double const eta) {
     double const eta5 = eta * eta4;
     //        double const eta6=eta*eta5;
     if (eta <= 30.) {
-      f4 = (0.2 * eta5 + 6.5797 * eta3 + 45.4576 * eta) /
-           (1. - exp(-1.9484 * eta));
+      f4 = (0.2 * eta5 + 6.5797 * eta3 + 45.4576 * eta) / (1. - exp(-1.9484 * eta));
     } else {
       f4 = 0.2 * eta5 + 6.5797 * eta3 + 45.4576 * eta;
     }

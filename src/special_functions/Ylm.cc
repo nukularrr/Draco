@@ -87,8 +87,7 @@ double cPlk(unsigned const l, unsigned const k, double const mu) {
  * \pre \f$ k \ge 0 \f$
  * \pre \f$ \mu \in [-1, 1] \f$
  */
-double cPlkGalerkin(unsigned const l, unsigned const k, double const mu,
-                    double const sumwt) {
+double cPlkGalerkin(unsigned const l, unsigned const k, double const mu, double const sumwt) {
   using std::sqrt;
 
   Require(k <= l);
@@ -128,8 +127,7 @@ double cPlkGalerkin(unsigned const l, unsigned const k, double const mu,
  *  \sum\limits_m{w_m} \ne 4\pi \f$, because this package lives below quadrature.  This adjustment
  *  will need to be done if the quadrature packages uses Ylm.
  */
-double normalizedYlk(unsigned const l, int const k, double const theta,
-                     double const phi) {
+double normalizedYlk(unsigned const l, int const k, double const theta, double const phi) {
   int const absk(std::abs(k));
   double const mu(std::cos(theta));
 
@@ -182,8 +180,7 @@ double normalizedYlk(unsigned const l, int const k, double const theta,
  *     \sum\limits_m{w_m} \ne 4\pi \f$, because this package lives below quadrature.  This
  *     adjustment will need to be done if the quadrature packages uses Ylm.
  */
-double realYlk(unsigned const l, int const k, double const theta,
-               double const phi) {
+double realYlk(unsigned const l, int const k, double const theta, double const phi) {
   int const absk(std::abs(k));
   double const mu(std::cos(theta));
   double sign(1.0);
@@ -226,8 +223,7 @@ double realYlk(unsigned const l, int const k, double const theta,
  *     \sum\limits_m{w_m} \ne 4\pi \f$, because this package lives below quadrature.  This
  *     adjustment will need to be done if the quadrature packages uses Ylm.
  */
-double complexYlk(unsigned const l, int const k, double const theta,
-                  double const phi) {
+double complexYlk(unsigned const l, int const k, double const theta, double const phi) {
   int const absk(std::abs(k));
   double const mu(std::cos(theta));
   double sign(1.0);
@@ -278,8 +274,8 @@ double complexYlk(unsigned const l, int const k, double const theta,
  * \pre \f$ \theta \in [0,\pi] \f$
  * \pre \f$ \phi \in [0, 2\pi] \f$
  */
-double galerkinYlk(unsigned const l, int const k, double const mu,
-                   double const phi, double const sumwt) {
+double galerkinYlk(unsigned const l, int const k, double const mu, double const phi,
+                   double const sumwt) {
   int const absk(std::abs(k));
 
   // The constant and the Associated Legendre Polynomial.
@@ -296,14 +292,12 @@ double galerkinYlk(unsigned const l, int const k, double const mu,
 }
 
 //------------------------------------------------------------------------------------------------//
-double Ylm(unsigned const l, int const m, double const mu, double const phi,
-           double const sumwt) {
+double Ylm(unsigned const l, int const m, double const mu, double const phi, double const sumwt) {
   int const absm(std::abs(m));
 
   // The constant and the Associated Legendre Polynomial.
 
-  double const alpha = (2.0 * l + 1.0) *
-                       (gsl_sf_fact(l - absm) / gsl_sf_fact(l + absm)) *
+  double const alpha = (2.0 * l + 1.0) * (gsl_sf_fact(l - absm) / gsl_sf_fact(l + absm)) *
                        (m != 0 ? 2.0 : 1.0) / sumwt;
 
   double ylm = sqrt(alpha) * gsl_sf_legendre_Plm(l, absm, mu);

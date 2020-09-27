@@ -68,10 +68,8 @@ public:
   // CREATORS
 
   //! Constructor.
-  explicit Ensight_Stream(const std::string &file_name = "",
-                          const bool binary = false,
-                          const bool geom_file = false,
-                          const bool domain_decomposed = false);
+  explicit Ensight_Stream(const std::string &file_name = "", const bool binary = false,
+                          const bool geom_file = false, const bool domain_decomposed = false);
 
   //! Destructor.
   ~Ensight_Stream();
@@ -79,8 +77,8 @@ public:
   // MANIPULATORS
 
   //! Opens the stream.
-  void open(const std::string &file_name, const bool binary = false,
-            const bool geom_file = false, const bool domain_decomposed = false);
+  void open(const std::string &file_name, const bool binary = false, const bool geom_file = false,
+            const bool domain_decomposed = false);
 
   //! Closes the stream.
   void close();

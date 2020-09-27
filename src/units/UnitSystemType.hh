@@ -48,8 +48,7 @@ public:
   UnitSystemType();
 
   //! fully qualified constructor
-  UnitSystemType(Ltype myL, Mtype myM, ttype myt, Ttype myT, Itype myI,
-                 Atype myA, Qtype myQ);
+  UnitSystemType(Ltype myL, Mtype myM, ttype myt, Ttype myT, Itype myI, Atype myA, Qtype myQ);
 
   //! Copy constructor
   UnitSystemType(UnitSystemType const &rhs);
@@ -57,19 +56,13 @@ public:
   // MANIPULATORS
 
   //! Set SI defaults
-  UnitSystemType SI() {
-    return UnitSystemType(L_m, M_kg, t_s, T_K, I_amp, A_rad, Q_mol);
-  }
+  UnitSystemType SI() { return UnitSystemType(L_m, M_kg, t_s, T_K, I_amp, A_rad, Q_mol); }
 
   //! Set X4 defaults
-  UnitSystemType X4() {
-    return UnitSystemType(L_cm, M_g, t_sh, T_keV, I_amp, A_rad, Q_mol);
-  }
+  UnitSystemType X4() { return UnitSystemType(L_cm, M_g, t_sh, T_keV, I_amp, A_rad, Q_mol); }
 
   //! Set cgs defaults
-  UnitSystemType CGS() {
-    return UnitSystemType(L_cm, M_g, t_s, T_K, I_amp, A_rad, Q_mol);
-  }
+  UnitSystemType CGS() { return UnitSystemType(L_cm, M_g, t_s, T_K, I_amp, A_rad, Q_mol); }
 
   //! Set a FundUnit type for this UnitSystem
 

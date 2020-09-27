@@ -29,14 +29,11 @@ void tstF_eta_inv(rtt_dsxx::UnitTest &ut) {
   const unsigned ntests = 18;
   // [2015-01-03 KT] I commented out the test for eta=800.0, T=1 because F_eta(reta,gamma)
   // overflows.
-  double eta[ntests] = {-70.0, -5.0, -0.694, -0.693, 0.0, 5.0, 10.0, 20.0, 50.0,
-                        100.0,
+  double eta[ntests] = {-70.0, -5.0, -0.694, -0.693, 0.0, 5.0, 10.0, 20.0, 50.0, 100.0,
                         // kt        800.0,
                         -50.0, -5.0, 0.0, 5.0, -20.0, -5.0, 5.0, 50.0};
-  double T[ntests] = {1,       1,       1,      1,     1,
-                      1,       1,       1,      1,     1, //kt 1,
-                      1.0e9,   1.0e9,   1.0e9,  1.0e9, 500.0e9,
-                      500.0e9, 500.0e9, 500.0e9};
+  double T[ntests] = {1,     1,     1,     1,     1,       1,       1,       1,      1, 1, //kt 1,
+                      1.0e9, 1.0e9, 1.0e9, 1.0e9, 500.0e9, 500.0e9, 500.0e9, 500.0e9};
 
   // for (unsigned i=0; i<ntests; i++)
   {

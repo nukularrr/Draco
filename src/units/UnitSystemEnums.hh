@@ -28,8 +28,7 @@ enum Ltype {
 int constexpr num_Ltype = 3;
 constexpr std::array<double, num_Ltype> L_cf = {0.0, 1.0, 100.0};
 constexpr char const *L_labels = "NA,m,cm";
-constexpr char const *L_long_labels =
-    "no length unit specified,meter,centimeter";
+constexpr char const *L_long_labels = "no length unit specified,meter,centimeter";
 
 //========================================//
 // ENUMERATED MASS TYPES
@@ -60,8 +59,7 @@ enum ttype {
 };
 
 int constexpr num_ttype = 6;
-constexpr std::array<double, num_ttype> t_cf = {0.0,   1.0,   1.0e3,
-                                                1.0e6, 1.0e8, 1.0e9};
+constexpr std::array<double, num_ttype> t_cf = {0.0, 1.0, 1.0e3, 1.0e6, 1.0e8, 1.0e9};
 constexpr char const *t_labels = "NA,s,ms,us,sh,ns";
 constexpr char const *t_long_labels =
     "no time unit specified,second,milisecond,microsecond,shake,nanosecond";
@@ -79,8 +77,8 @@ enum Ttype {
 };
 
 int constexpr num_Ttype = 4;
-constexpr std::array<double, num_Ttype> T_cf = {
-    0.0, 1.0, 1.0 / 1.1604519302808940e7, 1.0 / 1.1604519302808940e4};
+constexpr std::array<double, num_Ttype> T_cf = {0.0, 1.0, 1.0 / 1.1604519302808940e7,
+                                                1.0 / 1.1604519302808940e4};
 constexpr char const *T_labels = "NA,K,keV,eV";
 
 //========================================//

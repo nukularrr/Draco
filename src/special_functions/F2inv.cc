@@ -125,8 +125,7 @@ void F2inv(double const f, double &eta, double &deta) {
       den = den * ff + b2[i];
     }
     eta = rn / (den * ff);
-    deta = drndf / (den * ff) -
-           rn * (ddendf * ff + den * dffdf) / (den * den * ff * ff);
+    deta = drndf / (den * ff) - rn * (ddendf * ff + den * dffdf) / (den * den * ff * ff);
   }
 }
 

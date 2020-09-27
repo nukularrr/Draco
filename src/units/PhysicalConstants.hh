@@ -54,15 +54,13 @@ public:
    */
   constexpr PhysicalConstants()
       : d_avogadro(AVOGADRO), d_planck(planckSI), d_gasConstant(gasConstantSI),
-        d_boltzmann(boltzmannSI), d_electronCharge(electronChargeSI),
-        d_cLight(cLightSI), d_stefanBoltzmann(stefanBoltzmannSI),
-        d_gravitationalConstant(gravitationalConstantSI),
-        d_accelerationFromGravity(accelerationFromGravitySI),
-        d_faradayConstant(faradayConstantSI),
+        d_boltzmann(boltzmannSI), d_electronCharge(electronChargeSI), d_cLight(cLightSI),
+        d_stefanBoltzmann(stefanBoltzmannSI), d_gravitationalConstant(gravitationalConstantSI),
+        d_accelerationFromGravity(accelerationFromGravitySI), d_faradayConstant(faradayConstantSI),
         d_permeabilityOfVacuum(permeabilityOfVacuumSI),
         d_permittivityOfFreeSpace(permittivityOfFreeSpaceSI),
-        d_classicalElectronRadius(classicalElectronRadiusSI),
-        d_electronMass(electronMassSI), d_protonMass(protonMassSI) {
+        d_classicalElectronRadius(classicalElectronRadiusSI), d_electronMass(electronMassSI),
+        d_protonMass(protonMassSI) {
     // empty
   }
   explicit PhysicalConstants(UnitSystem const &u);
@@ -106,16 +104,12 @@ public:
   constexpr double sigma() const { return stefanBoltzmann(); }
 
   //! accesses the gravitational constant
-  constexpr double gravitationalConstant() const {
-    return d_gravitationalConstant;
-  }
+  constexpr double gravitationalConstant() const { return d_gravitationalConstant; }
   //! see gravitationalConstant()
   constexpr double G() const { return gravitationalConstant(); }
 
   //! access the acceleration due to gravity (standard).
-  constexpr double accelerationFromGravity() const {
-    return d_accelerationFromGravity;
-  }
+  constexpr double accelerationFromGravity() const { return d_accelerationFromGravity; }
   //! see accelerationFromGravity()
   constexpr double g() const { return accelerationFromGravity(); }
 
@@ -125,23 +119,17 @@ public:
   constexpr double F() const { return faradayConstant(); }
 
   //! access the Permeability of vacuum (free space)
-  constexpr double permeabilityOfVacuum() const {
-    return d_permeabilityOfVacuum;
-  }
+  constexpr double permeabilityOfVacuum() const { return d_permeabilityOfVacuum; }
   //! see permeabilityOfVacuum()
   constexpr double mu0() const { return permeabilityOfVacuum(); }
 
   //! accesses the permittivity of free space (units of force/length)
-  constexpr double permittivityOfFreeSpace() const {
-    return d_permittivityOfFreeSpace;
-  }
+  constexpr double permittivityOfFreeSpace() const { return d_permittivityOfFreeSpace; }
   //! see permittivityOfFreeSpace()
   constexpr double epsi0() const { return permittivityOfFreeSpace(); }
 
   //! accesses the classical electron radius (units of length)
-  constexpr double classicalElectronRadius() const {
-    return d_classicalElectronRadius;
-  }
+  constexpr double classicalElectronRadius() const { return d_classicalElectronRadius; }
   //! see classicalElectronRadius()
   constexpr double re() const { return classicalElectronRadius(); }
 

@@ -73,8 +73,8 @@ Ensight_Stream::~Ensight_Stream(void) { close(); }
  * \param geom_file  If true, then a geometry file will be dumped.
  * \param decomposed If true, input is domain decomposed. Otherwise domain replicated.
  */
-void Ensight_Stream::open(const std::string &file_name, const bool binary,
-                          const bool geom_file, const bool decomposed) {
+void Ensight_Stream::open(const std::string &file_name, const bool binary, const bool geom_file,
+                          const bool decomposed) {
   Require(!file_name.empty());
 
   d_binary = binary;
@@ -82,16 +82,14 @@ void Ensight_Stream::open(const std::string &file_name, const bool binary,
   // Open the stream.
   if (decomposed) {
     if (binary)
-      d_decomposed_stream.reset(
-          new rtt_c4::ofpstream(file_name, std::ios::binary));
+      d_decomposed_stream.reset(new rtt_c4::ofpstream(file_name, std::ios::binary));
     else
       d_decomposed_stream.reset(new rtt_c4::ofpstream(file_name));
     // set to a generic ostream
     d_stream = &*d_decomposed_stream;
   } else {
-    Insist(rtt_c4::node() == 0,
-           "Ensight_Stream, called by nonzero rank without "
-           "the domain decomposed flag");
+    Insist(rtt_c4::node() == 0, "Ensight_Stream, called by nonzero rank without "
+                                "the domain decomposed flag");
     if (binary)
       d_serial_stream.reset(new std::ofstream(file_name, std::ios::binary));
     else

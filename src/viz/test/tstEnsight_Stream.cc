@@ -70,8 +70,7 @@ void test_simple(rtt_dsxx::UnitTest &ut, bool const binary, bool const geom,
   const int i(20323);
   const string s("dog");
   const double d(112.3);
-  const string file("ensight_stream_" + std::to_string(rtt_c4::nodes()) +
-                    ".out");
+  const string file("ensight_stream_" + std::to_string(rtt_c4::nodes()) + ".out");
 
   {
     Ensight_Stream f(file, binary, geom, decomposed);

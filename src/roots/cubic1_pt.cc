@@ -12,8 +12,7 @@
 namespace rtt_roots {
 
 //------------------------------------------------------------------------------------------------//
-template double cubic1(double const &a, double const &b,
-                                        double const &c);
+template double cubic1(double const &a, double const &b, double const &c);
 
 } // end namespace rtt_roots
 

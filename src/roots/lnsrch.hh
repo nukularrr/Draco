@@ -15,10 +15,9 @@ namespace rtt_roots {
 //! Reduce the norm of a set of functions on a ray.
 
 template <class RandomContainer, class Function_N_to_N>
-void lnsrch(const RandomContainer &xold, double fold, const RandomContainer &g,
-            RandomContainer &p, RandomContainer &x, double &f, bool &check,
-            RandomContainer &fvec, const Function_N_to_N &vecfunc, double ALF,
-            double min_lambda);
+void lnsrch(const RandomContainer &xold, double fold, const RandomContainer &g, RandomContainer &p,
+            RandomContainer &x, double &f, bool &check, RandomContainer &fvec,
+            const Function_N_to_N &vecfunc, double ALF, double min_lambda);
 
 } // end namespace rtt_roots
 

@@ -139,8 +139,7 @@ void test_default_ctor(rtt_dsxx::UnitTest &ut) {
   } else {
     ostringstream msg;
     msg << "UnitSystemType container does not have "
-        << "Q().enumVal() == Q_mol.  Instead the valued retuned was: "
-        << ust.Q().enumVal() << endl;
+        << "Q().enumVal() == Q_mol.  Instead the valued retuned was: " << ust.Q().enumVal() << endl;
     FAILMSG(msg.str());
   }
   if (soft_equiv(ust.Q().cf(), 1.0)) {
@@ -148,8 +147,7 @@ void test_default_ctor(rtt_dsxx::UnitTest &ut) {
   } else {
     ostringstream msg;
     msg << "UnitSystemType container does not have "
-        << "Q().cf() == 1.0.  Instead the value returned was: " << ust.Q().cf()
-        << endl;
+        << "Q().cf() == 1.0.  Instead the value returned was: " << ust.Q().cf() << endl;
     FAILMSG(msg.str());
   }
   if (ust.Q().label() == "mol") {
@@ -157,8 +155,8 @@ void test_default_ctor(rtt_dsxx::UnitTest &ut) {
   } else {
     ostringstream msg;
     msg << "UnitSystemType container does not have "
-        << R"(Q().label() == "mol".  Instead the value returned was: ")"
-        << ust.Q().label() << "\"" << endl;
+        << R"(Q().label() == "mol".  Instead the value returned was: ")" << ust.Q().label() << "\""
+        << endl;
     // " fix emacs font-lock issue with odd number of quotes.
     FAILMSG(msg.str());
   }
@@ -187,8 +185,7 @@ void test_default_ctor(rtt_dsxx::UnitTest &ut) {
     ostringstream msg;
     msg << "UnitSystemType container does not have "
         << "A().label() == \"rad\"." << endl
-        << "\tInstead the returned value was: \"" << ust.A().label() << "\""
-        << endl;
+        << "\tInstead the returned value was: \"" << ust.A().label() << "\"" << endl;
     FAILMSG(msg.str());
   }
   //---------------------------------------------------------------------//
@@ -216,8 +213,7 @@ void test_default_ctor(rtt_dsxx::UnitTest &ut) {
     ostringstream msg;
     msg << "UnitSystemType container does not have "
         << "I().label() == \"Amp\"." << endl
-        << "\tInstead the returned value was: \"" << ust.I().label() << "\""
-        << endl;
+        << "\tInstead the returned value was: \"" << ust.I().label() << "\"" << endl;
     FAILMSG(msg.str());
   }
   //---------------------------------------------------------------------//
@@ -245,8 +241,7 @@ void test_default_ctor(rtt_dsxx::UnitTest &ut) {
     ostringstream msg;
     msg << "UnitSystemType container does not have "
         << "t().label() == \"shake\"." << endl
-        << "\tInstead the returned value was: \"" << ust.t().label() << "\""
-        << endl;
+        << "\tInstead the returned value was: \"" << ust.t().label() << "\"" << endl;
     FAILMSG(msg.str());
   }
 
@@ -260,9 +255,8 @@ void test_qualified_ctor(rtt_dsxx::UnitTest &ut) {
   using std::endl;
   using std::ostringstream;
 
-  UnitSystemType ust(rtt_units::L_cm, rtt_units::M_g, rtt_units::t_us,
-                     rtt_units::T_K, rtt_units::I_amp, rtt_units::A_rad,
-                     rtt_units::Q_mol);
+  UnitSystemType ust(rtt_units::L_cm, rtt_units::M_g, rtt_units::t_us, rtt_units::T_K,
+                     rtt_units::I_amp, rtt_units::A_rad, rtt_units::Q_mol);
 
   //----------------------------------------//
 

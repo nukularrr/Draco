@@ -146,8 +146,7 @@ void test_ctor(rtt_dsxx::UnitTest &ut) {
     ostringstream msg;
     msg << "Default and SI objects do not have same sigma." << endl
         << "\tdefault.sigma() = " << std::setprecision(16) << pc_def.sigma()
-        << " != si.sigma() = " << std::setprecision(16) << pc_si.sigma() << "."
-        << endl;
+        << " != si.sigma() = " << std::setprecision(16) << pc_si.sigma() << "." << endl;
     FAILMSG(msg.str());
   }
 
@@ -195,8 +194,7 @@ void test_ctor(rtt_dsxx::UnitTest &ut) {
     ostringstream msg;
     msg << "Default and SI objects do not have same mu0." << endl
         << "\tdefault.mu0() = " << std::setprecision(16) << pc_def.mu0()
-        << " != si.mu0() = " << std::setprecision(16) << pc_si.mu0() << "."
-        << endl;
+        << " != si.mu0() = " << std::setprecision(16) << pc_si.mu0() << "." << endl;
     FAILMSG(msg.str());
   }
 
@@ -208,8 +206,7 @@ void test_ctor(rtt_dsxx::UnitTest &ut) {
     ostringstream msg;
     msg << "Default and SI objects do not have same epsi0." << endl
         << "\tdefault.epsi0() = " << std::setprecision(16) << pc_def.epsi0()
-        << " != si.epsi0() = " << std::setprecision(16) << pc_si.epsi0() << "."
-        << endl;
+        << " != si.epsi0() = " << std::setprecision(16) << pc_si.epsi0() << "." << endl;
     FAILMSG(msg.str());
   }
 
@@ -221,8 +218,7 @@ void test_ctor(rtt_dsxx::UnitTest &ut) {
     ostringstream msg;
     msg << "Default and SI objects do not have same me." << endl
         << "\tdefault.me() = " << std::setprecision(16) << pc_def.me()
-        << " != si.me() = " << std::setprecision(16) << pc_si.me() << "."
-        << endl;
+        << " != si.me() = " << std::setprecision(16) << pc_si.me() << "." << endl;
     FAILMSG(msg.str());
   }
 
@@ -234,8 +230,7 @@ void test_ctor(rtt_dsxx::UnitTest &ut) {
     ostringstream msg;
     msg << "Default and SI objects do not have same mp." << endl
         << "\tdefault.mp() = " << std::setprecision(16) << pc_def.mp()
-        << " != si.mp() = " << std::setprecision(16) << pc_si.mp() << "."
-        << endl;
+        << " != si.mp() = " << std::setprecision(16) << pc_si.mp() << "." << endl;
     FAILMSG(msg.str());
   }
 
@@ -288,8 +283,8 @@ void test_scaled_values(rtt_dsxx::UnitTest &ut) {
   } else {
     ostringstream msg;
     msg << "Scaled Planck constant is not correct." << endl
-        << "\tvalue =  " << std::setprecision(16) << pc.planck()
-        << " != " << std::setprecision(16) << dev << "." << endl;
+        << "\tvalue =  " << std::setprecision(16) << pc.planck() << " != " << std::setprecision(16)
+        << dev << "." << endl;
     FAILMSG(msg.str());
   }
 
@@ -359,8 +354,7 @@ void test_scaled_values(rtt_dsxx::UnitTest &ut) {
   // Stefan-Boltzmann constant
 
   dev = 5.6703726e-8; // W / m^2 / K^4
-  dev =
-      dev * us.p() / si.p() * pow(si.L() / us.L(), 2) * pow(si.T() / us.T(), 4);
+  dev = dev * us.p() / si.p() * pow(si.L() / us.L(), 2) * pow(si.T() / us.T(), 4);
 
   if (soft_equiv(pc.stefanBoltzmann(), dev, 1.0e-8)) {
     ostringstream msg;
@@ -377,8 +371,7 @@ void test_scaled_values(rtt_dsxx::UnitTest &ut) {
   // Gravitational constant
 
   dev = 6.67259e-11; // N / m^2 / kg^2
-  dev =
-      dev * us.f() / si.f() / pow(us.L() / si.L(), 2) / pow(us.M() / si.M(), 2);
+  dev = dev * us.f() / si.f() / pow(us.L() / si.L(), 2) / pow(us.M() / si.M(), 2);
   if (soft_equiv(pc.gravitationalConstant(), dev)) {
     ostringstream msg;
     msg << "Scaled Gravitational constant looks correct." << endl;
@@ -402,9 +395,8 @@ void test_scaled_values(rtt_dsxx::UnitTest &ut) {
   } else {
     ostringstream msg;
     msg << "Scaled Acceleration from Gravity is not correct." << endl
-        << "\tvalue =  " << std::setprecision(16)
-        << pc.accelerationFromGravity() << " != " << std::setprecision(16)
-        << dev << "." << endl;
+        << "\tvalue =  " << std::setprecision(16) << pc.accelerationFromGravity()
+        << " != " << std::setprecision(16) << dev << "." << endl;
     FAILMSG(msg.str());
   }
 
@@ -449,9 +441,8 @@ void test_scaled_values(rtt_dsxx::UnitTest &ut) {
   } else {
     ostringstream msg;
     msg << "Scaled PERMITTIVITY OF FREE SPACE (F/M) is not correct." << endl
-        << "\tvalue =  " << std::setprecision(16)
-        << pc.permittivityOfFreeSpace() << " != " << std::setprecision(16)
-        << dev << "." << endl;
+        << "\tvalue =  " << std::setprecision(16) << pc.permittivityOfFreeSpace()
+        << " != " << std::setprecision(16) << dev << "." << endl;
     FAILMSG(msg.str());
   }
 
@@ -465,9 +456,8 @@ void test_scaled_values(rtt_dsxx::UnitTest &ut) {
   } else {
     ostringstream msg;
     msg << "Scaled classical electron radius is not correct." << endl
-        << "\tvalue =  " << std::setprecision(16)
-        << pc.classicalElectronRadius() << " != " << std::setprecision(16)
-        << dev << "." << endl;
+        << "\tvalue =  " << std::setprecision(16) << pc.classicalElectronRadius()
+        << " != " << std::setprecision(16) << dev << "." << endl;
     FAILMSG(msg.str());
   }
   // test alias
@@ -478,8 +468,8 @@ void test_scaled_values(rtt_dsxx::UnitTest &ut) {
   } else {
     ostringstream msg;
     msg << "Scaled classical electron radius is not correct." << endl
-        << "\tvalue =  " << std::setprecision(16) << pc.re()
-        << " != " << std::setprecision(16) << dev << "." << endl;
+        << "\tvalue =  " << std::setprecision(16) << pc.re() << " != " << std::setprecision(16)
+        << dev << "." << endl;
     FAILMSG(msg.str());
   }
 

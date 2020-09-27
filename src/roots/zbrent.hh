@@ -18,8 +18,7 @@ namespace rtt_utils {
 
 //! Pinpoint a bracketed root of a function.
 template <class Function, class Real>
-Real zbrent(Function func, Real x1, Real x2, unsigned itmax, Real &tol,
-            Real &ftol);
+Real zbrent(Function func, Real x1, Real x2, unsigned itmax, Real &tol, Real &ftol);
 
 } // end namespace rtt_utils
 

@@ -58,8 +58,8 @@ namespace rtt_roots {
  *      very well thought out for this procedure.
  */
 template <class Field, class Function_N_to_N>
-void broydn(std::vector<Field> &x, const double /*STPMX*/,
-            const Function_N_to_N &vecfunc, const double alf) {
+void broydn(std::vector<Field> &x, const double /*STPMX*/, const Function_N_to_N &vecfunc,
+            const double alf) {
   Require(x.size() > 0);
 
   using std::numeric_limits;
@@ -124,8 +124,8 @@ void broydn(std::vector<Field> &x, const double /*STPMX*/,
         // As we approach the root, the change in f will begin to be swamped by roundoff noise.
         // Filter out all w that are likely to be noisy.  If all w are noisy, don't try to update
         // the Jacobian.
-        if (std::abs(w[i]) > numeric_limits<double>::epsilon() *
-                                 (std::abs(fvec[i]) + std::abs(fvcold[i]))) {
+        if (std::abs(w[i]) >
+            numeric_limits<double>::epsilon() * (std::abs(fvec[i]) + std::abs(fvcold[i]))) {
           noisy = false; // this w is not yet swamped by roundoff
         } else {
           w[i] = 0.0; // this w is swamped with noise; leave it out
@@ -292,9 +292,8 @@ void broydn(std::vector<Field> &x, const double /*STPMX*/,
  *      very well thought out for this procedure.
  */
 template <class Field, class Function_N_to_N, class Function_N_to_NN>
-void broydn(std::vector<Field> &x, const double /*STPMX*/,
-            Function_N_to_N vecfunc, Function_N_to_NN dvecfunc,
-            const double alf, double const min_lambda) {
+void broydn(std::vector<Field> &x, const double /*STPMX*/, Function_N_to_N vecfunc,
+            Function_N_to_NN dvecfunc, const double alf, double const min_lambda) {
   using std::numeric_limits;
   using std::range_error;
   using std::vector;
@@ -357,8 +356,8 @@ void broydn(std::vector<Field> &x, const double /*STPMX*/,
         // As we approach the root, the change in f will begin to be swamped by roundoff noise.
         // Filter out all w that are likely to be noisy.  If all w are noisy, don't try to update
         // the Jacobian.
-        if (std::abs(w[i]) > numeric_limits<double>::epsilon() *
-                                 (std::abs(fvec[i]) + std::abs(fvcold[i]))) {
+        if (std::abs(w[i]) >
+            numeric_limits<double>::epsilon() * (std::abs(fvec[i]) + std::abs(fvcold[i]))) {
           noisy = false; // this w is not yet swamped by roundoff
         } else {
           w[i] = 0.0; // this w is swamped with noise; leave it out
@@ -449,8 +448,7 @@ void broydn(std::vector<Field> &x, const double /*STPMX*/,
         double test = 0.0;
         double den = std::max(f, 0.5 * n);
         for (unsigned i = 0; i < n; i++) {
-          double const temp =
-              std::abs(g[i]) * std::max(std::abs(x[i]), 1.0) / den;
+          double const temp = std::abs(g[i]) * std::max(std::abs(x[i]), 1.0) / den;
           if (temp > test)
             test = temp;
         }

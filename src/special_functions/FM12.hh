@@ -14,8 +14,7 @@
 
 namespace rtt_sf {
 //! Calculate Fermi-Dirac integral of index -1/2.
-template <typename OrderedField>
-OrderedField FM12(OrderedField const &x);
+template <typename OrderedField> OrderedField FM12(OrderedField const &x);
 
 } // end namespace rtt_sf
 
