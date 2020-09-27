@@ -4,11 +4,7 @@
  * \author Kent Budge
  * \date   Wed Aug 11 15:21:38 2004
  * \brief  Solve a quadratic equation.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved.
- */
-//------------------------------------------------------------------------------------------------//
-
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef roots_quadratic_hh
@@ -35,8 +31,8 @@ namespace rtt_roots {
  * \param[out] r2
  * Second root
  *
- * \note The roots are not returned in any particular order.  The client must
- * decide which root to use for a particular application.
+ * \note The roots are not returned in any particular order.  The client must decide which root to
+ * use for a particular application.
  */
 
 template <class Field>

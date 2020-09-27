@@ -3,8 +3,7 @@
  * \file   special_functions/F1.cc
  * \author Kent Budge
  * \brief  Implementation of F1
- * \note   Copyright (C) 2016-2020 Triad National Security,
-*          All rights reserved. */
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "F1.hh"
@@ -20,11 +19,10 @@ using namespace std;
  * F_n(\eta) = \int_0^\infty \frac{x^n}{e^{x-\eta}+1} dx
  * \f]
  *
- * This implementation is modelled after Fermi-Dirac implementations from the
- * Chicago Astrophysical Flash Center.  These use a rational function
- * expansion to get the fermi-dirac integral. Reference: antia apjs 84,101
- * 1993
- * 
+ * This implementation is modelled after Fermi-Dirac implementations from the Chicago Astrophysical
+ * Flash Center.  These use a rational function expansion to get the fermi-dirac
+ * integral. Reference: antia apjs 84,101 1993
+ *
  * \param x Dimensionless chemical potential \f$\eta\f$
  *
  * \return Value of \f$F_1(\eta)\f$

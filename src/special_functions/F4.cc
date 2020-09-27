@@ -3,9 +3,8 @@
  * \file   special_functions/F4.cc
  * \author Kent Budge
  * \date   Tue Sep 21 09:20:10 2004
- * \brief  Implementation of F4 
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \brief  Implementation of F4
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "F4.hh"
@@ -21,11 +20,11 @@ using namespace std;
  * F_n(\eta) = \int_0^\infty \frac{x^n}{e^{x-\eta}+1} dx
  * \f]
  *
- * This is a translation of an implementation from Chris Fryer, LANL T-6.  It
- * is based on approximations from Takahashi, El Eid, Hillebrandt, 1978 AA,
- * 67, 185.  Like the Antlia approximations, these are valid over the entire
- * real axis, but do not match the 1e-12 accuracy typical of Antlia.
- * 
+ * This is a translation of an implementation from Chris Fryer, LANL T-6.  It is based on
+ * approximations from Takahashi, El Eid, Hillebrandt, 1978 AA, 67, 185.  Like the Antlia
+ * approximations, these are valid over the entire real axis, but do not match the 1e-12 accuracy
+ * typical of Antlia.
+ *
  * \param eta Dimensionless chemical potential \f$\eta\f$
  *
  * \return Value of \f$F_4(\eta)\f$

@@ -4,11 +4,8 @@
  * \author Kent Budge
  * \date   Wed Sep 15 10:04:02 MDT 2010
  * \brief  Solve a cubic equation assumed to have one real root
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved.
  */
-//------------------------------------------------------------------------------------------------//
-
 //------------------------------------------------------------------------------------------------//
 
 #ifndef roots_cubic1_i_hh

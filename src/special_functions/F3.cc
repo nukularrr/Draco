@@ -4,8 +4,7 @@
  * \author Kent Budge
  * \date   Tue Sep 21 09:20:10 2004
  * \brief  Implementation of F3
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "F3.hh"
@@ -21,10 +20,10 @@ using namespace std;
  * F_n(\eta) = \int_0^\infty \frac{x^n}{e^{x-\eta}+1} dx
  * \f]
  *
- * This implementation is a translation of an implementation from the Chicago
- * Astrophysical Flash Center.  This uses a rational function expansion to get
- * the fermi-dirac integral. Reference: antia apjs 84,101 1993
- * 
+ * This implementation is a translation of an implementation from the Chicago Astrophysical Flash
+ * Center.  This uses a rational function expansion to get the fermi-dirac integral. Reference:
+ * antia apjs 84,101 1993
+ *
  * \param x Dimensionless chemical potential \f$\eta\f$
  *
  * \return Value of \f$F_3(\eta)\f$

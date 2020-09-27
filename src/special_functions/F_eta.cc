@@ -3,12 +3,8 @@
  * \file   special_functions/F_eta.cc
  * \author Kent Budge
  * \date   Mon Sep 20 15:01:53 2004
- * \brief  Implementation of F_eta.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved.
- *
- * These routines are based on C routines from Numerical Recipes.
- */
+ * \brief  Implementation of F_eta. These routines are based on C routines from Numerical Recipes.
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "F_eta.hh"
@@ -24,9 +20,6 @@ using namespace rtt_dsxx;
 using namespace rtt_ode;
 using rtt_units::PI;
 
-// Parametrization of integrand and inverse functions
-// static double leta, lgamma;
-
 //------------------------------------------------------------------------------------------------//
 /*!
  * \brief Evaluate the relativistic Fermi-Dirac integral
@@ -41,8 +34,8 @@ using rtt_units::PI;
  * \param[in] eta Dimensionless chemical potential \f$\eta=\frac{\mu}{kT}\f$
  * \param[in] gamma Dimensionless temperature \f$\gamma=\frac{kT}{mc^2}\f$
  *
- * \return Dimensionless number density \f$\frac{\partial
- *         F_{3/2}}{\partial\eta}=\frac{3Nh^3}{8\pi m^3c^3}\f$.
+ * \return Dimensionless number density \f$\frac{\partial F_{3/2}}{\partial\eta}=\frac{3Nh^3}{8\pi
+ *         m^3c^3}\f$.
  */
 double F_eta(double const eta, double const gamma) {
   Require(gamma > 0.0);
@@ -100,8 +93,7 @@ double F_eta(double const eta, double const gamma) {
       double const drad = x * dx / rad;
 
       double n1, dn1;
-      // Two versions of Sommerfeld expansion with different roundoff
-      // properties.
+      // Two versions of Sommerfeld expansion with different roundoff properties.
       if (x < 0.07) {
         n1 = 0.2 * x * x * x * x * x *
              (1 - (5. / 14.) * x * x + (5. / 24.) * x * x * x * x -

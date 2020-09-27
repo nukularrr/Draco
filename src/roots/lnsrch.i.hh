@@ -4,8 +4,7 @@
  * \author Kent Budge
  * \date   Tue Aug 10 13:21:58 2004
  * \brief  Reduce norm of a set of functions on a ray.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef roots_lnsrch_i_hh
@@ -18,36 +17,32 @@ namespace rtt_roots {
 //------------------------------------------------------------------------------------------------//
 /*! Reduce the norm of a set of functions on a ray.
  *
- * Given a system of equations, a starting point, and a search vector, this
- * procedure reduces of the norm of the set of functions along the ray defined
- * by the starting point and search direction.  It is used mainly as an
- * auxiliary to various quasi-Newton methods for solving sets of nonlinear
+ * Given a system of equations, a starting point, and a search vector, this procedure reduces of the
+ * norm of the set of functions along the ray defined by the starting point and search direction.
+ * It is used mainly as an auxiliary to various quasi-Newton methods for solving sets of nonlinear
  * equations.
  *
- * Because this function is primary a helper function for quasi-Newton methods,
- * no great accuracy requirement is placed on the convergence to the minimum.
- * Since the Newton step is always tried first, we should get rapid convergence
- * just by accepting this step if we are close enough to the root.  If not, it
- * is sufficient that we have *some* improvement, and \c ALF characterizes how
+ * Because this function is primary a helper function for quasi-Newton methods, no great accuracy
+ * requirement is placed on the convergence to the minimum.  Since the Newton step is always tried
+ * first, we should get rapid convergence just by accepting this step if we are close enough to the
+ * root.  If not, it is sufficient that we have *some* improvement, and \c ALF characterizes how
  * much is required.
  *
  * \arg \a RandomContainer A random access container
- * \arg \a Funtion_N_to_N A type representing a set of N functions of N
- *         variables.
+ * \arg \a Funtion_N_to_N A type representing a set of N functions of N variables.
  *
  * \param xold Starting point for search.
  * \param fold Starting value of the half norm of the set of functions.
  * \param g    Gradient of the set of functions at the starting point.
- * \param p Search direction.  Normally p+xold will be the estimated location of
- *         the minimum and will always be tried first.
+ * \param p Search direction.  Normally p+xold will be the estimated location of the minimum and
+ *          will always be tried first.
  * \param x On exit, contains the new estimate of the minimum location.
  * \param f On exit, contains the new estimate of the minimum norm.
  * \param check On exit, set to true if the search failed.
  * \param fvec Values of the functions at the new minimum point.
  * \param vecfunc Functor whose norm is to be mininized.
- * \param ALF Minimum relative decrease in norm (from starting value) that is
- *         acceptable. A negative value means to accept any search that does not
- *         throw an exception.
+ * \param ALF Minimum relative decrease in norm (from starting value) that is acceptable. A
+ *          negative value means to accept any search that does not throw an exception.
  * \param min_lambda Value of lambda (line search parameter) at which to give up
  */
 template <class RandomContainer, class Function_N_to_N>
@@ -70,8 +65,8 @@ void lnsrch(RandomContainer const &xold, double const fold,
   x.resize(n);
   fvec.resize(n);
 
-  // Calculate initial rate of decrease along search direction.  This is used to
-  // determine whether a solution is acceptable.
+  // Calculate initial rate of decrease along search direction.  This is used to determine whether a
+  // solution is acceptable.
   double slope = g[0] * p[0];
   for (unsigned i = 1; i < n; i++)
     slope += g[i] * p[i];
