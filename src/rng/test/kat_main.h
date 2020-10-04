@@ -2,27 +2,32 @@
 Copyright 2010-2011, D. E. Shaw Research.
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, are permitted
-provided that the following conditions are met:
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
 
-* Redistributions of source code must retain the above copyright notice, this list of conditions,
-  and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions, and the following disclaimer.
 
-* Redistributions in binary form must reproduce the above copyright notice, this list of conditions,
-  and the following disclaimer in the documentation and/or other materials provided with the
-  distribution.
+* Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions, and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
 
-* Neither the name of D. E. Shaw Research nor the names of its contributors may be used to endorse
-  or promote products derived from this software without specific prior written permission.
+* Neither the name of D. E. Shaw Research nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
-IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
-THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 /* Known Answer Test */
 
@@ -38,20 +43,25 @@ THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
      kat_opencl.c
      kat_metal.m
 
-   These correspond to make targets: kat_c, kat_cpp, kat_cuda, kat_opencl and kat_metal.
+   These correspond to make targets: kat_c, kat_cpp, kat_cuda,
+   kat_opencl and kat_metal.
 
-   Those files are relatively simple.  First, they #include this file, which contains all the
-   machinery for reading test vectors, complaining about errors, etc..  Then they implement the
-   function host_execute_tests() in the appropriate environment.  host_execute_tests looks very
-   different in C/C++/CUDA/OpenCL/Metal.
+   Those files are relatively simple.  First, they #include this file,
+   which contains all the machinery for reading test vectors,
+   complaining about errors, etc..  Then they implement the function
+   host_execute_tests() in the appropriate environment.  host_execute_tests
+   looks very different in C/C++/CUDA/OpenCL/Metal.
 
-   host_execute_tests contrives to call/launch "dev_execute_tests" on the device.  Except for a few
-   environment-specific keywords, (e.g., __global, __kernel), which are #defined in kat_XXX.c,
-   dev_execute_tests is obtained by including a common source file: #include <kat_dev_execute.h>
+   host_execute_tests contrives to call/launch "dev_execute_tests"
+   on the device.  Except for a few environment-specific keywords,
+   (e.g., __global, __kernel), which are #defined in kat_XXX.c,
+   dev_execute_tests is obtained by including a common source file:
+      #include <kat_dev_execute.h>
 
-   One final complication: in order to fully "bake" the source code into the binary at compile-time,
-   dev_execute_tests for opencl is implemented in kat_opencl_kernel.ocl, which is processed by
-   gencl.sh into kat_opencl_kernel.i, which is thein #include-ed by kat_opencl.c.
+   One final complication:  in order to fully "bake" the source code
+   into the binary at compile-time, dev_execute_tests for opencl is implemented in
+   kat_opencl_kernel.ocl, which is processed by gencl.sh into
+   kat_opencl_kernel.i, which is thein #include-ed by kat_opencl.c.
 
 */
 #include "kat.h"
@@ -213,7 +223,7 @@ void analyze_tests(const kat_instance *tests, unsigned ntests) {
     break;
 #include "rngNxW.h"
 #undef RNGNxW_TPL
-    case unused:; /* silence a warning */
+    case last:;
     }
   }
 }
@@ -289,7 +299,8 @@ int main(int argc, char **argv) {
     fprintf(stderr, "No more space for tests?  Recompile with a larger NTESTS\n");
     exit(1);
   }
-  //kt tests[t].method = last; // N.B  *not* t++ - the 'ntests' value passed to host_execute_tests does not count the 'last' one.
+  tests[t].method =
+      last; // N.B  *not* t++ - the 'ntests' value passed to host_execute_tests does not count the 'last' one.
 
   report_unknowns();
   printf("Perform %lu tests.\n", (unsigned long)t);
@@ -308,4 +319,4 @@ int main(int argc, char **argv) {
 
 //------------------------------------------------------------------------------------------------//
 // end kat_cpp.cpp
-//------------------------------------------------------------------------------------------------/
+//------------------------------------------------------------------------------------------------//
