@@ -309,7 +309,7 @@ int main(int argc, char **argv) {
   analyze_tests(tests, t);
   free(tests);
   if (nfailed != 0) {
-    printf("FAILED %lu out of %u\n", nfailed, t);
+    printf("FAILED %lu out of %u\n", (unsigned long)nfailed, t);
     return 1;
   } else {
     printf("PASSED %u known answer tests\n", t);
