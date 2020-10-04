@@ -37,10 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "util.h"
 
-#include "Random123/aes.h"
-#include "Random123/ars.h"
-#include "Random123/philox.h"
-#include "Random123/threefry.h"
+#include "time_serial.h"
 
 #include "time_misc.h"
 #include "util_print.h"
