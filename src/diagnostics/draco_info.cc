@@ -4,8 +4,7 @@
  * \author Kelly Thompson
  * \date   Wednesday, Nov 07, 2012, 18:49 pm
  * \brief  Small executable that prints the version and copyright strings.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "draco_info.hh"
@@ -26,10 +25,10 @@ namespace rtt_diagnostics {
 DracoInfo::DracoInfo()
     : release(rtt_dsxx::release()), copyright(rtt_dsxx::copyright()),
       contact("For information, send e-mail to draco@lanl.gov."),
-      build_type(rtt_dsxx::string_toupper(CMAKE_BUILD_TYPE)), library_type("static"),
-      system_type("Unknown"), site_name("Unknown"), mpirun_cmd(""), diagnostics_level("disabled"),
-      cxx(CMAKE_CXX_COMPILER), cxx_flags(CMAKE_CXX_FLAGS), cc(CMAKE_C_COMPILER),
-      cc_flags(CMAKE_C_FLAGS), fc("none"), fc_flags("none") {
+      build_type(rtt_dsxx::string_toupper(CBT)), library_type("static"), system_type("Unknown"),
+      site_name("Unknown"), mpirun_cmd(""), diagnostics_level("disabled"), cxx(CMAKE_CXX_COMPILER),
+      cxx_flags(CMAKE_CXX_FLAGS), cc(CMAKE_C_COMPILER), cc_flags(CMAKE_C_FLAGS), fc("none"),
+      fc_flags("none") {
 #ifdef DRACO_SHARED_LIBS
   library_type = "Shared";
 #endif
@@ -89,14 +88,14 @@ void print_text_with_word_wrap(std::string const &longstring, size_t const inden
   std::string const delimiter(delimiters.substr(0, 1));
   size_t i(indent_column);
   for (auto item : tokens) {
-    if (i + item.length() + 1 > max_width) {
+    if (i + rtt_dsxx::remove_color(item).length() + 1 > max_width) {
       msg << "\n" << std::string(indent_column, ' ');
       i = indent_column;
     }
     msg << item;
     if (item != tokens.back())
       msg << delimiter;
-    i += item.length() + 1;
+    i += rtt_dsxx::remove_color(item).length() + 1;
   }
 }
 
@@ -178,7 +177,7 @@ std::string DracoInfo::briefReport() const {
 
   // Print version and copyright information to the screen:
   infoMessage << "\n";
-  print_text_with_word_wrap(release, 5, 100, infoMessage, ";");
+  print_text_with_word_wrap(release, 5, 100, infoMessage, " ");
   infoMessage << "\n\n" << copyright << "\n" << contact << "\n" << std::endl;
   return infoMessage.str();
 }
