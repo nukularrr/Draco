@@ -46,18 +46,6 @@ endif()
 #--------------------------------------------------------------------------------------------------#
 # Install
 #--------------------------------------------------------------------------------------------------#
-if(TARGET Objlib_quadrature_fquadrature)
-  install( TARGETS Objlib_quadrature_fquadrature EXPORT draco-targets
-    LIBRARY DESTINATION "${DBSCFGDIR_LIBRARY}"
-    ARCHIVE DESTINATION "${DBSCFGDIR}lib"
-    RUNTIME DESTINATION "${DBSCFGDIR}bin"
-    PUBLIC_HEADER DESTINATION "${DBSCFGDIR}include/fquadrature" )
-endif()
-install( TARGETS Lib_quadrature_fquadrature EXPORT draco-targets
-  LIBRARY DESTINATION "${DBSCFGDIR_LIBRARY}"
-  ARCHIVE DESTINATION "${DBSCFGDIR}lib"
-  RUNTIME DESTINATION "${DBSCFGDIR}bin"
-  PUBLIC_HEADER DESTINATION "${DBSCFGDIR}include/fquadrature" )
 install( DIRECTORY ${fquadrature_BINARY_DIR}
   DESTINATION "${DBSCFGDIR}include"
   FILES_MATCHING PATTERN "*.mod" )
