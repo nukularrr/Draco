@@ -104,7 +104,7 @@ if ! [[ $package ]]; then
 
   # shellcheck disable=SC2001
   dvp=$(echo "$ddir" | sed -e 's/.*_//')
-  CONFIG_BASE+=" -DDraco_VERSION_PATCH=$dvp"
+  CONFIG_BASE+=" -DDRACO_VERSION_PATCH=$dvp"
   export CONFIG_BASE
 fi
 

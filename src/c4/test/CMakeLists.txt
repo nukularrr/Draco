@@ -3,8 +3,7 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2012 Aug 1
 # brief  Generate build project files for c4/test.
-# note   Copyright (C) 2016-2020, Triad National Security, LLC.
-#        All rights reserved.
+# note   Copyright (C) 2016-2020, Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
 project( c4_test CXX )
 
@@ -13,8 +12,8 @@ project( c4_test CXX )
 #--------------------------------------------------------------------------------------------------#
 file( GLOB test_sources *.cc )
 
-# Remove some tests from the generic list. These will be process individually
-# with custom build options
+# Remove some tests from the generic list. These will be process individually with custom build
+# options
 list( REMOVE_ITEM test_sources ${PROJECT_SOURCE_DIR}/tstfc4_hw.cc )
 
 #--------------------------------------------------------------------------------------------------#
