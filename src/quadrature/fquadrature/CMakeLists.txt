@@ -12,14 +12,10 @@ project( fquadrature C Fortran )
 # If this directory is built via CAFS (ie. MSVC or XCode), then we need to do some extra setup.
 # When build via CAFS, target Lib_dsxx won't be defined yet.
 #--------------------------------------------------------------------------------------------------#
-set(target_deps Lib_quadrature;Lib_special_functions;Lib_parser;Lib_mesh_element)
 if(NOT TARGET Lib_dsxx)
   include(CMakeAddFortranSubdirectory)
   CAFS_Fortran_dir_boilerplate_setup()
   CAFS_Fortran_dir_MPI_setup() # returns CAFS_MPI_DEPS
-#elseif("${DRACO_C4}" STREQUAL "MPI")
-#  list(APPEND target_deps MPI::MPI_Fortran)
-#  add_definitions( -DC4_MPI )
 endif()
 
 #--------------------------------------------------------------------------------------------------#
@@ -35,8 +31,8 @@ add_component_library(
   LIBRARY_NAME fquadrature
   SOURCES      "${f90sources}"
   LINK_LANGUAGE Fortran
-  TARGET_DEPS   "${target_deps}"
-  INCLUDE_DIRS  "PUBLIC;$<INSTALL_INTERFACE:${DBSCFG_IMPORT_PREFIX}/fquadrature>" )
+  INCLUDE_DIRS  "PUBLIC;$<INSTALL_INTERFACE:${DBSCFG_IMPORT_PREFIX}/fquadrature>" 
+  NOEXPORT)
 if( WIN32 )
   # The library must be installed in the master project's RUNTIME_OUTPUT_DIR
   set_target_properties( Lib_quadrature_fquadrature PROPERTIES
@@ -46,9 +42,22 @@ endif()
 #--------------------------------------------------------------------------------------------------#
 # Install
 #--------------------------------------------------------------------------------------------------#
+if(TARGET Objlib_quadrature_fquadrature)
+  install( TARGETS Objlib_quadrature_fquadrature EXPORT draco-targets
+    LIBRARY DESTINATION "${DBSCFGDIR_LIBRARY}"
+    ARCHIVE DESTINATION "${DBSCFGDIR}lib"
+    RUNTIME DESTINATION "${DBSCFGDIR}bin"
+    PUBLIC_HEADER DESTINATION "${DBSCFGDIR}include/fquadrature" )
+endif()
+install( TARGETS Lib_quadrature_fquadrature EXPORT draco-targets
+  LIBRARY DESTINATION "${DBSCFGDIR_LIBRARY}"
+  ARCHIVE DESTINATION "${DBSCFGDIR}lib"
+  RUNTIME DESTINATION "${DBSCFGDIR}bin"
+  PUBLIC_HEADER DESTINATION "${DBSCFGDIR}include/fquadrature" )
 install( DIRECTORY ${fquadrature_BINARY_DIR}
   DESTINATION "${DBSCFGDIR}include"
-  FILES_MATCHING PATTERN "*.mod" )
+  FILES_MATCHING PATTERN "*.mod" 
+  PATTERN CMakeFiles EXCLUDE)
 
 #--------------------------------------------------------------------------------------------------#
 # End quadrature/fquadrature/CMakeLists.txt

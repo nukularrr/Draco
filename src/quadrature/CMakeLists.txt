@@ -44,8 +44,6 @@ add_component_library(
 #--------------------------------------------------------------------------------------------------#
 if( HAVE_Fortran )
 
-  set( deplist Lib_special_functions;Lib_parser;Lib_mesh_element)
-
   # For Unix, this will simply run add_subdirectory(fc4). For Visual Studio or XCode, an
   # ExternalProject will be created that uses an alternate gfortran via Makefiles to generate the
   # library external to the main project.
@@ -60,7 +58,6 @@ if( HAVE_Fortran )
     RUNTIME_DIR  fquadrature  # .dll location relative to root binary tree
     LIBRARIES    rtt_fquadrature # new library will have this name. --> librtt_fquadrature.dll.
     TARGET_NAMES Lib_quadrature_fquadrature
-    DEPENDS      "${deplist}"
     CMAKE_COMMAND_LINE "${build_system_state}"
     # VERBOSE
   )
