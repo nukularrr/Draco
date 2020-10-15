@@ -23,43 +23,33 @@ macro( set_ccs2_software_version PROJNAME )
       COMMAND         date +%m/%d/%Y
       OUTPUT_VARIABLE configureDate )
     # Format the configureDate
-    string( REGEX REPLACE
-      ".*([0-9][0-9])/([0-9][0-9])/(20[0-9][0-9]).*"
+    string( REGEX REPLACE ".*([0-9][0-9])/([0-9][0-9])/(20[0-9][0-9]).*"
       "\\3" ${PROJNAME}_DATE_STAMP_YEAR "${configureDate}" )
-    string( REGEX REPLACE
-      ".*([0-9][0-9])/([0-9][0-9])/(20[0-9][0-9]).*"
+    string( REGEX REPLACE ".*([0-9][0-9])/([0-9][0-9])/(20[0-9][0-9]).*"
       "\\1" ${PROJNAME}_DATE_STAMP_MONTH "${configureDate}" )
-    string( REGEX REPLACE
-      ".*([0-9][0-9])/([0-9][0-9])/(20[0-9][0-9]).*"
+    string( REGEX REPLACE ".*([0-9][0-9])/([0-9][0-9])/(20[0-9][0-9]).*"
       "\\2" ${PROJNAME}_DATE_STAMP_DAY "${configureDate}" )
   elseif( WIN32 )
     execute_process(
       COMMAND         "cmd" "/c" "date" "/t"
       OUTPUT_VARIABLE configureDate
       OUTPUT_STRIP_TRAILING_WHITESPACE )
-    # this should produce a string of the form "Sat MM/DD/YYYY".
-    # Format the configureDate
+    # this should produce a string of the form "Sat MM/DD/YYYY".  Format the configureDate
     if( ${configureDate} MATCHES ".*(20[0-9][0-9])-([0-9][0-9])-([0-9][0-9]).*" )
       ### YYYY-MM-DD
-      string( REGEX REPLACE
-	".*(20[0-9][0-9])-([0-9][0-9])-([0-9][0-9]).*"
+      string( REGEX REPLACE ".*(20[0-9][0-9])-([0-9][0-9])-([0-9][0-9]).*"
 	"\\1" ${PROJNAME}_DATE_STAMP_YEAR "${configureDate}" )
-      string( REGEX REPLACE
-	".*(20[0-9][0-9])-([0-9][0-9])-([0-9][0-9]).*"
+      string( REGEX REPLACE ".*(20[0-9][0-9])-([0-9][0-9])-([0-9][0-9]).*"
 	"\\2" ${PROJNAME}_DATE_STAMP_MONTH "${configureDate}" )
-      string( REGEX REPLACE
-	".*(20[0-9][0-9])-([0-9][0-9])-([0-9][0-9]).*"
+      string( REGEX REPLACE ".*(20[0-9][0-9])-([0-9][0-9])-([0-9][0-9]).*"
 	"\\3" ${PROJNAME}_DATE_STAMP_DAY "${configureDate}" )
     else()
       # this should produce a string of the form "Sat MM/DD/YYYY".
-      string( REGEX REPLACE
-	".*([0-9][0-9])/([0-9][0-9])/(20[0-9][0-9]).*"
+      string( REGEX REPLACE ".*([0-9][0-9])/([0-9][0-9])/(20[0-9][0-9]).*"
 	"\\3" ${PROJNAME}_DATE_STAMP_YEAR "${configureDate}" )
-      string( REGEX REPLACE
-	".*([0-9][0-9])/([0-9][0-9])/(20[0-9][0-9]).*"
+      string( REGEX REPLACE ".*([0-9][0-9])/([0-9][0-9])/(20[0-9][0-9]).*"
 	"\\1" ${PROJNAME}_DATE_STAMP_MONTH "${configureDate}" )
-      string( REGEX REPLACE
-	".*([0-9][0-9])/([0-9][0-9])/(20[0-9][0-9]).*"
+      string( REGEX REPLACE ".*([0-9][0-9])/([0-9][0-9])/(20[0-9][0-9]).*"
 	"\\2" ${PROJNAME}_DATE_STAMP_DAY "${configureDate}" )
     endif()
     # message("
@@ -72,24 +62,23 @@ macro( set_ccs2_software_version PROJNAME )
   # Query git branch name?
   # git rev-parse --abbrev-ref HEAD
 
+  # The project(Draco ...) command resets any value provided to -DDraco_VERSION_PATCH=3.  We must
+  # use -DDRACO_VERSION_PATCH=3 in the install scripts.
   string(TOUPPER ${PROJNAME} PROJNAME_UPPER)
-  if( DEFINED ${PROJNAME}_VERSION_PATCH )
-    set( ${PROJNAME_UPPER}_VERSION_PATCH "${${PROJNAME}_VERSION_PATCH}" )
+  if( DEFINED ${PROJNAME_UPPER}_VERSION_PATCH )
+    set( ${PROJNAME}_VERSION_PATCH "${${PROJNAME_UPPER}_VERSION_PATCH}" )
   endif()
-  set( ${PROJNAME}_BUILD_DATE
-    "${${PROJNAME}_DATE_STAMP_YEAR}/${${PROJNAME}_DATE_STAMP_MONTH}/${${PROJNAME}_DATE_STAMP_DAY}" )
-  if( DEFINED ${PROJNAME_UPPER}_VERSION_PATCH ) # "[1-9]?[1-9]$")
-    set( ${PROJNAME}_VERSION_PATCH ${${PROJNAME_UPPER}_VERSION_PATCH} )
-  else()
+  if( NOT DEFINED ${PROJNAME}_VERSION_PATCH OR "${${PROJNAME}_VERSION_PATCH}notset" STREQUAL
+      "notset" )
     set( ${PROJNAME}_VERSION_PATCH
       "${${PROJNAME}_DATE_STAMP_YEAR}${${PROJNAME}_DATE_STAMP_MONTH}${${PROJNAME}_DATE_STAMP_DAY}" )
   endif()
   set( ${PROJNAME}_VERSION_PATCH ${${PROJNAME}_VERSION_PATCH} CACHE STRING "version info" FORCE )
 
-  set( ${PROJNAME}_VERSION "${${PROJNAME}_VERSION_MAJOR}.${${PROJNAME}_VERSION_MINOR}"
-    CACHE STRING "${PROJNAME} version information" FORCE)
-  set( ${PROJNAME}_VERSION_FULL  "${${PROJNAME}_VERSION}.${${PROJNAME}_VERSION_PATCH}"
-    CACHE STRING "${PROJNAME} version information" FORCE)
+  set( ${PROJNAME}_VERSION "${${PROJNAME}_VERSION_MAJOR}.${${PROJNAME}_VERSION_MINOR}" CACHE STRING
+    "${PROJNAME} version information" FORCE)
+  set( ${PROJNAME}_VERSION_FULL  "${${PROJNAME}_VERSION}.${${PROJNAME}_VERSION_PATCH}" CACHE STRING
+    "${PROJNAME} version information" FORCE)
   mark_as_advanced( ${PROJNAME}_VERSION )
 
   message( "\n======================================================\n"
