@@ -30,11 +30,6 @@
 
 #if defined(__GNUC__) && !defined(__clang__)
 
-/*
-#if (DBS_GNUC_VERSION >= 40204) && !defined(__ICC) && !defined(NVCC)
-// Suppress GCC's "unused parameter" warning, about LHS and RHS in sse.h, and an "unused local
-// typedef" warning, from a pre-C++11 implementation of a static assertion in compilerfeatures.h.
-*/
 #pragma GCC diagnostic push
 #if (DBS_GNUC_VERSION >= 70000)
 #pragma GCC diagnostic ignored "-Wexpansion-to-defined"
@@ -60,10 +55,7 @@
 #pragma clang diagnostic pop
 #endif
 
-/* #if (DBS_GNUC_VERSION >= 40600) */
 #if defined(__GNUC__) && !defined(__clang__)
-/* && (DBS_GNUC_VERSION >= 70000) */
-// Restore GCC diagnostics to previous state.
 #pragma GCC diagnostic pop
 #endif
 
@@ -115,8 +107,8 @@ inline uint64_t _get_unique_num(const ctr_type::value_type *const data) {
 //------------------------------------------------------------------------------------------------//
 /*! \brief Generate a random double.
  *
- * Given a pointer to RNG state data, this function returns a random double in the open interval (0,
- * 1)---i.e., excluding the endpoints.
+ * Given a pointer to RNG state data, this function returns a random double in the open interval
+ * (0, 1).  i.e., excluding the endpoints.
  */
 GPU_HOST_DEVICE inline double _ran(ctr_type::value_type *const data) {
   CBRNG rng;

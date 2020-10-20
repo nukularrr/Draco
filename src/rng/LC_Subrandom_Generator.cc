@@ -16,8 +16,7 @@ namespace rtt_rng {
  * \param count_in Dimension of the vector of random values returned by this object.
  */
 LC_Subrandom_Generator::LC_Subrandom_Generator(unsigned const count_in)
-    : Subrandom_Generator(count_in),
-      generator_(gsl_rng_alloc(gsl_rng_mt19937)) {
+    : Subrandom_Generator(count_in), generator_(gsl_rng_alloc(gsl_rng_mt19937)) {
   Ensure(check_class_invariants());
 }
 
@@ -44,9 +43,7 @@ double LC_Subrandom_Generator::shift() {
 }
 
 //------------------------------------------------------------------------------------------------//
-bool LC_Subrandom_Generator::check_class_invariants() const {
-  return generator_ != nullptr;
-}
+bool LC_Subrandom_Generator::check_class_invariants() const { return generator_ != nullptr; }
 
 } // end namespace rtt_rng
 

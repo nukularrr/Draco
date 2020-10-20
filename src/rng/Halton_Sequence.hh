@@ -86,12 +86,11 @@ public:
   bool check_class_invariants() const;
 
 private:
-
   // DATA
 
   unsigned base_{0};  // Base of the sequence
   unsigned count_{0}; // Current element of the sequence
-  double value_{0.0};   // Value of current element of the sequence
+  double value_{0.0}; // Value of current element of the sequence
 
   std::vector<unsigned> n_; // Digits in base of current element of sequence
 };

@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 /* Not our code: disable clang-tidy checks */
-#if ! defined(__clang_analyzer__)
+#if !defined(__clang_analyzer__)
 
 #include "util.h"
 

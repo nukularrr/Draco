@@ -15,8 +15,9 @@ namespace rtt_rng {
 
 //================================================================================================//
 /*!
- * \class Subrandom_Generator \brief Abstract class representing various generators for a sequence
- * of subrandom vectors.
+ * \class Subrandom_Generator
+ *
+ * \brief Abstract class representing various generators for a sequence of subrandom vectors.
  *
  * The name is something of a misnomer, since only the Sobol_Sequence child class actually generates
  * a subrandom sequence. The others generate either pseudorandom sequences or nonrandom sequences.
@@ -47,9 +48,6 @@ public:
   unsigned count() const { return count_; }
 
 protected:
-  // NESTED CLASSES AND TYPEDEFS
-
-  // IMPLEMENTATION
 
   /*!
    * \brief Constructor for Subrandom_Generator.
