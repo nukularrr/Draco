@@ -18,7 +18,7 @@ namespace rtt_parser {
  *
  * \param raw_table Pointer to an array of keywords.
  *
- * \param count Length of the array of keywords pointed to by \c table.
+ * \param[in] count Length of the array of keywords pointed to by \c table.
  *
  * \throw invalid_argument If the keyword table is ill-formed or ambiguous.
  *
@@ -42,8 +42,8 @@ Class_Parser_Base<Class, once, allow_exit>::Class_Parser_Base(
 
 //------------------------------------------------------------------------------------------------//
 /*!
- * \param table Array of keywords to be added to the table.
- * \param count Number of valid elements in the array of keywords.
+ * \param[in] table Array of keywords to be added to the table.
+ * \param[in] count Number of valid elements in the array of keywords.
  *
  * \throw invalid_argument If the keyword table is ill-formed or ambiguous.
  *
@@ -334,8 +334,8 @@ std::shared_ptr<Class> Class_Parser_Base<Class, once, allow_exit>::parse(Token_S
  * \return <CODE>strcmp(k1.moniker, k2.moniker)<0 </CODE>
  */
 template <typename Class, bool once, bool allow_exit>
-bool Class_Parser_Base<Class, once, allow_exit>::Keyword_Compare_::operator()(
-    Keyword const &k1, Keyword const &k2) const {
+bool Class_Parser_Base<Class, once, allow_exit>::Keyword_Compare_::
+operator()(Keyword const &k1, Keyword const &k2) const {
   Require(k1.moniker != nullptr);
   Require(k2.moniker != nullptr);
   return strcmp(k1.moniker, k2.moniker) < 0;
@@ -354,8 +354,9 @@ bool Class_Parser_Base<Class, once, allow_exit>::Keyword_Compare_::operator()(
  * \return <CODE>strcmp(keyword.moniker, token.text().c_str())<0 </CODE>
  */
 template <typename Class, bool once, bool allow_exit>
-bool Class_Parser_Base<Class, once, allow_exit>::Keyword_Compare_::operator()(
-    Keyword const &k1, Token const &k2) const noexcept {
+bool Class_Parser_Base<Class, once, allow_exit>::Keyword_Compare_::operator()(Keyword const &k1,
+                                                                              Token const &k2) const
+    noexcept {
   Require(k1.moniker != nullptr);
   return strcmp(k1.moniker, k2.text().c_str()) < 0;
 }
