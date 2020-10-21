@@ -256,12 +256,9 @@ template <typename Class> struct Class_Parser_Keyword {
    */
   char const *description;
 
-  Class_Parser_Keyword(char const *moniker,
-                       void (Class_Parser<Class>::*func)(Token_Stream &, int),
-                       int const index, char const *module,
-                       char const *description = nullptr)
-    : moniker(moniker), func(func), index(index), module(module),
-      description(description) {}
+  Class_Parser_Keyword(char const *moniker, void (Class_Parser<Class>::*func)(Token_Stream &, int),
+                       int const index, char const *module, char const *description = nullptr)
+      : moniker(moniker), func(func), index(index), module(module), description(description) {}
 };
 
 //-------------------------------------------------------------------------//
@@ -272,8 +269,7 @@ template <typename Class> struct Class_Parser_Keyword {
  * Class_Parser specialization.
  */
 
-template <typename Class, bool once = false, bool allow_exit = false>
-class Class_Parser_Base {
+template <typename Class, bool once = false, bool allow_exit = false> class Class_Parser_Base {
 public:
   // TYPEDEFS AND ENUMERATIONS
 
@@ -299,24 +295,19 @@ public:
   void add(Keyword const *table, size_t count) noexcept(false);
 
   //! Add keywords to the parser. Used for derived parsers.
-  template <class Base>
-  void add(std::vector<Class_Parser_Keyword<Base>> const &) noexcept(false);
+  template <class Base> void add(std::vector<Class_Parser_Keyword<Base>> const &) noexcept(false);
 
   //! Remove a keyword from the table.
   void remove(char const *);
 
   //! Request a change in capacity.
-  void reserve(typename std::vector<Keyword>::size_type n) {
-    table_.reserve(n);
-  }
+  void reserve(typename std::vector<Keyword>::size_type n) { table_.reserve(n); }
 
   // ACCESSORS
 
   //! Return the number of elements in the vector
   // using std::vector<Keyword>::size;
-  typename std::vector<Keyword>::size_type size() const {
-    return table_.size();
-  }
+  typename std::vector<Keyword>::size_type size() const { return table_.size(); }
 
   // SERVICES
 
@@ -369,8 +360,7 @@ private:
 //------------------------------------------------------------------------------------------------//
 //! Check whether a keyword is well-formed.
 
-template <typename Class>
-bool Is_Well_Formed_Keyword(Class_Parser_Keyword<Class> const &key);
+template <typename Class> bool Is_Well_Formed_Keyword(Class_Parser_Keyword<Class> const &key);
 
 } // namespace rtt_parser
 
