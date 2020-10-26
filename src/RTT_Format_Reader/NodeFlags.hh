@@ -18,8 +18,9 @@ namespace rtt_RTT_Format_Reader {
 
 //================================================================================================//
 /*!
- * \class NodeFlags \brief Controls parsing, storing, and accessing the data specific to the node
- * flags block of the mesh file.
+ * \class NodeFlags
+ * \brief Controls parsing, storing, and accessing the data specific to the node flags block of the
+ *        mesh file.
  */
 //================================================================================================//
 class NodeFlags {
