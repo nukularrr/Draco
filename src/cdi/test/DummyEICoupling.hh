@@ -31,7 +31,7 @@ namespace rtt_cdi_test {
  */
 //================================================================================================//
 
-class DLL_PUBLIC_cdi_test DummyEICoupling : public rtt_cdi::EICoupling {
+class DummyEICoupling : public rtt_cdi::EICoupling {
 public:
   // -------------------------- //
   // Constructors & Destructors //

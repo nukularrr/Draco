@@ -31,7 +31,7 @@ namespace rtt_cdi {
  */
 //================================================================================================//
 
-class DLL_PUBLIC_cdi EoS {
+class EoS {
   // DATA
 
   // There is no data for a pure virtual object.  This class provides an interface and does not
