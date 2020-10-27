@@ -366,7 +366,7 @@ template <typename Class> bool Is_Well_Formed_Keyword(Class_Parser_Keyword<Class
 
 #include "Class_Parser.i.hh"
 
-#endif // rtt_Class_Parser__HH
+#endif // rtt_Class_Parser_HH
 
 //------------------------------------------------------------------------------------------------//
 // end of Parse_Table.hh
