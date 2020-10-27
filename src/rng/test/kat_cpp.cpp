@@ -157,7 +157,7 @@ template <typename GEN> void do_test(kat_instance *ti) {
 
   // Engine
   // N.B.  exercising discard() arguably belongs in ut_Engine.cpp
-  typedef r123::Engine<GEN> Etype; // NOLINT
+  typedef r123::Engine<GEN> Etype;                       // NOLINT
   typedef typename GEN::ctr_type::value_type value_type; // NOLINT
   Etype e(data.ukey);
   typename GEN::ctr_type c = data.ctr;

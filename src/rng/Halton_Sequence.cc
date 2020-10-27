@@ -768,13 +768,11 @@ namespace rtt_rng {
  * \param[in] initial_count Selects the starting point in the sequence. This is useful for parallel
  *               random number generators.
  */
-Halton_Sequence::Halton_Sequence(unsigned const base_index,
-                                 unsigned const initial_count)
+Halton_Sequence::Halton_Sequence(unsigned const base_index, unsigned const initial_count)
     : base_(prime[base_index]), count_(initial_count - 1),
       value_(0.5), // to ensure good behavior on first, unused, call to shift().
       n_() {
-  Insist(base_index < NUMBER_OF_KNOWN_PRIMES,
-         "base_index > NUMBER_OF_KNOWN_PRIMES");
+  Insist(base_index < NUMBER_OF_KNOWN_PRIMES, "base_index > NUMBER_OF_KNOWN_PRIMES");
   Require(initial_count > 0);
 
   // Decompose the count into the selected base.

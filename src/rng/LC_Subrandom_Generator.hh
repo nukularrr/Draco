@@ -52,7 +52,6 @@ public:
   bool check_class_invariants() const;
 
 private:
-
   // DATA
 
   gsl_rng *generator_;

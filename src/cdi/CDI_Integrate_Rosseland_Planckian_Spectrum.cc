@@ -40,9 +40,8 @@ namespace rtt_cdi {
  * rosseland(T) = \int_{\nu_1}^{\nu_2}{\frac{\partial B(\nu,T)}{\partial T}d\nu}
  * \f]
  */
-void CDI::integrate_Rosseland_Planckian_Spectrum(double low, double high,
-                                                 double const T, double &planck,
-                                                 double &rosseland) {
+void CDI::integrate_Rosseland_Planckian_Spectrum(double low, double high, double const T,
+                                                 double &planck, double &rosseland) {
   Require(low >= 0.0);
   Require(high >= low);
   Require(T >= 0.0);

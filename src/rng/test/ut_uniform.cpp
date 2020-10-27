@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "rng/config.h"
 
 /* suppress clang-tidy warnings from this file imported from R123 */
-#if ! defined(__clang_analyzer__)
+#if !defined(__clang_analyzer__)
 
 #ifdef _MSC_FULL_VER
 // - 4521: Engines have multiple copy constructors, quite legal C++, disable

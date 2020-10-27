@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "rng/config.h"
 
 /* Not our code: disable clang-tidy checks */
-#if ! defined(__clang_analyzer__)
+#if !defined(__clang_analyzer__)
 
 #ifdef _MSC_FULL_VER
 // - 4701: potentially uninitialized local variable used

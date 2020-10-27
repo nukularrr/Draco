@@ -152,9 +152,7 @@ class Counter_RNG_Ref {
 public:
   //! Constructor.  db and de specify the extents of an RNG state block.
   GPU_HOST_DEVICE
-  Counter_RNG_Ref(ctr_type::value_type *const db,
-                  ctr_type::value_type *const de)
-      : data(db, de) {
+  Counter_RNG_Ref(ctr_type::value_type *const db, ctr_type::value_type *const de) : data(db, de) {
     Require(std::distance(db, de) * sizeof(ctr_type::value_type) ==
             sizeof(ctr_type) + sizeof(key_type));
   }
@@ -214,19 +212,15 @@ public:
    * its initialization to an Rnd_Control object.
    */
   Counter_RNG() {
-    Remember(constexpr bool is_data_ok =
-                 sizeof(data) == sizeof(ctr_type) + sizeof(key_type));
+    Remember(constexpr bool is_data_ok = sizeof(data) == sizeof(ctr_type) + sizeof(key_type));
     Require(is_data_ok);
   }
 
   //! Construct a Counter_RNG using a seed and stream number.
-  Counter_RNG(const uint32_t seed, const uint64_t streamnum) {
-    initialize(seed, streamnum);
-  }
+  Counter_RNG(const uint32_t seed, const uint64_t streamnum) { initialize(seed, streamnum); }
 
   //! Create a new Counter_RNG from data.
-  Counter_RNG(const ctr_type::value_type *const begin,
-              const ctr_type::value_type *const end) {
+  Counter_RNG(const ctr_type::value_type *const begin, const ctr_type::value_type *const end) {
     Require(std::distance(begin, end) * sizeof(ctr_type::value_type) ==
             sizeof(ctr_type) + sizeof(key_type));
 
@@ -265,15 +259,11 @@ public:
   const_iterator end() const { return data + size(); }
 
   //! Test for equality.
-  bool operator==(Counter_RNG const &rhs) const {
-    return std::equal(begin(), end(), rhs.begin());
-  }
+  bool operator==(Counter_RNG const &rhs) const { return std::equal(begin(), end(), rhs.begin()); }
 
   //! Test for inequality.
   GPU_HOST_DEVICE
-  bool operator!=(Counter_RNG const &rhs) const {
-    return !std::equal(begin(), end(), rhs.begin());
-  }
+  bool operator!=(Counter_RNG const &rhs) const { return !std::equal(begin(), end(), rhs.begin()); }
 
   //! Return a Counter_RNG_Ref corresponding to this Counter_RNG.
   GPU_HOST_DEVICE
@@ -304,9 +294,7 @@ private:
 //------------------------------------------------------------------------------------------------//
 
 //! Spawn a new, independent generator from this reference.
-inline void Counter_RNG_Ref::spawn(Counter_RNG &new_gen) const {
-  new_gen._spawn(data.access());
-}
+inline void Counter_RNG_Ref::spawn(Counter_RNG &new_gen) const { new_gen._spawn(data.access()); }
 
 //------------------------------------------------------------------------------------------------//
 //! Is this Counter_RNG_Ref a reference to rng?
@@ -317,8 +305,7 @@ inline bool Counter_RNG_Ref::is_alias_for(Counter_RNG const &rng) const {
 //------------------------------------------------------------------------------------------------//
 //! \brief Initialize internal state from a seed and stream number.
 GPU_HOST_DEVICE
-inline void Counter_RNG::initialize(const uint32_t seed,
-                                    const uint64_t streamnum) {
+inline void Counter_RNG::initialize(const uint32_t seed, const uint64_t streamnum) {
   // Low bits of the counter.
   data[0] = 0;
 

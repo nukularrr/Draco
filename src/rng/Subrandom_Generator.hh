@@ -32,7 +32,6 @@ namespace rtt_rng {
 
 class Subrandom_Generator {
 public:
-
   // CREATORS
 
   virtual ~Subrandom_Generator() = default;
@@ -48,13 +47,11 @@ public:
   unsigned count() const { return count_; }
 
 protected:
-
   /*!
    * \brief Constructor for Subrandom_Generator.
    * \param[in] count Dimension of the vector calculated by this generator.
    */
-  explicit Subrandom_Generator(unsigned count)
-      : count_(count), element_(0) { /* empty */
+  explicit Subrandom_Generator(unsigned count) : count_(count), element_(0) { /* empty */
   }
 
   // MANIPULATORS
