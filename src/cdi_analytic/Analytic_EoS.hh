@@ -44,7 +44,7 @@ namespace rtt_cdi_analytic {
 //
 //================================================================================================//
 
-class DLL_PUBLIC_cdi_analytic Analytic_EoS : public rtt_cdi::EoS {
+class Analytic_EoS : public rtt_cdi::EoS {
 public:
   // Useful typedefs.
   typedef std::shared_ptr<Analytic_EoS_Model> SP_Analytic_Model;
