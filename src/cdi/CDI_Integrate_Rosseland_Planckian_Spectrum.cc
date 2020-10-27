@@ -1,6 +1,6 @@
 //--------------------------------------------*-C++-*---------------------------------------------//
 /*!
- * \file   cdi/CDI_integrate_Rosseland_Planckian_Spectrum.cc
+ * \file   cdi/CDI_Integrate_Rosseland_Planckian_Spectrum.cc
  * \author Kelly Thompson
  * \date   Thu Jun 22 16:22:07 2000
  * \brief  CDI class implementation file.
