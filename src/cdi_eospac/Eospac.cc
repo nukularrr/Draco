@@ -378,7 +378,8 @@ std::vector<double> Eospac::getF(std::vector<double> const &vdensity,
       for (int i = 0; i < returnSize; ++i) {
         if (xyBounds[i] == EOS_OK)
           continue;
-        outputString << "\tThe specific extrapolation error for entry " << "i = " << i << " is: ";
+        outputString << "\tThe specific extrapolation error for entry "
+                     << "i = " << i << " is: ";
         if (xyBounds[i] == EOS_xHi_yHi)
           outputString << "\"Both the x and y arguments were high.\"";
         if (xyBounds[i] == EOS_xHi_yOk)

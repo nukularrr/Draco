@@ -26,7 +26,8 @@ void query_eospac() {
   using std::endl;
 
   cout << "Starting QueryEospac...\n\nMaterial tables are published at "
-       << "http://xweb.lanl.gov/projects/data.\n" << endl;
+       << "http://xweb.lanl.gov/projects/data.\n"
+       << endl;
 
   bool keepGoing(true);
   while (keepGoing) {
