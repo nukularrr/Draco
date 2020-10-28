@@ -103,8 +103,7 @@ protected:
 protected:
   //! Constructor
   NDI_Base(const std::string &dataset_in, const std::string &library_in,
-           const std::string &reaction_in,
-           const std::vector<double> mg_e_bounds_in);
+           const std::string &reaction_in, const std::vector<double> mg_e_bounds_in);
 
   NDI_Base(const std::string &gendir_in, const std::string &dataset_in,
            const std::string &library_in, const std::string &reaction_in,
@@ -133,22 +132,16 @@ public:
   inline std::string get_reaction_name() const & { return reaction_name; }
 
   //! Get number of reaction products
-  inline uint32_t get_num_products() const {
-    return static_cast<uint32_t>(products.size());
-  }
+  inline uint32_t get_num_products() const { return static_cast<uint32_t>(products.size()); }
 
   //! Get vector of reaction products
   inline std::vector<int> get_products() const & { return products; }
 
   //! Get vector of reaction product multiplicities
-  inline std::vector<int> get_product_multiplicities() const & {
-    return product_multiplicities;
-  }
+  inline std::vector<int> get_product_multiplicities() const & { return product_multiplicities; }
 
   //! Get vector of reaction temperature grid support points
-  inline std::vector<double> get_reaction_temperature() const & {
-    return reaction_temperature;
-  }
+  inline std::vector<double> get_reaction_temperature() const & { return reaction_temperature; }
 
   //! Get vector of incident energy support points
   inline std::vector<double> get_einbar() const & { return einbar; }
@@ -166,9 +159,7 @@ public:
   inline std::vector<double> get_group_bounds() const & { return group_bounds; }
 
   //! Get group energies
-  inline std::vector<double> get_group_energies() const & {
-    return group_energies;
-  }
+  inline std::vector<double> get_group_energies() const & { return group_energies; }
 
   // >> Non-interacting helper functions.
 

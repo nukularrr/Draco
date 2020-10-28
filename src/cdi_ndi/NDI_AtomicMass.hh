@@ -40,8 +40,7 @@ class NDI_AtomicMass {
 public:
   //! Default constructor
   explicit NDI_AtomicMass(
-      std::string gendir_path_in =
-          rtt_dsxx::get_env_val<std::string>("NDI_GENDIR_PATH").second);
+      std::string gendir_path_in = rtt_dsxx::get_env_val<std::string>("NDI_GENDIR_PATH").second);
 
   //! Retrieve atomic mass weight for isotope with given ZAID
   double get_amw(const int zaid) const;
