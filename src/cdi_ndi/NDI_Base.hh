@@ -4,8 +4,7 @@
  * \author Ben R. Ryan
  * \date   2019 Nov 4
  * \brief  NDI_Base class definition.
- * \note   Copyright (C) 2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef cdi_ndi_NDI_Base_hh
@@ -30,15 +29,13 @@ namespace rtt_cdi_ndi {
  *
  * \brief Base class for wrapping NDI calls to NDI data.
  *
- * Reads data, constructs internal storage amenable to radiation calculations,
- * and provides accessors. Instantiated only through a data type-specific
- * derived class. Energies and temperatures are in units of keV. Velocity-
- * averaged cross sections are in units of cm^3 sh^-1. Probability density
- * functions sum to unity. Unit conversions from NDI data are done when data is
- * initially read in. For more details on NDI, see
- * https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html Currently only
- * multigroup data is supported, continuous energy data is probably best added
- * through a refactor.
+ * Reads data, constructs internal storage amenable to radiation calculations, and provides
+ * accessors. Instantiated only through a data type-specific derived class. Energies and
+ * temperatures are in units of keV. Velocity- averaged cross sections are in units of cm^3
+ * sh^-1. Probability density functions sum to unity. Unit conversions from NDI data are done when
+ * data is initially read in. For more details on NDI, see
+ * https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html Currently only multigroup data is
+ * supported, continuous energy data is probably best added through a refactor.
  */
 //================================================================================================//
 
@@ -48,8 +45,8 @@ protected:
   //! Path to gendir file, which indexes an NDI dataset
   std::string gendir;
 
-  //! Type of data to read (NDI supports multigroup_neutron, multigroup_photon,
-  //! multigroup_multi, tn, tnreactions, and dosimetry_neutrons)
+  //! Type of data to read (NDI supports multigroup_neutron, multigroup_photon, multigroup_multi,
+  //! tn, tnreactions, and dosimetry_neutrons)
   const std::string dataset;
 
   //! Name of library in which to find reaction

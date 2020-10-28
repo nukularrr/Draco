@@ -4,8 +4,7 @@
  * \author Ben R. Ryan
  * \date   2020 Mar 6
  * \brief  NDI_AtomicMass class declaration.
- * \note   Copyright (C) 2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "NDI_AtomicMass.hh"
@@ -18,12 +17,10 @@ namespace rtt_cdi_ndi {
 
 //------------------------------------------------------------------------------------------------//
 /*!
- * \brief Constructor for NDI atomic mass weight reader, using custom path to
- *        NDI gendir file.
+ * \brief Constructor for NDI atomic mass weight reader, using custom path to NDI gendir file.
  * \param[in] gendir_path_in path to gendir file
  *
- * Print a warning if the gendir version and the ndi library version are not
- * compatible.
+ * Print a warning if the gendir version and the ndi library version are not compatible.
  */
 NDI_AtomicMass::NDI_AtomicMass(std::string gendir_path_in)
     : gendir_path(std::move(gendir_path_in)), pc() {
@@ -34,12 +31,11 @@ NDI_AtomicMass::NDI_AtomicMass(std::string gendir_path_in)
 
 //------------------------------------------------------------------------------------------------//
 /*!
- * \brief Get atomic mass weight of an isotope with given ZAID. Use method due
- *        to T. Saller that invokes multigroup_neutron dataset which includes
- *        atomic weights.
+ * \brief Get atomic mass weight of an isotope with given ZAID. Use method due to T. Saller that
+ *        invokes multigroup_neutron dataset which includes atomic weights.
  *
- * \pre This function requires gendir_path to be valid.  If it isn't valid this
- *      NDI_atomicMass object will fail to contruct at run time.
+ * \pre This function requires gendir_path to be valid.  If it isn't valid this NDI_atomicMass
+ *      object will fail to contruct at run time.
  *
  * \param[in] zaid ZAID of isotope for which to return the atomic mass.
  * \return mass of isotope in grams

@@ -4,8 +4,7 @@
  * \author Ben R. Ryan
  * \date   2020 Feb 4
  * \brief  NDI_TNReaction member definitions.
- * \note   Copyright (C) 2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 #include "NDI_TNReaction.hh"
 #include <cmath>
@@ -18,8 +17,7 @@ namespace rtt_cdi_ndi {
 // CONSTRUCTORS
 //------------------------------------------------------------------------------------------------//
 /*!
- * \brief Constructor for NDI reader specific to TN reaction data with provided
- *        path to gendir file.
+ * \brief Constructor for NDI reader specific to TN reaction data with provided path to gendir file.
  *
  * \param[in] gendir_in path to gendir file
  * \param[in] library_in name of requested NDI data library
@@ -35,8 +33,7 @@ NDI_TNReaction::NDI_TNReaction(const std::string &gendir_in, const std::string &
 }
 //------------------------------------------------------------------------------------------------//
 /*!
- * \brief Constructor for NDI reader specific to TN reaction data using default
- *        gendir file.
+ * \brief Constructor for NDI reader specific to TN reaction data using default gendir file.
  *
  * \param[in] library_in name of requested NDI data library
  * \param[in] reaction_in name of requested reaction
@@ -50,12 +47,12 @@ NDI_TNReaction::NDI_TNReaction(const std::string &library_in, const std::string 
 }
 //------------------------------------------------------------------------------------------------//
 /*!
- * \brief Load NDI dataset. Split off from constructor to allow for both
- *        default and overridden gendir paths.
+ * \brief Load NDI dataset. Split off from constructor to allow for both default and overridden
+ *        gendir paths.
  *
- * This function opens an NDI file, navigates to the appropriate data, reads
- * the data into internal buffers, and closes the file. For more details on NDI,
- * see https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html
+ * This function opens an NDI file, navigates to the appropriate data, reads the data into internal
+ * buffers, and closes the file. For more details on NDI, see
+ * https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html
  */
 void NDI_TNReaction::load_ndi() {
   int gendir_handle = -1;
@@ -121,8 +118,7 @@ void NDI_TNReaction::load_ndi() {
     energy *= 1000.;
   }
 
-  //! Get the number of interp regions... for now just throw an exception if
-  //! this is not equal to 1
+  //! Get the number of interp regions... for now just throw an exception if this is not equal to 1
   int num_einbar_interp_regions = NDI2_get_size(dataset_handle, NDI_EINBAR_INTERP_REG, &ndi_error);
   Require(ndi_error == 0);
   Insist(num_einbar_interp_regions == 1, "Only 1 einbar interp region supported!");
@@ -141,8 +137,7 @@ void NDI_TNReaction::load_ndi() {
     sigma *= 1.e-8;
   }
 
-  //! Get the number of interp regions... for now just throw an exception if
-  //! this is not equal to 1
+  //! Get the number of interp regions... for now just throw an exception if this is not equal to 1
   int num_sigvbar_interp_regions =
       NDI2_get_size(dataset_handle, NDI_SIGVBAR_INTERP_REG, &ndi_error);
   Require(ndi_error == 0);
@@ -218,8 +213,7 @@ void NDI_TNReaction::load_ndi() {
     ndi_error = NDI2_set_option(dataset_handle, NDI_CURR_PART, product_zaid.c_str());
     Require(ndi_error == 0);
 
-    //! Get number of temperature support points (this can depend on reaction
-    //! product)
+    //! Get number of temperature support points (this can depend on reaction product)
     const int num_product_temps = NDI2_get_size(dataset_handle, NDI_EDIST_TEMPS, &ndi_error);
     Require(ndi_error == 0);
     Require(num_product_temps > 1);
@@ -235,8 +229,8 @@ void NDI_TNReaction::load_ndi() {
       temperature *= 1000.;
     }
 
-    //! Get the number of interp regions... for now just throw an exception if
-    //! this is not equal to 1
+    //! Get the number of interp regions... for now just throw an exception if this is not equal to
+    //! 1
     int num_edist_interp_regions = NDI2_get_size(dataset_handle, NDI_EDIST_INTERP_REG, &ndi_error);
     Require(ndi_error == 0);
     Insist(num_edist_interp_regions == 1, "Only 1 edist interp region supported!");
@@ -263,8 +257,8 @@ void NDI_TNReaction::load_ndi() {
 
 //------------------------------------------------------------------------------------------------//
 /*!
- * \brief Return normalized probability distribution function for energy of a
- *        reaction product at a given temperature.
+ * \brief Return normalized probability distribution function for energy of a reaction product at a
+ *        given temperature.
  * \param[in] product_zaid ZAID of reaction product to sample
  * \param[in] temperature of plasma (keV)
  * \return Normalized PDF of reaction product energy
@@ -302,12 +296,13 @@ std::vector<double> NDI_TNReaction::get_PDF(const int product_zaid,
   return pdf;
 }
 #else
+
 //------------------------------------------------------------------------------------------------//
 // CONSTRUCTORS
 //------------------------------------------------------------------------------------------------//
 /*!
- * \brief Constructor for NDI reader -- base class constructor will throw
- *        because NDI is not available.
+ * \brief Constructor for NDI reader -- base class constructor will throw because NDI is not
+ *        available.
  *
  * \param[in] gendir_in path to gendir file
  * \param[in] library_in name of requested NDI data library
@@ -320,9 +315,10 @@ NDI_TNReaction::NDI_TNReaction(const std::string &gendir_in, const std::string &
     : NDI_Base(gendir_in, "tn", library_in, reaction_in, mg_e_bounds_in) { /* ... */
 }
 
+//------------------------------------------------------------------------------------------------//
 /*!
- * \brief Constructor for NDI reader -- base class constructor will throw
- *        because NDI is not available.
+ * \brief Constructor for NDI reader -- base class constructor will throw because NDI is not
+ *        available.
  *
  * \param[in] library_in name of requested NDI data library
  * \param[in] reaction_in name of requested reaction
@@ -337,7 +333,9 @@ std::vector<double> NDI_TNReaction::get_PDF(const int /*product_zaid*/,
                                             const double /*temperature*/) const {
   Insist(0, "get_PDF() only available when NDI library is found");
 }
+
 #endif // NDI_FOUND
+
 } // namespace rtt_cdi_ndi
 
 //------------------------------------------------------------------------------------------------//

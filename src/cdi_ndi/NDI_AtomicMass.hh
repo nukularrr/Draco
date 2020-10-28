@@ -4,8 +4,7 @@
  * \author Ben R. Ryan
  * \date   2020 Mar 6
  * \brief  NDI_AtomicMass class definition.
- * \note   Copyright (C) 2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef cdi_ndi_NDI_AtomicMass_hh
@@ -24,16 +23,14 @@ namespace rtt_cdi_ndi {
 /*!
  * \class NDI_AtomicMass
  *
- * \brief Class for getting atomic mass weights by ZAID from NDI data using a
- *        method due to T. Saller. For more details on NDI, see
- *        https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html
- *        Currently only multigroup data is supported, continuous energy data
- *        is probably best added through a refactor.
+ * \brief Class for getting atomic mass weights by ZAID from NDI data using a method due to
+ *        T. Saller. For more details on NDI, see
+ *        https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html Currently only multigroup data is
+ *        supported, continuous energy data is probably best added through a refactor.
  * \example cdi_ndi/test/tstNDI_AtomicMass.cc
  *
- * Upon contruction, warn if the NDI library version is different that the NDI
- * gendir version.  Assume versions are compatible for differences in the patch
- * version.
+ * Upon contruction, warn if the NDI library version is different that the NDI gendir version.
+ * Assume versions are compatible for differences in the patch version.
  */
 //================================================================================================//
 class NDI_AtomicMass {

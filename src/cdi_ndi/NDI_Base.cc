@@ -4,8 +4,7 @@
  * \author Ben R. Ryan
  * \date   2020 Feb 4
  * \brief  NDI_Base member definitions.
- * \note   Copyright (C) 2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "NDI_Base.hh"
@@ -47,8 +46,8 @@ void NDI_Base::warn_ndi_version_mismatch(std::string const &gendir) {
 }
 #else
 /*!
- * \brief Warn if NDI library version doesn't match GENDIR version to 2 digits.
- *        No-op when NDI_FOUND is false. */
+ * \brief Warn if NDI library version doesn't match GENDIR version to 2 digits.  No-op when
+ *        NDI_FOUND is false. */
 void NDI_Base::warn_ndi_version_mismatch(std::string const & /*gendir*/) {}
 #endif
 
@@ -57,12 +56,11 @@ void NDI_Base::warn_ndi_version_mismatch(std::string const & /*gendir*/) {}
 //------------------------------------------------------------------------------------------------//
 
 /*!
- * \brief Constructor for generic NDI reader, to be inherited by readers for
- *        specific gendir file path and dataset.
+ * \brief Constructor for generic NDI reader, to be inherited by readers for specific gendir file
+ *        path and dataset.
  *
- * This base constructor only sets some data members based on constructor input.
- * For more details on NDI, see
- * https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html
+ * This base constructor only sets some data members based on constructor input.  For more details
+ * on NDI, see https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html
  *
  * \param[in] gendir_in path to non-standard NDI gendir file
  * \param[in] dataset_in name of requested dataset (provided by inherited class)
@@ -116,12 +114,10 @@ NDI_Base::NDI_Base(const std::string & /*dataset_in*/, const std::string & /*lib
 //================================================================================================//
 
 /*!
- * \brief Constructor for generic NDI reader, to be inherited by readers for
- *        specific dataset.
+ * \brief Constructor for generic NDI reader, to be inherited by readers for specific dataset.
  *
- * This base constructor only sets some data members based on constructor input.
- * For more details on NDI, see
- * https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html
+ * This base constructor only sets some data members based on constructor input.  For more details
+ * on NDI, see https://xweb.lanl.gov/projects/data/nuclear/ndi/ndi.html
  *
  * \param[in] dataset_in name of requested dataset (provided by inherited class)
  * \param[in] library_in name of requested NDI data library

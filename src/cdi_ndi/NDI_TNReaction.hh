@@ -4,8 +4,7 @@
  * \author Ben R. Ryan
  * \date   2019 Nov 4
  * \brief  NDI_TNReaction class definition.
- * \note   Copyright (C) 2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef cdi_ndi_NDI_TNReaction_hh
@@ -24,9 +23,8 @@ namespace rtt_cdi_ndi {
 /*!
  * \class NDI_TNReaction
  *
- * \brief Class for wrapping NDI calls to NDI tn data. Reads data, constructs
- *        internal storage amenable to radiation calculations, and provides
- *        accessors.
+ * \brief Class for wrapping NDI calls to NDI tn data. Reads data, constructs internal storage
+ *        amenable to radiation calculations, and provides accessors.
  * \example cdi_ndi/test/tstNDI_TNReaction.cc
  */
 //================================================================================================//
@@ -45,8 +43,7 @@ public:
   //! Disable default constructor
   NDI_TNReaction() = delete;
 
-  //! Disable copy constructor (meaning no implicit move assignment operator
-  //! or move constructor)
+  //! Disable copy constructor (meaning no implicit move assignment operator or move constructor)
   NDI_TNReaction(const NDI_TNReaction &) = delete;
 
   //! Return spectrum PDF at a given temperature
