@@ -62,7 +62,7 @@ namespace rtt_dsxx {
  * - With C++11, some of these features can easily be implemented in code. See
  *   http://en.cppreference.com/w/cpp/numeric/fenv/FE_exceptions .
  */
-class DLL_PUBLIC_dsxx fpe_trap {
+class fpe_trap {
 public:
   //! constructor
   fpe_trap(bool const abortWithInsist_in = true) : abortWithInsist(abortWithInsist_in){/* emtpy */};
@@ -109,32 +109,22 @@ private:
  * The GetExceptionPointers() static method is used to retrieve exception
  * information.
  */
-//------------------------------------------------------------------------------------------------//
-#ifdef FPETRAP_WINDOWS_X86
-#include <Windows.h> // EXCEPTION_POINTERS
+//------------------------------------------
+virtual ~CCrashHandler(){/*empty*/};
 
-namespace rtt_dsxx {
-class DLL_PUBLIC_dsxx CCrashHandler {
-public:
-  // Constructor
-  CCrashHandler(){/*empty*/};
+//! Sets exception handlers that work on per-process basis
+void SetProcessExceptionHandlers();
 
-  // Destructor
-  virtual ~CCrashHandler(){/*empty*/};
+//! Installs C++ exception handlers that function on per-thread basis
+void SetThreadExceptionHandlers();
 
-  //! Sets exception handlers that work on per-process basis
-  void SetProcessExceptionHandlers();
+//! Collects current process state.
+static void GetExceptionPointers(DWORD dwExceptionCode, EXCEPTION_POINTERS **pExceptionPointers);
 
-  //! Installs C++ exception handlers that function on per-thread basis
-  void SetThreadExceptionHandlers();
+//! Action to perform when an exception is found.
+static void ActionOnException(std::string const &message, EXCEPTION_POINTERS *pExcPtrs);
 
-  //! Collects current process state.
-  static void GetExceptionPointers(DWORD dwExceptionCode, EXCEPTION_POINTERS **pExceptionPointers);
-
-  //! Action to perform when an exception is found.
-  static void ActionOnException(std::string const &message, EXCEPTION_POINTERS *pExcPtrs);
-
-  /*!
+/*!
    * \brief This method creates minidump of the process
    * \param pExcPtrs Pointer to the EXCEPTION_POINTERS structure containing
    *        exception information.
@@ -142,29 +132,30 @@ public:
    * The method calls the MiniDumpWriteDump() function from Microsoft Debug Help
    * Library to generate a minidump file.
    */
-  static void CreateMiniDump(EXCEPTION_POINTERS *pExcPtrs);
+static void CreateMiniDump(EXCEPTION_POINTERS *pExcPtrs);
 
-  /* Exception handler functions. */
+/* Exception handler functions. */
 
-  static LONG WINAPI SehHandler(PEXCEPTION_POINTERS pExceptionPtrs);
-  static void __cdecl TerminateHandler();
-  static void __cdecl UnexpectedHandler();
+static LONG WINAPI SehHandler(PEXCEPTION_POINTERS pExceptionPtrs);
+static void __cdecl TerminateHandler();
+static void __cdecl UnexpectedHandler();
 
-  static void __cdecl PureCallHandler();
+static void __cdecl PureCallHandler();
 
-  static void __cdecl InvalidParameterHandler(const wchar_t *expression, const wchar_t *function,
-                                              const wchar_t *file, unsigned int line,
-                                              uintptr_t pReserved);
+static void __cdecl InvalidParameterHandler(const wchar_t *expression, const wchar_t *function,
+                                            const wchar_t *file, unsigned int line,
+                                            uintptr_t pReserved);
 
-  static int __cdecl NewHandler(size_t);
+static int __cdecl NewHandler(size_t);
 
-  static void SigabrtHandler(int);
-  static void SigfpeHandler(int /*code*/, int subcode);
-  static void SigintHandler(int);
-  static void SigillHandler(int);
-  static void SigsegvHandler(int);
-  static void SigtermHandler(int);
-};
+static void SigabrtHandler(int);
+static void SigfpeHandler(int /*code*/, int subcode);
+static void SigintHandler(int);
+static void SigillHandler(int);
+static void SigsegvHandler(int);
+static void SigtermHandler(int);
+}
+;
 
 } // end namespace rtt_dsxx
 
