@@ -40,6 +40,7 @@ for wantfile in $wantfiles; do
       echo "scp -T red@transfer.lanl.gov:${fileid} ."
       scp -T "red@transfer.lanl.gov:${fileid}" .
       echo "ssh red@transfer.lanl.gov delete ${fileid}"
+      # shellcheck disable=SC2029
       ssh red@transfer.lanl.gov delete "${fileid}"
     fi
   done
