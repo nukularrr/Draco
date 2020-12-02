@@ -334,8 +334,8 @@ std::shared_ptr<Class> Class_Parser_Base<Class, once, allow_exit>::parse(Token_S
  * \return <CODE>strcmp(k1.moniker, k2.moniker)<0 </CODE>
  */
 template <typename Class, bool once, bool allow_exit>
-bool Class_Parser_Base<Class, once, allow_exit>::Keyword_Compare_::operator()(
-    Keyword const &k1, Keyword const &k2) const {
+bool Class_Parser_Base<Class, once, allow_exit>::Keyword_Compare_::
+operator()(Keyword const &k1, Keyword const &k2) const {
   Require(k1.moniker != nullptr);
   Require(k2.moniker != nullptr);
   return strcmp(k1.moniker, k2.moniker) < 0;
@@ -354,8 +354,9 @@ bool Class_Parser_Base<Class, once, allow_exit>::Keyword_Compare_::operator()(
  * \return <CODE>strcmp(keyword.moniker, token.text().c_str())<0 </CODE>
  */
 template <typename Class, bool once, bool allow_exit>
-bool Class_Parser_Base<Class, once, allow_exit>::Keyword_Compare_::operator()(
-    Keyword const &k1, Token const &k2) const noexcept {
+bool Class_Parser_Base<Class, once, allow_exit>::Keyword_Compare_::operator()(Keyword const &k1,
+                                                                              Token const &k2) const
+    noexcept {
   Require(k1.moniker != nullptr);
   return strcmp(k1.moniker, k2.text().c_str()) < 0;
 }
