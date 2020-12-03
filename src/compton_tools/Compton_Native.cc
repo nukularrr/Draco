@@ -153,39 +153,34 @@ void Compton_Native::broadcast_MPI(int errcode) {
   data_size = pack[p++];
   Insist(data_size < (1U << 31U), "Unrepresentable with int needed in the broadcast");
 
-  // Derived sizes
-  const auto tsz = num_temperatures_;
-  const auto egsz = num_groups_ + 1U;
-  const auto fgsz = num_temperatures_ * num_groups_;
-  const auto isz = fgsz + 1U;
-  const auto dsz = data_size;
-
   // Broadcast grids
   if (rank != bcast_rank)
-    Ts_.resize(tsz);
-  rtt_c4::broadcast((tsz > 0 ? &Ts_[0] : nullptr), tsz, 0u);
+    Ts_.resize(num_temperatures_);
+  rtt_c4::broadcast(Ts_.begin(), Ts_.end(), Ts_.begin());
 
   if (rank != bcast_rank)
-    Egs_.resize(egsz);
-  rtt_c4::broadcast((egsz > 0 ? &Egs_[0] : nullptr), egsz, 0u);
+    Egs_.resize(num_groups_ + 1u);
+  rtt_c4::broadcast(Egs_.begin(), Egs_.end(), Egs_.begin());
 
   // Broadcast sparse data structures
   if (rank != bcast_rank)
-    first_groups_.resize(fgsz);
-  rtt_c4::broadcast((fgsz > 0 ? &first_groups_[0] : nullptr), fgsz, 0u);
+    first_groups_.resize(num_temperatures_ * num_groups_);
+  rtt_c4::broadcast(first_groups_.begin(), first_groups_.end(), first_groups_.begin());
 
   if (rank != bcast_rank)
-    indexes_.resize(isz);
-  rtt_c4::broadcast((isz > 0 ? &indexes_[0] : nullptr), isz, 0u);
+    indexes_.resize(num_temperatures_ * num_groups_ + 1u);
+  rtt_c4::broadcast(indexes_.begin(), indexes_.end(), indexes_.begin());
 
   // Broadcast data itself
   if (rank != bcast_rank)
-    data_.resize(dsz);
-  rtt_c4::broadcast((dsz > 0 ? &data_[0] : nullptr), dsz, 0u);
+    data_.resize(data_size);
+  rtt_c4::broadcast(data_.begin(), data_.end(), data_.begin());
 
   if (rank != bcast_rank)
-    derivs_.resize(dsz);
-  rtt_c4::broadcast((dsz > 0 ? &derivs_[0] : nullptr), dsz, 0u);
+    derivs_.resize(data_size);
+  rtt_c4::broadcast(derivs_.begin(), derivs_.end(), derivs_.begin());
+
+  return;
 }
 
 //------------------------------------------------------------------------------------------------//

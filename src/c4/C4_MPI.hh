@@ -74,25 +74,26 @@ void broadcast(ForwardIterator first, ForwardIterator last, OutputIterator resul
 
   // Proc 0 does not copy any data into the result iterator.
 
+  size_t constexpr root(0);
   diff_type size;
   if (node() == 0)
     size = std::distance(first, last);
 
-  Remember(int check =) broadcast(&size, 1, 0);
+  Remember(int check =) broadcast(&size, 1u, root);
   Check(check == MPI_SUCCESS);
 
-  auto *buf = new value_type[size];
-  if (node() == 0)
-    std::copy(first, last, buf);
+  if (size > 0) {
+    auto *buf = new value_type[size];
+    if (node() == 0)
+      std::copy(first, last, buf);
 
-  Check(size < INT_MAX);
-  Remember(check =) broadcast(buf, static_cast<int>(size), 0);
-  Check(check == MPI_SUCCESS);
-
-  if (node() != 0)
-    std::copy(buf, buf + size, result);
-
-  delete[] buf;
+    Check(size < INT_MAX);
+    Remember(check =) broadcast(buf, size, root);
+    Check(check == MPI_SUCCESS);
+    if (node() != 0)
+      std::copy(buf, buf + size, result);
+    delete[] buf;
+  }
   return;
 }
 

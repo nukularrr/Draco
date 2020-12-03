@@ -4,8 +4,7 @@
  * \author Kendra Keady
  * \date   Mon Feb 27 2017
  * \brief  Header file for compton_interface CSK_generator interface
- * \note   Copyright (C) 2017-2020 Triad National Security, LLC. All rights reserved.
- */
+ * \note   Copyright (C) 2017-2020 Triad National Security, LLC. All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_compton_interface_CSK_Interface_hh
@@ -21,6 +20,7 @@
 #include <vector>
 
 namespace rtt_compton_interface {
+
 //================================================================================================//
 /*!
  * \class CSK_Interface
@@ -30,30 +30,26 @@ namespace rtt_compton_interface {
  *
  * This interface class allows the client to:
  * 1) access (interpolate) data from existing multigroup CSK_generator libraries
- * 2) build new multigroup libraries from existing CSK_generator pointwise
-      libraries
- * 3) obtain auxiliary information for existing multigroup libraries
- *    (electron temperature bounds, frequency group structures, etc)
+ * 2) build new multigroup libraries from existing CSK_generator pointwise libraries
+ * 3) obtain auxiliary information for existing multigroup libraries (electron temperature bounds,
+ *    frequency group structures, etc)
  *
- * This class is designed to be used with the CSK_generator library and headers.
- * If this is not found at the CMake configure step, the lib_compton_interface portion of
- * draco will not be built.
+ * This class is designed to be used with the CSK_generator library and headers.  If this is not
+ * found at the CMake configure step, the lib_compton_interface portion of draco will not be built.
  *
  * \b User's \b environment
  *
- * CMake searches for the CSK_generator library/include headers during the
- * configuration step. The script that does this is located at:
+ * CMake searches for the CSK_generator library/include headers during the configuration step. The
+ * script that does this is located at:
  *
  * \c /draco/config/FindCOMPTON.cmake
- */
-
-/*!
+ *
  * \example compton_interface/test/tCSK_Interface.cc
  *
- * This unit test demonstrates the two methods for constructing a CSK_Interface
- * object, and exercises all routines for interpolation and data access.
-*/
-
+ * This unit test demonstrates the two methods for constructing a CSK_Interface object, and
+ * exercises all routines for interpolation and data access.
+ */
+//================================================================================================//
 class CSK_Interface {
 
 private:
