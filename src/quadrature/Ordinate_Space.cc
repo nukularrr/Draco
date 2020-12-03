@@ -486,8 +486,9 @@ void Ordinate_Space::compute_reflection_maps_() {
  * flux_fact[0]*phi[1+flux_map[0]] and the y-component of the astrophysical flux is equal to
  * flux_fact[1]*phi[1+flux_map[1]].
  */
-void Ordinate_Space::moment_to_flux(unsigned flux_map[3], double flux_fact[3]) const {
-  static double const RROOT3 = 1.0 / sqrt(3.0);
+void Ordinate_Space::moment_to_flux(std::array<unsigned, 3> & flux_map,
+                                    std::array<double, 3> & flux_fact) const {
+  double const RROOT3 = 1.0 / sqrt(3.0);
 
   if (dimension() == 1) {
     flux_map[0] = 0;
@@ -530,19 +531,18 @@ void Ordinate_Space::moment_to_flux(unsigned flux_map[3], double flux_fact[3]) c
  * Thus, if you are in 2-D Cartesian geometry, and F contains the astrophysical flux at a particular
  * point for a particular group, then the ith moment is equal to flux_fact[i-1]*F[flux_map[i-1]].
  */
-void Ordinate_Space::flux_to_moment(unsigned flux_map[3], double flux_fact[3]) const {
-  static double const ROOT3 = sqrt(3.0);
+void Ordinate_Space::flux_to_moment(std::array<unsigned, 3> & flux_map,
+                                    std::array<double, 3> & flux_fact) const {
+  double const ROOT3 = sqrt(3.0);
 
-  // We hardwire these on the optimistic assumption that the moment basis used
-  // by rtt_quadrature::Ordinate_Space will not often change.
+  // We hardwire these on the optimistic assumption that the moment basis used by
+  // rtt_quadrature::Ordinate_Space will not often change.
   if (dimension() == 1) {
-    // In 1D non-axisymmetric, the polar axis of the spherical harmonics is
-    // aligned along the coordinate axis and only the k=0 harmonics are
-    // nonzero. The flux is then the Y(1,0) harmonic (times the normalization
-    // factor sqrt(3)). In 1D axisymmetric, the mu axis of the spherical
-    // harmonics is aligned along the coordinate axis for consistency with 2-D
-    // axisymmetric, and so the flux is the -Y(1,1) harmonic (times the
-    // normalization).
+    // In 1D non-axisymmetric, the polar axis of the spherical harmonics is aligned along the
+    // coordinate axis and only the k=0 harmonics are nonzero. The flux is then the Y(1,0) harmonic
+    // (times the normalization factor sqrt(3)). In 1D axisymmetric, the mu axis of the spherical
+    // harmonics is aligned along the coordinate axis for consistency with 2-D axisymmetric, and so
+    // the flux is the -Y(1,1) harmonic (times the normalization).
     flux_map[0] = 0;
     if (geometry() != rtt_mesh_element::AXISYMMETRIC)
       flux_fact[0] = ROOT3;

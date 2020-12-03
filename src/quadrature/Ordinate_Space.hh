@@ -201,10 +201,10 @@ public:
   }
 
   //! Return the scattering moment to flux map.
-  void moment_to_flux(unsigned flux_map[3], double flux_fact[3]) const;
+  void moment_to_flux(std::array<unsigned,3> & flux_map, std::array<double,3> & flux_fact) const;
 
   //! Return the flux to scattering moment map.
-  void flux_to_moment(unsigned flux_map[3], double flux_fact[3]) const;
+  void flux_to_moment(std::array<unsigned,3> & flux_map, std::array<double,3> & flux_fact) const;
 
   // STATICS
 
@@ -220,13 +220,9 @@ protected:
   std::vector<Moment> compute_n2lk_(Quadrature_Class, unsigned sn_order);
 
   virtual std::vector<Moment> compute_n2lk_1D_(Quadrature_Class, unsigned sn_order) = 0;
-
   virtual std::vector<Moment> compute_n2lk_1Da_(Quadrature_Class, unsigned sn_order) = 0;
-
   virtual std::vector<Moment> compute_n2lk_2D_(Quadrature_Class, unsigned sn_order) = 0;
-
   virtual std::vector<Moment> compute_n2lk_2Da_(Quadrature_Class, unsigned sn_order) = 0;
-
   virtual std::vector<Moment> compute_n2lk_3D_(Quadrature_Class, unsigned sn_order) = 0;
 
 private:

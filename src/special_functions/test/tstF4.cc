@@ -38,7 +38,7 @@ void tstF4(UnitTest &ut) {
 
   ofstream out("debug.dat");
   for (size_t j = 0; j < 300; ++j) {
-    double eta = -10.0 + 0.1 * j;
+    double eta = -10.0 + 0.1 * static_cast<double>(j);
     out << eta << ' ' << F4(eta) << endl;
   }
 }
