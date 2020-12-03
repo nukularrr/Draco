@@ -75,9 +75,9 @@ Spack - Draco can be installed via the [spack package manager](https:://github.c
 * plot2d - C++ interface to XMGrace 2-dimensional plotting.
 * quadrature - access to angular integration functions and related data.
 * rng - A random number generator component
-  * The primary set of functions provided by this component were derived from [Random123]
-    (https://www.deshawresearch.com/downloads/download_random123.cgi) random number library.  A few
-    additional random number generators are also provided.
+  * The primary set of functions provided by this component were derived from
+    [Random123](https://www.deshawresearch.com/downloads/download_random123.cgi) random number
+    library.  A few additional random number generators are also provided.
 * roots - Root finding algorithms
 * RTT_Format_Reader - meshReaders implementation for RTT format mesh files or input-streams.
 * special_functions - Specialized math functions like factorial and Dirac delta.

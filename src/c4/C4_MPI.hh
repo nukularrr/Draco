@@ -60,9 +60,7 @@ int create_vector_type(unsigned count, unsigned blocklength, unsigned stride,
 }
 
 //------------------------------------------------------------------------------------------------//
-/*!
- * Broadcast the range [first, last) from proc 0 into [result, ...) on all other processors.
- */
+//! Broadcast the range [first, last) from proc 0 into [result, ...) on all other processors.
 
 // This signature must be exported since it is explicitly instantiated.
 template <typename T> int broadcast(T * /*buffer*/, int /*size*/, int /*root*/);
