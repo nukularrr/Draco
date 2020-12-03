@@ -304,7 +304,7 @@ void bad_file_test(rtt_dsxx::UnitTest &ut) {
     std::cout << "Draco exception thrown: " << asrt.what() << std::endl;
     // We successfully caught the bad file!
     caught = true;
-  } catch (const std::ifstream::failure &e) {
+  } catch (const std::ifstream::failure & /* error */) {
     std::cout << "ifstream failure caught!" << std::endl;
     caught = true;
   } catch (...) {

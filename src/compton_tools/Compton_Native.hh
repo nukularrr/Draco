@@ -3,9 +3,8 @@
  * \file   compton_tools/Compton_Native.hh
  * \author Andrew Till
  * \date   11 May 2020
- * \brief  Implementation file for native compton bindary-read and temperature interpolation
- * \note   Copyright (C) 2020 Triad National Security, LLC. All rights reserved.
- */
+ * \brief  Implementation file for native Compton binary-read and temperature interpolation
+ * \note   Copyright (C) 2020 Triad National Security, LLC. All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_compton_tools_Compton_Native_hh
@@ -24,41 +23,40 @@ enum class Eval : size_t { in_lin = 0, out_nonlin = 1, nl_diff = 2 };
 /*!
  * \class Compton_Native
  *
- * \brief Provides access to relativistic Compton scattering angle and
- *        multigroup frequency distributions from csk data files
+ * \brief Provides access to relativistic Compton scattering angle and multigroup frequency
+ *        distributions from CSK data files
  *
  * This interface class allows the client to:
- * 1) access (interpolate) data from existing multigroup csk libraries
- * 2) obtain auxiliary information from existing multigroup libraries
- *    (electron temperature bounds, frequency group structures, etc)
+ * - access (interpolate) data from existing multigroup CSK libraries
+ * - obtain auxiliary information from existing multigroup libraries (electron temperature bounds,
+ *   frequency group structures, etc)
  */
 
 /*!
  * \example compton_tools/test/tCompton_Native.cc
  *
- * This unit test demonstrates the method for constructing a Compton
- * object, and exercises all routines for interpolation and data access.
+ * This unit test demonstrates the method for constructing a Compton object, and exercises all
+ * routines for interpolation and data access.
 */
 
 //------------------------------------------------------------------------------------------------//
 class Compton_Native {
 
 public:
-  //--------------------------------------------------------------------------//
+  //----------------------------------------------------------------------------------------------//
   // SETUP FUNCTIONS
-  //--------------------------------------------------------------------------//
+  //----------------------------------------------------------------------------------------------//
 
   // \brief Constructor
   explicit Compton_Native(const std::string &filename);
 
-  //--------------------------------------------------------------------------//
+  //----------------------------------------------------------------------------------------------//
   // TEMPERATURE INTERPOLATION FUNCTIONS
-  //--------------------------------------------------------------------------//
+  //----------------------------------------------------------------------------------------------//
 
-  // Interpolate csk data in temperature for the linear inscattering
-  // and return a flattened dense matrix with ordering
-  // (slowest) [legendre moment, group to, group from] (fastest)
-  // Must specify the largest desired Legendre moment.
+  // Interpolate csk data in temperature for the linear inscattering and return a flattened dense
+  // matrix with ordering (slowest) [legendre moment, group to, group from] (fastest). Must specify
+  // the largest desired Legendre moment.
   void interp_dense_inscat(std::vector<double> &inscat, double Te_keV,
                            size_t num_moments_truncate) const;
 
@@ -67,17 +65,15 @@ public:
   // outscat must be pre-sized to the number of groups.
   void interp_linear_outscat(std::vector<double> &outscat, double Te_keV) const;
 
-  // Adds the nonlinear difference to the outscat vector
-  // phi is a group-sized vector for the scalar radiation intensity
-  // when the radiation is in equilibrium, sum_g phi_g = scale
-  // outscat must be pre-sized and pre-filled with the outscat data
-  // by calling interp_linear_outscat
+  // Adds the nonlinear difference to the outscat vector phi is a group-sized vector for the scalar
+  // radiation intensity when the radiation is in equilibrium, sum_g phi_g = scale outscat must be
+  // pre-sized and pre-filled with the outscat data by calling interp_linear_outscat
   void interp_nonlin_diff_and_add(std::vector<double> &outscat, double Te_keV,
                                   const std::vector<double> &phi, double scale) const;
 
-  //--------------------------------------------------------------------------//
+  //----------------------------------------------------------------------------------------------//
   // UNIMPLEMENTED, POTENTIAL FUTURE FUNCTIONS
-  //--------------------------------------------------------------------------//
+  //----------------------------------------------------------------------------------------------//
 
 #if 0
   // Interpolate in temperature and multiply against a vector in-place
@@ -132,9 +128,9 @@ public:
                              double Te_keV) const;
 #endif
 
-  //--------------------------------------------------------------------------//
+  //----------------------------------------------------------------------------------------------//
   // GETTER AND SIZE FUNCTIONS
-  //--------------------------------------------------------------------------//
+  //----------------------------------------------------------------------------------------------//
 
   // Accessor functions
   size_t get_num_temperatures() const { return num_temperatures_; }
@@ -146,7 +142,7 @@ public:
   const std::vector<double> &get_Ts() const { return Ts_; }
   const std::vector<double> &get_Egs() const { return Egs_; }
 
-  //--------------------------------------------------------------------------//
+  //----------------------------------------------------------------------------------------------//
   // Size checks for valid state
   bool check_class_invariants() const {
     bool all_good = (num_temperatures_ > 0U) && (num_groups_ > 0U) && (num_leg_moments_ > 0U) &&
@@ -163,14 +159,15 @@ public:
   }
 
 private:
-  //--------------------------------------------------------------------------//
+  //----------------------------------------------------------------------------------------------//
   // PRIVATE DATA
-  //--------------------------------------------------------------------------//
+  //----------------------------------------------------------------------------------------------//
 
   size_t num_temperatures_{0U}; //<! Number of temperature evaluations for csk data
   size_t num_groups_{0U};       //<! Number of energy groups for csk data
   size_t num_leg_moments_{0U};  //<! Number of Legendre moments for csk data
   size_t num_evals_{0U};        //<! Number of "evaluations" (linear/nonlinear, in/out scattering)
+
   // a point is a (Leg moment, eval) pair
   // first eval has all Leg moments and all others have only the 0th moment
   size_t num_points_{0U};
@@ -199,9 +196,9 @@ private:
   // 1D array of [eval, moment, temperature, group-from, group-to]
   std::vector<double> derivs_{};
 
-  //--------------------------------------------------------------------------//
+  //----------------------------------------------------------------------------------------------//
   // PRIVATE HELPER FUNCTIONS
-  //--------------------------------------------------------------------------//
+  //----------------------------------------------------------------------------------------------//
 
   // broadcast data over MPI
   void broadcast_MPI(int errcode);

@@ -1,5 +1,4 @@
-Draco
-----------------
+# Draco
 
 [![Linux Build Status](https://travis-ci.org/lanl/Draco.svg?branch=develop)](https://travis-ci.org/lanl/Draco)
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/yp8r9jxl2gc9n1fs/branch/develop?svg=true)](https://ci.appveyor.com/project/lanl/Draco)
@@ -16,7 +15,7 @@ be extracted for use in clients.
 
 To clone draco:
 
-    $ git clone https://github.com/lanl/Draco.git
+    git clone https://github.com/lanl/Draco.git
 
 To get started, please see
 [Development - Quick Start Guide](https://github.com/lanl/Draco/wiki/Development---Quick-Start)
@@ -25,8 +24,7 @@ in the wiki. Pull requests must satisfy the requirements listed in the
 
 Spack - Draco can be installed via the [spack package manager](https:://github.com/spack/spack)
 
-Synopsis of Active Draco Packages
----------------------------------
+## Synopsis of Active Draco Packages
 
 * c4 - A communications library for message passing interfaces (MPI).
   * For builds without MPI, all communication commands will be no-op functions
@@ -77,7 +75,7 @@ Synopsis of Active Draco Packages
 * plot2d - C++ interface to XMGrace 2-dimensional plotting.
 * quadrature - access to angular integration functions and related data.
 * rng - A random number generator component
-  * The primary set of functions provided by this component were derived from Random123
+  * The primary set of functions provided by this component were derived from [Random123]
     (https://www.deshawresearch.com/downloads/download_random123.cgi) random number library.  A few
     additional random number generators are also provided.
 * roots - Root finding algorithms
@@ -88,30 +86,30 @@ Synopsis of Active Draco Packages
   constants.
 * VendorChecks - A testing component to ensure that discovered and used vendor libraries behave as
   expected.
-* viz - Generates Ensight files for data visualization.
+* viz - Generates [Ensight](https://www.ansys.com/products/fluids/ansys-ensight) files for data
+  visualization.
 
-Deprecated packages
-----------------
+## Deprecated packages
+
 * shared_lib - Dynamically load/unload shared object libraries via dl load (removed 2020 Sep 7).
 
-Authors
-----------------
+## Authors
+
 Many thanks go to Draco's [contributors](https://github.com/lanl/Draco/graphs/contributors).
 
 Draco was originally written by staff from Los Alamos's [CCS-2 Computational Physics and Methods
 Group](http://www.lanl.gov/org/padste/adtsc/computer-computational-statistical-sciences/computational-physics-methods/index.php):
 
 > *CCS-2 Draco Team:* Kelly G. Thompson, Kent G. Budge, Matt A. Cleveland, Ryan T. Wollaeger,
->     Alex R. Long, Ben R. Ryan, Kendra P. Long, James S. Warsa, Tim Kelley, Jae H. Chang,
->     Andrew T. Till, Seth D. Cook, Ondrej Certik, and David A. Dixon.
+>  Alex R. Long, Ben R. Ryan, Kendra P. Long, James S. Warsa, Tim Kelley, Jae H. Chang,
+>  Andrew T. Till, Seth D. Cook, Ondrej Certik, and David A. Dixon.
 
 > *Prior Contributors:* Gabriel M. Rockefeller, Allan B. Wollaber, Rob B. Lowrie, Paul W. Talbot,
->     Katherine J. Wang, Peter Ahrens, Daniel Holladay, Massimiliano Rosa, Todd J. Urbatsch,
->     Jeff D. Densmore, Jeff Furnish, John McGhee, Kris C. Garrett, Mike Buksas, Nick Myers,
->     Paul Henning, Randy Roberts, Seth Johnson, Todd Adams, Tom Evans, and Lori Pritchett-Sheats.
+>  Katherine J. Wang, Peter Ahrens, Daniel Holladay, Massimiliano Rosa, Todd J. Urbatsch,
+>  Jeff D. Densmore, Jeff Furnish, John McGhee, Kris C. Garrett, Mike Buksas, Nick Myers,
+>  Paul Henning, Randy Roberts, Seth Johnson, Todd Adams, Tom Evans, and Lori Pritchett-Sheats.
 
-Release
-----------------
+## Release
 
 Draco is released under the BSD 3-Clause License. For more details see the
 [LICENSE file](https://github.com/lanl/Draco/blob/develop/LICENSE.md).

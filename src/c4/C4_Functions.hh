@@ -268,16 +268,14 @@ void receive_async_custom(C4_Req &request, T *buffer, int size, int source,
  * getting the DLL_PUBLIC_c4 to be correct, so delay declaration until the C4_MPI.hh or C4_Serial.hh
  * files are included.
 
-template <typename T>
-int broadcast(T *buffer, int size, int root);
+template <typename T> int broadcast(T *buffer, int size, int root);
 
 template <typename ForwardIterator, typename OutputIterator>
-void broadcast(ForwardIterator first, ForwardIterator last,
-                             OutputIterator result);
+void broadcast(ForwardIterator first, ForwardIterator last, OutputIterator result);
 
 template <typename ForwardIterator, typename OutputIterator>
-void broadcast(ForwardIterator first, ForwardIterator last,
-                             OutputIterator result, OutputIterator result_end);
+void broadcast(ForwardIterator first, ForwardIterator last, OutputIterator result,
+               OutputIterator result_end);
 */
 
 //------------------------------------------------------------------------------------------------//

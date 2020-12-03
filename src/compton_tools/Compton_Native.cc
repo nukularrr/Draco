@@ -3,9 +3,8 @@
  * \file   compton_tools/Compton_Native.cc
  * \author Andrew Till
  * \date   11 May 2020
- * \brief  Implementation file for native compton binary-read and temperature interpolation
- * \note   Copyright (C) 2020 Triad National Security, LLC. All rights reserved.
- */
+ * \brief  Implementation file for native Compton binary-read and temperature interpolation
+ * \note   Copyright (C) 2020 Triad National Security, LLC. All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "compton_tools/Compton_Native.hh"
@@ -18,7 +17,7 @@
 #include <fstream>
 #include <iostream>
 
-using UINT = uint64_t;
+using UINT64 = uint64_t;
 using FP = double;
 using vec_d = std::vector<double>;
 
@@ -32,9 +31,9 @@ namespace rtt_compton_tools {
 /*!
  * \brief find location in a sorted list and min/max value to be within list
  *
- * \param[in] xs vector of monotonically increasing and unique values
- * \param[in,out] x value whose location in xs needs to be found;
- *               modified so that xs[index] <= x <= xs[index+1]
+ * \param[in]     xs vector of monotonically increasing and unique values
+ * \param[in,out] x  value whose location in xs needs to be found; modified so that xs[index] <= x
+ *                   <= xs[index+1]
  * \return Index in [0, xs.size()-2] so that xs[index] and xs[index+1] are valid
  *
  * Use a binary search to find the location of x in xs
@@ -58,14 +57,17 @@ size_t find_index(const vec_d &xs, double &x) {
 
 //------------------------------------------------------------------------------------------------//
 /*!
- * \brief compute hermite polynomial for a given value and the left/right grid points
+ * \brief compute Hermite polynomial for a given value and the left/right grid points
  *
  * \param[in] x value of independent variable
- * \param[in] xL gridpoint to the left of x (xL <= x)
- * \param[in] xR gridpoint to the right of x (x <= xR)
+ * \param[in] xL grid point to the left of x (xL <= x)
+ * \param[in] xR grid point to the right of x (x <= xR)
  * \return length-4 array of Hermite polynomials x for generic interpolation in x
+ *
  * If vL/vR are function values at xL/xR and dL/dR are function derivatives at xL/xR, then
+ * \code
  * H[0] * vL + H[1] * vR + H[2] * dL + H[3] * dR
+ * \endcode
  * interpolates the value of the function at x, where this function computes and returns H
  */
 template <typename T_FP> std::array<T_FP, 4> hermite(T_FP x, T_FP xL, T_FP xR) {
@@ -93,10 +95,10 @@ template <typename T_FP> std::array<T_FP, 4> hermite(T_FP x, T_FP xL, T_FP xR) {
 /*!
  * \brief Constructor for Compton_Native
  *
- * \param[in] filename Name of the binary csk data file to be read
+ * \param[in] filename Name of the binary CSK data file to be read
  *
- * Rank 0 reads the binary csk data file, which fills in the class' data members.
- * The data members are then broadcast to other MPI ranks to finish their construction.
+ * Rank 0 reads the binary CSK data file, which fills in the class' data members.  The data members
+ * are then broadcast to other MPI ranks to finish their construction.
  */
 Compton_Native::Compton_Native(const std::string &filename) {
   Require(filename.length() > 0U);
@@ -118,11 +120,11 @@ Compton_Native::Compton_Native(const std::string &filename) {
 
 //------------------------------------------------------------------------------------------------//
 /*!
- * \brief Helper member function that broadcasts csk data from rank 0 to all ranks and sets data
+ * \brief Helper member function that broadcasts CSK data from rank 0 to all ranks and sets data
  *
  * \param[in] errcode If non-zero, everyone aborts.
  *
- * Uses rtt_c4's broadcast to send arrays and vectors to all ranks with the sparse csk data,
+ * Uses rtt_c4's broadcast to send arrays and vectors to all ranks with the sparse CSK data,
  * temperature / energy grids, and sizes
  */
 void Compton_Native::broadcast_MPI(int errcode) {
@@ -135,7 +137,7 @@ void Compton_Native::broadcast_MPI(int errcode) {
   Insist(errcode == 0, "Non-zero errorcode. Exiting.");
 
   int rank = rtt_c4::node();
-  constexpr int bcast_rank = 0;
+  constexpr size_t bcast_rank = 0;
 
   // Broadcast sizes
   size_t data_size = data_.size();
@@ -188,12 +190,12 @@ void Compton_Native::broadcast_MPI(int errcode) {
 
 //------------------------------------------------------------------------------------------------//
 /*!
- * \brief Helper member function to read a binary csk file and set class data
+ * \brief Helper member function to read a binary CSK file and set class data
  *
- * \param[in] filename Path to csk binary file
+ * \param[in] filename Path to CSK binary file
  * \return errcode Zero if read is successful, otherwise non-zero
  *
- * Reads a binary csk file by interpreting the characters as 64-bit unsigned ints and doubles
+ * Reads a binary CSK file by interpreting the characters as 64-bit unsigned integers and doubles
  */
 int Compton_Native::read_binary(const std::string &filename) {
 
@@ -203,7 +205,7 @@ int Compton_Native::read_binary(const std::string &filename) {
   // Check for valid file stream
   try {
     fin.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-  } catch (std::fstream::failure &e) {
+  } catch (std::fstream::failure & /*error*/) {
     return 1;
   }
 
@@ -224,22 +226,20 @@ int Compton_Native::read_binary(const std::string &filename) {
     return 2;
   }
 
-  UINT binary_ordering;
-  UINT version_major;
-  UINT version_minor;
-  fin.read(reinterpret_cast<char *>(&version_major), sizeof(UINT));
-  fin.read(reinterpret_cast<char *>(&version_minor), sizeof(UINT));
-  fin.read(reinterpret_cast<char *>(&binary_ordering), sizeof(UINT));
+  UINT64 binary_ordering;
+  UINT64 version_major;
+  UINT64 version_minor;
+  fin.read(reinterpret_cast<char *>(&version_major), sizeof(UINT64));
+  fin.read(reinterpret_cast<char *>(&version_minor), sizeof(UINT64));
+  fin.read(reinterpret_cast<char *>(&binary_ordering), sizeof(UINT64));
   if (version_major != 1U || binary_ordering > 1U) {
-    std::cerr << "Expecting a CSK binary file (version 1) with ordering 0 or 1 "
-                 "but got "
-              << version_major << " with ordering " << binary_ordering;
-    std::cerr << std::endl;
+    std::cerr << "Expecting a CSK binary file (version 1) with ordering 0 or 1 but got "
+              << version_major << " with ordering " << binary_ordering << std::endl;
     return 3;
   }
 
   constexpr size_t n = 7U;
-  std::array<UINT, n> szs;
+  std::array<UINT64, n> szs;
   for (size_t i = 0; i < n; ++i)
     fin.read(reinterpret_cast<char *>(&szs[i]), sizeof(szs[i]));
   size_t j = 0;
@@ -289,15 +289,15 @@ int Compton_Native::read_binary(const std::string &filename) {
   first_groups_.resize(fgsz);
   for (size_t i = 0; i < fgsz; ++i) {
     // Convert from UINT (type in binary file) to size_t
-    UINT tmp;
-    fin.read(reinterpret_cast<char *>(&tmp), sizeof(UINT));
+    UINT64 tmp;
+    fin.read(reinterpret_cast<char *>(&tmp), sizeof(UINT64));
     first_groups_[i] = static_cast<size_t>(tmp);
   }
 
   indexes_.resize(isz);
   for (size_t i = 0; i < isz; ++i) {
-    UINT tmp;
-    fin.read(reinterpret_cast<char *>(&tmp), sizeof(UINT));
+    UINT64 tmp;
+    fin.read(reinterpret_cast<char *>(&tmp), sizeof(UINT64));
     indexes_[i] = static_cast<size_t>(tmp);
   }
 
@@ -373,12 +373,12 @@ int Compton_Native::read_binary(const std::string &filename) {
 /*!
  * \brief Interpolate csk data in temperature and return dense linear inscattering matrix
  *
- * \param[in,out] inscat The flattened (1D), dense inscattering matrix as a vector
- *               Order of inscat is (slow) [moment, group-to, group-from] (fast)
- *               Does NOT need to be the right size prior to calling
+ * \param[in,out] inscat The flattened (1D), dense inscattering matrix as a vector.  Order of inscat
+ *                       is (slow) [moment, group-to, group-from] (fast) Does NOT need to be the
+ *                       right size prior to calling
  * \param[in] Te_keV The electron temperature in keV at which the interpolation is desired
- * \param[in] num_moments_truncate The maximum number of Legendre moments to use
- *            Function will use the minimum of this variable and number of moments in the data
+ * \param[in] num_moments_truncate The maximum number of Legendre moments to use. Function will use
+ *                       the minimum of this variable and number of moments in the data
  */
 void Compton_Native::interp_dense_inscat(vec_d &inscat, double Te_keV,
                                          size_t num_moments_truncate) const {
@@ -424,9 +424,9 @@ void Compton_Native::interp_dense_inscat(vec_d &inscat, double Te_keV,
 /*!
  * \brief Interpolate csk data in temperature and return linear outscattering vector
  *
- * \param[in,out] outscat The 1D linear outscattering array at the desired temperature
- *               Has been summed over outgoing group so only index is [group-from]
- *               Does NOT need to be the right size prior to calling
+ * \param[in,out] outscat The 1D linear outscattering array at the desired temperature. Has been
+ *               summed over outgoing group so only index is [group-from]. Does NOT need to be the
+ *               right size prior to calling.
  * \param[in] Te_keV The electron temperature in keV at which the interpolation is desired
  */
 void Compton_Native::interp_linear_outscat(vec_d &outscat, double Te_keV) const {
@@ -470,8 +470,7 @@ void Compton_Native::interp_linear_outscat(vec_d &outscat, double Te_keV) const 
  *               MUST be the right size (# groups) and initialized with data prior to calling
  * \param[in] Te_keV The electron temperature in keV at which the interpolation is desired
  * \param[in] phi The multigroup radiation field of size number of groups
- * \param[in] scale The scale for phi:
- *                  when the radiation is in equilibrium, sum_g phi_g = scale
+ * \param[in] scale The scale for phi. when the radiation is in equilibrium, sum_g phi_g = scale
  *
  * Adds difference (nonlinear outscattering minus nonlinear inscattering) to the outscattering
  * vector. The contribution is nonlinear because it depends on phi, the radiation field.

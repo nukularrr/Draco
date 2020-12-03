@@ -3,9 +3,8 @@
  * \file   compton_tools/cskrw.cc
  * \author Andrew Till
  * \date   11 May 2020
- * \brief  Converter of ASCII to binary csk Compton files. Intended for internal use.
- * \note   Copyright (C) 2020 Triad National Security, LLC. All rights reserved.
- */
+ * \brief  Converter of ASCII to binary CSK Compton files. Intended for internal use.
+ * \note   Copyright (C) 2020 Triad National Security, LLC. All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "cdi/CDI.hh"
@@ -23,50 +22,54 @@
 #include <iostream>
 #include <string>
 
+using rtt_dsxx::soft_equiv;
 using std::cout;
 using std::endl;
-//using std::ios;
 using std::string;
-
-using rtt_dsxx::soft_equiv;
-
-using UINT = uint64_t;
+using UINT64 = uint64_t;
 using FP = double;
 
-// Passed around internally in Dense_Compton_Data; limited metadata
+//------------------------------------------------------------------------------------------------//
+/*!
+ * \class Sparse_Compton_Data
+ *
+ * Passed around internally in Dense_Compton_Data; limited metadata
+ */
+//------------------------------------------------------------------------------------------------//
 struct Sparse_Compton_Data {
 
-  // Construct with zeros and known sizes
+  //! Construct with zeros and known sizes
   Sparse_Compton_Data() = default;
 
-  // first group-to with nonzero value
-  // index with T and gfrom; applies to all points
-  std::vector<UINT> first_groups;
+  //! First group-to with nonzero value. index with T and gfrom; applies to all points
+  std::vector<UINT64> first_groups;
 
-  // cumulative sum of row offsets into data and derivs
-  // index with T and gfrom; applies to all points
-  std::vector<UINT> indexes;
+  //! cumulative sum of row offsets into data and derivatives. index with T and gfrom; applies to
+  //! all points
+  std::vector<UINT64> indexes;
 
-  // sparse version of Dense_Compton_Data's data and derivs
-  // [point, T, gfrom, gto]
+  //! sparse version of Dense_Compton_Data's data and derivatives, [point, T, gfrom, gto]
   std::vector<FP> data;
-  std::vector<FP> derivs;
+  std::vector<FP> derivatives;
 };
 
+//------------------------------------------------------------------------------------------------//
+//! \class Dense_Compton_Data
+//------------------------------------------------------------------------------------------------//
 struct Dense_Compton_Data {
-  UINT numEvals;
-  UINT numTs;
-  UINT numGroups;
-  UINT numLegMoments;
+  UINT64 numEvals;
+  UINT64 numTs;
+  UINT64 numGroups;
+  UINT64 numLegMoments;
   std::vector<FP> groupBdrs;
   std::vector<FP> Ts;
   // [eval, moment, T, gfrom, gto]
   std::vector<FP> data;
   // [eval, moment, T, gfrom, gto]
-  std::vector<FP> derivs;
+  std::vector<FP> derivatives;
 
-  void resize(UINT numfiles, std::string filename);
-  void read_from_file(UINT eval, std::string filename, bool isnonlin);
+  void resize(UINT64 numfiles, std::string filename);
+  void read_from_file(UINT64 eval, std::string filename, bool isnonlin);
   void compute_nonlinear_difference();
   void compute_temperature_derivatives();
   void write_sparse_binary(std::string fileout);
@@ -78,11 +81,15 @@ private:
   void write_binary(std::string fileout, Sparse_Compton_Data &sd);
 };
 
-// resize data and set sizes
-// numfiles is number of Compton files; filename is one such file
-void Dense_Compton_Data::resize(UINT numfiles, std::string filename) {
+//------------------------------------------------------------------------------------------------//
+/*
+ * \brief resize data and set sizes
+ * \param[in] numfiles is number of Compton files
+ * \param[in] filename is one such file
+ */
+void Dense_Compton_Data::resize(UINT64 numfiles, std::string filename) {
   // Reserve space for nl difference
-  UINT numderived = (numfiles >= 4) ? 1 : 0;
+  UINT64 numderived = (numfiles >= 4) ? 1 : 0;
   numEvals = numfiles + numderived;
 
   // Read first line of filename to get sizes
@@ -90,7 +97,7 @@ void Dense_Compton_Data::resize(UINT numfiles, std::string filename) {
   Insist(f.is_open(), "Unable to open " + filename);
 
   // Line 1: sizes
-  UINT numTbreakpoints = 0; // not used
+  UINT64 numTbreakpoints = 0; // not used
   numTs = 0;
   numGroups = 0;
   numLegMoments = 0;
@@ -99,15 +106,16 @@ void Dense_Compton_Data::resize(UINT numfiles, std::string filename) {
   // Set vector lengths
   groupBdrs.resize(numGroups + 1, 0.0);
   Ts.resize(numTs, 0.0);
-  UINT sz = numEvals * numLegMoments * numTs * numGroups * numGroups;
+  UINT64 sz = numEvals * numLegMoments * numTs * numGroups * numGroups;
   data.resize(sz, 0.0);
-  derivs.resize(sz, 0.0);
+  derivatives.resize(sz, 0.0);
 
   f.close();
 }
 
+//------------------------------------------------------------------------------------------------//
 // read the entire contents of one file
-void Dense_Compton_Data::read_from_file(UINT eval, std::string filename, bool isnonlin) {
+void Dense_Compton_Data::read_from_file(UINT64 eval, std::string filename, bool isnonlin) {
   Insist(eval < numEvals, "eval must be < numEvals");
   std::ifstream f(filename);
   Insist(f.is_open(), "Unable to open " + filename);
@@ -142,10 +150,10 @@ void Dense_Compton_Data::read_from_file(UINT eval, std::string filename, bool is
       (4.0 / 9.0) * 2.0 / (hplanck * hplanck * hplanck * cspeed * cspeed) * (mec2 * mec2 * mec2);
 
   // Line 1: sizes
-  UINT numTbreakpoints = 0;
-  UINT numTs_check = 0;
-  UINT numGroups_check = 0;
-  UINT numLegMoments_check = 0;
+  UINT64 numTbreakpoints = 0;
+  UINT64 numTs_check = 0;
+  UINT64 numGroups_check = 0;
+  UINT64 numLegMoments_check = 0;
   f >> numTbreakpoints >> numTs_check >> numGroups_check >> numLegMoments_check;
   Check(numTs == numTs_check);
   Check(numGroups == numGroups_check);
@@ -153,12 +161,12 @@ void Dense_Compton_Data::read_from_file(UINT eval, std::string filename, bool is
 
   // Line 2: T breakpoints (unused)
   FP throwaway;
-  for (UINT i = 0; i < numTbreakpoints; ++i) {
+  for (UINT64 i = 0; i < numTbreakpoints; ++i) {
     f >> throwaway;
   }
 
   // Line 3: Group bounds
-  for (UINT g = 0; g < numGroups + 1U; ++g) {
+  for (UINT64 g = 0; g < numGroups + 1U; ++g) {
     f >> groupBdrs[g];
     // scale to keV
     groupBdrs[g] *= mec2;
@@ -169,7 +177,7 @@ void Dense_Compton_Data::read_from_file(UINT eval, std::string filename, bool is
   // T
   // gto gfrom moment0 [moment1 moment2 ...]
   // <blankline>
-  for (UINT iT = 0; iT < numTs; ++iT) {
+  for (UINT64 iT = 0; iT < numTs; ++iT) {
     f >> Ts[iT];
     // scale to keV
     Ts[iT] *= mec2;
@@ -178,8 +186,8 @@ void Dense_Compton_Data::read_from_file(UINT eval, std::string filename, bool is
     const FP linscale = isnonlin ? nlbase * T4 : 1.0;
     const FP renorm = basescale * linscale;
 
-    UINT gfrom = 0U;
-    UINT gto = 0U;
+    UINT64 gfrom = 0U;
+    UINT64 gto = 0U;
     bool finished = false;
     while (!finished) {
       // Read one line
@@ -189,14 +197,14 @@ void Dense_Compton_Data::read_from_file(UINT eval, std::string filename, bool is
       gto -= 1U;
 
       // Read xs
-      for (UINT iL = 0; iL < numLegMoments; ++iL) {
+      for (UINT64 iL = 0; iL < numLegMoments; ++iL) {
         // Read value
         FP val;
         f >> val;
         val *= renorm;
 
         // Put in 1D data vector
-        const UINT loc =
+        const UINT64 loc =
             gto + numGroups * (gfrom + numGroups * (iT + numTs * (iL + numLegMoments * eval)));
         Check(loc < data.size());
         data[loc] = val;
@@ -220,6 +228,7 @@ void Dense_Compton_Data::read_from_file(UINT eval, std::string filename, bool is
   f.close();
 }
 
+//------------------------------------------------------------------------------------------------//
 // use 4 evaluations to determine nonlinear difference
 // implicit at low E/T; explicit at high E/T
 void Dense_Compton_Data::compute_nonlinear_difference() {
@@ -233,9 +242,9 @@ void Dense_Compton_Data::compute_nonlinear_difference() {
   // To mitigate numerical error and avoid dividing by a B of 0.,
   // we use the RHS at low E/T and use the LHS at high E/T.
 
-  // Caveat Emptor: fN, ON, and IN are scaled to a bg that sums to unity!
-  // If a downstream data consumer uses a phi or bg that sums to a T_r^4,
-  // then fN, ON, and/or IN should be rescaled by 1/(a * T_e^4)
+  // Caveat Emptor: fN, ON, and IN are scaled to a bg that sums to unity! If a downstream data
+  // consumer uses a phi or bg that sums to a T_r^4, then fN, ON, and/or IN should be rescaled by
+  // 1/(a * T_e^4)
 
   // Determine the cutoff between low and high energies (Ecutoff = N * T)
   // Based on the wgt fxn CSK uses in its MG avg, N <= 25.0
@@ -249,20 +258,20 @@ void Dense_Compton_Data::compute_nonlinear_difference() {
   // indexes for the evaluations
   // I for inscattering, O for outscattering, f for difference
   // L for linear, N for nonlinear
-  const UINT e_IL = 0;
-  const UINT e_OL = 1;
-  const UINT e_IN = 2;
-  const UINT e_ON = 3;
-  const UINT e_fN = 4;
+  const UINT64 e_IL = 0;
+  const UINT64 e_OL = 1;
+  const UINT64 e_IN = 2;
+  const UINT64 e_ON = 3;
+  const UINT64 e_fN = 4;
   // 0th Legendre moment
 
-  for (UINT iT = 0; iT < numTs; ++iT) {
+  for (UINT64 iT = 0; iT < numTs; ++iT) {
     const FP T = Ts[iT];
     const FP Ecutoff = Ncutoff * T;
 
     // Compute bg[T]
     FP bgsum = 0.0;
-    for (UINT g = 0; g < numGroups; ++g) {
+    for (UINT64 g = 0; g < numGroups; ++g) {
       const FP Elow = groupBdrs[g];
       const FP Ehigh = groupBdrs[g + 1];
       bg[g] = rtt_cdi::CDI::integratePlanckSpectrum(Elow, Ehigh, T);
@@ -270,15 +279,15 @@ void Dense_Compton_Data::compute_nonlinear_difference() {
     }
     bgsum = bgsum > 0.0 ? bgsum : 1.0;
     //Normalize bg[T] (needed when T is near first or last group bounds)
-    for (UINT g = 0; g < numGroups; ++g) {
+    for (UINT64 g = 0; g < numGroups; ++g) {
       bg[g] /= bgsum;
     }
     // First pass on nldiff
     FP sumlin = 0.0;
     FP sumnonlin = 0.0;
-    for (UINT iL = 0; iL < numLegMoments; ++iL) {
-      for (UINT gfrom = 0; gfrom < numGroups; ++gfrom) {
-        for (UINT gto = 0; gto < numGroups; ++gto) {
+    for (UINT64 iL = 0; iL < numLegMoments; ++iL) {
+      for (UINT64 gfrom = 0; gfrom < numGroups; ++gfrom) {
+        for (UINT64 gto = 0; gto < numGroups; ++gto) {
           // Look at left side of group bounds (use less implicit)
           const FP Eto = groupBdrs[gto];
           const FP Efrom = groupBdrs[gfrom];
@@ -290,20 +299,20 @@ void Dense_Compton_Data::compute_nonlinear_difference() {
 
           std::array<FP, 4> vals;
           // use scattering matrix (no transpose) for outscattering
-          for (UINT eval : {e_OL, e_ON}) {
-            const UINT loc =
+          for (UINT64 eval : {e_OL, e_ON}) {
+            const UINT64 loc =
                 gto + numGroups * (gfrom + numGroups * (iT + numTs * (iL + numLegMoments * eval)));
             vals[eval] = data[loc];
           }
           // use transpose of scattering matrix for inscattering
-          for (UINT eval : {e_IL, e_IN}) {
-            const UINT loc =
+          for (UINT64 eval : {e_IL, e_IN}) {
+            const UINT64 loc =
                 gfrom + numGroups * (gto + numGroups * (iT + numTs * (iL + numLegMoments * eval)));
             vals[eval] = data[loc];
           }
 
           // Avoid dividing by zero
-          const FP eps = 100 * std::numeric_limits<FP>::min();
+          constexpr FP eps = 100 * std::numeric_limits<FP>::min();
           const bool bzero = bgto <= eps || bgfrom <= eps;
 
           // Take differences of spontaneous and induced rates at equilibrium
@@ -311,7 +320,7 @@ void Dense_Compton_Data::compute_nonlinear_difference() {
           const FP expldiff = vals[e_ON] - vals[e_IN];
 
           // For low E/T, store impldiff; for high E/T, store expldiff
-          const UINT loc_fN =
+          const UINT64 loc_fN =
               gto + numGroups * (gfrom + numGroups * (iT + numTs * (iL + numLegMoments * e_fN)));
           data[loc_fN] = (lowE) ? impldiff : expldiff;
 
@@ -328,10 +337,10 @@ void Dense_Compton_Data::compute_nonlinear_difference() {
     const FP scalenl = sumlin / sumnonlin;
     // we hope scalenl is within a percent or less of 1
     Check(scalenl < 1.2 && scalenl > 0.8);
-    for (UINT iL = 0; iL < numLegMoments; ++iL) {
-      for (UINT gfrom = 0; gfrom < numGroups; ++gfrom) {
-        for (UINT gto = 0; gto < numGroups; ++gto) {
-          const UINT loc_fN =
+    for (UINT64 iL = 0; iL < numLegMoments; ++iL) {
+      for (UINT64 gfrom = 0; gfrom < numGroups; ++gfrom) {
+        for (UINT64 gto = 0; gto < numGroups; ++gto) {
+          const UINT64 loc_fN =
               gto + numGroups * (gfrom + numGroups * (iT + numTs * (iL + numLegMoments * e_fN)));
           data[loc_fN] *= scalenl;
         }
@@ -340,11 +349,12 @@ void Dense_Compton_Data::compute_nonlinear_difference() {
   }
 }
 
+//------------------------------------------------------------------------------------------------//
 // Compute and limit temperature derivatives of data
 void Dense_Compton_Data::compute_temperature_derivatives() {
   // Check that temperature grid is valid (part 1/2)
   if (numTs < 2) {
-    std::fill(derivs.begin(), derivs.end(), 0.0);
+    std::fill(derivatives.begin(), derivatives.end(), 0.0);
     std::cerr << "WARNING: Cannot construct derivatives with only one "
                  "temperature. Aborting routine.";
     std::cerr << std::endl;
@@ -353,7 +363,7 @@ void Dense_Compton_Data::compute_temperature_derivatives() {
 
   // Check that temperature grid is valid (part 2/2)
   bool validTs = true;
-  for (UINT it = 0; it < (numTs - 1U); ++it) {
+  for (UINT64 it = 0; it < (numTs - 1U); ++it) {
     FP T1 = Ts[it];
     FP T2 = Ts[it + 1];
     validTs = validTs && (T1 < T2);
@@ -361,27 +371,27 @@ void Dense_Compton_Data::compute_temperature_derivatives() {
   Insist(validTs, "Temperatures are not monotonically increasing and unique.\n");
 
   // Temporary array for finite differences
-  const UINT fd_sz = numGroups * numGroups * (numTs - 1U);
+  const UINT64 fd_sz = numGroups * numGroups * (numTs - 1U);
   std::vector<FP> finite_diffs(fd_sz, 0.0);
 
-  for (UINT eval = 0; eval < numEvals; ++eval) {
-    for (UINT iL = 0; iL < numLegMoments; ++iL) {
+  for (UINT64 eval = 0; eval < numEvals; ++eval) {
+    for (UINT64 iL = 0; iL < numLegMoments; ++iL) {
       std::fill(finite_diffs.begin(), finite_diffs.end(), 0.0);
 
       // Step 1: Compute finite difference in each temperature interval
-      for (UINT iT = 0; iT < (numTs - 1U); ++iT) {
+      for (UINT64 iT = 0; iT < (numTs - 1U); ++iT) {
         const FP inv_dT = 1.0 / (Ts[iT + 1U] - Ts[iT]);
-        for (UINT gfrom = 0; gfrom < numGroups; ++gfrom) {
-          for (UINT gto = 0; gto < numGroups; ++gto) {
+        for (UINT64 gfrom = 0; gfrom < numGroups; ++gfrom) {
+          for (UINT64 gto = 0; gto < numGroups; ++gto) {
 
-            const UINT loc_m =
+            const UINT64 loc_m =
                 gto + numGroups * (gfrom + numGroups * (iT + numTs * (iL + numLegMoments * eval)));
-            const UINT loc_p =
+            const UINT64 loc_p =
                 gto +
                 numGroups * (gfrom + numGroups * ((iT + 1U) + numTs * (iL + numLegMoments * eval)));
             const FP fd = (data[loc_p] - data[loc_m]) * inv_dT;
 
-            const UINT loc_fd = gto + numGroups * (gfrom + numGroups * iT);
+            const UINT64 loc_fd = gto + numGroups * (gfrom + numGroups * iT);
             finite_diffs[loc_fd] = fd;
           }
         }
@@ -392,49 +402,49 @@ void Dense_Compton_Data::compute_temperature_derivatives() {
 
       // Step 2a: First temperature (no limiter; first-order estimate)
       {
-        UINT iT = 0;
-        const UINT offset = numGroups * (iT + numTs * (iL + numLegMoments * eval));
-        const UINT offset_fd = numGroups * iT;
-        for (UINT gfrom = 0; gfrom < numGroups; ++gfrom) {
-          for (UINT gto = 0; gto < numGroups; ++gto) {
-            const UINT loc = gto + numGroups * (gfrom + offset);
-            const UINT loc_fd = gto + numGroups * (gfrom + offset_fd);
-            derivs[loc] = finite_diffs[loc_fd];
+        UINT64 iT = 0;
+        const UINT64 offset = numGroups * (iT + numTs * (iL + numLegMoments * eval));
+        const UINT64 offset_fd = numGroups * iT;
+        for (UINT64 gfrom = 0; gfrom < numGroups; ++gfrom) {
+          for (UINT64 gto = 0; gto < numGroups; ++gto) {
+            const UINT64 loc = gto + numGroups * (gfrom + offset);
+            const UINT64 loc_fd = gto + numGroups * (gfrom + offset_fd);
+            derivatives[loc] = finite_diffs[loc_fd];
           }
         }
       }
 
       // Step 2b: Last temperature (no limiter; first-order estimate)
       {
-        UINT iT = numTs - 1U;
-        const UINT offset = numGroups * (iT + numTs * (iL + numLegMoments * eval));
-        const UINT offset_fd = numGroups * (iT - 1U);
-        for (UINT gfrom = 0; gfrom < numGroups; ++gfrom) {
-          for (UINT gto = 0; gto < numGroups; ++gto) {
-            const UINT loc = gto + numGroups * (gfrom + offset);
-            const UINT loc_fd = gto + numGroups * (gfrom + offset_fd);
-            derivs[loc] = finite_diffs[loc_fd];
+        UINT64 iT = numTs - 1U;
+        const UINT64 offset = numGroups * (iT + numTs * (iL + numLegMoments * eval));
+        const UINT64 offset_fd = numGroups * (iT - 1U);
+        for (UINT64 gfrom = 0; gfrom < numGroups; ++gfrom) {
+          for (UINT64 gto = 0; gto < numGroups; ++gto) {
+            const UINT64 loc = gto + numGroups * (gfrom + offset);
+            const UINT64 loc_fd = gto + numGroups * (gfrom + offset_fd);
+            derivatives[loc] = finite_diffs[loc_fd];
           }
         }
       }
 
       // Step 2c: Interior temperatures (with limiters)
       // m is left of iT; p is right of iT; p and iT have same indices
-      for (UINT iT = 1U; iT < (numTs - 1U); ++iT) {
+      for (UINT64 iT = 1U; iT < (numTs - 1U); ++iT) {
         const FP dT_m = Ts[iT] - Ts[iT - 1U];
         const FP dT_p = Ts[iT + 1U] - Ts[iT];
         const FP f_m = (2. * dT_m + dT_p) / (3. * (dT_m + dT_p));
         const FP f_p = 1.0 - f_m;
 
-        const UINT offset = numGroups * (iT + numTs * (iL + numLegMoments * eval));
+        const UINT64 offset = numGroups * (iT + numTs * (iL + numLegMoments * eval));
 
-        const UINT offset_fd_m = numGroups * (iT - 1U);
-        const UINT offset_fd_p = numGroups * iT;
+        const UINT64 offset_fd_m = numGroups * (iT - 1U);
+        const UINT64 offset_fd_p = numGroups * iT;
 
-        for (UINT gfrom = 0; gfrom < numGroups; ++gfrom) {
-          for (UINT gto = 0; gto < numGroups; ++gto) {
-            const UINT loc_fd_m = gto + numGroups * (gfrom + offset_fd_m);
-            const UINT loc_fd_p = gto + numGroups * (gfrom + offset_fd_p);
+        for (UINT64 gfrom = 0; gfrom < numGroups; ++gfrom) {
+          for (UINT64 gto = 0; gto < numGroups; ++gto) {
+            const UINT64 loc_fd_m = gto + numGroups * (gfrom + offset_fd_m);
+            const UINT64 loc_fd_p = gto + numGroups * (gfrom + offset_fd_p);
             const FP fd_m = finite_diffs[loc_fd_m];
             const FP fd_p = finite_diffs[loc_fd_p];
 
@@ -446,8 +456,8 @@ void Dense_Compton_Data::compute_temperature_derivatives() {
             const int sign_p = int(0.0 < fd_p) - int(fd_p < 0.0);
 
             const FP d = (sign_m * sign_p > 0) ? (fd_m * fd_p) / (f_m * fd_m + f_p * fd_p) : 0.0;
-            const UINT loc = gto + numGroups * (gfrom + offset);
-            derivs[loc] = d;
+            const UINT64 loc = gto + numGroups * (gfrom + offset);
+            derivatives[loc] = d;
           }
         }
       }
@@ -455,6 +465,7 @@ void Dense_Compton_Data::compute_temperature_derivatives() {
   }
 }
 
+//------------------------------------------------------------------------------------------------//
 // Sparsify data and print to binary
 void Dense_Compton_Data::write_sparse_binary(std::string fileout) {
   Sparse_Compton_Data sd = copy_to_sparse();
@@ -462,6 +473,7 @@ void Dense_Compton_Data::write_sparse_binary(std::string fileout) {
   write_binary(fileout, sd);
 }
 
+//------------------------------------------------------------------------------------------------//
 // Sparsify data
 Sparse_Compton_Data Dense_Compton_Data::copy_to_sparse() {
 
@@ -470,33 +482,33 @@ Sparse_Compton_Data Dense_Compton_Data::copy_to_sparse() {
   const FP cutoff = 1e-210;
 
   // Determine the number of non-zero entries per col (brute-force loop)
-  const UINT fg_sz = numGroups * numTs;
-  std::vector<UINT> first_groups(fg_sz, numGroups);
-  std::vector<UINT> end_groups(fg_sz, 0U);
+  const UINT64 fg_sz = numGroups * numTs;
+  std::vector<UINT64> first_groups(fg_sz, numGroups);
+  std::vector<UINT64> end_groups(fg_sz, 0U);
 
   // Ensure diagonal is included
-  for (UINT iT = 0; iT < numTs; ++iT) {
-    for (UINT gfrom = 0; gfrom < numGroups; ++gfrom) {
-      const UINT loc_fg = gfrom + numGroups * iT;
+  for (UINT64 iT = 0; iT < numTs; ++iT) {
+    for (UINT64 gfrom = 0; gfrom < numGroups; ++gfrom) {
+      const UINT64 loc_fg = gfrom + numGroups * iT;
       // first_groups is inclusive, end_groups is exclusive
       first_groups[loc_fg] = gfrom;
       end_groups[loc_fg] = gfrom + 1U;
     }
   }
 
-  for (UINT eval = 0; eval < numEvals; ++eval) {
-    for (UINT iL = 0; iL < numLegMoments; ++iL) {
-      for (UINT iT = 0; iT < numTs; ++iT) {
-        for (UINT gfrom = 0; gfrom < numGroups; ++gfrom) {
-          for (UINT gto = 0; gto < numGroups; ++gto) {
-            const UINT iT_m = iT > 0 ? iT - 1U : 0;
-            const UINT iT_p = iT < (numTs - 1U) ? iT + 1U : numTs - 1U;
-            const UINT loc_m =
+  for (UINT64 eval = 0; eval < numEvals; ++eval) {
+    for (UINT64 iL = 0; iL < numLegMoments; ++iL) {
+      for (UINT64 iT = 0; iT < numTs; ++iT) {
+        for (UINT64 gfrom = 0; gfrom < numGroups; ++gfrom) {
+          for (UINT64 gto = 0; gto < numGroups; ++gto) {
+            const UINT64 iT_m = iT > 0 ? iT - 1U : 0;
+            const UINT64 iT_p = iT < (numTs - 1U) ? iT + 1U : numTs - 1U;
+            const UINT64 loc_m =
                 gto +
                 numGroups * (gfrom + numGroups * (iT_m + numTs * (iL + numLegMoments * eval)));
-            const UINT loc =
+            const UINT64 loc =
                 gto + numGroups * (gfrom + numGroups * (iT + numTs * (iL + numLegMoments * eval)));
-            const UINT loc_p =
+            const UINT64 loc_p =
                 gto +
                 numGroups * (gfrom + numGroups * (iT_p + numTs * (iL + numLegMoments * eval)));
             const FP val_m = std::fabs(data[loc_m]);
@@ -504,7 +516,7 @@ Sparse_Compton_Data Dense_Compton_Data::copy_to_sparse() {
             const FP val_p = std::fabs(data[loc_p]);
             // If datapoint is nonzero at current or bounding temperatures, include in sparse dataset
             if (val_m > cutoff || val > cutoff || val_p > cutoff) {
-              const UINT loc_fg = gfrom + numGroups * iT;
+              const UINT64 loc_fg = gfrom + numGroups * iT;
               first_groups[loc_fg] = std::min(gto, first_groups[loc_fg]);
               end_groups[loc_fg] = std::max(gto + 1U, end_groups[loc_fg]);
             }
@@ -515,21 +527,21 @@ Sparse_Compton_Data Dense_Compton_Data::copy_to_sparse() {
   }
 
   // Determine sizes and use to compute offsets
-  const UINT i_sz = numGroups * numTs + 1U;
-  std::vector<UINT> indexes(i_sz, 0U);
-  for (UINT i = 0; i < fg_sz; ++i) {
-    const UINT di = end_groups[i] - first_groups[i];
+  const UINT64 i_sz = numGroups * numTs + 1U;
+  std::vector<UINT64> indexes(i_sz, 0U);
+  for (UINT64 i = 0; i < fg_sz; ++i) {
+    const UINT64 di = end_groups[i] - first_groups[i];
     indexes[i + 1U] = indexes[i] + di;
   }
 
   // Save all Legendre moments for first (in_lin) eval
   // and save 0th Legendre moment for other (out_lin, nldiff) evals
-  const UINT numBinaryEvals = (numEvals > 1U) ? 3U : 1U;
-  const UINT numPoints = (numLegMoments + numBinaryEvals - 1U);
-  const UINT numPerPoint = indexes[i_sz - 1U];
-  const UINT numNonZeros = numPerPoint * numPoints;
+  const UINT64 numBinaryEvals = (numEvals > 1U) ? 3U : 1U;
+  const UINT64 numPoints = (numLegMoments + numBinaryEvals - 1U);
+  const UINT64 numPerPoint = indexes[i_sz - 1U];
+  const UINT64 numNonZeros = numPerPoint * numPoints;
   std::vector<FP> sparse_data(numNonZeros, 0.0);
-  std::vector<FP> sparse_derivs(numNonZeros, 0.0);
+  std::vector<FP> sparse_derivatives(numNonZeros, 0.0);
 
   /*
   std::cout << "DBG numBinaryEvals numPoints numPerPoint numNonZeros "
@@ -537,26 +549,26 @@ Sparse_Compton_Data Dense_Compton_Data::copy_to_sparse() {
             << numNonZeros << '\n';
    */
 
-  const std::array<UINT, 3> evalsToUse = {0, 1, 4};
-  for (UINT iuse = 0; iuse < numBinaryEvals; ++iuse) {
-    const UINT eval = evalsToUse[iuse];
-    const UINT numLegUse = (eval > 0) ? 1U : numLegMoments;
-    for (UINT iL = 0; iL < numLegUse; ++iL) {
-      const UINT point = (eval > 0) ? numLegMoments + iuse - 1U : iL;
-      for (UINT iT = 0; iT < numTs; ++iT) {
-        for (UINT gfrom = 0; gfrom < numGroups; ++gfrom) {
-          const UINT loc_fg = gfrom + numGroups * iT;
-          const UINT first = first_groups[loc_fg];
-          const UINT offset = indexes[loc_fg] + point * numPerPoint;
-          const UINT sz = indexes[loc_fg + 1U] - indexes[loc_fg];
-          for (UINT dg = 0; dg < sz; ++dg) {
+  const std::array<UINT64, 3> evalsToUse = {0, 1, 4};
+  for (UINT64 iuse = 0; iuse < numBinaryEvals; ++iuse) {
+    const UINT64 eval = evalsToUse[iuse];
+    const UINT64 numLegUse = (eval > 0) ? 1U : numLegMoments;
+    for (UINT64 iL = 0; iL < numLegUse; ++iL) {
+      const UINT64 point = (eval > 0) ? numLegMoments + iuse - 1U : iL;
+      for (UINT64 iT = 0; iT < numTs; ++iT) {
+        for (UINT64 gfrom = 0; gfrom < numGroups; ++gfrom) {
+          const UINT64 loc_fg = gfrom + numGroups * iT;
+          const UINT64 first = first_groups[loc_fg];
+          const UINT64 offset = indexes[loc_fg] + point * numPerPoint;
+          const UINT64 sz = indexes[loc_fg + 1U] - indexes[loc_fg];
+          for (UINT64 dg = 0; dg < sz; ++dg) {
             // d for dense; s for sparse
-            const UINT gto = dg + first;
-            const UINT loc_d =
+            const UINT64 gto = dg + first;
+            const UINT64 loc_d =
                 gto + numGroups * (gfrom + numGroups * (iT + numTs * (iL + numLegMoments * eval)));
-            const UINT loc_s = dg + offset;
+            const UINT64 loc_s = dg + offset;
             sparse_data[loc_s] = data[loc_d];
-            sparse_derivs[loc_s] = derivs[loc_d];
+            sparse_derivatives[loc_s] = derivatives[loc_d];
           }
         }
       }
@@ -568,40 +580,41 @@ Sparse_Compton_Data Dense_Compton_Data::copy_to_sparse() {
   std::swap(sd.first_groups, first_groups);
   std::swap(sd.indexes, indexes);
   std::swap(sd.data, sparse_data);
-  std::swap(sd.derivs, sparse_derivs);
+  std::swap(sd.derivatives, sparse_derivatives);
 
   return sd;
 }
 
+//------------------------------------------------------------------------------------------------//
 // Debug print sparse data
 void Dense_Compton_Data::print_sparse(const Sparse_Compton_Data &sd) {
   std::cout << "sparse sizes : " << sd.first_groups.size() << ' ' << sd.indexes.size() << ' '
-            << sd.data.size() << ' ' << sd.derivs.size() << '\n';
+            << sd.data.size() << ' ' << sd.derivatives.size() << '\n';
 
   if (false) {
     std::cout << "PRINT CONTENTS (point 0)\n";
-    for (UINT iT = 0; iT < numTs; ++iT) {
-      for (UINT gfrom = 0; gfrom < numGroups; ++gfrom) {
-        UINT loc = gfrom + numGroups * iT;
-        UINT fg = sd.first_groups[loc];
-        UINT strt = sd.indexes[loc];
-        UINT endd = sd.indexes[loc + 1];
-        for (UINT ii = strt; ii < endd; ++ii) {
-          UINT gto = (ii - strt) + fg;
+    for (UINT64 iT = 0; iT < numTs; ++iT) {
+      for (UINT64 gfrom = 0; gfrom < numGroups; ++gfrom) {
+        UINT64 loc = gfrom + numGroups * iT;
+        UINT64 fg = sd.first_groups[loc];
+        UINT64 strt = sd.indexes[loc];
+        UINT64 endd = sd.indexes[loc + 1];
+        for (UINT64 ii = strt; ii < endd; ++ii) {
+          UINT64 gto = (ii - strt) + fg;
           std::cout << iT << ' ' << gfrom << ' ' << gto << ' ' << std::setprecision(2)
-                    << sd.data[ii] << ' ' << std::setprecision(2) << sd.derivs[ii] << '\n';
+                    << sd.data[ii] << ' ' << std::setprecision(2) << sd.derivatives[ii] << '\n';
         }
       }
     }
   }
 
-  UINT counter = 0;
-  UINT line = 8;
+  UINT64 counter = 0;
+  UINT64 line = 8;
   if (false) {
     std::cout << '\n';
     std::cout << "first_groups:\n";
     counter = 0;
-    for (const UINT fg : sd.first_groups) {
+    for (const UINT64 fg : sd.first_groups) {
       std::cout << fg << ' ';
       if (++counter % line == 0)
         std::cout << '\n';
@@ -611,10 +624,10 @@ void Dense_Compton_Data::print_sparse(const Sparse_Compton_Data &sd) {
     std::cout << '\n';
     std::cout << "last_groups (exclusive):\n";
     counter = 0;
-    for (UINT i = 0; i < sd.first_groups.size(); ++i) {
-      UINT fg = sd.first_groups[i];
-      UINT sz = sd.indexes[i + 1] - sd.indexes[i];
-      UINT lg = fg + sz;
+    for (UINT64 i = 0; i < sd.first_groups.size(); ++i) {
+      UINT64 fg = sd.first_groups[i];
+      UINT64 sz = sd.indexes[i + 1] - sd.indexes[i];
+      UINT64 lg = fg + sz;
       std::cout << lg << ' ';
       if (++counter % line == 0)
         std::cout << '\n';
@@ -626,7 +639,7 @@ void Dense_Compton_Data::print_sparse(const Sparse_Compton_Data &sd) {
     std::cout << '\n';
     std::cout << "indexes:\n";
     counter = 0;
-    for (const UINT i : sd.indexes) {
+    for (const UINT64 i : sd.indexes) {
       std::cout << i << ' ';
       if (++counter % line == 0)
         std::cout << '\n';
@@ -650,9 +663,9 @@ void Dense_Compton_Data::print_sparse(const Sparse_Compton_Data &sd) {
 
   if (false) {
     std::cout << '\n';
-    std::cout << "sparse derivs:\n";
+    std::cout << "sparse derivatives:\n";
     counter = 0;
-    for (const FP d : sd.derivs) {
+    for (const FP d : sd.derivatives) {
       std::cout << std::setprecision(4) << d << ' ';
       if (std::fabs(d) > 1e-210)
         ++counter;
@@ -663,6 +676,7 @@ void Dense_Compton_Data::print_sparse(const Sparse_Compton_Data &sd) {
   }
 }
 
+//------------------------------------------------------------------------------------------------//
 // Write to binary
 void Dense_Compton_Data::write_binary(std::string fileout, Sparse_Compton_Data &sd) {
   auto fout = std::ofstream(fileout, std::ios::out | std::ios::binary);
@@ -672,28 +686,28 @@ void Dense_Compton_Data::write_binary(std::string fileout, Sparse_Compton_Data &
   std::vector<char> filetype = {' ', 'c', 's', 'k', ' ', '\0'};
   fout.write(&filetype[0], filetype.size() * sizeof(char));
 
-  UINT version_major = 1;
-  UINT version_minor = 0;
+  UINT64 version_major = 1;
+  UINT64 version_minor = 0;
   // ordering: 0 means leg inside; 1 means leg outside
-  UINT binary_ordering = 1;
+  UINT64 binary_ordering = 1;
 
-  fout.write(reinterpret_cast<char *>(&version_major), sizeof(UINT));
-  fout.write(reinterpret_cast<char *>(&version_minor), sizeof(UINT));
-  fout.write(reinterpret_cast<char *>(&binary_ordering), sizeof(UINT));
+  fout.write(reinterpret_cast<char *>(&version_major), sizeof(UINT64));
+  fout.write(reinterpret_cast<char *>(&version_minor), sizeof(UINT64));
+  fout.write(reinterpret_cast<char *>(&binary_ordering), sizeof(UINT64));
 
-  UINT numBinaryEvals = (numEvals > 1U) ? 3U : 1U;
+  UINT64 numBinaryEvals = (numEvals > 1U) ? 3U : 1U;
 
-  UINT tsz = Ts.size();
-  UINT egsz = groupBdrs.size();
-  UINT fgsz = sd.first_groups.size();
-  UINT isz = sd.indexes.size();
-  UINT dsz = sd.data.size();
+  UINT64 tsz = Ts.size();
+  UINT64 egsz = groupBdrs.size();
+  UINT64 fgsz = sd.first_groups.size();
+  UINT64 isz = sd.indexes.size();
+  UINT64 dsz = sd.data.size();
 
   Check(tsz == numTs);
   Check(egsz == (numGroups + 1U));
   Check(fgsz == (numGroups * numTs));
   Check(isz == (numGroups * numTs + 1U));
-  Check(dsz == sd.derivs.size());
+  Check(dsz == sd.derivatives.size());
 
   /*
   std::cout << "DBG binary file v" << version_major << '.' << version_minor
@@ -701,25 +715,26 @@ void Dense_Compton_Data::write_binary(std::string fileout, Sparse_Compton_Data &
    */
 
   // sizes
-  fout.write(reinterpret_cast<char *>(&numTs), sizeof(UINT));
-  fout.write(reinterpret_cast<char *>(&numGroups), sizeof(UINT));
-  fout.write(reinterpret_cast<char *>(&numLegMoments), sizeof(UINT));
-  fout.write(reinterpret_cast<char *>(&numBinaryEvals), sizeof(UINT));
-  fout.write(reinterpret_cast<char *>(&fgsz), sizeof(UINT));
-  fout.write(reinterpret_cast<char *>(&isz), sizeof(UINT));
-  fout.write(reinterpret_cast<char *>(&dsz), sizeof(UINT));
+  fout.write(reinterpret_cast<char *>(&numTs), sizeof(UINT64));
+  fout.write(reinterpret_cast<char *>(&numGroups), sizeof(UINT64));
+  fout.write(reinterpret_cast<char *>(&numLegMoments), sizeof(UINT64));
+  fout.write(reinterpret_cast<char *>(&numBinaryEvals), sizeof(UINT64));
+  fout.write(reinterpret_cast<char *>(&fgsz), sizeof(UINT64));
+  fout.write(reinterpret_cast<char *>(&isz), sizeof(UINT64));
+  fout.write(reinterpret_cast<char *>(&dsz), sizeof(UINT64));
 
   // data
   fout.write(reinterpret_cast<char *>(&Ts[0]), tsz * sizeof(FP));
   fout.write(reinterpret_cast<char *>(&groupBdrs[0]), egsz * sizeof(FP));
-  fout.write(reinterpret_cast<char *>(&sd.first_groups[0]), fgsz * sizeof(UINT));
-  fout.write(reinterpret_cast<char *>(&sd.indexes[0]), isz * sizeof(UINT));
+  fout.write(reinterpret_cast<char *>(&sd.first_groups[0]), fgsz * sizeof(UINT64));
+  fout.write(reinterpret_cast<char *>(&sd.indexes[0]), isz * sizeof(UINT64));
   fout.write(reinterpret_cast<char *>(&sd.data[0]), dsz * sizeof(FP));
-  fout.write(reinterpret_cast<char *>(&sd.derivs[0]), dsz * sizeof(FP));
+  fout.write(reinterpret_cast<char *>(&sd.derivatives[0]), dsz * sizeof(FP));
 
   fout.close();
 }
 
+//------------------------------------------------------------------------------------------------//
 // print contents of struct
 void Dense_Compton_Data::print_contents(int verbosity, int precision) {
   if (verbosity != 0)
@@ -738,7 +753,7 @@ void Dense_Compton_Data::print_contents(int verbosity, int precision) {
   if (verbosity > 1) {
     std::cout << '\n';
     std::cout << "Group boundaries (keV):\n";
-    for (UINT g = 0; g < numGroups + 1U; ++g) {
+    for (UINT64 g = 0; g < numGroups + 1U; ++g) {
       if (g > 0)
         std::cout << ' ';
       std::cout << std::setprecision(precision) << groupBdrs[g];
@@ -746,7 +761,7 @@ void Dense_Compton_Data::print_contents(int verbosity, int precision) {
     std::cout << '\n';
 
     std::cout << "Temperatures (keV):\n";
-    for (UINT iT = 0; iT < numTs; ++iT) {
+    for (UINT64 iT = 0; iT < numTs; ++iT) {
       if (iT > 0)
         std::cout << ' ';
       std::cout << std::setprecision(precision) << Ts[iT];
@@ -758,22 +773,22 @@ void Dense_Compton_Data::print_contents(int verbosity, int precision) {
   if (verbosity > 2) {
     std::cout << '\n';
     std::vector<std::string> evalNames = {"in_lin", "out_lin", "in_nonlin", "out_nonlin", "nldiff"};
-    for (UINT eval = 0; eval < numEvals; ++eval) {
+    for (UINT64 eval = 0; eval < numEvals; ++eval) {
       std::cout << "Eval: " << evalNames[eval] << '\n';
-      for (UINT iL = 0; iL < numLegMoments; ++iL) {
+      for (UINT64 iL = 0; iL < numLegMoments; ++iL) {
         std::cout << "Legendre moment: " << iL << '\n';
 
-        for (UINT iT = 0; iT < numTs; ++iT) {
+        for (UINT64 iT = 0; iT < numTs; ++iT) {
           std::cout << "Temperature (keV): " << Ts[iT] << '\n';
 
           std::cout << "Data (matrix; cm^2/mole):\n";
-          for (UINT gto = 0; gto < numGroups; ++gto) {
+          for (UINT64 gto = 0; gto < numGroups; ++gto) {
             if (verbosity <= 3 && gto > 1)
               continue;
-            for (UINT gfrom = 0; gfrom < numGroups; ++gfrom) {
+            for (UINT64 gfrom = 0; gfrom < numGroups; ++gfrom) {
               if (gfrom > 0)
                 std::cout << ' ';
-              const UINT loc =
+              const UINT64 loc =
                   gto +
                   numGroups * (gfrom + numGroups * (iT + numTs * (iL + numLegMoments * eval)));
               std::cout << std::setprecision(precision) << data[loc];
@@ -782,16 +797,16 @@ void Dense_Compton_Data::print_contents(int verbosity, int precision) {
           }
 
           std::cout << "Derivative in T (matrix; cm^2/mole-keV):\n";
-          for (UINT gto = 0; gto < numGroups; ++gto) {
+          for (UINT64 gto = 0; gto < numGroups; ++gto) {
             if (verbosity <= 3 && gto > 0)
               continue;
-            for (UINT gfrom = 0; gfrom < numGroups; ++gfrom) {
+            for (UINT64 gfrom = 0; gfrom < numGroups; ++gfrom) {
               if (gfrom > 0)
                 std::cout << ' ';
-              const UINT loc =
+              const UINT64 loc =
                   gto +
                   numGroups * (gfrom + numGroups * (iT + numTs * (iL + numLegMoments * eval)));
-              std::cout << std::setprecision(precision) << derivs[loc];
+              std::cout << std::setprecision(precision) << derivatives[loc];
             }
             std::cout << '\n';
           }
@@ -811,7 +826,6 @@ void Dense_Compton_Data::print_contents(int verbosity, int precision) {
 /*!
  * \brief Basic reader of the csk ASCII file format
  */
-//------------------------------------------------------------------------------------------------//
 void read_csk_files(std::string const &basename, int verbosity) {
   // csk data base filename (csk ASCII format required)
 
@@ -829,18 +843,18 @@ void read_csk_files(std::string const &basename, int verbosity) {
 
   // Resize
   {
-    UINT numfiles = lins.size() * inouts.size();
+    UINT64 numfiles = lins.size() * inouts.size();
     std::string const filename = basename + '_' + inouts[0] + '_' + lins[0];
     dat.resize(numfiles, filename);
   }
 
   // Fill
-  UINT counter = 0;
+  UINT64 counter = 0;
   for (std::string lin : lins) {
     for (std::string inout : inouts) {
 
       ++counter;
-      UINT eval = counter - 1U;
+      UINT64 eval = counter - 1U;
 
       std::string const filename = basename + '_' + inout + '_' + lin;
       cout << "Reading file: " << filename << endl;
@@ -881,17 +895,17 @@ void read_csk_files(std::string const &basename, int verbosity) {
     // I for inscattering, O for outscattering, f for difference
     // L for linear, N for nonlinear
     std::vector<std::string> evalNames = {"in_lin", "out_lin", "in_nonlin", "out_nonlin", "nldiff"};
-    const UINT e_IL = 0;
-    const UINT e_OL = 1;
-    const UINT e_IN = 2;
-    const UINT e_ON = 3;
-    const UINT e_fN = 4;
+    const UINT64 e_IL = 0;
+    const UINT64 e_OL = 1;
+    const UINT64 e_IN = 2;
+    const UINT64 e_ON = 3;
+    const UINT64 e_fN = 4;
     // 0th Legendre moment
-    const UINT iL = 0;
+    const UINT64 iL = 0;
 
     if (verbosity > 0)
       std::cout << '\n';
-    for (UINT iT = 0; iT < dat.numTs; ++iT) {
+    for (UINT64 iT = 0; iT < dat.numTs; ++iT) {
       // Get T
       const FP T = dat.Ts[iT];
       if (verbosity > 0)
@@ -901,7 +915,7 @@ void read_csk_files(std::string const &basename, int verbosity) {
       if (verbosity > 1)
         std::cout << "Planck spectrum: ";
       FP bgsum = 0.0;
-      for (UINT g = 0; g < dat.numGroups; ++g) {
+      for (UINT64 g = 0; g < dat.numGroups; ++g) {
         const FP Elow = dat.groupBdrs[g];
         const FP Ehigh = dat.groupBdrs[g + 1];
         bg[g] = rtt_cdi::CDI::integratePlanckSpectrum(Elow, Ehigh, T);
@@ -916,19 +930,19 @@ void read_csk_files(std::string const &basename, int verbosity) {
         std::cout << "bgsum (raw): " << std::setprecision(16) << bgsum << '\n';
 
       // Normalize to bgsum (to match compute_nonlinear_difference)
-      for (UINT g = 0; g < dat.numGroups; ++g) {
+      for (UINT64 g = 0; g < dat.numGroups; ++g) {
         bg[g] /= bgsum;
       }
       // Compute sums for each eval in equilibrium (I=B)
       std::array<FP, 5> sums = {0.0, 0.0, 0.0, 0.0, 0.0};
-      for (UINT eval = 0; eval < sums.size(); ++eval) {
-        for (UINT gfrom = 0; gfrom < dat.numGroups; ++gfrom) {
+      for (UINT64 eval = 0; eval < sums.size(); ++eval) {
+        for (UINT64 gfrom = 0; gfrom < dat.numGroups; ++gfrom) {
           FP subsum = 0.0;
-          for (UINT gto = 0; gto < dat.numGroups; ++gto) {
+          for (UINT64 gto = 0; gto < dat.numGroups; ++gto) {
             // for linear terms, no induced planck[energy_to]
             const FP bgto = (eval >= 2) ? bg[gto] : 1.0;
             const FP bgfrom = bg[gfrom];
-            const UINT loc =
+            const UINT64 loc =
                 gto +
                 dat.numGroups *
                     (gfrom + dat.numGroups * (iT + dat.numTs * (iL + dat.numLegMoments * eval)));
@@ -991,7 +1005,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  // Assume last command line argument is the name of the ipcress file.
+  // Assume last command line argument is the name of the IPCRESS file.
   std::string const filename = string((argc > 1) ? argv[argc - 1] : "csk");
 
   try {
