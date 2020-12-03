@@ -187,7 +187,7 @@ template <typename T> int broadcast(T *buffer, int size, int root) {
   return r;
 }
 template <typename T> int broadcast(T *buffer, size_t size, size_t root) {
-  Require(root < nodes());
+  Require(root < nranks());
   Check(size < INT32_MAX);
   Check(root < INT32_MAX);
   int r = MPI_Bcast(buffer, static_cast<int>(size), MPI_Traits<T>::element_type(),
