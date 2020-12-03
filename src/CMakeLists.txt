@@ -89,10 +89,11 @@ endif()
 message(" ")
 message( STATUS "Configuring Level 4 packages --" )
 add_dir_if_exists( cdi_analytic )      # needs parser, roots, ode, cdi
-if( NOT CI_CLANG_TIDY )
-add_dir_if_exists( cdi_ndi )           # needs ds++, rng, cdi
 add_dir_if_exists( RTT_Format_Reader)  # needs meshReaders
 add_dir_if_exists( special_functions ) # needs roots, units, GSL
+
+if( NOT CI_CLANG_TIDY )
+add_dir_if_exists( cdi_ndi )           # needs ds++, rng, cdi
 
 # Level 5
 message(" ")

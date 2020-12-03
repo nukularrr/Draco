@@ -38,7 +38,8 @@ void tstFM12(UnitTest &ut) {
   }
 
   ofstream out("debug.dat");
-  for (double eta = -10; eta < 20; eta += 0.1) {
+  for (size_t j = 0; j < 300; ++j) {
+    double eta = -10.0 + 0.1 * j;
     out << eta << ' ' << FM12(eta) << endl;
   }
 }
