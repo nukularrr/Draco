@@ -4,8 +4,7 @@
  * \author Andrew Till
  * \date   22 May 2020
  * \brief  Header file for compton interface
- * \note   Copyright (C) 2020 Triad National Security, LLC. All rights reserved.
- */
+ * \note   Copyright (C) 2020 Triad National Security, LLC. All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_compton_tools_Sparse_Compton_Matrix_hh
@@ -14,24 +13,18 @@
 #include <vector>
 
 namespace rtt_compton_tools {
-//------------------------------------------------------------------------------------------------//
+
+//================================================================================================//
 /*!
  * \class Sparse_Compton_Matrix
  *
- * \brief Stores a Compton scattering matrix sparsely and allows
- *        matrix multiplication; can store an arbitrary number of points,
- *        where each point represents an  M x G x G matrix (moments, groups)
+ * \brief Stores a Compton scattering matrix sparsely and allows matrix multiplication; can store an
+ *        arbitrary number of points, where each point represents an M x G x G matrix (moments,
+ *        groups)
  *
- *        THIS CLASS IS A STUB (not yet fully implemented or used)
- *
- */
-
-/*!
- * \example compton_tools/test/tSparse_Compton_Matrix.cc
- *
- * This unit test demonstrates construction and exercises all routines.
+ * THIS CLASS IS A STUB (not yet fully implemented or used)
 */
-
+//================================================================================================//
 class Sparse_Compton_Matrix {
 
 #ifdef 0
@@ -92,6 +85,7 @@ private:
   // 1D array of [moment, point, group-from, group-to]
   std::vector<double> data_;
 #endif
+
 };
 
 } // namespace rtt_compton_tools
