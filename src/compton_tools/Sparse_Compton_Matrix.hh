@@ -85,7 +85,6 @@ private:
   // 1D array of [moment, point, group-from, group-to]
   std::vector<double> data_;
 #endif
-
 };
 
 } // namespace rtt_compton_tools
