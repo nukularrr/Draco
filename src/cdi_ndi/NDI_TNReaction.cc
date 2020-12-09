@@ -8,8 +8,8 @@
 //------------------------------------------------------------------------------------------------//
 
 #include "NDI_TNReaction.hh"
-#include "ds++/dbc.hh"
 #include "ds++/Query_Env.hh"
+#include "ds++/dbc.hh"
 #include <array>
 #include <cmath>
 
@@ -39,7 +39,7 @@ NDI_TNReaction::NDI_TNReaction(const std::string &gendir_in, const std::string &
   Require(reaction.length() > 0);
   Require(mg_e_bounds.size() > 0);
 
-  for ( double & eb : mg_e_bounds)
+  for (double &eb : mg_e_bounds)
     eb /= 1000.0; // keV -> MeV
 
   // Check that mg_e_bounds is monotonically decreasing (NDI requirement)
@@ -81,7 +81,7 @@ void NDI_TNReaction::load_ndi() {
   int dataset_handle = -1;
   int ndi_error = -9999;
   constexpr int c_str_len = 4096;
-  std::array<char,c_str_len> c_str_buf;
+  std::array<char, c_str_len> c_str_buf;
 
   // Open gendir file (index of a complete NDI dataset)
   ndi_error = NDI2_open_gendir(&gendir_handle, gendir.c_str());
@@ -333,7 +333,7 @@ std::vector<double> NDI_TNReaction::get_PDF(const int product_zaid,
  * \param[in] mg_e_bounds_in energy boundaries of multigroup bins (keV)
  */
 NDI_TNReaction::NDI_TNReaction(const std::string &gendir_in, const std::string &library_in,
-                               const std::string & /*reaction_in*/,
+                               const std::string /*reaction_in*/,
                                const std::vector<double> /*mg_e_bounds_in*/)
     : NDI_Base(gendir_in, "tn", library_in) { /* ... */
 }

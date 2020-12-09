@@ -104,8 +104,8 @@ NDI_Base::NDI_Base(const std::string &dataset_in, const std::string &library_in)
 //================================================================================================//
 
 //! Constructor for generic NDI reader- throws when NDI not available
-NDI_Base::NDI_Base(const std::string & /*gendir_in*/, const std::string & /*dataset_in*/,
-                   const std::string & /*library_in*/) {
+NDI_Base::NDI_Base(const std::string /*gendir_in*/, const std::string /*dataset_in*/,
+                   const std::string /*library_in*/) {
   Insist(0, "NDI default gendir path only available when NDI is found.");
 }
 

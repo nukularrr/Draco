@@ -318,7 +318,7 @@ template <typename T> void global_sum(T *x, int n) {
 }
 template <typename T> void global_sum(T *x, size_t n) {
   Require(n < INT32_MAX);
-  global_sum( x, static_cast<int>(n));
+  global_sum(x, static_cast<int>(n));
 }
 
 //------------------------------------------------------------------------------------------------//

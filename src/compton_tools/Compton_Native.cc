@@ -204,7 +204,7 @@ int Compton_Native::read_binary(const std::string &filename) {
   // (using vector of char to avoid using C-style strings)
   std::array<char, 6> expected = {' ', 'c', 's', 'k', ' ', '\0'};
   std::array<char, 6> actual;
-  for ( char & c : actual )
+  for (char &c : actual)
     fin.read(&c, sizeof(char));
   if (!std::equal(expected.begin(), expected.end(), actual.begin())) {
     std::cerr << "Expecting binary file " << filename << " to start with '";
