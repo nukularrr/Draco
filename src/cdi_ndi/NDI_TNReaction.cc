@@ -348,7 +348,7 @@ NDI_TNReaction::NDI_TNReaction(const std::string &gendir_in, const std::string &
  * \param[in] mg_e_bounds_in energy boundaries of multigroup bins (keV)
  */
 NDI_TNReaction::NDI_TNReaction(const std::string &library_in, const std::string & /*reaction_in*/,
-                               const std::vector<double> /*mg_e_bounds_in*/)
+                               const std::vector<double> & /*mg_e_bounds_in*/)
     : NDI_Base("tn", library_in) { /* ... */
 }
 
