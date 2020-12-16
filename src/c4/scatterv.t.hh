@@ -79,7 +79,7 @@ void indeterminate_scatterv(vector<vector<T>> &outgoing_data, vector<T> &incomin
 //------------------------------------------------------------------------------------------------//
 template <typename T>
 void determinate_scatterv(vector<vector<T>> &outgoing_data, vector<T> &incoming_data) {
-  Require(outgoing_data.size() == rtt_c4::ranks());
+  Require(outgoing_data.size() == rtt_c4::nranks());
 
 #ifdef C4_MPI
   { // This block is a no-op for with-c4=scalar
