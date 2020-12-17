@@ -100,6 +100,9 @@ elif [[ "${COMPILER:=GCC}" == "GCC" ]]; then
   echo "FC     = ${FC}"
   echo "GCOV   = ${GCOV}"
 
+  # Extra options for mpirun
+  MPIEXEC_PREFLAGS="--allow-run-as-root --oversubscribe"
+
   export OMP_NUM_THREADS=2
   if [[ ${WERROR} ]]; then
     for i in C CXX Fortran; do
