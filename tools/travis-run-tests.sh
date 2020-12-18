@@ -176,6 +176,9 @@ elif [[ "${COMPILER}" == "LLVM" ]]; then
   echo "FC     = ${FC}"
   echo "GCOV   = ${GCOV}"
 
+  # Extra options for mpirun. Travis requires these extra mpirun options
+  export MPIEXEC_PREFLAGS="--allow-run-as-root --oversubscribe"
+
   export OMP_NUM_THREADS=2
   if [[ ${WERROR} ]]; then
     for i in C CXX Fortran; do
