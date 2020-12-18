@@ -73,10 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "rng/config.h"
 
 #if defined(__GNUC__) && !defined(__clang__)
-#if (DBS_GNUC_VERSION >= 70000)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wexpansion-to-defined"
-#endif
+#pragma GCC system_header
 #endif
 
 #ifdef _MSC_FULL_VER
@@ -88,6 +85,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
+#pragma clang diagnostic ignored "-Wimplicit-int-float-conversion"
 #endif
 
 #include <Random123/features/compilerfeatures.h>
@@ -259,11 +257,6 @@ R123_CUDA_DEVICE R123_STATIC_INLINE Ftype u01fixedpt(Itype in) {
 #ifdef __clang__
 // Restore clang diagnostics to previous state.
 #pragma clang diagnostic pop
-#endif
-
-#if defined(__GNUC__) && !defined(__clang__)
-// Restore GCC diagnostics to previous state.
-#pragma GCC diagnostic pop
 #endif
 
 #endif

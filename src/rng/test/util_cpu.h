@@ -41,6 +41,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 #endif
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
+#pragma clang diagnostic ignored "-Wmissing-prototypes"
+#endif
+
 #include "util.h"
 
 /*
@@ -226,6 +232,11 @@ void cpu_done(CPUInfo *tp) {
   free(tp->cpuname);
   free(tp);
 }
+
+#ifdef __clang__
+// Restore clang diagnostics to previous state.
+#pragma clang diagnostic pop
+#endif
 
 #ifdef __GNUC__
 #if !defined(__ICC) && !defined(NVCC)

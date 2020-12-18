@@ -196,7 +196,8 @@ elif [[ "${COMPILER}" == "LLVM" ]]; then
   fi
   if [[ "${CLANGTIDY:=OFF}" == "ON" ]]; then
     echo "==> enable clang-tidy CI mode"
-    CMAKE_OPTS+=" -DCI_CLANG_TIDY=ON -DDRACO_STATIC_ANALYZER=clang-tidy "
+    # -DCI_CLANG_TIDY=ON
+    CMAKE_OPTS+=" -DDRACO_STATIC_ANALYZER=clang-tidy "
     echo "==> CMAKE_OPTS = ${CMAKE_OPTS}"
   fi
   echo "========"
