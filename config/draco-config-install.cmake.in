@@ -16,16 +16,15 @@ include( "${_SELF_DIR}/draco-targets.cmake" )
 set( DRACO_CONFIG_DIR "${_SELF_DIR}" )
 
 # Inspect properties of Lib_dsxx to find a list of configurations
-if( TARGET Lib_dsxx )
-  get_target_property( DRACO_CONFIGURATION_TYPES Lib_dsxx IMPORTED_CONFIGURATIONS)
+if( CMAKE_CONFIGURATION_TYPES ) # multi-config project files (not Makefiles)
+  if( TARGET Lib_dsxx )
+    get_target_property( DRACO_CONFIGURATION_TYPES Lib_dsxx IMPORTED_CONFIGURATIONS)
+  endif()
+  if( DRACO_CONFIGURATION_TYPES )
+    set( CMAKE_CONFIGURATION_TYPES "${DRACO_CONFIGURATION_TYPES}" CACHE STRING
+      "Available build configurations" FORCE )
+  endif()
 endif()
-if( DRACO_CONFIGURATION_TYPES )
-  set( CMAKE_CONFIGURATION_TYPES "${DRACO_CONFIGURATION_TYPES}")
-else()
-  set( CMAKE_CONFIGURATION_TYPES "@CMAKE_CONFIGURATION_TYPES@")
-endif()
-set( CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
-  "Available build configurations" FORCE )
 
 # Provide some pretty print information during configure
 include( FeatureSummary )
