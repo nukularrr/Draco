@@ -65,9 +65,7 @@ public:
   // ACCESSORS
 
   //! Returns the point coordinates.
-  std::vector<std::vector<double>> get_node_coords() const override {
-    return point_coords;
-  }
+  std::vector<std::vector<double>> get_node_coords() const override { return point_coords; }
 
   /*!
    * The Hex mesh format has no provision for labeling coordinate units
@@ -79,17 +77,13 @@ public:
    * The Hex mesh format has no provision for flagging nodes.  This method
    * therefore always returns a map with one entry which contains all the nodes.
    */
-  std::map<std::string, std::set<unsigned>> get_node_sets() const override {
-    return node_sets;
-  }
+  std::map<std::string, std::set<unsigned>> get_node_sets() const override { return node_sets; }
 
   /*!
    * There is no provision in the Hex format for naming a mesh.  This function
    * always returns the default string: "Untitled -- CIC-19 Hex Mesh"
    */
-  std::string get_title() const override {
-    return "Untitled -- CIC-19 Hex Mesh";
-  }
+  std::string get_title() const override { return "Untitled -- CIC-19 Hex Mesh"; }
 
   std::vector<std::vector<unsigned>> get_element_nodes() const override;
 
@@ -103,7 +97,7 @@ public:
   std::vector<rtt_mesh_element::Element_Definition::Element_Type>
   get_unique_element_types() const override;
 
-  size_t get_dims_ndim() const override { return ndim; };
+  size_t get_dims_ndim() const override { return ndim; }
 
 private:
   bool check_dims() const;

@@ -50,8 +50,8 @@ bool Is_Other_Text(char const *text) {
 /*!
  * Is the argument a valid keyword?
  *
- * \return \c true if the argument points to a string consisting of a sequence
- * of C++ identifiers separated by single spaces.
+ * \return \c true if the argument points to a string consisting of a sequence of C++ identifiers
+ * separated by single spaces.
  */
 bool Is_Keyword_Text(char const *text) {
   Require(text != nullptr);
@@ -74,8 +74,8 @@ bool Is_Keyword_Text(char const *text) {
 /*!
  * Is the argument a valid string constant?
  *
- * \return \c true if the argument points to a string consisting of a single C++
- * string constant, including the delimiting quotes.
+ * \return \c true if the argument points to a string consisting of a single C++ string constant,
+ * including the delimiting quotes.
  */
 bool Is_String_Text(char const *text) {
   Require(text != nullptr);
@@ -134,8 +134,7 @@ bool Is_Integer_Text(char const *text) {
  * \return \c true if the two tokens are equal.
  */
 bool operator==(Token const &a, Token const &b) {
-  return a.type() == b.type() && a.text() == b.text() &&
-         a.location() == b.location();
+  return a.type() == b.type() && a.text() == b.text() && a.location() == b.location();
 }
 
 //------------------------------------------------------------------------------------------------//

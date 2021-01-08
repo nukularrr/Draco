@@ -11,7 +11,6 @@
 #define rtt_c4_C4_Traits_hh
 
 #include "C4_Tags.hh"
-// #include <stdint.h> // ensure types are same across compilers (pgi)
 
 namespace rtt_c4 {
 
@@ -54,9 +53,7 @@ template <> struct C4_Traits<double> { static const int tag = 440; };
 
 template <> struct C4_Traits<long double> { static const int tag = 441; };
 
-template <> struct C4_Traits<unsigned long long> {
-  static const int tag = 442;
-};
+template <> struct C4_Traits<unsigned long long> { static const int tag = 442; };
 
 template <> struct C4_Traits<long long> { static const int tag = 443; };
 
@@ -88,9 +85,7 @@ template <> struct C4_Traits<double *> { static const int tag = 460; };
 
 template <> struct C4_Traits<long double *> { static const int tag = 461; };
 
-template <> struct C4_Traits<unsigned long long *> {
-  static const int tag = 462;
-};
+template <> struct C4_Traits<unsigned long long *> { static const int tag = 462; };
 
 template <> struct C4_Traits<long long *> { static const int tag = 463; };
 

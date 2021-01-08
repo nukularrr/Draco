@@ -14,7 +14,7 @@
 
 //------------------------------------------------------------------------------------------------//
 // Stack trace feature is only available on Unix-based systems when compiled with Intel or GNU C++.
-// ------------------------------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 #ifdef UNIX
 
 #ifndef draco_isPGI
@@ -29,7 +29,7 @@
 
 //------------------------------------------------------------------------------------------------//
 // Helper functions
-std::string st_to_string(int const i) {
+inline std::string st_to_string(int const i) {
   std::ostringstream msg;
   msg << i;
   return msg.str();
@@ -51,30 +51,25 @@ std::string rtt_dsxx::print_stacktrace(std::string const &error_message) {
   int ret = -1; // This scheme won't work on OSX: no /proc fs
 #else
   // Build linkname
-  std::string const linkname =
-      std::string("/proc/") + st_to_string(pid) + std::string("/exe");
+  std::string const linkname = std::string("/proc/") + st_to_string(pid) + std::string("/exe");
 
   auto ret = readlink(linkname.c_str(), buf.data(), buf_size);
 #endif
   if (ret >= 0) /* readlink succeeded */
     buf[ret] = 0;
-  std::string const process_name =
-      ret < 0 ? "UNAVAILABLE" : std::string(buf.data());
+  std::string const process_name = ret < 0 ? "UNAVAILABLE" : std::string(buf.data());
 
   // retrieve current stack addresses
   int constexpr max_frames = 64;
   std::array<void *, max_frames> addrlist;
   uint32_t constexpr sizeofvoidptr = sizeof(void *);
-  int const stack_depth =
-      backtrace(addrlist.data(), sizeofvoidptr * addrlist.size());
+  int const stack_depth = backtrace(addrlist.data(), sizeofvoidptr * addrlist.size());
 
   // Print a header for the stack trace
   msg << "\n"
       << error_message << "\nStack trace:"
-      << "\n  Process        : " << process_name
-      << "\n  PID            : " << pid
-      << "\n  Stack depth    : " << stack_depth << " (showing "
-      << stack_depth - 2 << ")"
+      << "\n  Process        : " << process_name << "\n  PID            : " << pid
+      << "\n  Stack depth    : " << stack_depth << " (showing " << stack_depth - 2 << ")"
       << "\n\n";
 
   // If there is no stack information, we are done.
@@ -88,14 +83,7 @@ std::string rtt_dsxx::print_stacktrace(std::string const &error_message) {
 
   // allocate string which will be filled with the demangled function name
   size_t funcnamesize = 256;
-  auto *funcname = (char *)malloc(funcnamesize);
-
-  // msg << "\nRAW format:" << std::endl;
-  // for( int i=0; i<stack_depth; ++i )
-  // {
-  //     msg << "  " << symbollist[i] << std::endl;
-  // }
-  // msg << "\nDemangled format:" << std::endl;
+  auto *funcname = static_cast<char *>(malloc(funcnamesize));
 
   // iterate over the returned symbol lines. skip first two, (addresses of this function and
   // handler)
@@ -133,12 +121,11 @@ std::string rtt_dsxx::print_stacktrace(std::string const &error_message) {
 #endif
       if (status == 0) {
         funcname = ret01; // use possibly realloc()-ed string
-        msg << "  " << symbollist[i] << " : " << funcname << "()+"
-            << begin_offset << location << "\n";
+        msg << "  " << symbollist[i] << " : " << funcname << "()+" << begin_offset << location
+            << "\n";
       } else {
         // demangling failed. Output function name as a C function with no arguments.
-        msg << "  " << symbollist[i] << " : " << begin_name << "()+"
-            << begin_offset << "\n";
+        msg << "  " << symbollist[i] << " : " << begin_name << "()+" << begin_offset << "\n";
       }
     } else {
       // couldn't parse the line? print the whole line.
@@ -152,8 +139,7 @@ std::string rtt_dsxx::print_stacktrace(std::string const &error_message) {
 #ifdef draco_isPGI
   msg << "\n==> Draco's StackTrace feature is not currently implemented for "
          "PGI."
-      << "\n    The StackTrace is known to work under Intel or GCC compilers."
-      << std::endl;
+      << "\n    The StackTrace is known to work under Intel or GCC compilers." << std::endl;
 #else
   msg << "\n==> Try to run 'addr2line -e " << process_name << " 0x99999' "
       << "\n    to find where each part of the stack relates to your source "
@@ -185,10 +171,8 @@ std::string rtt_dsxx::print_stacktrace(std::string const &error_message) {
   // Print a header for the stack trace
   msg << "\n"
       << error_message << "\nStack trace:"
-      << "\n  Process        : " << process_name
-      << "\n  PID            : " << pid
-      << "\n  Stack depth    : " << stack_depth << " (showing "
-      << stack_depth - 3 << ")"
+      << "\n  Process        : " << process_name << "\n  PID            : " << pid
+      << "\n  Stack depth    : " << stack_depth << " (showing " << stack_depth - 3 << ")"
       << "\n\n";
 
   msg << "\n==> Draco's StackTrace feature is not currently implemented for "

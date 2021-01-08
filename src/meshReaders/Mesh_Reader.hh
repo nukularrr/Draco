@@ -103,8 +103,7 @@ public:
    * key to the map provides a unique and hopefully descriptive name for each
    * element sub-set.
    */
-  virtual std::map<std::string, std::set<unsigned>>
-  get_element_sets() const = 0;
+  virtual std::map<std::string, std::set<unsigned>> get_element_sets() const = 0;
 
   //! Returns the title of the mesh.
   virtual std::string get_title() const = 0;
@@ -112,7 +111,7 @@ public:
   virtual std::vector<std::shared_ptr<rtt_mesh_element::Element_Definition>>
   get_element_defs() const {
     return std::vector<std::shared_ptr<rtt_mesh_element::Element_Definition>>();
-  };
+  }
 
   //! Provides a check on the integrity of the mesh data.
   virtual bool invariant() const = 0;

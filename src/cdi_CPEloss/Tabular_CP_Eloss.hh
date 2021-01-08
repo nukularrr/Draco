@@ -39,8 +39,7 @@ class Tabular_CP_Eloss : public rtt_cdi::CPEloss {
 public:
   using sf_double = std::vector<double>;
   using dynamic_extents_3 =
-      typename stdex::extents<stdex::dynamic_extent,
-                              std::experimental::dynamic_extent,
+      typename stdex::extents<stdex::dynamic_extent, std::experimental::dynamic_extent,
                               std::experimental::dynamic_extent>;
 
 private:
@@ -70,8 +69,7 @@ private:
   // Note that after unit conversions, *_energy is really *_speed
 
   // Multidimensional view of stored tabulated data
-  stdex::basic_mdspan<double, dynamic_extents_3, std::experimental::layout_left>
-      stopping_data;
+  stdex::basic_mdspan<double, dynamic_extents_3, std::experimental::layout_left> stopping_data;
 
   // Storage for tabulated data
   std::vector<double> stopping_data_1d;
@@ -91,14 +89,13 @@ public:
   // >>> ACCESSORS
 
   //! Get a stopping power.
-  double getEloss(const double temperature, const double density,
-                  const double v0) const override;
+  double getEloss(const double temperature, const double density, const double v0) const override;
 
   //! Query to see if data is in tabular or functional form (true).
   static constexpr bool is_data_in_tabular_form() { return true; }
 
   //! Get the name of the associated data file.
-  inline std::string getDataFilename() const override { return filename; }
+  inline std::string getDataFilename() const { return filename; }
 
   //! Get the material temperature grid.
   sf_double getTemperatureGrid() const override { return temperatures; }

@@ -287,15 +287,12 @@ parse_class_from_table(Token_Stream &tokens, Context const &context) {
  * data required for the constructor for Class, the parse functions needed to
  * parse this data, and the check and construct functions.
  */
-template <typename Class, bool allow_an_exit = false>
-class Class_Parse_Table_Base {
+template <typename Class, bool allow_an_exit = false> class Class_Parse_Table_Base {
 public:
   // TYPEDEFS
 
   using Return_Class = Class;
   using Context_type = unsigned;
-
-  // MANAGEMENT
 
   // SERVICES
 
@@ -305,16 +302,7 @@ public:
 
   static Parse_Table &parse_table() { return parse_table_; }
 
-protected:
-  // DATA
-
-  // STATIC
-
 private:
-  // IMPLEMENTATION
-
-  // STATIC
-
   friend class Class_Parse_Table<Class>;
 
   void initialize(Keyword const *keywords, unsigned count) {
@@ -324,7 +312,7 @@ private:
       parse_table_.add(keywords, count);
       first_time = false;
     }
-    current_ = (Class_Parse_Table<Class> *)this;
+    current_ = static_cast<Class_Parse_Table<Class> *>(this);
   }
 
   static Class_Parse_Table<Class> *current_;
@@ -332,8 +320,7 @@ private:
 };
 
 template <typename Class, bool allow_exit>
-/*static*/ Class_Parse_Table<Class>
-    *Class_Parse_Table_Base<Class, allow_exit>::current_;
+/*static*/ Class_Parse_Table<Class> *Class_Parse_Table_Base<Class, allow_exit>::current_;
 
 template <typename Class, bool allow_exit>
 /*static*/ Parse_Table Class_Parse_Table_Base<Class, allow_exit>::parse_table_;

@@ -4,8 +4,7 @@
  * \author Kent Budge
  * \date   Wed Aug 11 15:21:38 2004
  * \brief  Specializations of qr_unpack
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "qr_unpack.i.hh"
@@ -18,10 +17,8 @@ using std::vector;
 // RandomContainer = vector<double>
 //------------------------------------------------------------------------------------------------//
 
-template DLL_PUBLIC_linear void qr_unpack(vector<double> &r, const unsigned n,
-                                          const vector<double> &c,
-                                          const vector<double> &d,
-                                          vector<double> &qt);
+template void qr_unpack(vector<double> &r, const unsigned n, const vector<double> &c,
+                        const vector<double> &d, vector<double> &qt);
 
 } // end namespace rtt_linear
 

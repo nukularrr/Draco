@@ -33,8 +33,7 @@ namespace rtt_dsxx {
  *                   filesystem
  *    FC_LASTVALUE
  */
-std::string getFilenameComponent(std::string const &fqName,
-                                 FilenameComponent fc) {
+std::string getFilenameComponent(std::string const &fqName, FilenameComponent fc) {
   using std::string;
   string retVal;
   string::size_type idx;
@@ -55,7 +54,7 @@ std::string getFilenameComponent(std::string const &fqName,
     }
     // If we still cannot find a path separator, return "./"
     if (idx == string::npos)
-      retVal = string(string(".") + rtt_dsxx::dirSep);
+      retVal = string(".") + rtt_dsxx::dirSep;
     else
       retVal = fullName.substr(0, idx + 1);
     break;

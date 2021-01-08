@@ -54,8 +54,9 @@ std::string draco_gethostname() {
   std::array<char, HOST_NAME_MAX> hostname;
   hostname.fill('x');
   int err = gethostname(&hostname[0], sizeof(hostname));
-  if (err)
-    strncpy(&hostname[0], "gethostname() failed", HOST_NAME_MAX);
+  if (err) {
+    return std::string("gethostname() failed!");
+  }
   return std::string(hostname.data());
 
 #else
@@ -113,7 +114,7 @@ std::string draco_getcwd() {
   std::array<char, MAXPATHLEN> curr_path;
   curr_path.fill('z');
   Insist(getcwd(&curr_path[0], MAXPATHLEN) != nullptr,
-         std::string("getcwd failed: " + std::string(strerror(errno))));
+         "getcwd failed: " + std::string(strerror(errno)));
   std::string cwd(curr_path.data());
 #endif
 
@@ -170,8 +171,7 @@ draco_getstat::draco_getstat(std::string const &fqName)
   }
 }
 #else
-draco_getstat::draco_getstat(std::string const &fqName)
-    : stat_return_code(0), buf() {
+draco_getstat::draco_getstat(std::string const &fqName) : stat_return_code(0), buf() {
   stat_return_code = stat(fqName.c_str(), &buf);
 }
 #endif
@@ -205,8 +205,7 @@ bool draco_getstat::isdir() {
 #ifdef WIN32
 bool draco_getstat::has_permission_bit(int /*mask*/) {
   Insist(isreg(), "Can only check permission bit for regular files.");
-  Insist(false,
-         "draco_getstat::hsa_permission_bit() not implemented for WIN32");
+  Insist(false, "draco_getstat::hsa_permission_bit() not implemented for WIN32");
   return false;
 }
 #else
@@ -224,8 +223,7 @@ std::string draco_getrealpath(std::string const &path) {
   buffer.fill('a');
 #ifdef WIN32
   // http://msdn.microsoft.com/en-us/library/506720ff%28v=vs.100%29.aspx
-  Insist(_fullpath(&buffer[0], path.c_str(), MAXPATHLEN) != nullptr,
-         "Invalid path.");
+  Insist(_fullpath(&buffer[0], path.c_str(), MAXPATHLEN) != nullptr, "Invalid path.");
   std::string retVal(buffer.data());
 #else
   Insist((realpath(path.c_str(), &buffer[0])) != nullptr, "Invalid path.");
@@ -262,19 +260,16 @@ void draco_mkdir(std::string const &path) {
     if (errorCode == -1) {
       switch (errno) {
       case EEXIST:
-        Insist(errno != EEXIST, "ERROR: Unable to create directory," +
-                                    clean_fqName +
+        Insist(errno != EEXIST, "ERROR: Unable to create directory," + clean_fqName +
                                     ", because it already exists.");
         break;
       case ENOENT:
-        Insist(errno != ENOENT, "ERROR: Unable to create directory," +
-                                    clean_fqName +
+        Insist(errno != ENOENT, "ERROR: Unable to create directory," + clean_fqName +
                                     ", because the path is not found.");
         break;
       default:
         /* should never get here */
-        Insist(errno == 0,
-               "ERROR: Unable to create directory, " + clean_fqName);
+        Insist(errno == 0, "ERROR: Unable to create directory, " + clean_fqName);
       }
     }
   }
@@ -302,15 +297,14 @@ void draco_mkdir(std::string const &path) {
  */
 void draco_remove(std::string const &dirpath) {
   // remove() works for all unix items but only for files (not directories) for windows.
-  if (draco_getstat(dirpath).isdir()) {
 #ifdef WIN32
+  if (draco_getstat(dirpath).isdir()) {
     // Clear any special directory attributes.
     bool ok = ::SetFileAttributes(dirpath.c_str(), FILE_ATTRIBUTE_NORMAL);
     if (!ok) {
       int myerr = ::GetLastError();
       std::ostringstream msg;
-      msg << "ERROR: File attribute not normal. myerr = " << myerr
-          << ", file = " << dirpath;
+      msg << "ERROR: File attribute not normal. myerr = " << myerr << ", file = " << dirpath;
       Insist(ok, msg.str());
     }
 
@@ -319,16 +313,15 @@ void draco_remove(std::string const &dirpath) {
     if (!ok) {
       int myerr = ::GetLastError();
       std::ostringstream msg;
-      msg << "ERROR: Error deteting file, myerr = " << myerr
-          << ", file = " << dirpath;
+      msg << "ERROR: Error deteting file, myerr = " << myerr << ", file = " << dirpath;
       Insist(ok, msg.str());
     }
-#else
-    remove(dirpath.c_str());
-#endif
   } else {
     remove(dirpath.c_str());
   }
+#else
+  remove(dirpath.c_str());
+#endif
   // If the file still exists this check will fail.
   Ensure(!draco_getstat(dirpath).valid());
   return;

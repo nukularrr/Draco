@@ -22,36 +22,37 @@ using rtt_dsxx::SP;
 // TEST HELPERS
 //------------------------------------------------------------------------------------------------//
 
-int nfoos = 0;
-int nbars = 0;
-int nbazs = 0;
-int nbats = 0;
+static int nfoos = 0;
+static int nbars = 0;
+static int nbazs = 0;
+static int nbats = 0;
 
-#define CHECK_0_OBJECTS                                                        \
-  if (nfoos != 0)                                                              \
-    ITFAILS;                                                                   \
-  if (nbars != 0)                                                              \
-    ITFAILS;                                                                   \
-  if (nbazs != 0)                                                              \
-    ITFAILS;                                                                   \
-  if (nbats != 0)                                                              \
+#define CHECK_0_OBJECTS                                                                            \
+  if (nfoos != 0)                                                                                  \
+    ITFAILS;                                                                                       \
+  if (nbars != 0)                                                                                  \
+    ITFAILS;                                                                                       \
+  if (nbazs != 0)                                                                                  \
+    ITFAILS;                                                                                       \
+  if (nbats != 0)                                                                                  \
     ITFAILS;
 
-#define CHECK_N_OBJECTS(nf, nb, nbz, nbt)                                      \
-  if (nfoos != nf)                                                             \
-    ITFAILS;                                                                   \
-  if (nbars != nb)                                                             \
-    ITFAILS;                                                                   \
-  if (nbazs != nbz)                                                            \
-    ITFAILS;                                                                   \
-  if (nbats != nbt)                                                            \
+#define CHECK_N_OBJECTS(nf, nb, nbz, nbt)                                                          \
+  if (nfoos != nf)                                                                                 \
+    ITFAILS;                                                                                       \
+  if (nbars != nb)                                                                                 \
+    ITFAILS;                                                                                       \
+  if (nbazs != nbz)                                                                                \
+    ITFAILS;                                                                                       \
+  if (nbats != nbt)                                                                                \
     ITFAILS;
 
 //------------------------------------------------------------------------------------------------//
 
 class List {
 public:
-  List() : next(){/*empty*/};
+  List() : next() { /*empty*/
+  }
   SP<List> next;
 };
 

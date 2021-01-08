@@ -4,8 +4,7 @@
  * \author Kent G. Budge
  * \date   Wed Nov 10 09:35:09 2010
  * \brief  Test functions defined in ds++/draco_math.hh.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "ds++/Query_Env.hh"
@@ -37,8 +36,7 @@ void tstgetfoobar(rtt_dsxx::UnitTest &ut) {
   bool def_foobar{false};
   std::string foobar;
 
-  std::tie(def_foobar, foobar) =
-      rtt_dsxx::get_env_val<std::string>("FOOBAR", foobar);
+  std::tie(def_foobar, foobar) = rtt_dsxx::get_env_val<std::string>("FOOBAR", foobar);
 
   FAIL_IF(def_foobar);
   FAIL_IF(foobar.size() > 1);

@@ -45,12 +45,10 @@ template <> auto parse_number_impl<int32_t>(std::string const &str) -> int32_t {
 template <> auto parse_number_impl<int64_t>(std::string const &str) -> int64_t {
   return std::stol(str);
 }
-template <>
-auto parse_number_impl<uint32_t>(std::string const &str) -> uint32_t {
+template <> auto parse_number_impl<uint32_t>(std::string const &str) -> uint32_t {
   return static_cast<uint32_t>(std::stoul(str));
 }
-template <>
-auto parse_number_impl<uint64_t>(std::string const &str) -> uint64_t {
+template <> auto parse_number_impl<uint64_t>(std::string const &str) -> uint64_t {
   return std::stoull(str); // use stoull or stul?
 }
 
@@ -60,8 +58,7 @@ auto parse_number_impl<uint64_t>(std::string const &str) -> uint64_t {
 template <> auto parse_number_impl<long>(std::string const &str) -> long {
   return std::stol(str); // use stoull or stul?
 }
-template <>
-auto parse_number_impl<unsigned long>(std::string const &str) -> unsigned long {
+template <> auto parse_number_impl<unsigned long>(std::string const &str) -> unsigned long {
   return std::stoul(str); // use stoull or stul?
 }
 #endif
@@ -86,18 +83,18 @@ template <> auto parse_number_impl<double>(std::string const &str) -> double {
  * \return A new, probably shortened, string without unwanted leading/training characters.
  */
 std::string trim(std::string const &str, std::string const &whitespace) {
-  auto const strBegin = str.find_first_not_of(whitespace);
+  std::string retval(str.data()); // prune at first '\0' if str is a c-string.
+  auto const strBegin = retval.find_first_not_of(whitespace);
   if (strBegin == std::string::npos)
     return ""; // no content
-  auto const strEnd = str.find_last_not_of(whitespace);
+  auto const strEnd = retval.find_last_not_of(whitespace);
   auto const strRange = strEnd - strBegin + 1;
-  return str.substr(strBegin, strRange);
+  return retval.substr(strBegin, strRange);
 }
 
 //------------------------------------------------------------------------------------------------//
 //! Removes all specified characters from a string.
-std::string prune(std::string const &orig_str,
-                  std::string const &chars_to_remove) {
+std::string prune(std::string const &orig_str, std::string const &chars_to_remove) {
   std::string str(orig_str);
   for (char c : chars_to_remove)
     str.erase(std::remove(str.begin(), str.end(), c), str.end());
@@ -106,8 +103,7 @@ std::string prune(std::string const &orig_str,
 
 //------------------------------------------------------------------------------------------------//
 //! Split a string into a vector<string> using a specified delimiter.
-std::vector<std::string> tokenize(std::string const &str,
-                                  std::string const &delimiters,
+std::vector<std::string> tokenize(std::string const &str, std::string const &delimiters,
                                   bool keepEmptyStrings) {
   std::vector<std::string> retval; // Storage for the result
   // convert a string into a stream to be processed by getline.
@@ -137,8 +133,7 @@ std::vector<std::string> tokenize(std::string const &str,
 
 //------------------------------------------------------------------------------------------------//
 //! Parse msg to provide a list of words and the number of occurrences of each.
-std::map<std::string, unsigned> get_word_count(std::ostringstream const &msg,
-                                               bool verbose) {
+std::map<std::string, unsigned> get_word_count(std::ostringstream const &msg, bool verbose) {
   using std::cout;
   using std::endl;
   using std::map;
@@ -185,13 +180,11 @@ std::map<std::string, unsigned> get_word_count(std::ostringstream const &msg,
 
 //------------------------------------------------------------------------------------------------//
 //! Parse text file to provide a list of words and the number of occurrences of each.
-std::map<std::string, unsigned> get_word_count(std::string const &filename,
-                                               bool verbose) {
+std::map<std::string, unsigned> get_word_count(std::string const &filename, bool verbose) {
   // open the file
   std::ifstream infile;
   infile.open(filename.c_str());
-  Insist(infile, std::string("Cannot open specified file = \"") + filename +
-                     std::string("\"."));
+  Insist(infile, std::string("Cannot open specified file = \"") + filename + std::string("\"."));
 
   // read and store the text file contents
   std::ostringstream data;

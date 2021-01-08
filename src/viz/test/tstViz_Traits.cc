@@ -4,8 +4,7 @@
  * \author Thomas M. Evans
  * \date   Fri Jan 21 17:51:52 2000
  * \brief  Viz_Traits test.
- * \note   Copyright (C) 2000-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2000-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "ds++/Release.hh"
@@ -21,13 +20,13 @@ using rtt_viz::Viz_Traits;
 
 template <typename T> class Test_Field {
 public:
-  typedef T value_type;
+  using value_type = T;
 
 private:
   vector<vector<T>> data;
 
 public:
-  Test_Field(const vector<vector<T>> &data_in) : data(data_in) {}
+  Test_Field(vector<vector<T>> data_in) : data(std::move(data_in)) {}
 
   T operator()(size_t i, size_t j) const { return data[i][j]; }
   size_t nrows() const { return data.size(); }
@@ -37,19 +36,15 @@ public:
 //------------------------------------------------------------------------------------------------//
 // Use soft_equiv for floating-point types, but not for integral types.
 
-bool compare_vdf_field(double const &v1, double const &v2) {
-  return rtt_dsxx::soft_equiv(v1, v2);
-}
-bool compare_vdf_field(float const &v1, float const &v2) {
-  return rtt_dsxx::soft_equiv(v1, v2);
-}
+bool compare_vdf_field(double const &v1, double const &v2) { return rtt_dsxx::soft_equiv(v1, v2); }
+bool compare_vdf_field(float const &v1, float const &v2) { return rtt_dsxx::soft_equiv(v1, v2); }
 bool compare_vdf_field(int const &v1, int const &v2) { return v1 == v2; }
 
 //------------------------------------------------------------------------------------------------//
 // test vector traits specialization
 
 template <typename VVF> void test_vector(rtt_dsxx::UnitTest &ut) {
-  typedef typename Viz_Traits<VVF>::elementType VVFet;
+  using VVFet = typename Viz_Traits<VVF>::elementType;
 
   VVF field(3);
 

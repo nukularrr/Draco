@@ -30,8 +30,6 @@ namespace rtt_dsxx {
  * \class fpe_trap
  *
  * \brief Enable trapping of floating-point exceptions.
- * \param[in] abortWithInsist toggle the abort mode default is true to use
- *                            ds++'s Insist macro.
  *
  * The floating-point exception behavior is platform dependent. Nevertheless,
  * the goal of this class is to turn on trapping for the following exceptions:
@@ -62,10 +60,14 @@ namespace rtt_dsxx {
  * - With C++11, some of these features can easily be implemented in code. See
  *   http://en.cppreference.com/w/cpp/numeric/fenv/FE_exceptions .
  */
-class DLL_PUBLIC_dsxx fpe_trap {
+class fpe_trap {
 public:
-  //! constructor
-  fpe_trap(bool const abortWithInsist_in = true) : abortWithInsist(abortWithInsist_in){/* emtpy */};
+  /*!
+   * \brief Constructor
+   * \param[in] abortWithInsist_in toggle the abort mode default is true to use ds++'s Insist macro.
+   */
+  fpe_trap(bool const abortWithInsist_in = true) : abortWithInsist(abortWithInsist_in) { /* emtpy */
+  }
   ~fpe_trap() = default;
 
   //! Enable trapping of fpe signals.
@@ -114,7 +116,7 @@ private:
 #include <Windows.h> // EXCEPTION_POINTERS
 
 namespace rtt_dsxx {
-class DLL_PUBLIC_dsxx CCrashHandler {
+class CCrashHandler {
 public:
   // Constructor
   CCrashHandler(){/*empty*/};

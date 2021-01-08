@@ -4,8 +4,7 @@
  * \author Ryan Wollaeger <wollaeger@lanl.gov>
  * \date   Friday, Jun 29, 2018, 09:55 am
  * \brief  Draco_Mesh_Builder class header file.
- * \note   Copyright (C) 2018-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2018-2020 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_mesh_Draco_Mesh_Builder_hh
@@ -25,10 +24,9 @@ class Draco_Mesh;
  *
  * \brief Draco_Mesh unstructured mesh builder from reader.
  *
- * Reader is a template parameter ("FRT" = "Format Reader Type") to the builder
- * class. Hence all readers that instantiate the template must have a common set
- * of accessors.  In particular the reader must supply some functions in the
- * RTT_Format_Reader class.
+ * Reader is a template parameter ("FRT" = "Format Reader Type") to the builder class. Hence all
+ * readers that instantiate the template must have a common set of accessors.  In particular the
+ * reader must supply some functions in the RTT_Format_Reader class.
  */
 //================================================================================================//
 
@@ -41,12 +39,11 @@ private:
 
 public:
   //! Constructor
-  DLL_PUBLIC_mesh explicit Draco_Mesh_Builder(std::shared_ptr<FRT> reader_);
+  explicit Draco_Mesh_Builder(std::shared_ptr<FRT> reader_);
 
   // >>> SERVICES
 
-  DLL_PUBLIC_mesh std::shared_ptr<Draco_Mesh>
-  build_mesh(rtt_mesh_element::Geometry geometry);
+  std::shared_ptr<Draco_Mesh> build_mesh(rtt_mesh_element::Geometry geometry);
 };
 
 } // end namespace rtt_mesh

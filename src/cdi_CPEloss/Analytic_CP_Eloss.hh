@@ -47,8 +47,7 @@ private:
 
 public:
   // Constructor.
-  Analytic_CP_Eloss(SP_Analytic_Model model_in, CParticle target_in,
-                    CParticle projectile_in,
+  Analytic_CP_Eloss(SP_Analytic_Model model_in, CParticle target_in, CParticle projectile_in,
                     CPModelAngleCutoff model_angle_cutoff_in);
 
   // >>> ACCESSORS
@@ -57,14 +56,10 @@ public:
   // >>> INTERFACE SPECIFIED BY rtt_cdi::CPEloss
 
   // Get an eloss.
-  double getEloss(const double temperature, const double density,
-                  const double v0) const override;
+  double getEloss(const double temperature, const double density, const double v0) const override;
 
   //! Query to see if data is in tabular or functional form (false).
   constexpr static bool is_data_in_tabular_form() { return false; }
-
-  // Get the name of the associated data file.
-  inline std_string getDataFilename() const override;
 
   //! Get the temperature grid (size 0 for function-based analytic data).
   sf_double getTemperatureGrid() const override { return sf_double(0); }
@@ -89,18 +84,8 @@ public:
    *
    * Since this is an analytic model, return 1 (rtt_cdi::ANALYTIC_ETYPE)
    */
-  rtt_cdi::CPModelType getModelType() const {
-    return rtt_cdi::CPModelType::ANALYTIC_ETYPE;
-  }
+  rtt_cdi::CPModelType getModelType() const { return rtt_cdi::CPModelType::ANALYTIC_ETYPE; }
 };
-
-//------------------------------------------------------------------------------------------------//
-// INLINE FUNCTIONS
-//------------------------------------------------------------------------------------------------//
-/*!
- * \brief Return null string for the data filename.
- */
-std::string Analytic_CP_Eloss::getDataFilename() const { return std_string(); }
 
 } // namespace rtt_cdi_cpeloss
 
