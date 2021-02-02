@@ -125,7 +125,7 @@ macro( setupQt )
   if( CMAKE_CXX_COMPILER_WRAPPER STREQUAL CrayPrgEnv )
     option (USE_QT "Build QT support for Draco" OFF)
   else()
-    option (USE_QT "Build QT support for Draco" OFF)
+    option (USE_QT "Build QT support for Draco" ON)
   endif()
 
   if( USE_QT )
