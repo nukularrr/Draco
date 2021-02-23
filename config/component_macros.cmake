@@ -556,7 +556,7 @@ macro( register_parallel_test )
   unset( RUN_CMD )
 
   # Attempt of fix issues on Darwin related to /tmp permission errors, #2359.
-  if( DEFINED ENV{SLURM_CLUSTER_NAME} AND $ENV{SLURM_CLUSTER_NAME} STREQUAL "darwin" AND
+  if( DEFINED ENV{SLURM_CLUSTER_NAME} AND "$ENV{SLURM_CLUSTER_NAME}" STREQUAL "darwin" AND
       MPI_FLAVOR STREQUAL "openmpi" AND NOT "${MPIEXEC_EXECUTABLE}" MATCHES "smpi")
     set( MPIEXEC_EXTRA_OPTS --mca orte_tmpdir_base
       /tmp/$ENV{SLURMD_NODENAME}-$ENV{USER}-${rpt_TARGET} )
