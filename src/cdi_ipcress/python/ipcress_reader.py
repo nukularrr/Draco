@@ -57,13 +57,13 @@ def interpolate_mg_opacity_data(T_grid, rho_grid, hnu_grid, op_data,
     n_hnu = len(hnu_grid)
 
     # don't allow extrapolation
-    if (target_rho    < np.min(rho_grid)):
+    if (target_rho < np.min(rho_grid)):
         target_rho = np.min(rho_grid)
-    if (target_rho    > np.max(rho_grid)):
+    if (target_rho > np.max(rho_grid)):
         target_rho = np.max(rho_grid)
-    if (target_T        < np.min(T_grid)):
+    if (target_T < np.min(T_grid)):
         target_T = np.min(T_grid)
-    if (target_T        > np.max(T_grid)):
+    if (target_T > np.max(T_grid)):
         target_T = np.max(T_grid)
     if (print_str is not None):
         print("Interpolating {0}--Target rho: {1} , target T: {2}".format(
@@ -130,13 +130,13 @@ def interpolate_gray_opacity_data(T_grid, rho_grid, op_data, target_rho,
     # n_T = len(T_grid)
 
     # don't allow extrapolation
-    if (target_rho    < np.min(rho_grid)):
+    if (target_rho < np.min(rho_grid)):
         target_rho = np.min(rho_grid)
-    if (target_rho    > np.max(rho_grid)):
+    if (target_rho > np.max(rho_grid)):
         target_rho = np.max(rho_grid)
-    if (target_T        < np.min(T_grid)):
+    if (target_T < np.min(T_grid)):
         target_T = np.min(T_grid)
-    if (target_T        > np.max(T_grid)):
+    if (target_T > np.max(T_grid)):
         target_T = np.max(T_grid)
     if (print_str is not None):
         print("Interpolating {0}--Target rho: {1} , target T: {2}".format(
