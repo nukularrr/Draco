@@ -76,7 +76,6 @@ esac
 for env in ${environments}; do
   if [[ $(fn_exists "$env") -gt 0 ]]; then
     if [[ "${verbose:-false}" != false ]]; then echo "export -f $env"; fi
-
     export -f "${env?}"
   else
     die "Requested environment $env is not defined."

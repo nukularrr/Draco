@@ -15,7 +15,7 @@ environments="x86gcc930env x86intel1905env"
 # Special setup for CTS-1: replace the 'draco-latest' symlink
 pushd "/usr/projects/${package:-notset}" || exit
 if [[ -L draco-latest ]]; then rm draco-latest; fi
-if [[ -d "${source_prefix:=notset}" ]]; then ln -s "${source_prefix} draco-latest"; fi
+if [[ -d "${source_prefix:=notset}" ]]; then ln -s "${source_prefix}" draco-latest; fi
 popd || exit
 
 #--------------------------------------------------------------------------------------------------#
