@@ -19,7 +19,7 @@ environments="armgcc930env"
 case "${ddir}" in
 
   #---------------------------------------------------------------------------#
-  draco-7_9*)
+  draco-7_10*)
     function armgcc930env()
     {
       export darwin_queue="-p arm"
