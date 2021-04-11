@@ -48,7 +48,7 @@ if [[ $CML ]]; then
 fi
 if ! [[ -f "${SCRIPTPATH}/../../.cmake-format.py" ]]; then unset CML; fi
 if [ ! -x "$CML" ] ; then
-  printf "Error: cmake-lint executable not found or is too old (version < 0.5).\n"
+  printf "Warning: cmake-lint executable not found or is too old (version < 0.5).\n"
   printf "       skipping cmake format check. To enable this check\n"
   printf "       set the correct path in %s.\n" "$(canonicalize_filename "$0")"
   exit 0
