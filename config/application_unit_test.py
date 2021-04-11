@@ -126,30 +126,30 @@ def is_defined(param_string):
 # -------------------------------------------------------------------------------------------------#
 # Class encapsulating all functions needed for unit testing
 class UnitTest:
-    re_app = re.compile("APP=([^\s]*)")
+    re_app = re.compile(r"APP=([^\s]*)")
     # re_build_env = re.compile("BUILDENV=([^\s]*)")
-    re_gold_in_file = re.compile("GOLDFILE=([^\s]*)")
-    re_std_in_file = re.compile("STDINFILE=([^\s]*)")
+    re_gold_in_file = re.compile(r"GOLDFILE=([^\s]*)")
+    re_std_in_file = re.compile(r"STDINFILE=([^\s]*)")
     # re_test_args = re.compile("TEST_ARGS=([^\s]*)")
     # re_pass_regex = re.compile("PASS_REGEX=([^\s]*)")
     # re_fail_regex = re.compile("FAIL_REGEX=([^\s]*)")
     # re_pe_list = re.compile("PE_LIST=([^\s]*)")
-    re_project_binary_dir = re.compile("PROJECT_BINARY_DIR=([^\s]*)")
-    re_project_source_dir = re.compile("PROJECT_SOURCE_DIR=([^\s]*)")
-    re_test_name = re.compile("TESTNAME=([^\s]*)")
-    re_numPE = re.compile("numPE=([^\s]*)")
-    re_mpiexec = re.compile("MPIEXEC_EXECUTABLE=([^\s]*)")
-    re_mpi_cores_per_cpu = re.compile("MPI_CORES_PER_CPU=([^\s]*)")
-    re_draco_info = re.compile("DRACO_INFO=([^\s]*)")
-    re_gdiff = re.compile("GDIFF=([^\s]*)")
-    re_pgdiff = re.compile("PGDIFF=([^\s]*)")
+    re_project_binary_dir = re.compile(r"PROJECT_BINARY_DIR=([^\s]*)")
+    re_project_source_dir = re.compile(r"PROJECT_SOURCE_DIR=([^\s]*)")
+    re_test_name = re.compile(r"TESTNAME=([^\s]*)")
+    re_numPE = re.compile(r"numPE=([^\s]*)")
+    re_mpiexec = re.compile(r"MPIEXEC_EXECUTABLE=([^\s]*)")
+    re_mpi_cores_per_cpu = re.compile(r"MPI_CORES_PER_CPU=([^\s]*)")
+    re_draco_info = re.compile(r"DRACO_INFO=([^\s]*)")
+    re_gdiff = re.compile(r"GDIFF=([^\s]*)")
+    re_pgdiff = re.compile(r"PGDIFF=([^\s]*)")
 
     # run command can include spaces, modfiy regular expression for that
     re_run_cmd = re.compile("RUN_CMD=(.*?)-D")
 
     re_arg_value = re.compile("ARGVALUE=_av_(.*)_av_")
-    re_workdir = re.compile("WORKDIR=([^\s]*)")
-    re_host_system_processor = re.compile("CMAKE_HOST_SYSTEM_PROCESSOR=([^\s]*)")
+    re_workdir = re.compile(r"WORKDIR=([^\s]*)")
+    re_host_system_processor = re.compile(r"CMAKE_HOST_SYSTEM_PROCESSOR=([^\s]*)")
 
     # Win32 applications use '.exe' suffix. Empty string for Linux.
     exe_ext = ""
@@ -439,7 +439,7 @@ class UnitTest:
         print("Parsing {0} output".format(driver))
 
         error_found = False
-        done_found    = False
+        done_found = False
 
         if (driver == "serrano"):
             done_str = "serrano done"
@@ -449,10 +449,10 @@ class UnitTest:
             done_str = "guajillo completed on 0"
 
         # always ignore these errors
-        JFNK_error         = "JFNK DONE error"
+        JFNK_error = "JFNK DONE error"
         smoothed_error = "Smoothed Aggregation error :"
-        compiler_flag    = "-Werror"
-        re_error_N         = re.compile("error[(][0-9]*[)]")
+        compiler_flag = "-Werror"
+        re_error_N = re.compile("error[(][0-9]*[)]")
 
         # parse output
         with open(self.outfile) as f:
@@ -463,9 +463,9 @@ class UnitTest:
 
                     # 1.a. Ignore false positives related to matching "error"
                     ignore_false_positive = False
-                    ignore_false_positive |= (JFNK_error         in line)
+                    ignore_false_positive |= (JFNK_error in line)
                     ignore_false_positive |= (smoothed_error in line)
-                    ignore_false_positive |= (compiler_flag    in line)
+                    ignore_false_positive |= (compiler_flag in line)
 
                     if (ignore_error_N and re_error_N.search(line)):
                         ignore_false_positive |= True
@@ -738,7 +738,7 @@ class UnitTest:
     # ---------------------------------------------------------------------------------------------#
     # Checks the list of arguments for arg_name and make sure it is not empty
     def check_arg_is_set(self, arg_name):
-        arg_regex = re.compile("{0}=([^\s]*)".format(arg_name))
+        arg_regex = re.compile(r"{0}=([^\s]*)".format(arg_name))
         value = simple_search(arg_regex, self.full_arg_string)
         return is_set(value)
     # ---------------------------------------------------------------------------------------------#
@@ -746,7 +746,7 @@ class UnitTest:
     # ---------------------------------------------------------------------------------------------#
     # Checks the list of arguments for arg_name and then check arg_string's value for check_string
     def check_arg_value(self, arg_name, check_string):
-        arg_regex = re.compile("{0}=([^\s]*)".format(arg_name))
+        arg_regex = re.compile(r"{0}=([^\s]*)".format(arg_name))
         arg_value = simple_search(arg_regex, self.full_arg_string)
         return (arg_value.find(check_string) != -1)
     # ---------------------------------------------------------------------------------------------#
