@@ -58,6 +58,7 @@ if(NOT CXX_FLAGS_INITIALIZED)
   # add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/MP>")
 
   # Notes on options:
+  #
   # * /wd 4251 disable warning #4251: 'identifier' : class 'type' needs to have  dll-interface to be
   #   used by clients of class 'type2'
   # * /wd 5105 After upgrading to VS2019 version 16.8.0 preview 3, warning C5105 is issued from many
