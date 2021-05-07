@@ -1,19 +1,22 @@
 #--------------------------------------------*-cmake-*---------------------------------------------#
 # file   config/unix-g++.cmake
 # brief  Establish flags for Unix/Linux - Gnu C++
-# note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2016-2021 Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
 
 include_guard(GLOBAL)
 
-# Note: In config/compilerEnv.cmake, the build system sets flags for 1) the language standard
-# (C++14, C99, etc) 2) interprocedural optimization.
+# Note: In config/compilerEnv.cmake, the build system sets flags for
+#
+# * the language standard (C++14, C99, etc)
+# * interprocedural optimization.
 
 # Notes:
 # ----------------------------------------
-# Useful options that could be added to aid debugging -
-# http://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html -
-# https://github.com/lefticus/cppbestpractices/blob/master/02-Use_the_Tools_Available.md#compilers
+# Useful options that could be added to aid debugging
+#
+# * http://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html
+# * https://github.com/lefticus/cppbestpractices/blob/master/02-Use_the_Tools_Available.md#compilers
 
 #
 # Compiler flag checks
@@ -26,10 +29,9 @@ check_c_compiler_flag("-march=native" HAS_MARCH_NATIVE)
 #
 # Compiler Flags
 
-# Consider using these optimization flags: -ffast-math -ftree-vectorize -fno-finite-math-only
-# -fno-associative-math -fsignaling-nans
-#
-# Control FMA -ffp-contract=off
+# * Consider using these optimization flags: -ffast-math -ftree-vectorize -fno-finite-math-only
+#   -fno-associative-math -fsignaling-nans
+# * Control FMA -ffp-contract=off
 
 if(NOT CXX_FLAGS_INITIALIZED)
   set(CXX_FLAGS_INITIALIZED

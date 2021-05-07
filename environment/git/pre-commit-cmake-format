@@ -60,13 +60,24 @@ SCRIPTPATH="$(dirname -- "$SCRIPT")"
 CMF=$(which cmake-format)
 if [[ $CMF ]]; then
   CMFVER=$("$CMF" --version)
-  if version_gt "0.5.0" "${CMFVER}"; then unset CMF; fi
+  if version_gt "0.5.0" "${CMFVER}"; then
+    unset CMF
+    printf "Warning: cmake-format executable is too old (version < 0.5).\n"
+    printf "       skipping cmake format check. To enable this check set the correct path in\n"
+    printf "       %s.\n" "$(canonicalize_filename "$0")"
+    exit 0
+  fi
+else
+  printf "Warning: cmake-format executable not found..\n"
+  printf "       skipping cmake format check. To enable this check set the correct path in\n"
+  printf "       %s.\n" "$(canonicalize_filename "$0")"
+  exit 0
 fi
-if ! [[ -f "${SCRIPTPATH}/../../.cmake-format.py" ]]; then unset CMF; fi
-if [ ! -x "$CMF" ] ; then
-  printf "Warning: cmake-format executable not found or is too old (version < 0.5).\n"
-  printf "       skipping cmake format check. To enable this check\n"
-  printf "       set the correct path in %s.\n" "$(canonicalize_filename "$0")"
+if ! [[ -f "${SCRIPTPATH}/../../.cmake-format.py" ]]; then
+  unset CMF;
+  printf "Warning: .cmake-format.py config file not found..\n"
+  printf "       skipping cmake format check. To enable this check add .cmake-format.py\n"
+  printf "       at the top project directory."
   exit 0
 fi
 
