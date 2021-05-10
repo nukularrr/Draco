@@ -40,7 +40,6 @@ if(TARGET COMPTON::compton)
               $<TARGET_FILE_DIR:Lib_compton_interface>)
   endif()
 
-
   # Install
   install(FILES ${headers} DESTINATION ${DBSCFGDIR}include/compton_interface)
 

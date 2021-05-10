@@ -125,13 +125,17 @@ add_parallel_tests(
 include(ApplicationUnitTest)
 if(OPENMP_FOUND AND TARGET Exe_xthi)
   # xthi depends on OpenMP.  If OpenMP is not found, xthi will not be compiled.
-  add_app_unit_test(DRIVER ${CMAKE_CURRENT_SOURCE_DIR}/tstXthi.py APP
-                           $<TARGET_FILE_DIR:Exe_xthi>/$<TARGET_FILE_NAME:Exe_xthi> PE_LIST "1;2")
+  add_app_unit_test(
+    DRIVER ${CMAKE_CURRENT_SOURCE_DIR}/tstXthi.py
+    APP $<TARGET_FILE_DIR:Exe_xthi>/$<TARGET_FILE_NAME:Exe_xthi>
+    PE_LIST "1;2")
 endif()
 if(TARGET Exe_ythi)
   add_app_unit_test(
-    DRIVER ${CMAKE_CURRENT_SOURCE_DIR}/tstYthi.py APP
-           $<TARGET_FILE_DIR:Exe_ythi>/$<TARGET_FILE_NAME:Exe_ythi> TEST_ARGS 2 PE_LIST "1;2")
+    DRIVER ${CMAKE_CURRENT_SOURCE_DIR}/tstYthi.py
+    APP $<TARGET_FILE_DIR:Exe_ythi>/$<TARGET_FILE_NAME:Exe_ythi>
+    TEST_ARGS 2
+    PE_LIST "1;2")
 endif()
 
 # ------------------------------------------------------------------------------------------------ #

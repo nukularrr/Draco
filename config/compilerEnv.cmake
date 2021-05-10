@@ -101,8 +101,8 @@ endfunction()
 #
 # example: deduplicate_flags(CMAKE_C_FLAGS)
 #
-# ${FLAGS} evaluates to a string like "CMAKE_C_FLAGS" ${${FLAGS}} evaluates to a list of compiler
-# options like "-Werror -O2"
+# * ${FLAGS} evaluates to a string like "CMAKE_C_FLAGS"
+# * ${${FLAGS}} evaluates to a list of compiler options like "-Werror -O2"
 # --------------------------------------------------------------------------------------------------#
 function(deduplicate_flags FLAGS)
   set(flag_list ${${FLAGS}}) # ${FLAGS} is CMAKE_C_FLAGS, double ${${FLAGS}} is the string of flags.
@@ -128,12 +128,19 @@ macro(dbsSetupCompilers)
       message(FATAL_ERROR "Unsupported platform (not WIN32 and not UNIX ).")
     endif()
 
-    # ----------------------------------------------------------------------------------------------#
+    # -------------------------------------------------------------------------------------------- #
     # Add user provided options:
     #
-    # 1. Users may set environment variables - C_FLAGS - CXX_FLAGS - Fortran_FLAGS - EXE_LINKER_FLAGS
-    # 2. Provide these as arguments to cmake as -DC_FLAGS="whatever".
-    # ----------------------------------------------------------------------------------------------#
+    # * Users may set environment variables
+    #
+    #   * C_FLAGS
+    #   * CXX_FLAGS
+    #   * Fortran_FLAGS
+    #   * EXE_LINKER_FLAGS
+    #
+    # * Provide these as arguments to cmake as -DC_FLAGS="whatever".
+    #
+    # -------------------------------------------------------------------------------------------- #
     foreach(lang C CXX Fortran EXE_LINKER SHARED_LINKER CUDA)
       if(DEFINED ENV{${lang}_FLAGS})
         string(REPLACE "\"" "" tmp "$ENV{${lang}_FLAGS}")
@@ -170,9 +177,9 @@ macro(dbsSetupCompilers)
         CACHE STRING "Do we activate declspec(dllimport) or declspec(dllexport) for MSVC." FORCE)
     mark_as_advanced(DRACO_SHARED_LIBS)
 
-    # ----------------------------------------------------------------------------------------------#
+    # -------------------------------------------------------------------------------------------- #
     # Setup common options for targets
-    # ----------------------------------------------------------------------------------------------#
+    # -------------------------------------------------------------------------------------------- #
 
     # Control the use of interprocedural optimization. This used to be set by editing compiler flags
     # directly, but now that CMake has a universal toggle, we use it. This value is used in
@@ -188,10 +195,10 @@ macro(dbsSetupCompilers)
       check_ipo_supported(RESULT USE_IPO)
     endif()
 
-    # ----------------------------------------------------------------------------------------------#
+    # -------------------------------------------------------------------------------------------- #
     # Special build mode for Coverage (gcov+lcov+genthml)
     # https://github.com/codecov/example-cpp11-cmake
-    # ----------------------------------------------------------------------------------------------#
+    # -------------------------------------------------------------------------------------------- #
     if(NOT TARGET coverage_config)
       add_library(coverage_config INTERFACE)
     endif()
@@ -241,9 +248,9 @@ macro(dbsSetupCompilers)
             else()
               message(
                 FATAL_ERROR
-                  "CODE_COVERAGE=ON, but required helper script capture_lcov.sh"
-                  " not found.  Looked at ${PROJECT_SOURCE_DIR}/config/capture_lcov.sh and"
-                  " ${DRACO_DIR}/cmake/capture_lcov.sh")
+                  "CODE_COVERAGE=ON, but required helper script capture_lcov.sh not found.  Looked "
+                  "at ${PROJECT_SOURCE_DIR}/config/capture_lcov.sh and "
+                  "${DRACO_DIR}/cmake/capture_lcov.sh")
             endif()
             add_custom_command(
               OUTPUT "${PROJECT_BINARY_DIR}/covrep_target_aways_out_of_date.txt"
@@ -279,9 +286,9 @@ macro(dbsSetupCompilers)
 
 endmacro()
 
-# --------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
 # Setup C++ Compiler
-# --------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
 macro(dbsSetupCxx)
 
   # Static or shared libraries? Set IPO options.
@@ -411,16 +418,6 @@ macro(dbsSetupCxx)
       # Set up wrapper scripts
       set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
       set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-      # configure_file(launch-c.in   launch-c) configure_file(launch-cxx.in launch-cxx)
-      # execute_process(COMMAND chmod a+rx "${CMAKE_BINARY_DIR}/launch-c"
-      # "${CMAKE_BINARY_DIR}/launch-cxx") if(CMAKE_GENERATOR STREQUAL "Xcode") # Set Xcode project
-      # attributes to route compilation and linking # through our scripts
-      # set(CMAKE_XCODE_ATTRIBUTE_CC       "${CMAKE_BINARY_DIR}/launch-c")
-      # set(CMAKE_XCODE_ATTRIBUTE_CXX      "${CMAKE_BINARY_DIR}/launch-cxx")
-      # set(CMAKE_XCODE_ATTRIBUTE_LD       "${CMAKE_BINARY_DIR}/launch-c")
-      # set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS "${CMAKE_BINARY_DIR}/launch-cxx") else() # Support Unix
-      # Makefiles and Ninja set(CMAKE_C_COMPILER_LAUNCHER      "${CMAKE_BINARY_DIR}/launch-c")
-      # set(CMAKE_CXX_COMPILER_LAUNCHER    "${CMAKE_BINARY_DIR}/launch-cxx") endif()
       add_feature_info(CCache CCACHE_PROGRAM "Using ccache to speed up builds.")
     else()
       message(STATUS "Looking for ccache... not found.")
@@ -441,23 +438,29 @@ macro(dbsSetupCxx)
 
 endmacro()
 
-# --------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
 # Setup Static Analyzer (if any)
 #
 # Enable with: -DDRACO_STATIC_ANALYZER=[none|clang-tidy|iwyu|cppcheck|cpplint|iwyl]
 #
 # Default is 'none'
 #
-# Variables set by this macro - DRACO_STATIC_ANALYZER - CMAKE_CXX_CLANG_TIDY -
-# CMAKE_CXX_INCLUDE_WHAT_YOU_USE - CMAKE_CXX_CPPCHECK - CMAKE_CXX_CPPLINT -
-# CMAKE_CXX_LINK_WHAT_YOU_USE
-
-# Refs: -
-# https://blog.kitware.com/static-checks-with-cmake-cdash-iwyu-clang-tidy-lwyu-cpplint-and-cppcheck/
-# -
-# https://github.com/KratosMultiphysics/Kratos/wiki/How-to-use-Clang-Tidy-to-automatically-correct-code
-# - https://www.kdab.com/clang-tidy-part-1-modernize-source-code-using-c11c14/
-# --------------------------------------------------------------------------------------------------#
+# Variables set by this macro
+#
+# * DRACO_STATIC_ANALYZER
+# * CMAKE_CXX_CLANG_TIDY
+# * CMAKE_CXX_INCLUDE_WHAT_YOU_USE
+# * CMAKE_CXX_CPPCHECK
+# * CMAKE_CXX_CPPLINT
+# * CMAKE_CXX_LINK_WHAT_YOU_USE
+#
+# References:
+#
+# * https://blog.kitware.com/static-checks-with-cmake-cdash-iwyu-clang-tidy-lwyu-cpplint-and-cppcheck/
+# * https://github.com/KratosMultiphysics/Kratos/wiki/How-to-use-Clang-Tidy-to-automatically-correct-code
+# * https://www.kdab.com/clang-tidy-part-1-modernize-source-code-using-c11c14/
+#
+# ------------------------------------------------------------------------------------------------ #
 macro(dbsSetupStaticAnalyzers)
 
   set(DRACO_STATIC_ANALYZER
@@ -481,8 +484,11 @@ macro(dbsSetupStaticAnalyzers)
 
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
-    # clang-tidy Ex: cmake -DDRACO_STATIC_ANALYZER=clang-tidy
-    # -DCLANG_TIDY_CHECKS="-checks=generate-*" ... https://clang.llvm.org/extra/clang-tidy/
+    # clang-tidy (https://clang.llvm.org/extra/clang-tidy/)
+    #
+    # Example:
+    #
+    # * cmake -DDRACO_STATIC_ANALYZER=clang-tidy -DCLANG_TIDY_CHECKS="-checks=generate-*"  ...
     if("${DRACO_STATIC_ANALYZER}" MATCHES "clang-tidy")
       if(NOT CMAKE_CXX_CLANG_TIDY)
         find_program(CMAKE_CXX_CLANG_TIDY clang-tidy)
@@ -495,16 +501,18 @@ macro(dbsSetupStaticAnalyzers)
       if(CMAKE_CXX_CLANG_TIDY)
         if(NOT CLANG_TIDY_OPTIONS)
           set(CLANG_TIDY_OPTIONS "-header-filter=.*[.]hh")
-          # Only run clang tidy on src, test, examples and skip 3rd party libraries set(
-          # CLANG_TIDY_OPTIONS "\"-header-filter=.*\\b(src|test|examples)\\b\\/(?!lib).*\"")
+          # Only run clang tidy on src, test, examples and skip 3rd party libraries
+          #
+          # set(CLANG_TIDY_OPTIONS "\"-header-filter=.*\\b(src|test|examples)\\b\\/(?!lib).*\"")
         endif()
         set(CLANG_TIDY_OPTIONS
             "${CLANG_TIDY_OPTIONS}"
             CACHE STRING "clang-tidy extra options (eg: -header-filter=.*[.]hh;-fix)" FORCE)
 
         if(NOT CLANG_TIDY_CHECKS)
-          # -checks=mpi-*,bugprone-*,performance-*,modernize-* See full list: `clang-tidy -check=*
-          # -list-checks' Default: all modernize checks; except use-triling-return-type.
+          # * -checks=mpi-*,bugprone-*,performance-*,modernize-*
+          # * See full list: `clang-tidy -check=* -list-checks'
+          # * Default: all modernize checks; except use-triling-return-type.
           set(CLANG_TIDY_CHECKS "-checks=modernize-*,-modernize-use-trailing-return-type")
           if(DEFINED ENV{CI})
             string(REPLACE "-checks=" "--warnings-as-errors=" tmp ${CLANG_TIDY_CHECKS})
@@ -595,7 +603,7 @@ macro(dbsSetupStaticAnalyzers)
   endif()
 
   # include-what-you-link
-  # https://blog.kitware.com/static-checks-with-cmake-cdash-iwyu-clang-tidy-lwyu-cpplint-and-cppcheck/'
+  # https://blog.kitware.com/static-checks-with-cmake-cdash-iwyu-clang-tidy-lwyu-cpplint-and-cppcheck
   if(${DRACO_STATIC_ANALYZER} MATCHES "iwyl" AND UNIX)
     option(CMAKE_LINK_WHAT_YOU_USE "Report if extra libraries are linked." TRUE)
   else()
@@ -626,17 +634,28 @@ macro(dbsSetupStaticAnalyzers)
 
 endmacro()
 
-# --------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
 # Setup Fortran Compiler
 #
-# Use: include( compilerEnv ) dbsSetupFortran( [QUIET] )
+# Use:
 #
-# Returns: BUILD_SHARED_LIBS - bool CMAKE_Fortran_COMPILER - fullpath CMAKE_Fortran_FLAGS
-# CMAKE_Fortran_FLAGS_DEBUG CMAKE_Fortran_FLAGS_RELEASE CMAKE_Fortran_FLAGS_RELWITHDEBINFO
-# CMAKE_Fortran_FLAGS_MINSIZEREL ENABLE_SINGLE_PRECISION - bool DBS_FLOAT_PRECISION     - string
-# (config.h) PRECISION_DOUBLE | PRECISION_SINGLE - bool
+# * include( compilerEnv )
+# * dbsSetupFortran( [QUIET] )
 #
-# --------------------------------------------------------------------------------------------------#
+# Returns:
+#
+# * BUILD_SHARED_LIBS - bool
+# * CMAKE_Fortran_COMPILER - fullpath
+# * CMAKE_Fortran_FLAGS
+# * CMAKE_Fortran_FLAGS_DEBUG
+# * CMAKE_Fortran_FLAGS_RELEASE
+# * CMAKE_Fortran_FLAGS_RELWITHDEBINFO
+# * CMAKE_Fortran_FLAGS_MINSIZEREL
+# * ENABLE_SINGLE_PRECISION - bool
+# * DBS_FLOAT_PRECISION     - string (config.h)
+# * PRECISION_DOUBLE | PRECISION_SINGLE - bool
+#
+# ------------------------------------------------------------------------------------------------ #
 macro(dbsSetupFortran)
 
   dbssetupcompilers()
@@ -729,20 +748,35 @@ macro(dbsSetupFortran)
 
 endmacro()
 
-# --------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
 # Setup Cuda Compiler
 #
-# Use: include( compilerEnv ) dbsSetupCuda( [QUIET] )
+# Use:
 #
-# Helpers - these environment variables help cmake find/set CUDA envs. - ENV{CUDACXX} -
-# ENV{CUDAFLAGS} - ENV{CUDAHOSTCXX}
+# * include( compilerEnv )
+# * dbsSetupCuda( [QUIET] )
 #
-# Returns: BUILD_SHARED_LIBS - bool CMAKE_CUDA_FLAGS CMAKE_CUDA_FLAGS_DEBUG CMAKE_CUDA_FLAGS_RELEASE
-# CMAKE_CUDA_FLAGS_RELWITHDEBINFO CMAKE_CUDA_FLAGS_MINSIZEREL
+# Helpers - these environment variables help cmake find/set CUDA envs.
 #
-# Notes: - https://devblogs.nvidia.com/tag/cuda/ -
-# https://devblogs.nvidia.com/building-cuda-applications-cmake/
-# --------------------------------------------------------------------------------------------------#
+# * ENV{CUDACXX}
+# * ENV{CUDAFLAGS}
+# * ENV{CUDAHOSTCXX}
+#
+# Returns:
+#
+# * BUILD_SHARED_LIBS - bool
+# * CMAKE_CUDA_FLAGS
+# * CMAKE_CUDA_FLAGS_DEBUG
+# * CMAKE_CUDA_FLAGS_RELEASE
+# * CMAKE_CUDA_FLAGS_RELWITHDEBINFO
+# * CMAKE_CUDA_FLAGS_MINSIZEREL
+#
+# Notes:
+#
+# * https://devblogs.nvidia.com/tag/cuda/
+# * https://devblogs.nvidia.com/building-cuda-applications-cmake/
+#
+# ------------------------------------------------------------------------------------------------ #
 macro(dbsSetupCuda)
 
   # Toggle if we should try to build Cuda parts of the project. Will be enabled if ENV{CUDACXX} is
@@ -786,11 +820,14 @@ macro(dbsSetupCuda)
 
 endmacro()
 
-# --------------------------------------------------------------------------------------------------#
-# Setup profile tools: valgrind cmake -DENABLE_MEMORYCHECK=ON \
-# -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE=/scratch/regress/ccsradregress/valgrind_suppress.txt ...
-# ctest -L memcheck
-# --------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
+# Setup profile tools: valgrind
+#
+# * cmake -DENABLE_MEMORYCHECK=ON \
+#   -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE=/scratch/regress/ccsradregress/valgrind_suppress.txt ...
+# * ctest -L memcheck
+#
+# ------------------------------------------------------------------------------------------------ #
 function(dbsSetupProfilerTools)
 
   option(ENABLE_MEMORYCHECK "provide memorycheck tests" OFF)
@@ -827,11 +864,11 @@ function(dbsSetupProfilerTools)
 
 endfunction()
 
-# --------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
 # Toggle a compiler flag based on a bool
 #
 # Examples: toggle_compiler_flag( GCC_ENABLE_ALL_WARNINGS "-Weffc++" "CXX" "DEBUG" )
-# --------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
 macro(toggle_compiler_flag switch compiler_flag compiler_flag_var_names build_modes)
 
   # generate names that are safe for CMake RegEx MATCHES commands
@@ -850,8 +887,8 @@ macro(toggle_compiler_flag switch compiler_flag compiler_flag_var_names build_mo
       message(
         FATAL_ERROR
           "When calling " "toggle_compiler_flag(switch, compiler_flag, compiler_flag_var_names), "
-          "compiler_flag_var_names must be set to one or more of these valid "
-          "names: C;CXX;Fortran;CUDA;EXE_LINKER;SHARED_LINKER.")
+          "compiler_flag_var_names must be set to one or more of these valid name: C;CXX;Fortran;"
+          "CUDA;EXE_LINKER;SHARED_LINKER.")
     endif()
 
     string(REPLACE "+" "x" safe_CMAKE_${comp}_FLAGS "${CMAKE_${comp}_FLAGS}")
@@ -902,6 +939,6 @@ macro(toggle_compiler_flag switch compiler_flag compiler_flag_var_names build_mo
   endforeach()
 endmacro()
 
-# --------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
 # End config/compiler_env.cmake
-# --------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
