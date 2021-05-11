@@ -36,11 +36,14 @@ else
   dotgitdir="$(canonicalize_filename "$SCRIPTPATH/../../.git")"
 fi
 export dotgitdir
-if ! [ -d "$dotgitdir" ] ; then
+if ! [[ -d "$dotgitdir" ]] ; then
   echo "Error: $dotgitdir does not exist."
   echo "Are you sure $dotgitdir is the root directory of your local git repository?"
   echo "Example: ./install-hooks $HOME/draco"
   exit 1
+fi
+if ! [[ -d "$dotgitdir/hooks" ]]; then
+  run "mkdir -p $dotgitdir/hooks"
 fi
 
 # copy hooks to the directory specified as parameter
