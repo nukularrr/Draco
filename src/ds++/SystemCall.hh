@@ -2,7 +2,7 @@
 /*!
  * \file   ds++/SystemCall.hh
  * \brief Wrapper for system calls. Hide differences between Unix/Windows system calls.
- * \note Copyright (C) 2016-2020 Triad National Security, LLC.  All rights reserved. */
+ * \note Copyright (C) 2016-2021 Triad National Security, LLC.  All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_dsxx_SystemCall_hh
@@ -205,8 +205,8 @@ public:
     // state after 0.1 sec.
     CPUData entry2 = ReadStatsCPU();
 
-    float const activeTime = static_cast<float>(machActiveTime(entry2) - machActiveTime(entry1));
-    float const idleTime = static_cast<float>(machIdleTime(entry2) - machIdleTime(entry1));
+    auto const activeTime = static_cast<float>(machActiveTime(entry2) - machActiveTime(entry1));
+    auto const idleTime = static_cast<float>(machIdleTime(entry2) - machIdleTime(entry1));
     float const totalTime = activeTime + idleTime;
     std::cout.width(6);
     std::cout.precision(2);
