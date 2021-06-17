@@ -51,6 +51,7 @@ CDI::~CDI() = default;
 //------------------------------------------------------------------------------------------------//
 
 std::vector<double> CDI::frequencyGroupBoundaries = std::vector<double>();
+DLL_PUBLIC_cdi bool CDI::extend = false;
 
 //------------------------------------------------------------------------------------------------//
 // STATIC FUNCTIONS
@@ -178,8 +179,8 @@ double CDI::integrateRosselandSpectrum(size_t const groupIndex, double const T) 
  * \param planck     Reference argument for the Planckian integral
  * \param rosseland  Reference argument for the Rosseland integral
  *
- * \return The integrated normalized Planckian and Rosseland over the requested frequency
- *         group. These are returned as references in argument planck and rosseland
+ * The integrated normalized Planckian and Rosseland over the requested frequency group. These are
+ * returned as references in argument planck and rosseland
  */
 void CDI::integrate_Rosseland_Planckian_Spectrum(const size_t groupIndex, const double T,
                                                  double &planck, double &rosseland) {
@@ -210,33 +211,53 @@ void CDI::integrate_Rosseland_Planckian_Spectrum(const size_t groupIndex, const 
  */
 void CDI::integrate_Planckian_Spectrum(std::vector<double> const &bounds, double const T,
                                        std::vector<double> &planck) {
-  Require(T >= std::numeric_limits<double>::min() && T < std::numeric_limits<double>::max());
-  Require(bounds.size() > 0);
+  Require(bounds.size() > 1);
+  Require(bounds[0] >= 0.0);
+  // Subsequent bounds must be monotonicallly increasing; checked in loop below
+  Require(T >= 0.0);
 
   size_t const groups(bounds.size() - 1);
   planck.resize(groups, 0.0);
 
-  // nu/T must be < numeric_limits<double>::max(), throw assertion in DBC mode if this occurs
-  Check(T > bounds.back() * std::numeric_limits<double>::min());
+  // The branches here ensure the function is robust in corner cases of a very hot or very
+  // cold T. For the special case T==0 there is a special branch. For finite T, we test the
+  // frequency against T * 50 to guarantee that the operation frequency / T cannot
+  // overflow. We take advantage of the fact that for frequency greater that about 48 * T,
+  // the integral is 1 to roundoff. We choose 50 to give just a little extra slack in case
+  // some optimizing compiler does something weird and wonderful.
+  if (T > 0.0) {
+    // Initialize the loop:
+    double frequency = bounds[0];
+    double planck_value =
+        extend ? 0.0 : ((frequency < T * 50) ? integrate_planck(frequency / T) : 1.0);
 
-  // Initialize the loop:
-  double scaled_frequency = bounds[0] / T;
-  double planck_value = integrate_planck(scaled_frequency);
+    for (size_t group = 0; group < groups; ++group) {
+      // Shift the data down:
+      Remember(double const last_frequency = frequency;);
+      double const last_planck = planck_value;
 
-  for (size_t group = 0; group < groups; ++group) {
-    // Shift the data down:
-    Remember(double const last_scaled_frequency = scaled_frequency;);
-    double const last_planck = planck_value;
+      // New values:
+      frequency = bounds[group + 1];
+      Require(frequency > last_frequency);
+      planck_value = (frequency < T * 50) ? integrate_planck(frequency / T) : 1.0;
 
-    // New values:
-    scaled_frequency = bounds[group + 1] / T;
-    Ensure(scaled_frequency > last_scaled_frequency);
-    planck_value = integrate_planck(scaled_frequency);
-
-    // Record the definite integral between frequencies.
-    planck[group] = planck_value - last_planck;
-    Ensure(planck[group] >= 0.0);
-    Ensure(planck[group] <= 1.0);
+      // Record the definite integral between frequencies.
+      planck[group] = planck_value - last_planck;
+      Ensure(planck[group] >= 0.0);
+      Ensure(planck[group] <= 1.0);
+    }
+    if (extend) {
+      planck[groups - 1] += 1 - planck_value;
+    }
+  } else {
+    // For the somewhat ill-posed case of T == 0 and bounds[0] == 0, we have chosen
+    // to pretend bounds[0] == 0 as T -> 0. This is likely the least surprising behavior
+    // for clients. In practice, it matters little, since the spectrum will almost
+    // always be multiplied by a scaling factor that goes to zero as T -> 0.
+    fill(planck.begin(), planck.end(), 0.0);
+    if (extend || bounds[0] <= 0.0) {
+      planck[0] = 1.0;
+    }
   }
   return;
 }
@@ -252,34 +273,52 @@ void CDI::integrate_Planckian_Spectrum(std::vector<double> const &bounds, double
  */
 std::vector<double> CDI::integrate_Planckian_Spectrum(std::vector<double> const &bounds,
                                                       double const T) {
-
-  Require(T >= std::numeric_limits<double>::min() && T < std::numeric_limits<double>::max());
-  Require(bounds.size() > 0);
+  Require(bounds.size() > 1);
+  Require(bounds[0] >= 0.0);
+  // Successive bounds values must be monotonically increasing -- checked in loop below
+  Require(T >= 0.0);
 
   size_t const groups(bounds.size() - 1);
   std::vector<double> planck(groups, 0.0);
 
-  // nu/T must be < numeric_limits<double>::max(), throw assertion in DBC mode if this occurs
-  Check(T > bounds.back() * std::numeric_limits<double>::min());
+  // The branches here ensure the function is robust in corner cases of a very hot or very
+  // cold T. For the special case T==0 there is a special branch. For finite T, we test the
+  // frequency against T * 50 to guarantee that the operation frequency / T cannot
+  // overflow. We take advantage of the fact that for frequency greater that about 48 * T,
+  // the integral is 1 to roundoff. We choose 50 to give just a little extra slack in case
+  // some optimizing compiler does something weird and wonderful.
+  if (T > 0.0) {
+    // Initialize the loop:
+    double frequency = bounds[0];
+    double planck_value =
+        extend ? 0.0 : ((frequency < 50 * T) ? integrate_planck(frequency / T) : 1.0);
 
-  // Initialize the loop:
-  double scaled_frequency = bounds[0] / T;
-  double planck_value = integrate_planck(scaled_frequency);
+    for (size_t group = 0; group < groups; ++group) {
+      // Shift the data down:
+      Remember(double const last_frequency = frequency;);
+      double const last_planck = planck_value;
 
-  for (size_t group = 0; group < groups; ++group) {
-    // Shift the data down:
-    Remember(double const last_scaled_frequency = scaled_frequency;);
-    double const last_planck = planck_value;
+      // New values:
+      frequency = bounds[group + 1];
+      Require(frequency > last_frequency);
+      planck_value = (frequency < 50 * T) ? integrate_planck(frequency / T) : 1.0;
 
-    // New values:
-    scaled_frequency = bounds[group + 1] / T;
-    Ensure(scaled_frequency > last_scaled_frequency);
-    planck_value = integrate_planck(scaled_frequency);
-
-    // Record the definite integral between frequencies.
-    planck[group] = planck_value - last_planck;
-    Ensure(planck[group] >= 0.0);
-    Ensure(planck[group] <= 1.0);
+      // Record the definite integral between frequencies.
+      planck[group] = planck_value - last_planck;
+      Ensure(planck[group] >= 0.0);
+      Ensure(planck[group] <= 1.0);
+    }
+    if (extend) {
+      planck[groups - 1] += 1 - planck_value;
+    }
+  } else {
+    // T==0
+    // For the somewhat ill-posed case of T == 0 and bounds[0] == 0, we have chosen
+    // to pretend bounds[0] == 0 as T -> 0. This is likely the least surprising behavior
+    // for clients. In practice, it matters little, since the spectrum will almost
+    // always be multiplied by a scaling factor that goes to zero as T -> 0.
+    if (extend || bounds[0] <= 0.0)
+      planck[0] = 1.0;
   }
   return planck;
 }
@@ -295,40 +334,71 @@ std::vector<double> CDI::integrate_Planckian_Spectrum(std::vector<double> const 
  */
 void CDI::integrate_Rosseland_Spectrum(std::vector<double> const &bounds, double const T,
                                        std::vector<double> &rosseland) {
-  Require(T >= std::numeric_limits<double>::min() && T < std::numeric_limits<double>::max());
-  Require(bounds.size() > 0);
+  Require(bounds.size() > 1);
+  Require(bounds[0] >= 0.0);
+  // Successive bounds values must be monotonically increasing -- checked in loop below
+  Require(T >= 0.0);
 
   size_t const groups(bounds.size() - 1);
   rosseland.resize(groups, 0.0);
 
-  // nu/T must be < numeric_limits<double>::max(), throw assertion in DBC mode if this occurs
-  Check(T > bounds.back() * std::numeric_limits<double>::min());
+  // The branches here ensure the function is robust in corner cases of a very hot or very
+  // cold T. For the special case T==0 there is a special branch. For finite T, we test the
+  // frequency against T * 50 to guarantee that the operation frequency / T cannot
+  // overflow. We take advantage of the fact that for frequency greater that about 48 * T,
+  // the integral is 1 to roundoff. We choose 50 to give just a little extra slack in case
+  // some optimizing compiler does something weird and wonderful.
+  if (T > 0.0) {
+    // Initialize the loop:
+    double planck_value(-42.0);
+    double rosseland_value(-42.0);
+    double frequency = bounds[0];
+    if (extend) {
+      rosseland_value = 0.0;
+    } else {
+      if (frequency < 50 * T) {
+        double scaled_frequency = frequency / T;
+        integrate_planck_rosseland(scaled_frequency, std::exp(-scaled_frequency), planck_value,
+                                   rosseland_value);
+      } else {
+        rosseland_value = 1.0;
+      }
+    }
 
-  // Initialize the loop:
-  double scaled_frequency = bounds[0] / T;
-  double exp_scaled_frequency = std::exp(-scaled_frequency);
+    for (size_t group = 0; group < groups; ++group) {
 
-  double planck_value(-42.0);
-  double rosseland_value(-42.0);
-  integrate_planck_rosseland(scaled_frequency, exp_scaled_frequency, planck_value, rosseland_value);
+      // Shift the data down:
+      Remember(double const last_frequency = frequency;);
+      double const last_rosseland = rosseland_value;
 
-  for (size_t group = 0; group < groups; ++group) {
+      // New values:
+      frequency = bounds[group + 1];
+      Require(frequency > last_frequency);
+      if (frequency < 50 * T) {
+        double scaled_frequency = frequency / T;
+        integrate_planck_rosseland(scaled_frequency, std::exp(-scaled_frequency), planck_value,
+                                   rosseland_value);
+      } else {
+        rosseland_value = 1.0;
+      }
 
-    // Shift the data down:
-    Remember(double const last_scaled_frequency = scaled_frequency;);
-    double const last_rosseland = rosseland_value;
-
-    // New values:
-    scaled_frequency = bounds[group + 1] / T;
-    Check(scaled_frequency > last_scaled_frequency);
-    exp_scaled_frequency = std::exp(-scaled_frequency);
-    integrate_planck_rosseland(scaled_frequency, exp_scaled_frequency, planck_value,
-                               rosseland_value);
-
-    // Record the definite integral between frequencies.
-    rosseland[group] = rosseland_value - last_rosseland;
-    Ensure(rosseland[group] >= 0.0);
-    Ensure(rosseland[group] <= 1.0);
+      // Record the definite integral between frequencies.
+      rosseland[group] = rosseland_value - last_rosseland;
+      Ensure(rosseland[group] >= 0.0);
+      Ensure(rosseland[group] <= 1.0);
+    }
+    if (extend) {
+      rosseland[groups - 1] += 1 - rosseland_value;
+    }
+  } else {
+    // T == 0
+    // For the somewhat ill-posed case of T == 0 and bounds[0] == 0, we have chosen
+    // to pretend bounds[0] == 0 as T -> 0. This is likely the least surprising behavior
+    // for clients. In practice, it matters little, since the spectrum will almost
+    // always be multiplied by a scaling factor that goes to zero as T -> 0.
+    fill(rosseland.begin(), rosseland.end(), 0.0);
+    if (extend || bounds[0] <= 0.0)
+      rosseland[0] = 1.0;
   }
   return;
 }
@@ -347,45 +417,80 @@ void CDI::integrate_Rosseland_Planckian_Spectrum(std::vector<double> const &boun
                                                  std::vector<double> &planck,
                                                  std::vector<double> &rosseland) {
 
-  Require(T >= std::numeric_limits<double>::min() && T < std::numeric_limits<double>::max());
-  Require(bounds.size() > 0);
+  Require(bounds.size() > 1);
+  Require(bounds[0] >= 0.0);
+  // Successive elements of bounds must be monotonically increasing -- checked in loop below
+  Require(T >= 0.0);
+
   size_t const groups(bounds.size() - 1);
 
   planck.resize(groups, 0.0);
   rosseland.resize(groups, 0.0);
 
-  // nu/T must be < numeric_limits<double>::max(), throw assertion in DBC mode if this occurs
-  Check(T > bounds.back() * std::numeric_limits<double>::min());
+  // The branches here ensure the function is robust in corner cases of a very hot or very
+  // cold T. For the special case T==0 there is a special branch. For finite T, we test the
+  // frequency against T * 50 to guarantee that the operation frequency / T cannot
+  // overflow. We take advantage of the fact that for frequency greater that about 48 * T,
+  // the integral is 1 to roundoff. We choose 50 to give just a little extra slack in case
+  // some optimizing compiler does something weird and wonderful.
+  if (T > 0.0) {
+    // Initialize the loop:
+    double frequency = bounds[0];
 
-  // Initialize the loop:
-  double scaled_frequency = bounds[0] / T;
-  double exp_scaled_frequency = std::exp(-scaled_frequency);
+    double planck_value(-42.0);
+    double rosseland_value(-42.0);
+    if (extend) {
+      planck_value = rosseland_value = 0.0;
+    } else {
+      if (frequency < 50 * T) {
+        double scaled_frequency = frequency / T;
+        integrate_planck_rosseland(scaled_frequency, std::exp(-scaled_frequency), planck_value,
+                                   rosseland_value);
+      } else {
+        planck_value = rosseland_value = 1.0;
+      }
+    }
 
-  double planck_value(-42.0);
-  double rosseland_value(-42.0);
-  integrate_planck_rosseland(scaled_frequency, exp_scaled_frequency, planck_value, rosseland_value);
+    for (size_t group = 0; group < groups; ++group) {
 
-  for (size_t group = 0; group < groups; ++group) {
+      // Shift the data down:
+      Remember(double const last_frequency = frequency;);
+      double const last_planck = planck_value;
+      double const last_rosseland = rosseland_value;
 
-    // Shift the data down:
-    Remember(double const last_scaled_frequency = scaled_frequency;);
-    double const last_planck = planck_value;
-    double const last_rosseland = rosseland_value;
+      // New values:
+      frequency = bounds[group + 1];
+      Require(frequency > last_frequency);
+      if (frequency < 50 * T) {
+        double scaled_frequency = frequency / T;
+        integrate_planck_rosseland(scaled_frequency, std::exp(-scaled_frequency), planck_value,
+                                   rosseland_value);
+      } else {
+        planck_value = rosseland_value = 1.0;
+      }
 
-    // New values:
-    scaled_frequency = bounds[group + 1] / T;
-    Check(scaled_frequency > last_scaled_frequency);
-    exp_scaled_frequency = std::exp(-scaled_frequency);
-    integrate_planck_rosseland(scaled_frequency, exp_scaled_frequency, planck_value,
-                               rosseland_value);
-
-    // Record the definite integral between frequencies.
-    planck[group] = planck_value - last_planck;
-    rosseland[group] = rosseland_value - last_rosseland;
-    Ensure(planck[group] >= 0.0);
-    Ensure(planck[group] <= 1.0);
-    Ensure(rosseland[group] >= 0.0);
-    Ensure(rosseland[group] <= 1.0);
+      // Record the definite integral between frequencies.
+      planck[group] = planck_value - last_planck;
+      rosseland[group] = rosseland_value - last_rosseland;
+      Ensure(planck[group] >= 0.0);
+      Ensure(planck[group] <= 1.0);
+      Ensure(rosseland[group] >= 0.0);
+      Ensure(rosseland[group] <= 1.0);
+    }
+    if (extend) {
+      planck[groups - 1] += 1 - planck_value;
+      rosseland[groups - 1] += 1 - rosseland_value;
+    }
+  } else {
+    // T==0
+    // For the somewhat ill-posed case of T == 0 and bounds[0] == 0, we have chosen
+    // to pretend bounds[0] == 0 as T -> 0. This is likely the least surprising behavior
+    // for clients. In practice, it matters little, since the spectrum will almost
+    // always be multiplied by a scaling factor that goes to zero as T -> 0.
+    fill(planck.begin(), planck.end(), 0.0);
+    fill(rosseland.begin(), rosseland.end(), 0.0);
+    if (extend || bounds[0] <= 0.0)
+      planck[0] = rosseland[0] = 1.0;
   }
   return;
 }
@@ -399,7 +504,7 @@ void CDI::integrate_Rosseland_Planckian_Spectrum(std::vector<double> const &boun
  * \param opacity   A vector of multigroup opacity data.
  * \param planckSpectrum A vector of Planck integrals for all groups in the spectrum (normally
  *                  generated via CDI::integrate_Rosseland_Planckian_Sectrum(...).
- * \param emission_group_cdf
+ * \param emission_group_cdf A vector of CDF values, one per group.
  * \return A single interval Planckian weighted opacity value.
  *
  * Typically, CDI::integrate_Rosseland_Planckian_Spectrum is called before this function to obtain
@@ -554,7 +659,7 @@ double CDI::collapseMultigroupReciprocalOpacitiesPlanck(std::vector<double> cons
     if (opacity[g - 1] > 0)
       inv_sig_planck_sum += planckSpectrum[g - 1] / opacity[g - 1];
     else
-      return std::numeric_limits<float>::max();
+      return static_cast<double>(std::numeric_limits<float>::max());
   }
 
   //                             int_{\nu_0}^{\nu_G}{d\nu 1/sigma(\nu,T) * B(\nu,T)}
@@ -565,7 +670,7 @@ double CDI::collapseMultigroupReciprocalOpacitiesPlanck(std::vector<double> cons
   if (planck_integral > 0.0)
     reciprocal_planck_opacity = inv_sig_planck_sum / planck_integral;
   else {
-    reciprocal_planck_opacity = std::numeric_limits<float>::max();
+    reciprocal_planck_opacity = static_cast<double>(std::numeric_limits<float>::max());
   }
   Ensure(reciprocal_planck_opacity >= 0.0);
   return reciprocal_planck_opacity;
@@ -825,7 +930,8 @@ CDI::SP_MultigroupOpacity CDI::mg(rtt_cdi::Model m, rtt_cdi::Reaction r) const {
  * \param pz int32_t specifying the desired particle type.
  * \param tz int32_t specifying the desired target type.
  */
-CDI::SP_CPEloss CDI::eloss(rtt_cdi::CPModelAngleCutoff mAC, int32_t pz, int32_t tz) const {
+CDI::SP_CPEloss CDI::eloss(rtt_cdi::CPModelAngleCutoff Remember(mAC), int32_t pz,
+                           int32_t tz) const {
   auto const entry = CPEloss_map.find(std::make_pair(pz, tz));
   Insist(entry != CPEloss_map.end(), "Undefined CPEloss!");
   // Be sure model type is what the user expected.

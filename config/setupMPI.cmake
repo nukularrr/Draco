@@ -3,13 +3,12 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2016 Sep 22
 # brief  Setup MPI Vendors
-# note   Copyright (C) 2016-2020 Triad National Security, LLC.
-#        All rights reserved.
+# note   Copyright (C) 2016-2021 Triad National Security, LLC., All rights reserved.
 #
 # Try to find MPI in the default locations (look for mpic++ in PATH)
 #
-# See cmake --help-module FindMPI for details on variables set and published
-# targets. Additionally, this module will set the following variables:
+# See cmake --help-module FindMPI for details on variables set and published targets. Additionally,
+# this module will set the following variables:
 #
 # DRACO_C4   MPI|SCALAR
 # C4_SCALAR  BOOL
@@ -252,9 +251,11 @@ macro( setupOpenMPI )
   # - Adding '--debug-daemons' is often requested by the OpenMPI dev team in conjunction with
   #   'export OMPI_MCA_btl_base_verbose=100' to obtain debug traces from openmpi.
   set(MPIEXEC_PREFLAGS_PERFBENCH "${MPIEXEC_PREFLAGS} --map-by socket:SPAN")
-  string(APPEND MPIEXEC_PREFLAGS " -bind-to none")
+  if( NOT MPIEXEC_PREFLAGS MATCHES " -bind-to none")
+    string(APPEND MPIEXEC_PREFLAGS " -bind-to none")
+  endif()
   # Setup for OMP plus MPI
-  if( NOT APPLE )
+  if( NOT APPLE AND NOT MPIEXEC_OMP_PREFLAGS MATCHES "--map-by ppr")
     # -bind-to fails on OSX, See #691
     set(MPIEXEC_OMP_PREFLAGS
       "${MPIEXEC_PREFLAGS} --map-by ppr:${MPI_CORES_PER_CPU}:socket --report-bindings" )
@@ -263,9 +264,9 @@ macro( setupOpenMPI )
   # Spectrum-MPI on darwin
   # Limit communication to on-node via '-intra sm' or 'intra vader'
   # https://www.ibm.com/support/knowledgecenter/SSZTET_EOS/eos/guide_101.pdf
-  if( "${MPIEXEC_EXECUTABLE}" MATCHES "smpi" )
+  if( "${MPIEXEC_EXECUTABLE}" MATCHES "smpi" AND NOT MPIEXEC_PREFLAGS MATCHES "-intra sm")
     string(REPLACE "-bind-to none" "-bind-to core" MPIEXEC_PREFLAGS ${MPIEXEC_PREFLAGS})
-    string(REPLACE "-bind-to none" "-bind-to core" MPIEXEC_OMP_PREFLAGS ${MPIEXEC_OMP_PREFLAGS})
+    # string(REPLACE "-bind-to none" "-bind-to core" MPIEXEC_OMP_PREFLAGS ${MPIEXEC_OMP_PREFLAGS})
     set(smpi-sm-only "-intra sm -aff off --report-bindings")
     string(APPEND MPIEXEC_PREFLAGS     " ${smpi-sm-only}")
     string(APPEND MPIEXEC_OMP_PREFLAGS " ${smpi-sm-only}")
@@ -330,20 +331,17 @@ macro( setupCrayMPI )
   #           they will stomp on the same cores.
 
   set(preflags " ") # -N 1 --cpu_bind=verbose,cores
-  string(APPEND preflags " --gres=craynetwork:0") # --exclusive
-  set( MPIEXEC_PREFLAGS ${preflags} CACHE STRING
-    "extra mpirun flags (list)." FORCE)
+  string(APPEND preflags " --gres=craynetwork:0 --exclusive")
+  set( MPIEXEC_PREFLAGS ${preflags} CACHE STRING "extra mpirun flags (list)." FORCE)
   # consider adding '-m=cyclic'
-  set( MPIEXEC_PREFLAGS_PERFBENCH ${preflags} CACHE STRING
+  set( MPIEXEC_PREFLAGS_PERFBENCH ${preflags} CACHE STRING "extra mpirun flags (list)." FORCE)
+  set( MPIEXEC_OMP_PREFLAGS "${MPIEXEC_PREFLAGS} -c ${MPI_CORES_PER_CPU}" CACHE STRING
     "extra mpirun flags (list)." FORCE)
-
-  set( MPIEXEC_OMP_PREFLAGS "${MPIEXEC_PREFLAGS} -c ${MPI_CORES_PER_CPU}"
-    CACHE STRING "extra mpirun flags (list)." FORCE)
 
 endmacro()
 
 ##---------------------------------------------------------------------------##
-## Setup Spectrum MPI wrappers (Sierra, Rzansel, Rzmanta, Ray)
+## Setup Spectrum MPI wrappers (Sierra, Rzansel)
 ## - https://www.ibm.com/support/knowledgecenter/SSZTET_EOS/eos/guide_101.pdf
 ##---------------------------------------------------------------------------##
 macro( setupSpectrumMPI )
@@ -367,8 +365,7 @@ macro( setupSpectrumMPI )
   #
   # Examples:
   # - jsrun -a4 -c1 -g1  => 4 tasks on 4 cores that share 1 gpu.
-  # - jsrun -r4 -n8      => 2 nodes, 4 resource sets per node, 8 resource sets
-  #                         total
+  # - jsrun -r4 -n8      => 2 nodes, 4 resource sets per node, 8 resource sets total
   # - jsrun -a4 -c16 -g2 => 4 tasks, 16 cores, 2 gpus
 
   if( MPIEXEC_EXECUTABLE MATCHES jsrun )
@@ -376,6 +373,8 @@ macro( setupSpectrumMPI )
     set( MPIEXEC_PREFLAGS "-c 1 -g 0 --bind none")
   elseif( MPIEXEC_EXECUTABLE MATCHES lrun )
     set( MPIEXEC_PREFLAGS "--pack --threads=1 -v") # --bind=off
+  else()
+    message( FATAL_ERROR "Unexpected mpirun: ${MPIEXEC_EXECUTABLE}")
   endif()
   # --pack ==> -c 1 -g 0.  This is actually bad for us. Disable
   # lrun -n 2 -c 10 --threads=10 --bind=off ==>
@@ -387,24 +386,25 @@ macro( setupSpectrumMPI )
   #
 
   if( DEFINED ENV{OMP_NUM_THREADS} )
-    if( MPIEXEC_EXECUTABLE MATCHES jsrun )
-      # 1 resource set; OMP_NUM_THREADS tasks; no gpu; no binding
-      set( MPIEXEC_OMP_PREFLAGS "--nrs 1 -c $ENV{OMP_NUM_THREADS} -g 0 --bind none")
-    elseif( MPIEXEC_EXECUTABLE MATCHES lrun )
-      if( DEFINED ENV{OMP_NUM_THREADS} )
-        # --bind=off
-        set( MPIEXEC_OMP_PREFLAGS "--pack --threads=$ENV{OMP_NUM_THREADS} -c$ENV{OMP_NUM_THREADS} -v" )
-      else()
-        set( MPIEXEC_OMP_PREFLAGS "--pack --threads=4 -c 4 -v" )
-      endif()
-    endif()
+    set( ont $ENV{OMP_NUM_THREADS} )
+  else()
+    set( ont 4 )
+  endif()
+  if( MPIEXEC_EXECUTABLE MATCHES jsrun )
+    # 1 resource set; OMP_NUM_THREADS tasks; no gpu; no binding
+    set( MPIEXEC_OMP_PREFLAGS "--nrs 1 -c ${ont} -g 0 --bind none")
+  elseif( MPIEXEC_EXECUTABLE MATCHES lrun )
+    set( MPIEXEC_OMP_PREFLAGS "--threads=${ont} -c${ont} --bind=none -v" )
+    # --pack ?
+    # --smt=4 ?
+  else()
+    message( FATAL_ERROR "Unexpected mpirun: ${MPIEXEC_EXECUTABLE}")
   endif()
 
-  set( MPIEXEC_OMP_PREFLAGS ${MPIEXEC_OMP_PREFLAGS}
-    CACHE STRING "extra mpirun flags (list)." FORCE )
+  set( MPIEXEC_OMP_PREFLAGS ${MPIEXEC_OMP_PREFLAGS} CACHE STRING "extra mpirun flags (list)." FORCE)
 
-  mark_as_advanced( MPI_CPUS_PER_NODE MPI_CORES_PER_CPU
-    MPI_PHYSICAL_CORES MPI_MAX_NUMPROCS_PHYSICAL MPI_HYPERTHREADING )
+  mark_as_advanced( MPI_CPUS_PER_NODE MPI_CORES_PER_CPU MPI_PHYSICAL_CORES MPI_MAX_NUMPROCS_PHYSICAL
+    MPI_HYPERTHREADING )
 
 endmacro()
 

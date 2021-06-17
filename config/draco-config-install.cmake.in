@@ -44,7 +44,6 @@ set( DRACO_LIBRARY_TYPE "@DRACO_LIBRARY_TYPE@" )
 set( DRACO_TIMING "@DRACO_TIMING@")
 set( DRACO_DIAGNOSTICS "@DRACO_DIAGNOSTICS@")
 set( DRACO_STATIC_ANALYZER "@DRACO_STATIC_ANALYZER@")
-set( GCC_ENABLE_GLIBCXX_DEBUG "@GCC_ENABLE_GLIBCXX_DEBUG@" )
 set( Draco_VERSION "@Draco_VERSION@")
 
 #--------------------------------------------------------------------------------------------------#
@@ -69,7 +68,25 @@ set( Draco_CMAKE_CUDA_FLAGS "@CMAKE_CUDA_FLAGS@")
 set( Draco_CMAKE_CUDA_FLAGS_DEBUG "@CMAKE_CUDA_FLAGS_DEBUG@")
 set( Draco_CMAKE_CUDA_FLAGS_RELWITHDEBINFO "@CMAKE_CUDA_FLAGS_RELWITHDEBINFO@")
 set( Draco_CMAKE_CUDA_FLAGS_RELEASE "@CMAKE_CUDA_FLAGS_RELEASE@")
-set( Draco_CUDA_ARCH "@Draco_CUDA_ARCH@")
+set( CUDA_ARCHITECTURES "@CUDA_ARCHITECTURES@")
+if( ${CMAKE_GENERATOR} MATCHES "Unix Makefiles" AND USE_CUDA)
+  include(CheckLanguage)
+  check_language(CUDA)
+  if(CMAKE_CUDA_COMPILER)
+    enable_language(CUDA)
+  else()
+    message( FATAL_ERROR "==> Cuda requested but nvcc not found. Try loading a cuda module.")
+  endif()
+endif()
+
+# Is Fortran enabled (it is considered 'optional' for draco)?
+if( ${CMAKE_GENERATOR} MATCHES "Unix Makefiles" )
+  if( DEFINED ENV{FC} OR DEFINED CMAKE_Fortran_COMPILER )
+    enable_language( Fortran OPTIONAL )
+  endif()
+endif()
+
+get_property(_LANGUAGES_ GLOBAL PROPERTY ENABLED_LANGUAGES)
 
 # Python
 set( Python_Interpreter_FOUND "@Python_Interpreter_FOUND@" )

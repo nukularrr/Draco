@@ -86,8 +86,16 @@ function( setupLAPACKLibraries )
     find_package( LAPACK QUIET )
   endif()
   if( TARGET LAPACK::LAPACK )
-    # set_target_properties( LAPACK::LAPACK PROPERTIES LINK_LIBRARIES BLAS::BLAS )
-    target_link_libraries(LAPACK::LAPACK INTERFACE BLAS::BLAS)
+    get_target_property( blas_iface_link_lib BLAS::BLAS INTERFACE_LINK_LIBRARIES )
+    if ( blas_iface_link_lib MATCHES NOTFOUND AND CMAKE_CXX_COMPILER_ID STREQUAL XLClang )
+      # XL seems to provide sgemm and this prevents FindBLAS.cmake from doing it's job.
+      get_filename_component(lldir ${LAPACK_LIBRARIES} DIRECTORY)
+      unset(BLAS_LIBRARIES)
+      find_library(BLAS_LIBRARIES NAMES blas HINTS ${lldir} NO_DEFAULT_PATH )
+      target_link_libraries(LAPACK::LAPACK INTERFACE ${BLAS_LIBRARIES})
+    else()
+      target_link_libraries(LAPACK::LAPACK INTERFACE BLAS::BLAS)
+    endif()
   endif()
   set( lapack_url "http://www.netlib.org/lapack" )
   if( LAPACK_LIBRARIES MATCHES openblas )
@@ -114,7 +122,11 @@ endfunction()
 macro( setupQt )
   message( STATUS "Looking for Qt SDK...." )
 
-  option (USE_QT "Build QT support for Draco" ON)
+  if( CMAKE_CXX_COMPILER_WRAPPER STREQUAL CrayPrgEnv )
+    option (USE_QT "Build QT support for Draco" OFF)
+  else()
+    option (USE_QT "Build QT support for Draco" ON)
+  endif()
 
   if( USE_QT )
     # Find the QtWidgets library
@@ -597,6 +609,14 @@ Looking for Draco...\")
   # CMake macros that check the system for features like 'gethostname', etc.
   include( platform_checks )
 
+  # CMake macros to query the availability of TPLs.
+  # - Must do this before adding compiler flags. Otherwise find_package(MPI) will fail for LLVM
+  #   when using flags '-Werror -Weverything'.
+  include( vendor_libraries )
+
+  # Provide targets for MPI, Metis, etc.
+  setupVendorLibraries()
+
   # Set compiler options
   include( compilerEnv )
   dbsSetupCxx()
@@ -606,12 +626,6 @@ Looking for Draco...\")
 
   # CMake macros like 'add_component_library' and 'add_component_executable'
   include( component_macros )
-
-  # CMake macros to query the availability of TPLs.
-  include( vendor_libraries )
-
-  # Provide targets for MPI, Metis, etc.
-  setupVendorLibraries()
 
 endmacro()
 
