@@ -68,7 +68,7 @@ public:
     std::tie(def_job_num_nodes_, job_num_nodes_) =
         rtt_dsxx::get_env_val<int>("SLURM_JOB_NUM_NODES", job_num_nodes_);
     std::tie(def_cpus_on_node_, cpus_on_node_) =
-        rtt_dsxx::get_env_val<int>("SLURM_CPUS_ON_NODE", job_num_nodes_);
+        rtt_dsxx::get_env_val<int>("SLURM_JOB_CPUS_PER_NODE", job_num_nodes_);
     std::tie(def_nodelist_, nodelist_) = rtt_dsxx::get_env_val<std::string>("SLURM_NODELIST");
   }
 

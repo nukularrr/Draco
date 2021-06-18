@@ -34,7 +34,8 @@ function( setMPIflavorVer )
   # HPC or systems with modules)
   if( CMAKE_CXX_COMPILER_WRAPPER STREQUAL CrayPrgEnv )
     set( MPI_FLAVOR "cray" )
-  elseif( "${MPIEXEC_EXECUTABLE}" MATCHES "openmpi" OR "${MPIEXEC_EXECUTABLE}" MATCHES "smpi" )
+  elseif("${MPIEXEC_EXECUTABLE}" MATCHES "openmpi" OR "${MPIEXEC_EXECUTABLE}" MATCHES "smpi" OR
+      ("${MPIEXEC_EXECUTABLE}" MATCHES "srun" AND "${MPI_C_COMPILER}" MATCHES "openmpi"))
     set( MPI_FLAVOR "openmpi" )
   elseif( "${MPIEXEC_EXECUTABLE}" MATCHES "mpich" OR "${MPI_C_HEADER_DIR}" MATCHES "mpich")
     set( MPI_FLAVOR "mpich" )
@@ -51,10 +52,9 @@ function( setMPIflavorVer )
     if( DEFINED ENV{CRAY_MPICH2_VER} )
       set( MPI_VERSION $ENV{CRAY_MPICH2_VER} )
     endif()
-  elseif( "${MPI_FLAVOR}" STREQUAL "spectrum" )
-    if( DEFINED ENV{LMOD_MPI_VERSION} )
-      set( LMOD_MPI_VERSION $ENV{LMOD_MPI_VERSION} )
-    endif()
+  elseif(DEFINED ENV{LMOD_MPI_VERSION})
+    # Toss3 with srun
+    string(REGEX REPLACE "-[a-z0-9]+" "" MPI_VERSION "$ENV{LMOD_MPI_VERSION}")
   else()
     execute_process( COMMAND ${MPIEXEC_EXECUTABLE} --version
       OUTPUT_VARIABLE DBS_MPI_VER_OUT
@@ -245,32 +245,40 @@ macro( setupOpenMPI )
     set( MPIEXEC_PREFLAGS "$ENV{MPIEXEC_PREFLAGS}" )
   endif()
 
-  # Notes:
-  # - For PERFBENCH that use Quo, we need '--map-by socket:SPAN' instead of '-bind-to none'.  The
-  #   'bind-to none' is required to pack a node.
-  # - Adding '--debug-daemons' is often requested by the OpenMPI dev team in conjunction with
-  #   'export OMPI_MCA_btl_base_verbose=100' to obtain debug traces from openmpi.
-  set(MPIEXEC_PREFLAGS_PERFBENCH "${MPIEXEC_PREFLAGS} --map-by socket:SPAN")
-  if( NOT MPIEXEC_PREFLAGS MATCHES " -bind-to none")
-    string(APPEND MPIEXEC_PREFLAGS " -bind-to none")
-  endif()
-  # Setup for OMP plus MPI
-  if( NOT APPLE AND NOT MPIEXEC_OMP_PREFLAGS MATCHES "--map-by ppr")
-    # -bind-to fails on OSX, See #691
-    set(MPIEXEC_OMP_PREFLAGS
-      "${MPIEXEC_PREFLAGS} --map-by ppr:${MPI_CORES_PER_CPU}:socket --report-bindings" )
-  endif()
+  if("${MPIEXEC_EXECUTABLE}" MATCHES "srun")
+    set(preflags " --exclusive") # -N 1 --cpu_bind=verbose,cores
+    set(MPIEXEC_PREFLAGS ${preflags})
+    set(MPIEXEC_PREFLAGS_PERFBENCH ${preflags})
+    set(MPIEXEC_OMP_PREFLAGS "${MPIEXEC_PREFLAGS} -c ${MPI_CORES_PER_CPU}")
+  else()
+    # Notes:
+    #
+    # * For PERFBENCH that use Quo, we need '--map-by socket:SPAN' instead of '-bind-to none'.  The
+    #   'bind-to none' is required to pack a node.
+    # * Adding '--debug-daemons' is often requested by the OpenMPI dev team in conjunction with
+    #   'export OMPI_MCA_btl_base_verbose=100' to obtain debug traces from openmpi.
+    set(MPIEXEC_PREFLAGS_PERFBENCH "${MPIEXEC_PREFLAGS} --map-by socket:SPAN")
+    if( NOT MPIEXEC_PREFLAGS MATCHES " -bind-to none")
+      string(APPEND MPIEXEC_PREFLAGS " -bind-to none")
+    endif()
+    # Setup for OMP plus MPI
+    if( NOT APPLE AND NOT MPIEXEC_OMP_PREFLAGS MATCHES "--map-by ppr")
+      # -bind-to fails on OSX, See #691
+      set(MPIEXEC_OMP_PREFLAGS
+        "${MPIEXEC_PREFLAGS} --map-by ppr:${MPI_CORES_PER_CPU}:socket --report-bindings" )
+    endif()
 
-  # Spectrum-MPI on darwin
-  # Limit communication to on-node via '-intra sm' or 'intra vader'
-  # https://www.ibm.com/support/knowledgecenter/SSZTET_EOS/eos/guide_101.pdf
-  if( "${MPIEXEC_EXECUTABLE}" MATCHES "smpi" AND NOT MPIEXEC_PREFLAGS MATCHES "-intra sm")
-    string(REPLACE "-bind-to none" "-bind-to core" MPIEXEC_PREFLAGS ${MPIEXEC_PREFLAGS})
-    # string(REPLACE "-bind-to none" "-bind-to core" MPIEXEC_OMP_PREFLAGS ${MPIEXEC_OMP_PREFLAGS})
-    set(smpi-sm-only "-intra sm -aff off --report-bindings")
-    string(APPEND MPIEXEC_PREFLAGS     " ${smpi-sm-only}")
-    string(APPEND MPIEXEC_OMP_PREFLAGS " ${smpi-sm-only}")
-    unset(smpi-sm-only)
+    # Spectrum-MPI on darwin
+    # Limit communication to on-node via '-intra sm' or 'intra vader'
+    # https://www.ibm.com/support/knowledgecenter/SSZTET_EOS/eos/guide_101.pdf
+    if( "${MPIEXEC_EXECUTABLE}" MATCHES "smpi" AND NOT MPIEXEC_PREFLAGS MATCHES "-intra sm")
+      string(REPLACE "-bind-to none" "-bind-to core" MPIEXEC_PREFLAGS ${MPIEXEC_PREFLAGS})
+      # string(REPLACE "-bind-to none" "-bind-to core" MPIEXEC_OMP_PREFLAGS ${MPIEXEC_OMP_PREFLAGS})
+      set(smpi-sm-only "-intra sm -aff off --report-bindings")
+      string(APPEND MPIEXEC_PREFLAGS     " ${smpi-sm-only}")
+      string(APPEND MPIEXEC_OMP_PREFLAGS " ${smpi-sm-only}")
+      unset(smpi-sm-only)
+    endif()
   endif()
 
   # Cache the result
@@ -323,6 +331,7 @@ macro( setupCrayMPI )
   #           regression testing.
   # --vm-overcommit=disable|enable Do not allow overcommit of heap resources.
   # -p knl    Limit allocation to KNL nodes.
+  #
   # srun options:
   # --------------------
   # --cpu_bind=verbose,cores Bind MPI ranks to cores and print a summary of binding when run
@@ -430,10 +439,10 @@ macro( setupMPILibrariesUnix )
         "Program to execute MPI parallel programs." )
     endif()
 
-    # If this is a Cray system and the Cray MPI compile wrappers are used, then do some special
-    # setup:
+    # If this is a Cray system and the Cray MPI compile wrappers are used, or if this is CTS-1 with
+    # Toss3, then do some special setup:
 
-    if(  CMAKE_CXX_COMPILER_WRAPPER MATCHES CrayPrgEnv )
+    if(CMAKE_CXX_COMPILER_WRAPPER MATCHES CrayPrgEnv OR IS_DIRECTORY "/usr/projects/hpcsoft/toss3/")
       if( NOT EXISTS ${MPIEXEC_EXECUTABLE} )
         find_program( MPIEXEC_EXECUTABLE srun )
       endif()
@@ -441,8 +450,7 @@ macro( setupMPILibrariesUnix )
         "Program to execute MPI parallel programs." FORCE )
       set( MPIEXEC_NUMPROC_FLAG "-n" CACHE STRING
         "mpirun flag used to specify the number of processors to use")
-    elseif( DEFINED ENV{SYS_TYPE} AND
-        "$ENV{SYS_TYPE}" MATCHES "ppc64le_ib_p9" ) # ATS-2
+    elseif( DEFINED ENV{SYS_TYPE} AND "$ENV{SYS_TYPE}" MATCHES "ppc64le_ib_p9" ) # ATS-2
       if( NOT EXISTS ${MPIEXEC_EXECUTABLE} )
         find_program( MPIEXEC_EXECUTABLE lrun )
       endif()
