@@ -1,4 +1,4 @@
-#--------------------------------------------*-cmake-*---------------------------------------------#
+# -------------------------------------------*-cmake-*-------------------------------------------- #
 # file   config/setupMPI.cmake
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2016 Sep 22
@@ -10,24 +10,25 @@
 # See cmake --help-module FindMPI for details on variables set and published targets. Additionally,
 # this module will set the following variables:
 #
-# DRACO_C4   MPI|SCALAR
-# C4_SCALAR  BOOL
-# C4_MPI     BOOL
-# MPI_FLAVOR openmpi|mpih|intel|mvapich2|spectrum|msmpi
-# MPI_VERSION NN.NN.NN
+# * DRACO_C4   MPI|SCALAR
+# * C4_SCALAR  BOOL
+# * C4_MPI     BOOL
+# * MPI_FLAVOR openmpi|mpih|intel|mvapich2|spectrum|msmpi
+# * MPI_VERSION NN.NN.NN
 #
-#--------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
 
 include_guard(GLOBAL)
 include( FeatureSummary )
 
-#--------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
 # Set MPI flavor and vendor version
 #
 # Returns (as cache variables)
-# - MPI_VERSION
-# - MPI_FLAVOR = {openmpi, mpich, cray, spectrum, mvapich2, intel}
-#--------------------------------------------------------------------------------------------------#
+#
+# * MPI_VERSION
+# * MPI_FLAVOR = {openmpi, mpich, cray, spectrum, mvapich2, intel}
+# ------------------------------------------------------------------------------------------------ #
 function( setMPIflavorVer )
 
   # First attempt to determine MPI flavor -- scape flavor from full path (this ususally works for
@@ -121,9 +122,9 @@ function( setMPIflavorVer )
 
 endfunction()
 
-##---------------------------------------------------------------------------##
-## Set Draco specific MPI variables
-##---------------------------------------------------------------------------##
+# ------------------------------------------------------------------------- #
+# Set Draco specific MPI variables
+# ------------------------------------------------------------------------- #
 macro( setupDracoMPIVars )
 
   # Set Draco build system variables based on what we know about MPI.
@@ -155,28 +156,31 @@ macro( setupDracoMPIVars )
 
 endmacro()
 
-#--------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
 # Query CPU topology
 #
 # Returns:
-#   MPI_CORES_PER_CPU
-#   MPI_CPUS_PER_NODE
-#   MPI_PHYSICAL_CORES
-#   MPI_MAX_NUMPROCS_PHYSICAL
-#   MPI_HYPERTHREADING
+#
+#  * MPI_CORES_PER_CPU
+#  * MPI_CPUS_PER_NODE
+#  * MPI_PHYSICAL_CORES
+#  * MPI_MAX_NUMPROCS_PHYSICAL
+#  * MPI_HYPERTHREADING
 #
 # See also:
-#   - Try running 'lstopo' for a graphical view of the local topology or 'lscpu' for a text version.
-#   - EAP's flags can be found in Test.rh/General/run_job.pl (look for $other_args).  In
-#     particular, it may be useful to examine EAP's options for srun or aprun.
-#--------------------------------------------------------------------------------------------------#
+#
+#  * Try running 'lstopo' for a graphical view of the local topology or 'lscpu' for a text version.
+#  * EAP's flags can be found in Test.rh/General/run_job.pl (look for $other_args).  In
+#    particular, it may be useful to examine EAP's options for srun or aprun.
+# ------------------------------------------------------------------------------------------------ #
 macro( query_topology )
 
   # These cmake commands, while useful, don't provide the topology detail that we are interested in
   # (i.e. number of sockets per node). We could use the results of these queries to know if
   # hyper-threading is enabled (if logical != physical cores)
-  # - cmake_host_system_information(RESULT MPI_PHYSICAL_CORES QUERY NUMBER_OF_PHYSICAL_CORES)
-  # - cmake_host_system_information(RESULT MPI_LOGICAL_CORES  QUERY NUMBER_OF_LOGICAL_CORES)
+  #
+  # * cmake_host_system_information(RESULT MPI_PHYSICAL_CORES QUERY NUMBER_OF_PHYSICAL_CORES)
+  # * cmake_host_system_information(RESULT MPI_LOGICAL_CORES  QUERY NUMBER_OF_LOGICAL_CORES)
 
   # start with default values
   set( MPI_CORES_PER_CPU 4 )
@@ -227,9 +231,9 @@ macro( query_topology )
   endif()
 endmacro()
 
-#--------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
 # Setup OpenMPI
-#--------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
 macro( setupOpenMPI )
 
   # sanity check, these OpenMPI flags (below) require version >= 1.8
@@ -246,7 +250,7 @@ macro( setupOpenMPI )
   endif()
 
   if("${MPIEXEC_EXECUTABLE}" MATCHES "srun")
-    set(preflags " --exclusive") # -N 1 --cpu_bind=verbose,cores
+    set(preflags " --overlap") # -N 1 --cpu_bind=verbose,cores
     set(MPIEXEC_PREFLAGS ${preflags})
     set(MPIEXEC_PREFLAGS_PERFBENCH ${preflags})
     set(MPIEXEC_OMP_PREFLAGS "${MPIEXEC_PREFLAGS} -c ${MPI_CORES_PER_CPU}")
@@ -269,6 +273,7 @@ macro( setupOpenMPI )
     endif()
 
     # Spectrum-MPI on darwin
+    #
     # Limit communication to on-node via '-intra sm' or 'intra vader'
     # https://www.ibm.com/support/knowledgecenter/SSZTET_EOS/eos/guide_101.pdf
     if( "${MPIEXEC_EXECUTABLE}" MATCHES "smpi" AND NOT MPIEXEC_PREFLAGS MATCHES "-intra sm")
@@ -293,9 +298,9 @@ macro( setupOpenMPI )
 
 endmacro()
 
-##---------------------------------------------------------------------------##
-## Setup Mpich
-##---------------------------------------------------------------------------##
+# ------------------------------------------------------------------------- #
+# Setup Mpich
+# ------------------------------------------------------------------------- #
 macro( setupMpichMPI )
 
   # Find cores/cpu, cpu/node, hyper-threading
@@ -303,9 +308,9 @@ macro( setupMpichMPI )
 
 endmacro()
 
-##---------------------------------------------------------------------------##
-## Setup Intel MPI
-##---------------------------------------------------------------------------##
+# ------------------------------------------------------------------------- #
+# Setup Intel MPI
+# ------------------------------------------------------------------------- #
 macro( setupIntelMPI )
 
   # Find cores/cpu, cpu/node, hyper-threading
@@ -313,34 +318,36 @@ macro( setupIntelMPI )
 
 endmacro()
 
-##---------------------------------------------------------------------------##
-## Setup Cray MPI wrappers (APRUN)
-##---------------------------------------------------------------------------##
+# ------------------------------------------------------------------------- #
+# Setup Cray MPI wrappers (APRUN)
+# ------------------------------------------------------------------------- #
 macro( setupCrayMPI )
 
   query_topology()
 
   # salloc/sbatch options:
-  # --------------------
-  # -N        limit job to a single node.
-  # --gres=craynetwork:0 This option allows more than one srun to be running at the same time on the
-  #           Cray. There are 4 gres “tokens” available. If unspecified, each srun invocation will
-  #           consume all of them. Setting the value to 0 means consume none and allow the user to
-  #           run as many concurrent jobs as there are cores available on the node. This should only
-  #           be specified on the salloc/sbatch command.  Gabe doesn't recommend this option for
-  #           regression testing.
-  # --vm-overcommit=disable|enable Do not allow overcommit of heap resources.
-  # -p knl    Limit allocation to KNL nodes.
+  #
+  # * -N      limit job to a single node.
+  # * --gres=craynetwork:0 This option allows more than one srun to be running at the same time on
+  #           the Cray. There are 4 gres “tokens” available. If unspecified, each srun invocation
+  #           will consume all of them. Setting the value to 0 means consume none and allow the user
+  #           to run as many concurrent jobs as there are cores available on the node. This should
+  #           only be specified on the salloc/sbatch command.  Gabe doesn't recommend this option
+  #           for regression testing.
+  # * --vm-overcommit=disable|enable Do not allow overcommit of heap resources.
+  # * -p knl    Limit allocation to KNL nodes.
   #
   # srun options:
-  # --------------------
-  # --cpu_bind=verbose,cores Bind MPI ranks to cores and print a summary of binding when run
-  # --exclusive This option will keep concurrent jobs from running on the same cores. If you want to
-  #           background tasks to have them run simultaneously, this option is required to be set or
-  #           they will stomp on the same cores.
+  #
+  # * --cpu_bind=verbose,cores Bind MPI ranks to cores and print a summary of binding when run
+  # * --exclusive This option will keep concurrent jobs from running on the same cores. If you want
+  #           to background tasks to have them run simultaneously, this option is required to be set
+  #           or they will stomp on the same cores.
+  # * --overlap Allow steps to overlap each other on the CPUs. By default steps do not share CPUs
+  #           with other parallel steps.
 
   set(preflags " ") # -N 1 --cpu_bind=verbose,cores
-  string(APPEND preflags " --gres=craynetwork:0 --exclusive")
+  string(APPEND preflags " --gres=craynetwork:0 --overlap")
   set( MPIEXEC_PREFLAGS ${preflags} CACHE STRING "extra mpirun flags (list)." FORCE)
   # consider adding '-m=cyclic'
   set( MPIEXEC_PREFLAGS_PERFBENCH ${preflags} CACHE STRING "extra mpirun flags (list)." FORCE)
@@ -349,19 +356,19 @@ macro( setupCrayMPI )
 
 endmacro()
 
-##---------------------------------------------------------------------------##
-## Setup Spectrum MPI wrappers (Sierra, Rzansel)
-## - https://www.ibm.com/support/knowledgecenter/SSZTET_EOS/eos/guide_101.pdf
-##---------------------------------------------------------------------------##
+# ------------------------------------------------------------------------- #
+# Setup Spectrum MPI wrappers (Sierra, Rzansel)
+# * https://www.ibm.com/support/knowledgecenter/SSZTET_EOS/eos/guide_101.pdf
+# ------------------------------------------------------------------------- #
 macro( setupSpectrumMPI )
 
   # Find cores/cpu, cpu/node, hyper-threading
   query_topology()
 
   # jsrun options
-  #----------------------------------------
+  # ---------------------------------------
   # Ref: https://hpc.llnl.gov/training/tutorials/using-lcs-sierra-system#jsrun
-  #----------------------------------------
+  # ---------------------------------------
   # Basic:
   # -n Total number of cores
   #
@@ -417,9 +424,9 @@ macro( setupSpectrumMPI )
 
 endmacro()
 
-#--------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
 # Setup MPI when on Linux
-#--------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
 macro( setupMPILibrariesUnix )
 
   # MPI ---------------------------------------------------------------------
@@ -513,9 +520,9 @@ The Draco build system doesn't know how to configure the build for
 
 endmacro()
 
-##---------------------------------------------------------------------------##
-## setupMPILibrariesWindows
-##---------------------------------------------------------------------------##
+# ------------------------------------------------------------------------- #
+# setupMPILibrariesWindows
+# ------------------------------------------------------------------------- #
 
 macro( setupMPILibrariesWindows )
 
@@ -599,8 +606,7 @@ macro( setupMPILibrariesWindows )
 
     setupDracoMPIVars()
 
-    # Find the version
-    # This is not working (hardwire it for now)
+    # Find the version. [This is not working (hardwire it for now)]
     execute_process( COMMAND "${MPIEXEC_EXECUTABLE}" -help
       OUTPUT_VARIABLE DBS_MPI_VER_OUT
       ERROR_VARIABLE DBS_MPI_VER_ERR
@@ -715,18 +721,18 @@ macro( setupMPILibrariesWindows )
   # Preparing Microsoft's MPI to work with x86_64-w64-mingw32-gfortran by creating libmsmpi.a. (Last
   # tested: 2017-08-31)
   #
-  # 1.) You need MinGW/MSYS. Please make sure that the Devel tools are
-  #     installed.
-  # 2.) Download and install Microsoft's MPI. You need the main program and
-  #     the SDK.
-  # 3.) In the file %MSMPI_INC%\mpif.h, replace INT_PTR_KIND() by 8
-  # 4.) Create a MSYS version of the MPI library:
+  # 1. You need MinGW/MSYS. Please make sure that the Devel tools are installed.
+  # 2. Download and install Microsoft's MPI. You need the main program and the SDK.
+  # 3. In the file %MSMPI_INC%\mpif.h, replace INT_PTR_KIND() by 8
+  # 4. Create a MSYS version of the MPI library:
+  # ~~~
   #     cd %TEMP%
   #     copy c:\Windows\System32\msmpi.dll msmpi.dll
   #     gendef msmpi.dll
   #     dlltool -d msmpi.def -l libmsmpi.a -D msmpi.dll
   #     del msmpi.def
   #     copy libmsmpi.a %MSMPI_LIB32%/libmsmpi.a
+  # ~~~
 
   if( WIN32 AND DEFINED CMAKE_Fortran_COMPILER AND TARGET MPI::MPI_Fortran )
 
@@ -778,9 +784,9 @@ macro( setupMPILibrariesWindows )
 
 endmacro( setupMPILibrariesWindows )
 
-#----------------------------------------------------------------------#
+# -------------------------------------------------------------------- #
 # Helper
-#----------------------------------------------------------------------#
+# -------------------------------------------------------------------- #
 macro(setupMPILibraries)
   if ( UNIX )
     setupMPILibrariesUnix()
@@ -789,6 +795,6 @@ macro(setupMPILibraries)
   endif()
 endmacro()
 
-#--------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
 # End of setupMPI.cmake
-#--------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------------------------ #
