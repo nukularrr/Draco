@@ -10,7 +10,8 @@ import numpy as np
 import argparse
 
 # -- mesh class dictionary
-mesh_type_dict = {'orth_2d_mesh': mesh_types.orth_2d_mesh, 'orth_3d_mesh': mesh_types.orth_3d_mesh}
+mesh_type_dict = {'orth_2d_mesh': mesh_types.orth_2d_mesh, 'orth_3d_mesh': mesh_types.orth_3d_mesh,
+                  'vor_2d_mesh': mesh_types.vor_2d_mesh}
 
 # ------------------------------------------------------------------------------------------------ #
 # -- create argument parser
@@ -24,6 +25,8 @@ parser.add_argument('-bd', '--bnd_per_dim', type=float, nargs='+', default=[0.0,
                     help='Length per dimension.')
 parser.add_argument('--name', type=str, default='mesh',
                     help='Select file name (will be prefixed with x3d. and sufficed with .in).')
+parser.add_argument('--num_cells', type=int, nargs=1, default=100,
+                    help='Number of cells')
 
 # -- parse arguments from command line
 args = parser.parse_args()
@@ -43,7 +46,10 @@ assert (len(args.bnd_per_dim) == 2 * ndim), 'len(args.bnd_per_dim) != 2 * ndim'
 bnd_per_dim = [[args.bnd_per_dim[2 * i], args.bnd_per_dim[2 * i + 1]] for i in range(ndim)]
 
 # -- instantiate the class for the mesh type selected
-mesh = mesh_type_dict[args.mesh_type](bnd_per_dim, args.num_per_dim)
+if args.mesh_type in ['orth_2d_mesh', 'orth_3d_mesh']:
+    mesh = mesh_type_dict[args.mesh_type](bnd_per_dim, args.num_per_dim)
+elif args.mesh_type in ['vor_2d_mesh']:
+    mesh = mesh_type_dict[args.mesh_type](bnd_per_dim, args.num_cells)
 
 # ------------------------------------------------------------------------------------------------ #
 # -- write out the main mesh file in x3d format

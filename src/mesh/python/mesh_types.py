@@ -402,10 +402,7 @@ class vor_2d_mesh(base_mesh):
                 bad_vertex = 1
 
             if bad_vertex is not None:
-                # Which cells own this ridge?
-                for region in regions:
-                    if ridge[good_vertex] in region:
-
+                # -- determine which cells own this ridge
                 point1 = points[ridge_points[n][0]]
                 point2 = points[ridge_points[n][1]]
                 midpoint = [(point1[0]+point2[0])/2, (point1[1] + point2[1])/2]
@@ -429,17 +426,17 @@ class vor_2d_mesh(base_mesh):
                         if newpt is not None:
                             # -- check for intersection with other faces
                             bad = False
-                                for tmpridge in ridge_vertices:
-                                    if tmpridge[0] == len(vertices)-1 or tmpridge[1] == len(vertices)-1 or \
-                                       tmpridge[0] == ridge[good_vertex] or tmpridge[1] == ridge[good_vertex] or \
-                                       tmpridge[0] == -1 or tmpridge[1] == -1:
-                                        continue
-                                    tstpt = ray_segment_intersection(origin, direction,
-                                            [vertices[tmpridge[0]][0], vertices[tmpridge[0]][1]],
-                                            [vertices[tmpridge[1]][0], vertices[tmpridge[1]][1]])
-                                    if tstpt is not None:
-                                        bad = True
-                                        break
+                            for tmpridge in ridge_vertices:
+                                if tmpridge[0] == len(vertices)-1 or tmpridge[1] == len(vertices)-1 or \
+                                   tmpridge[0] == ridge[good_vertex] or tmpridge[1] == ridge[good_vertex] or \
+                                   tmpridge[0] == -1 or tmpridge[1] == -1:
+                                    continue
+                                tstpt = ray_segment_intersection(origin, direction,
+                                        [vertices[tmpridge[0]][0], vertices[tmpridge[0]][1]],
+                                        [vertices[tmpridge[1]][0], vertices[tmpridge[1]][1]])
+                                if tstpt is not None:
+                                    bad = True
+                                    break
                             if not bad:
                                 vertices.append([newpt[0], newpt[1]])
                                 ridge_vertices[n][bad_vertex] = len(vertices)-1
