@@ -297,13 +297,13 @@ class vor_2d_mesh(base_mesh):
     mesh in an unstructured format suitable for creating unstructured-mesh input
     files.
     '''
-    def soft_equiv(a, b, eps = 1.e-12):
-        if 2.*np.fabs(a - b)/(a + b + eps) < eps:
-            return True
-        else:
-            return False
 
     def __init__(self, bounds_per_dim, num_cells, seed=0):
+        def soft_equiv(a, b, eps = 1.e-12):
+            if 2.*np.fabs(a - b)/(a + b + eps) < eps:
+                return True
+            else:
+                return False
         from scipy.spatial import Voronoi
         np.random.seed(seed)
 
@@ -316,6 +316,7 @@ class vor_2d_mesh(base_mesh):
         # -- number of dimensions
         ndim = len(bounds_per_dim)
         self.ndim = ndim
+        self.num_cells = num_cells
         assert (ndim == 2), 'ndim != 2, exiting...'
 
         # -- randomly distribute grid-generating points inside bounding box
@@ -330,9 +331,12 @@ class vor_2d_mesh(base_mesh):
         # -- sanitize Voronoi diagram (remove empty regions, remove vertices and
         #    edges outside of domain
         points = vor.points
-        for region in vor.regions:
-            if len(region) > 0:
-                regions.append(region)
+        vertices = []
+        ridge_points = []
+        ridge_vertices = []
+        #for region in vor.regions:
+        #    if len(region) > 0:
+        #        regions.append(region)
 
         new_to_old_vertex_indices = []
         old_to_new_vertex_indices = []
@@ -348,7 +352,7 @@ class vor_2d_mesh(base_mesh):
                 old_to_new_vertex_indices.append(-1)
 
         # -- update vertex indices for ridge_vertices
-        ridge_vertices = deepcopy(vor.ridge_vertices)
+        ridge_vertices = vor.ridge_vertices
         for n in range(len(ridge_vertices)):
             for m in range(2):
                 if ridge_vertices[n][m] != -1:
@@ -573,22 +577,22 @@ class vor_2d_mesh(base_mesh):
         self.num_faces = len(ridge_vertices)
         self.num_faces_per_cell = np.zeros(self.num_cells)
         for n in range(self.num_cells):
-          self.num_faces_per_cell = len(cells[n])
+            self.num_faces_per_cell = len(cells[n])
         self.num_nodes_per_face = np.zeros(self.num_faces)
         for n in range(self.num_faces):
-          self.num_nodes_per_face[n] = 2
+            self.num_nodes_per_face[n] = 2
         self.faces_per_cell = cells
         self.nodes_per_face = ridge_vertices
         self.nodes_per_side = []
         for n in range(4):
-          bdy_key = list(boundary_edges.keys())[n]
-          bdy_nodes = []
-          for bdy in boudary_edges[bdy_key]:
-              nodes = ridge_vertices[bdy]
-              for node in nodes:
-                  if node not in bdy_nodes:
-                      bdy_nodes.append(node)
-          self.nodes_per_side.append(bdy_nodes)
+            bdy_key = list(boundary_edges.keys())[n]
+            bdy_nodes = []
+            for bdy in boundary_edges[bdy_key]:
+                nodes = ridge_vertices[bdy]
+                for node in nodes:
+                    if node not in bdy_nodes:
+                        bdy_nodes.append(node)
+        self.nodes_per_side.append(bdy_nodes)
 
 
 # ------------------------------------------------------------------------------------------------ #

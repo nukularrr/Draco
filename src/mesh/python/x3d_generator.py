@@ -25,7 +25,7 @@ parser.add_argument('-bd', '--bnd_per_dim', type=float, nargs='+', default=[0.0,
                     help='Length per dimension.')
 parser.add_argument('--name', type=str, default='mesh',
                     help='Select file name (will be prefixed with x3d. and sufficed with .in).')
-parser.add_argument('--num_cells', type=int, nargs=1, default=100,
+parser.add_argument('--num_cells', type=int, default=100,
                     help='Number of cells')
 
 # -- parse arguments from command line
