@@ -25,9 +25,9 @@ class base_mesh:
         self.num_faces = 0  # total number of oriented faces
         self.num_faces_per_cell = np.array([], dtype=int)  # number of faces per cell
         self.num_nodes_per_face = np.array([], dtype=int)  # number of nodes per face
-        self.faces_per_cell = np.array([[]], dtype=int)  # face indexes per cell
-        self.nodes_per_face = np.array([[]], dtype=int)  # node indexes per face
-        self.nodes_per_side = [np.array([[]], dtype=int)]  # list of arrays of node per bdy face
+        self.faces_per_cell = [np.array([], dtype=int)]  # face indexes per cell
+        self.nodes_per_face = [np.array([], dtype=int)]  # node indexes per face
+        self.nodes_per_side = [[np.array([], dtype=int)]]  # list of arrays of node per bdy face
 
 
 # ------------------------------------------------------------------------------------------------ #
