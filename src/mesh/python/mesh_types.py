@@ -334,9 +334,6 @@ class vor_2d_mesh(base_mesh):
         vertices = []
         ridge_points = []
         ridge_vertices = []
-        #for region in vor.regions:
-        #    if len(region) > 0:
-        #        regions.append(region)
 
         new_to_old_vertex_indices = []
         old_to_new_vertex_indices = []
@@ -577,8 +574,6 @@ class vor_2d_mesh(base_mesh):
         for n, vertex in enumerate(vertices):
           self.coordinates_per_node[n, 0] = vertex[0]
           self.coordinates_per_node[n, 1] = vertex[1]
-
-        #vertices
         self.num_faces = len(ridge_vertices)
         self.num_faces_per_cell = np.zeros(self.num_cells, dtype=int)
         for n in range(self.num_cells):

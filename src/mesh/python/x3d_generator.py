@@ -111,7 +111,6 @@ fo.write('nodes\n')
 for node in range(mesh.num_nodes):
     crds = [0.0, 0.0, 0.0]
     for idim in range(mesh.ndim):
-        print(node, idim, mesh.coordinates_per_node[node, idim])
         crds[idim] = mesh.coordinates_per_node[node, idim]
     fo.write('{0:10d}  {1:.15e}  {2:.15e}  {3:.15e}\n'.format(node + 1, crds[0], crds[1], crds[2]))
 fo.write('end_nodes\n')
@@ -124,14 +123,13 @@ fo.write('faces\n')
 for cell in range(mesh.num_cells):
     for j in range(mesh.num_faces_per_cell[cell]):
         # -- get the full face index for the cell and local face index
-        #face = mesh.faces_per_cell[cell, j]
         face = mesh.faces_per_cell[cell][j]
         # -- get the number of nodes for this face
         nnpf = mesh.num_nodes_per_face[face]
         # -- build face string
         face_str = '{0:10d}{1:10d}'.format(face + 1, nnpf)
         # -- append node indices to face string
-        for node in mesh.nodes_per_face[face]:#, :]:
+        for node in mesh.nodes_per_face[face]:
             face_str += '{0:10d}'.format(node + 1)
         # -- write face line
         fo.write(face_str + '\n')
@@ -148,7 +146,7 @@ for cell in range(mesh.num_cells):
     # -- build cell string
     cell_str = '{0:10d}{1:10d}'.format(cell + 1, nfpc)
     # -- append face indices to cell string
-    for face in mesh.faces_per_cell[cell]:#, :]:
+    for face in mesh.faces_per_cell[cell]:
         cell_str += '{0:10d}'.format(face + 1)
     # -- write cell line
     fo.write(cell_str + '\n')
@@ -186,7 +184,8 @@ fo.close()
 # -- assume two boundaries per dimension
 # -- x3d only needs a unique node list
 for i in range(2 * mesh.ndim):
-    np.savetxt(fname + '.bdy' + str(i + 1) + '.in', np.unique(np.array(mesh.nodes_per_side[i]) + 1), fmt='%d')
+    np.savetxt(fname + '.bdy' + str(i + 1) + '.in',
+               np.unique(np.array(mesh.nodes_per_side[i]) + 1), fmt='%d')
 
 # ------------------------------------------------------------------------------------------------ #
 # end of x3d_generator.py
