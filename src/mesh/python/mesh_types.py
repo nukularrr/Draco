@@ -19,7 +19,7 @@ class base_mesh:
         # -- required data
         self.ndim = 0  # number of dimensions
         self.num_nodes = 0  # total number of nodes
-        self.noordinates_per_node = np.array([])  # coordinate array indexed by node
+        self.coordinates_per_node = np.array([])  # coordinate array indexed by node
         self.num_cells = 0  # total number of cells
         self.num_faces = 0  # total number of oriented faces
         self.num_faces_per_cell = np.array([], dtype=int)  # number of faces per cell
