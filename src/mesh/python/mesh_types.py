@@ -15,6 +15,7 @@ class base_mesh:
     Base class with data required by mesh file generators.
     This contains no methods for creating the data members.
     '''
+
     def __init__(self):
         # -- required data
         self.ndim = 0  # number of dimensions
@@ -37,6 +38,7 @@ class orth_2d_mesh(base_mesh):
     This class generates an orthogonally structured mesh in an unstructured
     format suitable for creating unstructured-mesh input files.
     '''
+
     def __init__(self, bounds_per_dim, num_cells_per_dim):
 
         # -- short-cuts
@@ -125,6 +127,7 @@ class orth_3d_mesh(base_mesh):
     This class generates an orthogonally structured mesh in an unstructured
     format suitable for creating unstructured-mesh input files.
     '''
+
     def __init__(self, bounds_per_dim, num_cells_per_dim):
 
         # -- short-cuts
@@ -299,8 +302,8 @@ class vor_2d_mesh(base_mesh):
     '''
 
     def __init__(self, bounds_per_dim, num_cells, seed=0):
-        def soft_equiv(a, b, eps = 1.e-12):
-            if 2.*np.fabs(a - b)/(a + b + eps) < eps:
+        def soft_equiv(a, b, eps=1.e-12):
+            if 2. * np.fabs(a - b) / (a + b + eps) < eps:
                 return True
             else:
                 return False
@@ -322,8 +325,8 @@ class vor_2d_mesh(base_mesh):
         # -- randomly distribute grid-generating points inside bounding box
         points = np.zeros([num_cells, 2])
         for n in range(num_cells):
-            points[n,0] = xmin + (xmax - xmin)*np.random.uniform()
-            points[n,1] = ymin + (ymax - ymin)*np.random.uniform()
+            points[n, 0] = xmin + (xmax - xmin) * np.random.uniform()
+            points[n, 1] = ymin + (ymax - ymin) * np.random.uniform()
 
         # -- create base Voronoi diagram
         vor = Voronoi(points)
@@ -371,9 +374,10 @@ class vor_2d_mesh(base_mesh):
         #    boundary intersections in
         def ray_segment_intersection(origin, direction, pt1, pt2):
             def mag(v):
-                return np.sqrt(np.dot(np.array(v),np.array(v)))
+                return np.sqrt(np.dot(np.array(v), np.array(v)))
+
             def norm(v):
-                return np.array(v)/mag(v)
+                return np.array(v) / mag(v)
             origin = np.array(origin)
             direction = np.array(norm(direction))
             pt1 = np.array(pt1)
@@ -382,10 +386,10 @@ class vor_2d_mesh(base_mesh):
             v1 = origin - pt1
             v2 = pt2 - pt1
             v3 = np.array([-direction[1], direction[0]])
-            t1 = np.cross(v2,v1) / np.dot(v2,v3)
-            t2 = np.dot(v1,v3)/np.dot(v2,v3)
+            t1 = np.cross(v2, v1) / np.dot(v2, v3)
+            t2 = np.dot(v1, v3) / np.dot(v2, v3)
             if t1 >= 0. and t2 >= 0. and t2 <= 1.:
-                return origin + t1*direction
+                return origin + t1 * direction
             else:
                 return None
 
@@ -406,10 +410,10 @@ class vor_2d_mesh(base_mesh):
                 # -- determine which cells own this ridge
                 point1 = points[ridge_points[n][0]]
                 point2 = points[ridge_points[n][1]]
-                midpoint = [(point1[0]+point2[0])/2, (point1[1] + point2[1])/2]
+                midpoint = [(point1[0] + point2[0]) / 2, (point1[1] + point2[1]) / 2]
                 distances = np.zeros(4)
-                bpt1s = [[xmin,xmin],[xmax,xmax],[xmin,xmax],[xmin,xmax]]
-                bpt2s = [[ymin,ymax],[ymin,ymax],[ymin,ymin],[ymax,ymax]]
+                bpt1s = [[xmin, xmin], [xmax, xmax], [xmin, xmax], [xmin, xmax]]
+                bpt2s = [[ymin, ymax], [ymin, ymax], [ymin, ymin], [ymax, ymax]]
 
                 origin = [vertices[ridge[good_vertex]][0], vertices[ridge[good_vertex]][1]]
                 direction = [midpoint[0] - vertices[ridge[good_vertex]][0],
@@ -428,49 +432,55 @@ class vor_2d_mesh(base_mesh):
                             # -- check for intersection with other faces
                             bad = False
                             for tmpridge in ridge_vertices:
-                                if tmpridge[0] == len(vertices)-1 or tmpridge[1] == len(vertices)-1 or \
-                                   tmpridge[0] == ridge[good_vertex] or tmpridge[1] == ridge[good_vertex] or \
-                                   tmpridge[0] == -1 or tmpridge[1] == -1:
+                                if (tmpridge[0] == len(vertices) - 1 or
+                                    tmpridge[1] == len(vertices) - 1 or
+                                    tmpridge[0] == ridge[good_vertex] or
+                                    tmpridge[1] == ridge[good_vertex] or
+                                    tmpridge[0] == -1 or tmpridge[1] == -1):
                                     continue
                                 tstpt = ray_segment_intersection(origin, direction,
-                                        [vertices[tmpridge[0]][0], vertices[tmpridge[0]][1]],
-                                        [vertices[tmpridge[1]][0], vertices[tmpridge[1]][1]])
+                                                                 [vertices[tmpridge[0]][0],
+                                                                  vertices[tmpridge[0]][1]],
+                                                                 [vertices[tmpridge[1]][0],
+                                                                     vertices[tmpridge[1]][1]])
                                 if tstpt is not None:
                                     bad = True
                                     break
                             if not bad:
                                 vertices.append([newpt[0], newpt[1]])
-                                ridge_vertices[n][bad_vertex] = len(vertices)-1
+                                ridge_vertices[n][bad_vertex] = len(vertices) - 1
                                 found = True
-                if found == False:
+                if found is False:
                     direction[0] = -direction[0]
                     direction[1] = -direction[1]
                     for bc in range(4):
                         pt1 = [bpt1s[bc][0], bpt2s[bc][0]]
                         pt2 = [bpt1s[bc][1], bpt2s[bc][1]]
-                        for d in range(1,2):
+                        for d in range(1, 2):
                             newpt = ray_segment_intersection(origin, direction, pt1, pt2)
                             if newpt is not None:
                                 # -- check for intersection with other faces
                                 bad = False
                                 for tmpridge in ridge_vertices:
-                                    if tmpridge[0] == len(vertices)-1 or tmpridge[1] == len(vertices)-1 or \
-                                        tmpridge[0] == ridge[good_vertex] or tmpridge[1] == ridge[good_vertex] or \
-                                        tmpridge[0] == -1 or tmpridge[1] == -1:
+                                    if (tmpridge[0] == len(vertices) - 1 or
+                                        tmpridge[1] == len(vertices) - 1 or
+                                        tmpridge[0] == ridge[good_vertex] or
+                                        tmpridge[1] == ridge[good_vertex] or
+                                        tmpridge[0] == -1 or tmpridge[1] == -1):
                                         continue
                                     tstpt = ray_segment_intersection(origin, direction,
-                                            [vertices[tmpridge[0]][0], vertices[tmpridge[0]][1]],
-                                            [vertices[tmpridge[1]][0], vertices[tmpridge[1]][1]])
+                                                                     [vertices[tmpridge[0]][0],
+                                                                      vertices[tmpridge[0]][1]],
+                                                                     [vertices[tmpridge[1]][0],
+                                                                         vertices[tmpridge[1]][1]])
                                     if tstpt is not None:
                                         bad = True
                                         break
                                 if not bad:
                                     vertices.append([newpt[0], newpt[1]])
-                                    ridge_vertices[n][bad_vertex] = len(vertices)-1
+                                    ridge_vertices[n][bad_vertex] = len(vertices) - 1
                                     found = True
-                    if found == False:
-                        print("ERROR No suitable boundary point found!")
-                        sys.exit()
+                    assert (found is not False), 'No suitable boundary point found!'
                 continue
 
         # -- add boundary edges, ignoring corner vertices for now
@@ -480,48 +490,46 @@ class vor_2d_mesh(base_mesh):
             v1 = ridge[0]
             v2 = ridge[1]
             if v1 >= new_vertices_start_index or v2 >= new_vertices_start_index:
-                 if v1 >= new_vertices_start_index:
-                     orig = v2
-                     new = v1
-                 else:
-                     orig = v1
-                     new = v2
-                 for point in ridge_points[n]:
-                     if point not in points_to_work_on:
-                         points_to_work_on.append(point)
-                         points_to_work_on_vertices.append([new, -1])
-                     else:
-                         idx = points_to_work_on.index(point)
-                         points_to_work_on_vertices[idx][1] = new
+                if v1 >= new_vertices_start_index:
+                    new = v1
+                else:
+                    new = v2
+                for point in ridge_points[n]:
+                    if point not in points_to_work_on:
+                        points_to_work_on.append(point)
+                        points_to_work_on_vertices.append([new, -1])
+                    else:
+                        idx = points_to_work_on.index(point)
+                        points_to_work_on_vertices[idx][1] = new
 
         # -- add corners
         for verts in points_to_work_on_vertices:
             v1 = vertices[verts[0]]
             v2 = vertices[verts[1]]
             # -- bottom left
-            if (soft_equiv(v1[0],xmin) or soft_equiv(v2[0],xmin)) and \
-               (soft_equiv(v1[1],ymin) or soft_equiv(v2[1],ymin)):
-                vertices.append([xmin,ymin])
-                ridge_vertices.append([verts[0],len(vertices)-1])
-                ridge_vertices.append([verts[1],len(vertices)-1])
+            if (soft_equiv(v1[0], xmin) or soft_equiv(v2[0], xmin)) and \
+               (soft_equiv(v1[1], ymin) or soft_equiv(v2[1], ymin)):
+                vertices.append([xmin, ymin])
+                ridge_vertices.append([verts[0], len(vertices) - 1])
+                ridge_vertices.append([verts[1], len(vertices) - 1])
             # -- top left
-            elif (soft_equiv(v1[0],xmin) or soft_equiv(v2[0],xmin)) and \
-                 (soft_equiv(v1[1],ymax) or soft_equiv(v2[1],ymax)):
-                vertices.append([xmin,ymax])
-                ridge_vertices.append([verts[0],len(vertices)-1])
-                ridge_vertices.append([verts[1],len(vertices)-1])
+            elif (soft_equiv(v1[0], xmin) or soft_equiv(v2[0], xmin)) and \
+                 (soft_equiv(v1[1], ymax) or soft_equiv(v2[1], ymax)):
+                vertices.append([xmin, ymax])
+                ridge_vertices.append([verts[0], len(vertices) - 1])
+                ridge_vertices.append([verts[1], len(vertices) - 1])
             # -- bottom right
-            elif (soft_equiv(v1[0],xmax) or soft_equiv(v2[0],xmax)) and \
-                 (soft_equiv(v1[1],ymin) or soft_equiv(v2[1],ymin)):
-                vertices.append([xmax,ymin])
-                ridge_vertices.append([verts[0],len(vertices)-1])
-                ridge_vertices.append([verts[1],len(vertices)-1])
+            elif (soft_equiv(v1[0], xmax) or soft_equiv(v2[0], xmax)) and \
+                 (soft_equiv(v1[1], ymin) or soft_equiv(v2[1], ymin)):
+                vertices.append([xmax, ymin])
+                ridge_vertices.append([verts[0], len(vertices) - 1])
+                ridge_vertices.append([verts[1], len(vertices) - 1])
             # -- top right
-            elif (soft_equiv(v1[0],xmax) or soft_equiv(v2[0],xmax)) and \
-                 (soft_equiv(v1[1],ymax) or soft_equiv(v2[1],ymax)):
-                vertices.append([xmax,ymax])
-                ridge_vertices.append([verts[0],len(vertices)-1])
-                ridge_vertices.append([verts[1],len(vertices)-1])
+            elif (soft_equiv(v1[0], xmax) or soft_equiv(v2[0], xmax)) and \
+                 (soft_equiv(v1[1], ymax) or soft_equiv(v2[1], ymax)):
+                vertices.append([xmax, ymax])
+                ridge_vertices.append([verts[0], len(vertices) - 1])
+                ridge_vertices.append([verts[1], len(vertices) - 1])
             # -- not a corner
             else:
                 ridge_vertices.append(verts)
@@ -538,11 +546,12 @@ class vor_2d_mesh(base_mesh):
             cell_nodes.append(n)
             cells.append([])
         for ridge_idx, v_indices in enumerate(ridge_vertices):
-            midpoint = [(vertices[v_indices[0]][0] + vertices[v_indices[1]][0])/2,
-                        (vertices[v_indices[0]][1] + vertices[v_indices[1]][1])/2]
+            midpoint = [(vertices[v_indices[0]][0] + vertices[v_indices[1]][0]) / 2,
+                        (vertices[v_indices[0]][1] + vertices[v_indices[1]][1]) / 2]
             distances = np.zeros(len(cell_nodes))
             for n, node in enumerate(cell_nodes):
-                distances[n] = np.sqrt((points[n][0] - midpoint[0])**2 + (points[n][1] - midpoint[1])**2)
+                distances[n] = np.sqrt((points[n][0] - midpoint[0])**2 +
+                                       (points[n][1] - midpoint[1])**2)
             indices = np.argsort(distances)
             distances = np.sort(distances)
             if soft_equiv(distances[0], distances[1]):
@@ -565,15 +574,14 @@ class vor_2d_mesh(base_mesh):
                       soft_equiv(vertices[v_indices[1]][1], ymax)):
                     boundary_edges['yr'].append(ridge_idx)
                 else:
-                    print("ERROR Boundary edge not identified!")
-                    sys.exit()
+                    assert (False), 'Boundary edge not identified'
 
         # -- update remaining base values
         self.num_nodes = len(vertices)
         self.coordinates_per_node = np.zeros([self.num_nodes, 2])
         for n, vertex in enumerate(vertices):
-          self.coordinates_per_node[n, 0] = vertex[0]
-          self.coordinates_per_node[n, 1] = vertex[1]
+            self.coordinates_per_node[n, 0] = vertex[0]
+            self.coordinates_per_node[n, 1] = vertex[1]
         self.num_faces = len(ridge_vertices)
         self.num_faces_per_cell = np.zeros(self.num_cells, dtype=int)
         for n in range(self.num_cells):
