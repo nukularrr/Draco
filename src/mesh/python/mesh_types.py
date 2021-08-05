@@ -19,7 +19,7 @@ class base_mesh:
         # -- required data
         self.ndim = 0  # number of dimensions
         self.num_nodes = 0  # total number of nodes
-        self.coordinates_per_node = np.array([])  # coordinate array indexed by node
+        self.noordinates_per_node = np.array([])  # coordinate array indexed by node
         self.num_cells = 0  # total number of cells
         self.num_faces = 0  # total number of oriented faces
         self.num_faces_per_cell = np.array([], dtype=int)  # number of faces per cell
@@ -573,12 +573,17 @@ class vor_2d_mesh(base_mesh):
 
         # -- update remaining base values
         self.num_nodes = len(vertices)
-        self.coordinates_per_node = vertices
+        self.coordinates_per_node = np.zeros([self.num_nodes, 2])
+        for n, vertex in enumerate(vertices):
+          self.coordinates_per_node[n, 0] = vertex[0]
+          self.coordinates_per_node[n, 1] = vertex[1]
+
+        #vertices
         self.num_faces = len(ridge_vertices)
-        self.num_faces_per_cell = np.zeros(self.num_cells)
+        self.num_faces_per_cell = np.zeros(self.num_cells, dtype=int)
         for n in range(self.num_cells):
-            self.num_faces_per_cell = len(cells[n])
-        self.num_nodes_per_face = np.zeros(self.num_faces)
+            self.num_faces_per_cell[n] = len(cells[n])
+        self.num_nodes_per_face = np.zeros(self.num_faces, dtype=int)
         for n in range(self.num_faces):
             self.num_nodes_per_face[n] = 2
         self.faces_per_cell = cells
@@ -592,7 +597,7 @@ class vor_2d_mesh(base_mesh):
                 for node in nodes:
                     if node not in bdy_nodes:
                         bdy_nodes.append(node)
-        self.nodes_per_side.append(bdy_nodes)
+            self.nodes_per_side.append(bdy_nodes)
 
 
 # ------------------------------------------------------------------------------------------------ #
