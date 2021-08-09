@@ -6,7 +6,7 @@ available, this build can use graphviz (dot), dia and mscgen to generate graphic
 diagrams, UML and sequence diagrams.
 
 Documentation is generated nightly and published to the LANL Yellow Network at
-https://kellyt.re-pages.lanl.gov/jayenne/draco/index.html.
+https://jayenne.re-pages.lanl.gov/jayenne/draco/index.html.
 
 The Draco source code templates (draco/environment/templates) provide recommended doxygen commands
 for use by Draco developers.
