@@ -76,6 +76,7 @@ if (len(args.reg_ids) > 0):
     reg_dict = {reg_id: [] for reg_id in reg_ids}
     nmats = len(reg_ids)
     for cell in range(mesh.num_cells):
+        # TODO: make coordinate averaging a method for each mesh_type (permit distinct approaches)
         # -- initialize container for cell average coordinate
         coord_av = np.array([0.0, 0.0, 0.0])
         # -- average coordinates over faces first
@@ -106,9 +107,11 @@ if (len(args.reg_ids) > 0):
                 matids[cell] = reg_ids[imat]
                 reg_dict[reg_ids[imat]].append(cell + 1)
 
-    # -- remove region cells from universal region
-    for reg_id in reg_ids[1:]:
-        reg_dict[0] = [cell for cell in reg_dict[0] if cell not in reg_dict[reg_id]]
+    # -- remove region cells from universal region and lower-index regions
+    # -- this implies that this region takes precedence over regions earlier in the iteration
+    for j in range(nmats - 1):
+        for reg_id in reg_ids[j + 1:]:
+            reg_dict[j] = [cell for cell in reg_dict[j] if cell not in reg_dict[reg_id]]
 
     # -- convert dictionary of lists to dictionary of numpy arrays
     for reg_id in reg_ids:
