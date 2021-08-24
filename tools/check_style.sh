@@ -479,9 +479,7 @@ for file in $modifiedfiles; do
   ecrl+="${today} Triad National Security, LLC., All rights reserved."
 
   # If existing copyright spans two lines, reduce it to one line.
-  local twolines
   twolines=$(grep -A 1 Copyright "${filename}" | tail -n 1 | grep -c reserved)
-  local twolines_closes_cpp_comment
   twolines_closes_cpp_comment=$(grep -A 1 Copyright "${filename}" | tail -n 1 | grep -c '[*]/')
   if [[ $twolines -gt 0 ]]; then
     if [[ $twolines_closes_cpp_comment -gt 0 ]]; then
