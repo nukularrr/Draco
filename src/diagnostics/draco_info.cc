@@ -78,14 +78,14 @@ DracoInfo::DracoInfo()
   else if (build_type == std::string("DEBUG"))
     fc_flags += CMAKE_Fortran_FLAGS_DEBUG;
 #endif
-#if defined(__NVCC__)
-  cuda_compiler = CMAKE_CUDA_COMPILER;
-  cuda_flags = CMAKE_CUDA_FLAGS;
-  if (build_type == std::string("RELEASE"))
-    cuda_flags += CMAKE_CUDA_FLAGS_RELEASE;
-  else if (build_type == std::string("DEBUG"))
-    cuda_flags += CMAKE_CUDA_FLAGS_DEBUG;
-#endif
+  if(cuda) {
+    cuda_compiler = CMAKE_CUDA_COMPILER;
+    cuda_flags = CMAKE_CUDA_FLAGS;
+    if (build_type == std::string("RELEASE"))
+      cuda_flags += CMAKE_CUDA_FLAGS_RELEASE;
+    else if (build_type == std::string("DEBUG"))
+      cuda_flags += CMAKE_CUDA_FLAGS_DEBUG;
+  }
 }
 
 //------------------------------------------------------------------------------------------------//
