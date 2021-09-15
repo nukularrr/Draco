@@ -28,7 +28,7 @@ debugprint "running pre-commit-copyright"
 # file types to parse.
 FILE_EXTS=".c .cc .cmake .h .hh .in .f90 .F90 .f .F .py .sh .txt"
 #FILE_ENDINGS_INCLUDE="_f.h _f77.h _f90.h"
-FILE_ENDINGS_EXCLUDE="ChangeLog Release.cc check_style.sh imc_info.cc"
+FILE_ENDINGS_EXCLUDE="ChangeLog Release.cc Release.hh check_style.sh info.cc"
 export FILE_EXTS FILE_ENDINGS_EXCLUDE
 
 ##################################################################
