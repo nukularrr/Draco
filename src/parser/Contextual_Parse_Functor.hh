@@ -4,7 +4,7 @@
  * \author Kent Budge
  * \date   Thu Jul 17 14:08:42 2008
  * \brief  Member definitions of class Abstract_Class_Parser
- * \note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2021 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef parser_Contextual_Parse_Functor_hh
@@ -18,9 +18,9 @@ namespace rtt_parser {
 /*!
  * \brief Closure class for wrapping context-dependent parse functions
  *
- * This template class is used to bind a get_context() function to a parse function requiring a
+ * This template class is used to bind a \c get_context() function to a parse function requiring a
  * context argument, so that the function can be called with the usual two parameters (Token_Stream
- * and int) from an Abstract_Class_Parse_Table.
+ * and \c int) from an \c Abstract_Class_Parse_Table.
  *
  * See test/tstAbstract_Class_Contextual_Parser.cc for an example of how it is used.
  */

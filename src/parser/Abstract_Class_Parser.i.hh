@@ -36,7 +36,7 @@ public:
 
   // DATA
 
-  //! The tabe of raw strings
+  //! The table of raw strings
   std::vector<char *> data;
 };
 
