@@ -82,7 +82,7 @@ for entry in result_json:
             number_date = 10000 * int(str_result[0]) + 100 * int(str_result[1]) + int(str_result[2])
             if (number_date > start_date):
                 print("* [PR #{0} {1}]({2})".format(entry["number"], entry["title"],
-                                                     entry["html_url"]))
+                                                    entry["html_url"]))
             else:
                 all_done = True
                 break
@@ -102,7 +102,7 @@ while 'next' in result.links.keys() and not all_done:
             number_date = 10000 * int(str_result[0]) + 100 * int(str_result[1]) + int(str_result[2])
             if (number_date > start_date):
                 print("* [PR #{0} {1}]({2})".format(entry["number"], entry["title"],
-                                                     entry["html_url"]))
+                                                    entry["html_url"]))
             else:
                 all_done = True
                 break
@@ -131,10 +131,10 @@ for entry in result_json:
                 labels = entry["labels"]
                 if(labels):
                     print("* [Github {0} #{1} {2}]({3})".format(labels[0]["name"], entry["number"],
-                                                                 entry["title"], entry["html_url"]))
+                                                                entry["title"], entry["html_url"]))
                 else:
                     print("* [Github issue #{0} {1}]({2})".format(entry["number"], entry["title"],
-                                                                   entry["html_url"]))
+                                                                  entry["html_url"]))
             else:
                 all_done = True
                 break
@@ -183,7 +183,7 @@ for entry in result_json:
             for label in entry["labels"]:
                 if label["name"] == "bug":
                     print("* [Github bug #{0} {1}]({2})".format(entry["number"], entry["title"],
-                                                                 entry["html_url"]))
+                                                                entry["html_url"]))
 
 # ------------------------------------------------------------------------------------------------ #
 # End github.api.py
