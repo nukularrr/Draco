@@ -1,0 +1,102 @@
+#-------------------------------------------------------------------------------------------------#
+# File:    .gitlab/ci/msvc-jobs.yml
+# Author:  Kelly Thompson <kgt@lanl.gov>
+# Date:    Monday, Jun 01, 2020, 15:00 pm
+# Purpose: gitlab suid runner commands for Msvc (LANL)
+#          This script wil be run to test pull requests
+# Note:    Copyright (C) 2020-2021 Triad National Security, LLC., All rights reserved.
+#-------------------------------------------------------------------------------------------------#
+
+# Setup a "Group Runner" on gitlab.
+# 1. The Group owner must navigate to https://gitlab.lanl.gov/groups/jayenne/-/settings/ci_cd and
+#    obtain a token
+# 2. On the Windows machine use an elevated administrator command prompt to
+#    a. install gitlab-runner
+#       gitlab-runner.exe stop
+#    b. gitlab-runner.exe register
+#       gitlab-ci coordinator URL https://gitlab.lanl.gov/
+#       gitlab-ci token for this runner: <token>
+#       gitlab-ci description for this runner: Win64-MSVC2019
+#       gitlab-ci tags for this runner: win64-msvc2019-shell
+#       executor: shell
+#    c. gitlab-runner.exe start
+
+#-------------------------------------------------------------------------------------------------#
+# Machine-wide default job settings
+#-------------------------------------------------------------------------------------------------#
+.msvc:
+  tags:
+    - win64-msvc2019-shell
+  variables:
+    http_proxy: ""
+    https_proxy: ""
+    no_proxy: localhost,lanl.gov,.lanl.gov
+    VCVARS: "C:\\PROGRA~2\\MIB055~1\\2019\\Preview\\VC\\Auxiliary\\Build\\vcvars64.bat"
+    CMAKE_TOOLCHAIN_FILE: "c:\\work\\vendors64\\vs2019-toolchain.cmake"
+    MINGW64PATH: "C:\\msys64\\mingw64\\bin"
+    VCPKGLOC: "C:\\work\\KineticTheory\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
+    JAYENNE_SOURCE_DIR: ${CI_PROJECT_DIR}
+    JAYENNE_BINARY_DIR: ${CI_PROJECT_DIR}\build\j
+    DRACO_BINARY_DIR: ${CI_PROJECT_DIR}\build\d
+    DRACO_SOURCE_DIR: ${CI_PROJECT_DIR}\draco
+    SITE_ID: Win10
+    DEPLOY: "FALSE"
+    CMAKE_C_FLAGS: "/WX"
+    CMAKE_Fortran_FLAGS: "-Werror"
+
+#-------------------------------------------------------------------------------------------------#
+# Build Templates
+#-------------------------------------------------------------------------------------------------#
+
+.msvc_merge:
+  extends: .msvc
+  variables:
+    CTEST_MODE: Experimental
+  script:
+    #- git.exe config --global --unset http.proxy
+    #- git.exe config --global --unset https.proxy
+    - cmd.exe /c "%CI_PROJECT_DIR%\.gitlab\ci\gitlab-ci-run-tests.bat"
+  only:
+    - merge_requests
+
+#.msvc_nightly:
+#  extends: .msvc
+#  variables:
+#    CTEST_MODE: Nightly
+#    CTEST_BUILD_NAME: ${COMPILER}-${CMAKE_BUILD_TYPE}
+#  script:
+#    - cmd.exe /c "%CI_PROJECT_DIR%\.gitlab\ci\gitlab-nightly-regress.bat"
+#  only:
+#    - schedules
+
+#-------------------------------------------------------------------------------------------------#
+# Merge Requests
+#-------------------------------------------------------------------------------------------------#
+
+x64_deb_msvc_19_mr:
+  stage: slowtest
+  extends: .msvc_merge
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    COMPILER: msvc-2019
+    ARCH: x86_64
+#    SCHEDULER_PARAMETERS: ${SP_x86_64}
+
+#-------------------------------------------------------------------------------------------------#
+# Nightly Regression
+#-------------------------------------------------------------------------------------------------#
+
+#x86_deb_msvc_19_regress:
+#  stage: test
+#  extends: .msvc_nightly
+#  variables:
+#    CMAKE_BUILD_TYPE: Debug
+#    COMPILER: msvc-2019
+#    ARCH: x86_64
+# for now, these options are set in csk-nightly.cmake
+#    EXTRA_CMAKE_ARGS: -G"Visual Studio 16 2019" -A x64 -DCMAKE_TOOLCHAIN_FILE="%CMAKE_TOOLCHAIN_FILE%" -DCSK_LIBRARY_TYPE=SHARED
+#    SCHEDULER_PARAMETERS: ${SP_x86_64}
+
+#-------------------------------------------------------------------------------------------------#
+# end .gitlab/ci/nmsvc-jobs.yml
+#-------------------------------------------------------------------------------------------------#
