@@ -1,0 +1,217 @@
+#--------------------------------------------------------------------------------------------------#
+# File:    .gitlab/ci/darwin-jobs.yml
+# Author:  Kelly Thompson <kgt@lanl.gov>
+# Date:    Monday, Jun 01, 2020, 15:00 pm
+# Purpose: gitlab suid runner commands for Darwin (LANL). This script wil be run to test pull
+#          requests
+# Note:    Copyright (C) 2020-2021 Triad National Security, LLC., All rights reserved.
+#--------------------------------------------------------------------------------------------------#
+
+#--------------------------------------------------------------------------------------------------#
+# Machine-wide default job settings
+#--------------------------------------------------------------------------------------------------#
+
+.darwin:
+  tags:
+    - darwin-slurm-shared
+  variables:
+    http_proxy: "http://proxyout.lanl.gov:8080"
+    https_proxy: "http://proxyout.lanl.gov:8080"
+    JAYENNE_SOURCE_DIR: ${CI_PROJECT_DIR}
+    JAYENNE_BINARY_DIR: ${CI_PROJECT_DIR}/build/j
+    DRACO_BINARY_DIR: ${CI_PROJECT_DIR}/build/d
+    DRACO_SOURCE_DIR: ${CI_PROJECT_DIR}/draco
+    SITE_ID: darwin
+    DEPLOY: "FALSE"
+    SP_arm: "--nodes=1 --partition=arm --qos=debug"
+    SP_power9: "--nodes=1 --partition=power9 --qos=debug"
+    SP_skylake: "--nodes=1 --partition=skylake --qos=debug"
+    SP_volta_x86: "--nodes=1 --partition=volta-x86 --qos=debug --constraint='cpu_family:broadwell|cpu_family:haswell'"
+    SP_x86_64: "--nodes=1 --partition=general --qos=debug --constraint='cpu_family:broadwell|cpu_family:haswell|cpu_family:skylake'"
+
+#--------------------------------------------------------------------------------------------------#
+# Build Templates
+#--------------------------------------------------------------------------------------------------#
+
+.darwin_merge:
+  extends: .darwin
+  variables:
+    CTEST_MODE: Experimental
+  script:
+    - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-ci-run-tests.sh
+  only:
+    - merge_requests
+
+# .darwin_style_checks:
+#   extends: .darwin
+#   variables:
+#     CTEST_MODE: Experimental
+#     CMAKE_BUILD_TYPE: Debug
+#     ARCH: x86_64
+#     SCHEDULER_PARAMETERS: ${SP_x86_64}
+#   script:
+#     - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-ci-style-checks.sh
+#   only:
+#     - merge_requests
+
+# .darwin_nightly:
+#   extends: .darwin
+#   variables:
+#     CTEST_MODE: Nightly
+#     CTEST_BUILD_NAME: ${COMPILER}-${CMAKE_BUILD_TYPE}
+#   script:
+#     - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-nightly-regress.sh
+#   only:
+#     - schedules
+
+#--------------------------------------------------------------------------------------------------#
+# Merge Requests
+#--------------------------------------------------------------------------------------------------#
+
+# ----- fast -----
+
+x86_rel_intel_19.0.5_mr:
+  stage: fasttest
+  extends: .darwin_merge
+  variables:
+    CMAKE_BUILD_TYPE: Release
+    DRACO_ENV: x64-intel1905
+    ARCH: x86_64
+    SCHEDULER_PARAMETERS: ${SP_x86_64}
+
+# ----- regular test -----
+
+p9_rel_gcc_9.3.0_mr:
+  stage: test
+  extends: .darwin_merge
+  variables:
+    CMAKE_BUILD_TYPE: Release
+    DRACO_ENV: power9-gcc930-smpi
+    ARCH: power9
+    CTEST_NPROC: 10
+    MAXLOAD: 40
+    SCHEDULER_PARAMETERS: ${SP_power9}
+
+x86_deb_intel_19.0.5_mr:
+  stage: test
+  extends: .darwin_merge
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: x64-intel1905
+    ARCH: x86_64
+    SCHEDULER_PARAMETERS: ${SP_x86_64}
+
+p9_deb_xl_16_mr:
+  stage: test
+  extends: .darwin_merge
+  allow_failure: true
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: power9-xl16117
+    ARCH: power9
+    CTEST_NPROC: 20
+    MAXLOAD: 40
+    SCHEDULER_PARAMETERS: ${SP_power9}
+    # These tests take too long, so only run a subset for the CI
+    EXTRA_CTEST_ARGS: -E mcgrid
+
+# ----- slow -----
+
+x86_deb_volta_mr:
+  stage: slowtest
+  extends: .darwin_merge
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: x64-gcc930
+    ARCH: x86_64
+    CTEST_NPROC: 10
+    SCHEDULER_PARAMETERS: ${SP_volta_x86}
+    TEST_EXCLUSIONS: mcgrid_cylindrical_mg_mgrztp04
+
+p9_deb_gcc_9.3.0_mr:
+  stage: slowtest
+  extends: .darwin_merge
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: power9-gcc930-smpi
+    ARCH: power9
+    CTEST_NPROC: 10
+    SCHEDULER_PARAMETERS: ${SP_power9}
+    # Some tests take too long for this build (> 7 min)
+    EXTRA_CTEST_ARGS: -E mcgrid_\(cylindrical_mg_mgrz_spikey\|cylindrical_mg_mgrzrw01\|spherical_mg_mgrtp01\|xyz_tp02\|xy_tp02\|cylindrical_mg_mgrzcutoff01_dd_1\|cylindrical_mg_mgrzcutoff01_rep_1\|um_rz_rz_ss01\|cylindrical_mg_mgrztp04\)
+
+p9_rel_xl_16_mr:
+  stage: slowtest
+  extends: .darwin_merge
+  allow_failure: true
+  variables:
+    CMAKE_BUILD_TYPE: Release
+    DRACO_ENV: power9-xl16117
+    ARCH: power9
+    CTEST_NPROC: 20
+    MAXLOAD: 40
+    SCHEDULER_PARAMETERS: ${SP_power9}
+
+arm_rel_gcc_9.3.0_mr:
+  stage: slowtest
+  extends: .darwin_merge
+  variables:
+    CMAKE_BUILD_TYPE: Release
+    DRACO_ENV: arm-gcc930
+    ARCH: arm
+    SCHEDULER_PARAMETERS: ${SP_arm}
+
+arm_deb_gcc_9.3.0_mr:
+  stage: slowtest
+  extends: .darwin_merge
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: arm-gcc930
+    ARCH: arm
+    SCHEDULER_PARAMETERS: ${SP_arm}
+    TEST_EXCLUSIONS: mcgrid_cylindrical_mg_mgrztp04
+
+#--------------------------------------------------------------------------------------------------#
+# Nightly Regression
+#--------------------------------------------------------------------------------------------------#
+
+# x86_rel_intel_19.0.5_regress:
+#   stage: test
+#   extends: .darwin_nightly
+#   variables:
+#     CMAKE_BUILD_TYPE: Release
+#     COMPILER: intel-19.0.5
+#     ARCH: x86_64
+#     SCHEDULER_PARAMETERS: ${SP_x86_64}
+
+# x86_deb_intel_19.0.5_regress:
+#   stage: fasttest
+#   extends: .darwin_nightly
+#   variables:
+#     CMAKE_BUILD_TYPE: Debug
+#     COMPILER: intel-19.0.5
+#     ARCH: x86_64
+#     SCHEDULER_PARAMETERS: ${SP_x86_64}
+
+# x86_memcheck_regress:
+#   stage: slowtest
+#   extends: .darwin_nightly
+#   variables:
+#     CMAKE_BUILD_TYPE: MemCheck
+#     MEMCHECK_CONFIGURATION: "ON"
+#     COMPILER: gcc-9.3.0
+#     ARCH: x86_64
+#     SCHEDULER_PARAMETERS: ${SP_x86_64}
+
+# p9_deb_gcc-9.3.0_regress:
+#   stage: test
+#   extends: .darwin_nightly
+#   variables:
+#     CMAKE_BUILD_TYPE: Debug
+#     COMPILER: gcc-9.3.0
+#     ARCH: power9
+#     SCHEDULER_PARAMETERS: ${SP_power9}
+
+#--------------------------------------------------------------------------------------------------#
+# end .gitlab/ci/darwin-jobs.yml
+#--------------------------------------------------------------------------------------------------#

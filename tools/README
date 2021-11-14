@@ -29,7 +29,7 @@ Usage:
    mkdir draco-NN_NN_NN[-rcNN]
    cd draco-NN_NN_NN[-rcNN]
    mkdir logs
-   git clone git@github.com:lanl/Draco.git source
+   git clone ssh://git@asc-git.lanl.gov:10022/draco/draco.git source
    (cd source; git checkout -b draco-NN_NN_NN origin/draco-NN_NN_NN)
 2. Update machinefamily settings and configuration option in scripts/<family>-env.sh.
 3. Update Draco specific settings in draco-cmake-options.sh
