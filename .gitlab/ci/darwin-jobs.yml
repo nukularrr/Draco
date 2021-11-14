@@ -17,10 +17,8 @@
   variables:
     http_proxy: "http://proxyout.lanl.gov:8080"
     https_proxy: "http://proxyout.lanl.gov:8080"
-    JAYENNE_SOURCE_DIR: ${CI_PROJECT_DIR}
-    JAYENNE_BINARY_DIR: ${CI_PROJECT_DIR}/build/j
-    DRACO_BINARY_DIR: ${CI_PROJECT_DIR}/build/d
-    DRACO_SOURCE_DIR: ${CI_PROJECT_DIR}/draco
+    DRACO_BINARY_DIR: ${CI_PROJECT_DIR}/build
+    DRACO_SOURCE_DIR: ${CI_PROJECT_DIR}
     SITE_ID: darwin
     DEPLOY: "FALSE"
     SP_arm: "--nodes=1 --partition=arm --qos=debug"
@@ -113,7 +111,7 @@ p9_deb_xl_16_mr:
     MAXLOAD: 40
     SCHEDULER_PARAMETERS: ${SP_power9}
     # These tests take too long, so only run a subset for the CI
-    EXTRA_CTEST_ARGS: -E mcgrid
+    # EXTRA_CTEST_ARGS: -E mcgrid
 
 # ----- slow -----
 
@@ -126,7 +124,7 @@ x86_deb_volta_mr:
     ARCH: x86_64
     CTEST_NPROC: 10
     SCHEDULER_PARAMETERS: ${SP_volta_x86}
-    TEST_EXCLUSIONS: mcgrid_cylindrical_mg_mgrztp04
+    # TEST_EXCLUSIONS: mcgrid_cylindrical_mg_mgrztp04
 
 p9_deb_gcc_9.3.0_mr:
   stage: slowtest
@@ -138,7 +136,7 @@ p9_deb_gcc_9.3.0_mr:
     CTEST_NPROC: 10
     SCHEDULER_PARAMETERS: ${SP_power9}
     # Some tests take too long for this build (> 7 min)
-    EXTRA_CTEST_ARGS: -E mcgrid_\(cylindrical_mg_mgrz_spikey\|cylindrical_mg_mgrzrw01\|spherical_mg_mgrtp01\|xyz_tp02\|xy_tp02\|cylindrical_mg_mgrzcutoff01_dd_1\|cylindrical_mg_mgrzcutoff01_rep_1\|um_rz_rz_ss01\|cylindrical_mg_mgrztp04\)
+    # EXTRA_CTEST_ARGS: -E mcgrid_\(cylindrical_mg_mgrz_spikey\|cylindrical_mg_mgrzrw01\|spherical_mg_mgrtp01\|xyz_tp02\|xy_tp02\|cylindrical_mg_mgrzcutoff01_dd_1\|cylindrical_mg_mgrzcutoff01_rep_1\|um_rz_rz_ss01\|cylindrical_mg_mgrztp04\)
 
 p9_rel_xl_16_mr:
   stage: slowtest
@@ -169,7 +167,7 @@ arm_deb_gcc_9.3.0_mr:
     DRACO_ENV: arm-gcc930
     ARCH: arm
     SCHEDULER_PARAMETERS: ${SP_arm}
-    TEST_EXCLUSIONS: mcgrid_cylindrical_mg_mgrztp04
+    # TEST_EXCLUSIONS: mcgrid_cylindrical_mg_mgrztp04
 
 #--------------------------------------------------------------------------------------------------#
 # Nightly Regression
