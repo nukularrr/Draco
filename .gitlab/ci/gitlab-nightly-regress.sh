@@ -3,7 +3,7 @@
 # File  : ./.gitlab/ci/gitlab-nightly-regress.sh
 # Date  : Tuesday, Jun 02, 2020, 10:31 am
 # Author: Kelly Thompson <kgt@lanl.gov>
-# Note  : Copyright (C) 2020-2021 Triad National Security, LLC., All rights reserved.
+# Note  : Copyright (C) 2021 Triad National Security, LLC., All rights reserved.
 # ------------------------------------------------------------------------------------------------ #
 
 # preliminaries and environment
@@ -138,7 +138,7 @@ echo "MEMORYCHECK_TYPE         = ${MEMORYCHECK_TYPE}"
 echo " "
 run "ctest -S ${JAYENNE_SOURCE_DIR}/.gitlab/ci/jayenne-nightly.cmake"
 
-[[ "${AUTODOC}" == "ON" ]] && cp ${JAYENNE_SOURCE_DIR}/.gitlab/ci/index.html ${AUTODOCDIR}/.
+[[ "${AUTODOC}" == "ON" ]] && cp "${JAYENNE_SOURCE_DIR}/.gitlab/ci/index.html" "${AUTODOCDIR}/."
 
 echo -e "\n======== end .gitlab-nightly-regress.sh ==========\n"
 

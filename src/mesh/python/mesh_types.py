@@ -3,7 +3,7 @@
 # file  src/mesh/python/mesh_types.py
 # date  Monday, Jul 19, 2021, 12:14 pm
 # brief This script provides mesh classes that calculate and contain unstructred mesh data.
-# note  Copyright (C) 2021, Triad National Security, LLC.,  All rights reserved.
+# note  Copyright (C) 2021 Triad National Security, LLC., All rights reserved.
 # ------------------------------------------------------------------------------------------------ #
 import numpy as np
 
@@ -433,10 +433,10 @@ class vor_2d_mesh(base_mesh):
                             bad = False
                             for tmpridge in ridge_vertices:
                                 if (tmpridge[0] == len(vertices) - 1 or
-                                    tmpridge[1] == len(vertices) - 1 or
-                                    tmpridge[0] == ridge[good_vertex] or
-                                    tmpridge[1] == ridge[good_vertex] or
-                                    tmpridge[0] == -1 or tmpridge[1] == -1):
+                                        tmpridge[1] == len(vertices) - 1 or
+                                        tmpridge[0] == ridge[good_vertex] or
+                                        tmpridge[1] == ridge[good_vertex] or
+                                        tmpridge[0] == -1 or tmpridge[1] == -1):
                                     continue
                                 tstpt = ray_segment_intersection(origin, direction,
                                                                  [vertices[tmpridge[0]][0],
@@ -463,10 +463,10 @@ class vor_2d_mesh(base_mesh):
                                 bad = False
                                 for tmpridge in ridge_vertices:
                                     if (tmpridge[0] == len(vertices) - 1 or
-                                        tmpridge[1] == len(vertices) - 1 or
-                                        tmpridge[0] == ridge[good_vertex] or
-                                        tmpridge[1] == ridge[good_vertex] or
-                                        tmpridge[0] == -1 or tmpridge[1] == -1):
+                                            tmpridge[1] == len(vertices) - 1 or
+                                            tmpridge[0] == ridge[good_vertex] or
+                                            tmpridge[1] == ridge[good_vertex] or
+                                            tmpridge[0] == -1 or tmpridge[1] == -1):
                                         continue
                                     tstpt = ray_segment_intersection(origin, direction,
                                                                      [vertices[tmpridge[0]][0],
@@ -603,7 +603,7 @@ class vor_2d_mesh(base_mesh):
             if not soft_equiv(distances[0], distances[1]):
                 # -- a boundary
                 if (soft_equiv(vertices[v_indices[0]][0], xmin) and
-                    soft_equiv(vertices[v_indices[1]][0], xmin)):
+                        soft_equiv(vertices[v_indices[1]][0], xmin)):
                     boundary_edges['xl'].append(face_idx)
                 elif (soft_equiv(vertices[v_indices[0]][0], xmax) and
                       soft_equiv(vertices[v_indices[1]][0], xmax)):

@@ -1,26 +1,28 @@
-#!/bin/sh
+#!/bin/bash
 
+# ------------------------------------------------------------------------------------------------ #
 # File  : format-f90
 # Author: Kelly Thompson, kgt@lanl.gov
 # Date  : Wednesday, Sep 05, 2018, 16:01 pm
-
+#
 # Description:
-
+#
 # This small script will apply Emacs f90 formatting to the specified file.
-
+#
 # Usage:
 #   ./format-f90.sh [-h] [file.f90]
 #
 # Args:
 #   -h          Help message
 #   -i          Don't do anything, just echo the commands
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------ #
 
 # Where am I?
-export rscriptdir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" )
-if ! [[ -d $rscriptdir ]]; then
-  export rscriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+rscriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}")" || exit )"
+if ! [[ -d "${rscriptdir}" ]]; then
+  rscriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd || exit )"
 fi
+export rscriptdir
 
 # Defaults
 EMACS=emacs
@@ -44,7 +46,7 @@ f90source=""
 while getopts "f:hi" opt; do
   case $opt in
     f) f90source=${OPTARG} ;;
-    i) echoonly=echo ;;
+    i) echoonly="echo" ;;
     h) print_use; exit 0 ;;
     \?) echo "" ;echo "invalid option: -$OPTARG"; print_use; exit 1 ;;
     :)  echo "" ;echo "option -$OPTARG requires an argument."; print_use; exit 1 ;;
@@ -58,8 +60,8 @@ if ! [[ $f90source ]]; then
   exit 1
 fi
 
-if [[ $echoonly ]]; then
-  $echoonly $EMACS -batch ${f90source} -l ${rscriptdir}/format-f90.el -f emacs-format-f90-sources
+if [[ "${echoonly}" == "echo" ]]; then
+  echo $EMACS -batch "${f90source}" -l "${rscriptdir}/format-f90.el" -f emacs-format-f90-sources
 else
-  $EMACS -batch ${f90source} -l ${rscriptdir}/format-f90.el -f emacs-format-f90-sources &> /dev/null
+  $EMACS -batch "${f90source}" -l "${rscriptdir}/format-f90.el" -f emacs-format-f90-sources &> /dev/null
 fi
