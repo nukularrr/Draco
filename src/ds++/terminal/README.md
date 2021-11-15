@@ -201,7 +201,7 @@ See `kilo.cpp` for an example of a simple full screen editor.
 
 ## Similar Projects
 
-### Colors
+### Colors-rang
 
 Libraries to handle color output.
 

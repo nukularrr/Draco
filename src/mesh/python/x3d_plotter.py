@@ -3,7 +3,7 @@
 # file  src/mesh/python/x3d_plotter.py
 # date  Monday, Aug 9, 2021
 # brief This script plots X3D mesh files.
-# note  Copyright (C) 2021, Triad National Security, LLC.,  All rights reserved.
+# note  Copyright (C) 2021 Triad National Security, LLC., All rights reserved.
 # ------------------------------------------------------------------------------------------------ #
 import matplotlib.pyplot as plt
 import argparse
@@ -139,7 +139,7 @@ elif numdim == 2:
         for face in cell:
             # Don't re-plot the same face
             if (([faces[face][0], faces[face][1]] not in plotted_faces) and
-                ([faces[face][1], faces[face][0]] not in plotted_faces)):
+                    ([faces[face][1], faces[face][0]] not in plotted_faces)):
                 pt1 = nodes[faces[face][0]]
                 pt2 = nodes[faces[face][1]]
                 plotted_faces.append([faces[face][0], faces[face][1]])

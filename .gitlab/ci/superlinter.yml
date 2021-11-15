@@ -9,17 +9,20 @@
 #--------------------------------------------------------------------------------------------------#
 
 superlinter:
+  tags:
+    - darwin-docker-shared
   stage: fasttest
   image:
     name: github/super-linter:slim-v4
-    entrypoint: [""]
-#  script: ["true"]
-  script:
-    - |
-      uname -a
-      ls -aFlt
-    #  npm install
-    #   /action/lib/linter.sh
+    # entrypoint: [""]
+  script: ["true"]
+  # script:
+  #   - |
+  #     uname -a
+  #     ls -aFlt
+  #     ls /action/lib
+  #     ls /action/lib/linter.sh
+  #     /action/lib/linter.sh
   only:
     - merge_requests
   variables:
@@ -40,7 +43,7 @@ superlinter:
     VALIDATE_ENV: "true"
     VALIDATE_HTML: "true"
     VALIDATE_JSON: "true"
-    VALIDATE_LATEX: "true"
+    # VALIDATE_LATEX: "true"
     VALIDATE_LUA: "true"
     VALIDATE_MARKDOWN: "true"
     VALIDATE_PERL: "true"

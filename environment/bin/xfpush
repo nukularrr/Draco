@@ -1,18 +1,17 @@
 #!/bin/bash
-##---------------------------------------------------------------------------##
-## File  : environment/bin/xfpush
-## Date  : Tuesday, May 31, 2016, 14:48 pm
-## Author: Kelly Thompson
-## Note  : Copyright (C) 2016, Triad National Security, LLC.
-##         All rights are reserved.
-##
-## Transfer 2.0 (Mercury replacement), Ref: http://transfer.lanl.gov
-##
-## Examples:
-##   xfpush foo.txt
-##   xfstatus
-##   xfpull foo.txt
-##---------------------------------------------------------------------------##
+# ------------------------------------------------------------------------------------------------ #
+# File  : environment/bin/xfpush
+# Date  : Tuesday, May 31, 2016, 14:48 pm
+# Author: Kelly Thompson
+# Note  : Copyright (C) 2016-2021, Triad National Security, LLC., All rights are reserved.
+#
+# Transfer 2.0 (Mercury replacement), Ref: http://transfer.lanl.gov
+#
+# Examples:
+#   xfpush foo.txt
+#   xfstatus
+#   xfpull foo.txt
+# ------------------------------------------------------------------------------------------------ #
 
 saveifs=$IFS
 IFS=$(echo -en "\n\b")
@@ -22,7 +21,7 @@ if ! test -n "$1"; then
     return
 fi
 for myfile in $myfiles; do
-    scp $myfile red@transfer.lanl.gov:
-    echo scp $myfile red@transfer.lanl.gov:
+    scp "${myfile}" red@transfer.lanl.gov:
+    echo "scp $myfile red@transfer.lanl.gov:"
 done
 IFS=$saveifs

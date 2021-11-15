@@ -50,10 +50,10 @@ RUN cat /root/.profile
 ## preesed tzdata, update package index, upgrade packages and install needed software
 RUN echo "tzdata tzdata/Areas select US" > /tmp/preseed.txt; \
     echo "tzdata tzdata/Zones/US select Mountain" >> /tmp/preseed.txt; \
-    debconf-set-selections /tmp/preseed.txt && \
-    apt-get update && \
+    debconf-set-selections /tmp/preseed.txt
+RUN apt-get update && \
     apt-get install -y --no-install-recommends tzdata && \
-    rm /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/*
 
 ## Basic admin tools
 RUN apt-get install -y --no-install-recommends apt-utils automake autoconf autotools-dev python3 software-properties-common flex bison ssh
