@@ -2,9 +2,9 @@
 # File:    .gitlab/ci/msvc-jobs.yml
 # Author:  Kelly Thompson <kgt@lanl.gov>
 # Date:    Monday, Jun 01, 2020, 15:00 pm
-# Purpose: gitlab suid runner commands for Msvc (LANL)
-#          This script wil be run to test pull requests
-# Note:    Copyright (C) 2020-2021 Triad National Security, LLC., All rights reserved.
+# Purpose: gitlab suid runner commands for MSVC (LANL). This script wil be run to test pull
+#          requests
+# Note:    Copyright (C) 2021 Triad National Security, LLC., All rights reserved.
 #-------------------------------------------------------------------------------------------------#
 
 # Setup a "Group Runner" on gitlab.
@@ -35,10 +35,8 @@
     CMAKE_TOOLCHAIN_FILE: "c:\\work\\vendors64\\vs2019-toolchain.cmake"
     MINGW64PATH: "C:\\msys64\\mingw64\\bin"
     VCPKGLOC: "C:\\work\\KineticTheory\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
-    JAYENNE_SOURCE_DIR: ${CI_PROJECT_DIR}
-    JAYENNE_BINARY_DIR: ${CI_PROJECT_DIR}\build\j
     DRACO_BINARY_DIR: ${CI_PROJECT_DIR}\build\d
-    DRACO_SOURCE_DIR: ${CI_PROJECT_DIR}\draco
+    DRACO_SOURCE_DIR: ${CI_PROJECT_DIR}
     SITE_ID: Win10
     DEPLOY: "FALSE"
     CMAKE_C_FLAGS: "/WX"

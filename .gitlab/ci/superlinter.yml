@@ -11,11 +11,14 @@
 superlinter:
   stage: fasttest
   image:
-    name: github/super-linter:latest
+    name: github/super-linter:slim-v4
     entrypoint: [""]
-  script: ["true"]
-    # - |
-    #   npm install
+#  script: ["true"]
+  script:
+    - |
+      uname -a
+      ls -aFlt
+    #  npm install
     #   /action/lib/linter.sh
   only:
     - merge_requests
