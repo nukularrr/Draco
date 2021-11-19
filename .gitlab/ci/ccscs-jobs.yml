@@ -218,19 +218,19 @@ ccs3_clangtidy:
 # Nightly Regression
 #--------------------------------------------------------------------------------------------------#
 
-# rel_gcc_10.2.0_regress:
-#   tags:
-#     - CCSCS2-setuid-shared
-#   extends: .ccscs_nightly
-#   variables:
-#     SITE_ID: ccscs2
-#     CMAKE_BUILD_TYPE: Release
-#     DRACO_ENV: gcc1020-ompi4
-#     ARCH: x86_64
-#     # EXTRA_CMAKE_ARGS: -DDRACO_DIAGNOSTICS=7 -DDRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
-#     BUILD_FLAGS: -j 20
-#     CTEST_NPROC: 32
-#     # TEST_EXCLUSIONS: tracking_tstU3
+rel_gcc_10.2.0_regress:
+  tags:
+    - CCSCS1-setuid-shared
+  extends: .ccscs_nightly
+  variables:
+    SITE_ID: ccscs1
+    CMAKE_BUILD_TYPE: Release
+    DRACO_ENV: gcc1020-ompi4
+    ARCH: x86_64
+    # EXTRA_CMAKE_ARGS: -DDRACO_DIAGNOSTICS=7 -DDRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
+    BUILD_FLAGS: -j 20
+    CTEST_NPROC: 40
+    # TEST_EXCLUSIONS: tracking_tstU3
 
 # deb_gcc_10.2.0_regress:
 #   tags:

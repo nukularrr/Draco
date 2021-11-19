@@ -9,9 +9,9 @@
 # preliminaries and environment
 set -e
 # shellcheck source=.gitlab/ci/common.sh
-source "${JAYENNE_SOURCE_DIR}/.gitlab/ci/common.sh"
+source "${DRACO_SOURCE_DIR}/.gitlab/ci/common.sh"
 # shellcheck source=.gitlab/ci/environments.sh
-source "${JAYENNE_SOURCE_DIR}/.gitlab/ci/environments.sh"
+source "${DRACO_SOURCE_DIR}/.gitlab/ci/environments.sh"
 
 if [[ $(which lscpu | grep -c lscpu) -gt 0 ]]; then
   # run "lscpu"
@@ -84,31 +84,31 @@ export OMPI_MCA_btl=^openib
 # Draco (build and install libraries only, no tests)
 #--------------------------------------------------------------------------------------------------#
 
-echo -e "\n========== Draco ==========\n"
-if ! [[ -d "${DRACO_BINARY_DIR}" ]]; then run "mkdir -p ${DRACO_BINARY_DIR}"; fi
-if ! [[ -d "${DRACO_SOURCE_DIR}" ]]; then
-  # https://stackoverflow.com/questions/53391229/clone-another-gitlab-repository-in-gitlab-ci-script
-  run "cd ${CI_PROJECT_DIR} && git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@asc-git.lanl.gov/draco/draco.git"
-else
-  run "cd ${DRACO_SOURCE_DIR} && git pull"
-fi
-run "cd ${DRACO_BINARY_DIR}"
-echo -e "\n========"
-run "cmake ${EXTRA_CMAKE_ARGS} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install ${DRACO_SOURCE_DIR}"
+# echo -e "\n========== Draco ==========\n"
+# if ! [[ -d "${DRACO_BINARY_DIR}" ]]; then run "mkdir -p ${DRACO_BINARY_DIR}"; fi
+# if ! [[ -d "${DRACO_SOURCE_DIR}" ]]; then
+#   # https://stackoverflow.com/questions/53391229/clone-another-gitlab-repository-in-gitlab-ci-script
+#   run "cd ${CI_PROJECT_DIR} && git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@asc-git.lanl.gov/draco/draco.git"
+# else
+#   run "cd ${DRACO_SOURCE_DIR} && git pull"
+# fi
+# run "cd ${DRACO_BINARY_DIR}"
+# echo -e "\n========"
+# run "cmake ${EXTRA_CMAKE_ARGS} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install ${DRACO_SOURCE_DIR}"
 
-echo " "
-run "make -j -l $MAXLOAD"
-# don't echo all of the install commands to the terminal.
-# shellcheck disable=2086
-echo "make -j -l $MAXLOAD install"
-make -j -l "$MAXLOAD" install &> /dev/null
+# echo " "
+# run "make -j -l $MAXLOAD"
+# # don't echo all of the install commands to the terminal.
+# # shellcheck disable=2086
+# echo "make -j -l $MAXLOAD install"
+# make -j -l "$MAXLOAD" install &> /dev/null
 
-if [[ "${AUTODOC}" == "ON" ]]; then
-  run "make -j autodoc"
-fi
+# if [[ "${AUTODOC}" == "ON" ]]; then
+#   run "make -j autodoc"
+# fi
 
 #--------------------------------------------------------------------------------------------------#
-# Build and run the tests for jayenne; post results to CDash.
+# Build and run the tests for draco; post results to CDash.
 #--------------------------------------------------------------------------------------------------#
 
 echo "To rerun manually, cd to CI directory (pwd), set these variables, run ctest."
@@ -124,8 +124,8 @@ echo "CTEST_BUILD_NAME   = ${CTEST_BUILD_NAME}"
 echo "CTEST_MODE         = ${CTEST_MODE}"
 echo "CTEST_NPROC        = ${CTEST_NPROC}"
 echo "EXTRA_CMAKE_ARGS   = ${EXTRA_CMAKE_ARGS}"
-echo "JAYENNE_BINARY_DIR = ${JAYENNE_BINARY_DIR}"
-echo "JAYENNE_SOURCE_DIR = ${JAYENNE_SOURCE_DIR}"
+echo "DRACO_BINARY_DIR   = ${DRACO_BINARY_DIR}"
+echo "DRACO_SOURCE_DIR   = ${DRACO_SOURCE_DIR}"
 echo "PROJECT            = ${PROJECT}"
 echo "SITE_ID            = ${SITE_ID}"
 echo "TEST_EXCLUSIONS    = ${TEST_EXCLUSIONS}"
@@ -136,9 +136,9 @@ echo "MEMCHECK_COMMAND_OPTIONS = ${MEMCHECK_COMMAND_OPTIONS}"
 echo "MEMCHECK_CONFIGURATION   = ${MEMCHECK_CONFIGURATION}"
 echo "MEMORYCHECK_TYPE         = ${MEMORYCHECK_TYPE}"
 echo " "
-run "ctest -S ${JAYENNE_SOURCE_DIR}/.gitlab/ci/jayenne-nightly.cmake"
+run "ctest -S ${DRACO_SOURCE_DIR}/.gitlab/ci/draco-nightly.cmake"
 
-[[ "${AUTODOC}" == "ON" ]] && cp "${JAYENNE_SOURCE_DIR}/.gitlab/ci/index.html" "${AUTODOCDIR}/."
+[[ "${AUTODOC}" == "ON" ]] && cp "${DRACO_SOURCE_DIR}/.gitlab/ci/index.html" "${AUTODOCDIR}/."
 
 echo -e "\n======== end .gitlab-nightly-regress.sh ==========\n"
 
