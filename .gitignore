@@ -1,3 +1,5 @@
+# See https://github.com/cpp-best-practices/cpp_starter_project/blob/main/.gitignore
+
 *.elc
 *.pyc
 *~
@@ -5,13 +7,36 @@
 build*/
 .*.sw[a-p]
 .nfs*
+
 GPATH
 GRTAGS
 GTAGS
 TAGS
-.vs
+
 # Ignore IDE files
 *sublime-project
 *sublime-workspace
 .idea
-cmake-build-debug/
+cmake-build-*/
+vcpkg/
+.vs/
+.idea/
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+out/
+
+# OS Generated Files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.Trash-*
+$RECYCLE.BIN/
+.TemporaryItems
+ehthumbs.db
+Thumbs.db

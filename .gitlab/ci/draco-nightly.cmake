@@ -1,14 +1,14 @@
 #--------------------------------------------*-cmake-*---------------------------------------------#
-# file   .gitlab/ci/jayenne-nightly.cmake
+# file   .gitlab/ci/draco-nightly.cmake
 # author Kelly Thompson <kgt@lanl.gov>
 # date   Tuesday, Jun 02, 2020, 11:44 am
-# brief  CTest regression script for JAYENNE
+# brief  CTest regression script for DRACO
 # note   Copyright (C) 2021 Triad National Security, LLC., All rights reserved.
 # ------------------------------------------------------------------------------------------------ #
 # Ref: http://www.cmake.org/Wiki/CMake_Scripting_Of_CTest
 
-set(CTEST_SOURCE_DIRECTORY "$ENV{JAYENNE_SOURCE_DIR}")
-set(CTEST_BINARY_DIRECTORY "$ENV{JAYENNE_BINARY_DIR}")
+set(CTEST_SOURCE_DIRECTORY "$ENV{DRACO_SOURCE_DIR}")
+set(CTEST_BINARY_DIRECTORY "$ENV{DRACO_BINARY_DIR}")
 ctest_empty_binary_directory("${CTEST_BINARY_DIRECTORY}")
 set(CTEST_PROJECT_NAME "$ENV{PROJECT}")
 
@@ -59,7 +59,7 @@ if(WIN32)
   file(TO_CMAKE_PATH "${CTEST_SOURCE_DIRECTORY}" CTEST_SOURCE_DIRECTORY)
   file(TO_CMAKE_PATH "$ENV{CMAKE_TOOLCHAIN_FILE}" CMAKE_TOOLCHAIN_FILE)
   string(APPEND CTEST_CONFIGURE_COMMAND " -A x64 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
-  string(APPEND CTEST_CONFIGURE_COMMAND " -DJAYENNE_LIBRARY_TYPE=SHARED")
+  string(APPEND CTEST_CONFIGURE_COMMAND " -DDRACO_LIBRARY_TYPE=SHARED")
 else()
   string(APPEND CTEST_CONFIGURE_COMMAND " -DCMAKE_BUILD_TYPE=${UPPER_CTEST_BUILD_TYPE}")
 endif()
@@ -196,5 +196,5 @@ if(test_failure)
 endif()
 
 # ------------------------------------------------------------------------------------------------ #
-# end .gitlab/ci/jayenne-nightly.cmake
+# end .gitlab/ci/draco-nightly.cmake
 # ------------------------------------------------------------------------------------------------ #
