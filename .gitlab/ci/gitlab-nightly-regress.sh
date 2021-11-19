@@ -81,33 +81,6 @@ echo "Fortran_FLAGS = $Fortran_FLAGS"
 export OMPI_MCA_btl=^openib
 
 #--------------------------------------------------------------------------------------------------#
-# Draco (build and install libraries only, no tests)
-#--------------------------------------------------------------------------------------------------#
-
-# echo -e "\n========== Draco ==========\n"
-# if ! [[ -d "${DRACO_BINARY_DIR}" ]]; then run "mkdir -p ${DRACO_BINARY_DIR}"; fi
-# if ! [[ -d "${DRACO_SOURCE_DIR}" ]]; then
-#   # https://stackoverflow.com/questions/53391229/clone-another-gitlab-repository-in-gitlab-ci-script
-#   run "cd ${CI_PROJECT_DIR} && git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@asc-git.lanl.gov/draco/draco.git"
-# else
-#   run "cd ${DRACO_SOURCE_DIR} && git pull"
-# fi
-# run "cd ${DRACO_BINARY_DIR}"
-# echo -e "\n========"
-# run "cmake ${EXTRA_CMAKE_ARGS} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install ${DRACO_SOURCE_DIR}"
-
-# echo " "
-# run "make -j -l $MAXLOAD"
-# # don't echo all of the install commands to the terminal.
-# # shellcheck disable=2086
-# echo "make -j -l $MAXLOAD install"
-# make -j -l "$MAXLOAD" install &> /dev/null
-
-# if [[ "${AUTODOC}" == "ON" ]]; then
-#   run "make -j autodoc"
-# fi
-
-#--------------------------------------------------------------------------------------------------#
 # Build and run the tests for draco; post results to CDash.
 #--------------------------------------------------------------------------------------------------#
 
