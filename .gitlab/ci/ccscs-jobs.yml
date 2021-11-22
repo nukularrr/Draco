@@ -232,39 +232,39 @@ rel_gcc_10.2.0_regress:
     CTEST_NPROC: 40
     # TEST_EXCLUSIONS: tracking_tstU3
 
-# deb_gcc_10.2.0_regress:
-#   tags:
-#     - CCSCS3-setuid-shared
-#   extends: .ccscs_nightly
-#   variables:
-#     SITE_ID: ccscs2
-#     CMAKE_BUILD_TYPE: Debug
-#     DRACO_ENV: gcc1020-ompi4
-#     ARCH: x86_64
-#     # EXTRA_CMAKE_ARGS: -DDRACO_DIAGNOSTICS=7 -DDRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
-#     BUILD_FLAGS: -j 20
-#     CTEST_NPROC: 32
-#     # TEST_EXCLUSIONS: tracking_tstU3
-#     # AUTODOCDIR: /ccs/codes/radtran/autodoc
+deb_gcc_10.2.0_regress:
+  tags:
+    - CCSCS3-setuid-shared
+  extends: .ccscs_nightly
+  variables:
+    SITE_ID: ccscs3
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: gcc1020-ompi4
+    ARCH: x86_64
+    # EXTRA_CMAKE_ARGS: -DDRACO_DIAGNOSTICS=7 -DDRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
+    BUILD_FLAGS: -j 20
+    CTEST_NPROC: 40
+    # TEST_EXCLUSIONS: tracking_tstU3
+    # AUTODOCDIR: /ccs/codes/radtran/autodoc
 
-# pages:
-#   tags:
-#     - CCSCS4-setuid-shared
-#   stage: test
-#   extends: .ccscs_nightly
-#   # allow_failure: false
-#   variables:
-#     SITE_ID: ccscs2
-#     CMAKE_BUILD_TYPE: Debug
-#     DRACO_ENV: gcc1020-ompi4
-#     ARCH: x86_64
-#     DEPLOY: "TRUE"
-#     AUTODOC: "ON"
-#     AUTODOCDIR: ${CI_PROJECT_DIR}/public
-#     CTEST_BUILD_NAME: autodoc
-#   artifacts:
-#     paths:
-#     - public
+pages:
+  tags:
+    - CCSCS1-setuid-shared
+  stage: test
+  extends: .ccscs_nightly
+  # allow_failure: false
+  variables:
+    SITE_ID: ccscs2
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: gcc1020-ompi4
+    ARCH: x86_64
+    DEPLOY: "TRUE"
+    AUTODOC: "ON"
+    AUTODOCDIR: ${CI_PROJECT_DIR}/public
+    CTEST_BUILD_NAME: autodoc
+  artifacts:
+    paths:
+    - public
 
 #--------------------------------------------------------------------------------------------------#
 # end .gitlab/ci/ccscs-jobs.yml
