@@ -30,7 +30,7 @@ if(NOT Fortran_FLAGS_INITIALIZED)
   string(CONCAT CMAKE_Fortran_FLAGS_DEBUG "-O0 -ftrapuv -fno-omit-frame-pointer -DDEBUG")
   # -check doesn't work for ifx as of Nov, 2021
   if(NOT (DEFINED ENV{INTEL_COMPILER_TYPE} AND "$ENV{INTEL_COMPILER_TYPE}" STREQUAL "ONEAPI"))
-    string(CONCAT CMAKE_Fortran_FLAGS_DEBUG " -check")
+    string(APPEND CMAKE_Fortran_FLAGS_DEBUG " -check")
   endif()
   if(NOT DEFINED CMAKE_CXX_COMPILER_WRAPPER AND NOT "${CMAKE_CXX_COMPILER_WRAPPER}" STREQUAL
                                                 "CrayPrgEnv")
