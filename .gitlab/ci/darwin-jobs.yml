@@ -68,7 +68,7 @@
 
 # ----- fast -----
 
-x86_rel_intel_19.0.5_mr:
+dx86_rel_i1905_mr:
   stage: fasttest
   extends: .darwin_merge
   variables:
@@ -79,7 +79,7 @@ x86_rel_intel_19.0.5_mr:
 
 # ----- regular test -----
 
-p9_rel_gcc_9.3.0_mr:
+dp9_rel_g930_mr:
   stage: test
   extends: .darwin_merge
   variables:
@@ -90,7 +90,7 @@ p9_rel_gcc_9.3.0_mr:
     MAXLOAD: 40
     SCHEDULER_PARAMETERS: ${SP_power9}
 
-x86_deb_intel_19.0.5_mr:
+dx86_deb_i1905_mr:
   stage: test
   extends: .darwin_merge
   variables:
@@ -99,7 +99,7 @@ x86_deb_intel_19.0.5_mr:
     ARCH: x86_64
     SCHEDULER_PARAMETERS: ${SP_x86_64}
 
-p9_deb_xl_16_mr:
+dp9_deb_xl_16_mr:
   stage: test
   extends: .darwin_merge
   allow_failure: true
@@ -115,7 +115,7 @@ p9_deb_xl_16_mr:
 
 # ----- slow -----
 
-x86_deb_volta_mr:
+dx86_deb_volta_mr:
   stage: slowtest
   extends: .darwin_merge
   variables:
@@ -126,7 +126,7 @@ x86_deb_volta_mr:
     SCHEDULER_PARAMETERS: ${SP_volta_x86}
     # TEST_EXCLUSIONS: mcgrid_cylindrical_mg_mgrztp04
 
-p9_deb_gcc_9.3.0_mr:
+dp9_deb_g930_mr:
   stage: slowtest
   extends: .darwin_merge
   variables:
@@ -138,7 +138,7 @@ p9_deb_gcc_9.3.0_mr:
     # Some tests take too long for this build (> 7 min)
     # EXTRA_CTEST_ARGS: -E mcgrid_\(cylindrical_mg_mgrz_spikey\|cylindrical_mg_mgrzrw01\|spherical_mg_mgrtp01\|xyz_tp02\|xy_tp02\|cylindrical_mg_mgrzcutoff01_dd_1\|cylindrical_mg_mgrzcutoff01_rep_1\|um_rz_rz_ss01\|cylindrical_mg_mgrztp04\)
 
-p9_rel_xl_16_mr:
+dp9_rel_xl_16_mr:
   stage: slowtest
   extends: .darwin_merge
   allow_failure: true
@@ -150,7 +150,7 @@ p9_rel_xl_16_mr:
     MAXLOAD: 40
     SCHEDULER_PARAMETERS: ${SP_power9}
 
-arm_rel_gcc_9.3.0_mr:
+darm_rel_g930_mr:
   stage: slowtest
   extends: .darwin_merge
   variables:
@@ -159,7 +159,7 @@ arm_rel_gcc_9.3.0_mr:
     ARCH: arm
     SCHEDULER_PARAMETERS: ${SP_arm}
 
-arm_deb_gcc_9.3.0_mr:
+darm_deb_g930_mr:
   stage: slowtest
   extends: .darwin_merge
   variables:
@@ -173,7 +173,7 @@ arm_deb_gcc_9.3.0_mr:
 # Nightly Regression
 #--------------------------------------------------------------------------------------------------#
 
-# x86_rel_intel_19.0.5_regress:
+# x86_rel_i1905_regress:
 #   stage: test
 #   extends: .darwin_nightly
 #   variables:
@@ -182,7 +182,7 @@ arm_deb_gcc_9.3.0_mr:
 #     ARCH: x86_64
 #     SCHEDULER_PARAMETERS: ${SP_x86_64}
 
-# x86_deb_intel_19.0.5_regress:
+# x86_deb_i1905_regress:
 #   stage: fasttest
 #   extends: .darwin_nightly
 #   variables:
