@@ -103,6 +103,7 @@ sn_rel_i1904_regress:
   variables:
     CMAKE_BUILD_TYPE: Release
     COMPILER: intel-19.0.4
+    DRACO_ENV: "lapse/1.8-intel"
 
 # x86_deb_intel_19.0.5_regress:
 #   stage: fasttest
