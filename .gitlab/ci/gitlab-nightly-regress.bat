@@ -4,7 +4,7 @@ rem File  : gitlab-nightly-regress.bat
 rem Date  : Friday, Aug 14, 2020, 14:20 pm
 rem Author: Kelly Thompson <kgt@lanl.gov>
 rem Note  : Copyright (C) 2020, Triad National Security, LLC., All rights are reserved.
-rem -------------------------------------------------------------------------------------------------------------------
+rem -----------------------------------------------------------------------------------------------
 
 echo This is windows...
 rem set

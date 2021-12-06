@@ -85,114 +85,132 @@ ctest_update(SOURCE ${CTEST_SOURCE_DIRECTORY})
 # ------------------------------------------------------------------------------------------------ #
 # Configure the project with cmake.
 # ------------------------------------------------------------------------------------------------ #
-message(
-  "
+if(${CTEST_SCRIPT_ARG} MATCHES Configure)
+
+  message(
+    "
 ctest_configure(
   BUILD        ${CTEST_BINARY_DIRECTORY}
   RETURN_VALUE configure_failure
   CAPTURE_CMAKE_ERROR ctest_configure_errors)
 ")
-ctest_configure(
-  BUILD "${CTEST_BINARY_DIRECTORY}"
-  RETURN_VALUE configure_failure
-  CAPTURE_CMAKE_ERROR ctest_configure_errors)
+  ctest_configure(
+    BUILD "${CTEST_BINARY_DIRECTORY}"
+    RETURN_VALUE configure_failure
+    CAPTURE_CMAKE_ERROR ctest_configure_errors)
 
-if(configure_failure)
-  message("${ctest_configure_errors}")
-  ctest_submit()
-  message(FATAL_ERROR "configuration error")
+  if(configure_failure)
+    message("${ctest_configure_errors}")
+    ctest_submit()
+    message(FATAL_ERROR "configuration error")
+  endif()
+
 endif()
 
 # ------------------------------------------------------------------------------------------------ #
 # Build it
 # ------------------------------------------------------------------------------------------------ #
-if(DEFINED ENV{AUTODOCDIR})
-  message(
-    "
+if(${CTEST_SCRIPT_ARG} MATCHES Build)
+
+  if(DEFINED ENV{AUTODOCDIR})
+    if(NOT WIN32)
+      set(CTEST_BUILD_FLAGS "-j ${CMAKE_BUILD_PARALLEL_LEVEL}")
+    endif()
+    message(
+      "
 ctest_build(
   TARGET autodoc
   FLAGS $ENV{BUILD_FLAGS}
   RETURN_VALUE build_failure
   CAPTURE_CMAKE_ERROR ctest_build_errors)
 ")
-  ctest_build(
-    TARGET autodoc
-    FLAGS "$ENV{BUILD_FLAGS}"
-    RETURN_VALUE build_failure
-    CAPTURE_CMAKE_ERROR ctest_build_errors)
-  if(build_failure)
-    message("${ctest_build_errors}")
-    ctest_submit()
-    message(FATAL_ERROR "build error")
-  endif()
-else()
-  message(
-    "
+    ctest_build(
+      TARGET autodoc
+      FLAGS "$ENV{BUILD_FLAGS}"
+      RETURN_VALUE build_failure
+      CAPTURE_CMAKE_ERROR ctest_build_errors)
+    if(build_failure)
+      message("${ctest_build_errors}")
+      ctest_submit()
+      message(FATAL_ERROR "build error")
+    endif()
+  else()
+    message(
+      "
 ctest_build(
   FLAGS $ENV{BUILD_FLAGS}
   RETURN_VALUE build_failure
   CAPTURE_CMAKE_ERROR ctest_build_errors)")
-  ctest_build(
-    FLAGS "$ENV{BUILD_FLAGS}"
-    RETURN_VALUE build_failure
-    CAPTURE_CMAKE_ERROR ctest_build_errors)
+    ctest_build(
+      FLAGS "$ENV{BUILD_FLAGS}"
+      RETURN_VALUE build_failure
+      CAPTURE_CMAKE_ERROR ctest_build_errors)
 
-  if(build_failure)
-    message("${ctest_build_errors}")
-    ctest_submit()
-    message(FATAL_ERROR "build error")
+    if(build_failure)
+      message("${ctest_build_errors}")
+      ctest_submit()
+      message(FATAL_ERROR "build error")
+    endif()
   endif()
+
 endif()
 
 # ------------------------------------------------------------------------------------------------ #
 # Run the tests
 # ------------------------------------------------------------------------------------------------ #
+if(${CTEST_SCRIPT_ARG} MATCHES Test)
 
-if(NOT DEFINED ENV{AUTODOCDIR})
-  if(DEFINED ENV{TEST_EXCLUSIONS})
-    set(CTEST_TEST_EXTRAS EXCLUDE $ENV{TEST_EXCLUSIONS})
-  endif()
-  list(APPEND CTEST_TEST_EXTRAS PARALLEL_LEVEL ${CTEST_PARALLEL_LEVEL})
-  message("
+  if(NOT DEFINED ENV{AUTODOCDIR})
+    if(DEFINED ENV{TEST_EXCLUSIONS})
+      set(CTEST_TEST_EXTRAS EXCLUDE $ENV{TEST_EXCLUSIONS})
+    endif()
+    list(APPEND CTEST_TEST_EXTRAS PARALLEL_LEVEL ${CTEST_PARALLEL_LEVEL})
+    message("
 ctest_test( RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
 ")
-  ctest_test(RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
+    ctest_test(RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
 
-  if(DEFINED ENV{COVERAGE_CONFIGURATION})
-    find_program(CTEST_COVERAGE_COMMAND NAMES gcov)
-    ctest_coverage()
-  endif()
-
-  if(DEFINED ENV{MEMCHECK_CONFIGURATION})
-    if(DEFINED ENV{MEMORYCHECK_TYPE})
-      set(CTEST_MEMORYCHECK_TYPE $ENV{MEMORYCHECK_TYPE})
-    else()
-      find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
-      string(CONCAT CTEST_MEMORYCHECK_COMMAND_OPTIONS
-                    "-q --tool=memcheck --trace-children=yes --leak-check=full "
-                    "--show-reachable=yes --num-callers=20 --gen-suppressions=all")
-      if(ENV{MEMCHECK_COMMAND_OPTIONS})
-        string(APPEND CTEST_MEMORYCHECK_COMMAND_OPTIONS " $ENV{MEMCHECK_COMMAND_OPTIONS}")
-      endif()
-      set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE
-          "${CTEST_SOURCE_DIRECTORY}/config/valgrind_suppress.txt")
+    if(DEFINED ENV{COVERAGE_CONFIGURATION})
+      find_program(CTEST_COVERAGE_COMMAND NAMES gcov)
+      ctest_coverage()
     endif()
 
-    set(CTEST_TEST_TIMEOUT 1200) # 1200 seconds = 20 minutes per test
-    # message("ctest_memcheck(INCLUDE_LABEL memcheck)") ctest_memcheck(INCLUDE_LABEL memcheck)
-    message("ctest_memcheck()")
-    ctest_memcheck()
+    if(DEFINED ENV{MEMCHECK_CONFIGURATION})
+      if(DEFINED ENV{MEMORYCHECK_TYPE})
+        set(CTEST_MEMORYCHECK_TYPE $ENV{MEMORYCHECK_TYPE})
+      else()
+        find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
+        string(CONCAT CTEST_MEMORYCHECK_COMMAND_OPTIONS
+                      "-q --tool=memcheck --trace-children=yes --leak-check=full "
+                      "--show-reachable=yes --num-callers=20 --gen-suppressions=all")
+        if(ENV{MEMCHECK_COMMAND_OPTIONS})
+          string(APPEND CTEST_MEMORYCHECK_COMMAND_OPTIONS " $ENV{MEMCHECK_COMMAND_OPTIONS}")
+        endif()
+        set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE
+            "${CTEST_SOURCE_DIRECTORY}/config/valgrind_suppress.txt")
+      endif()
 
+      set(CTEST_TEST_TIMEOUT 1200) # 1200 seconds = 20 minutes per test
+      # message("ctest_memcheck(INCLUDE_LABEL memcheck)") ctest_memcheck(INCLUDE_LABEL memcheck)
+      message("ctest_memcheck()")
+      ctest_memcheck()
+
+    endif()
   endif()
+
 endif()
 
 # ------------------------------------------------------------------------------------------------ #
 # Submit the results to CDash
 # ------------------------------------------------------------------------------------------------ #
-ctest_submit()
+if(${CTEST_SCRIPT_ARG} MATCHES Submit)
 
-if(test_failure)
-  message(FATAL_ERROR "test failure")
+  ctest_submit()
+
+  if(test_failure)
+    message(FATAL_ERROR "test failure")
+  endif()
+
 endif()
 
 # ------------------------------------------------------------------------------------------------ #

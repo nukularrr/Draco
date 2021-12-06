@@ -6,6 +6,25 @@
 # Note  : Copyright (C) 2021 Triad National Security, LLC., All rights reserved.
 # ------------------------------------------------------------------------------------------------ #
 
+print_use()
+{
+  echo " "
+  echo "Usage: ${0#*/} -h -m [Configure,Build,Test,Submit]"
+  echo " "
+}
+
+# defaults:
+modes="Configure,Build,Test,Submit"
+
+while getopts "hm:" opt; do
+case $opt in
+h)  print_use; exit 0 ;;
+m)  modes="$OPTARG" ;;
+\?) echo "" ;echo "invalid option: -$OPTARG"; print_use; exit 1 ;;
+:)  echo "" ;echo "option -$OPTARG requires an argument."; print_use; exit 1 ;;
+esac
+done
+
 # preliminaries and environment
 set -e
 # shellcheck source=.gitlab/ci/common.sh
@@ -109,7 +128,9 @@ echo "MEMCHECK_COMMAND_OPTIONS = ${MEMCHECK_COMMAND_OPTIONS}"
 echo "MEMCHECK_CONFIGURATION   = ${MEMCHECK_CONFIGURATION}"
 echo "MEMORYCHECK_TYPE         = ${MEMORYCHECK_TYPE}"
 echo " "
-run "ctest -S ${DRACO_SOURCE_DIR}/.gitlab/ci/draco-nightly.cmake"
+echo "modes = ${modes}"
+echo " "
+run "ctest -S ${DRACO_SOURCE_DIR}/.gitlab/ci/draco-nightly.cmake,${modes}"
 
 [[ "${AUTODOC}" == "ON" ]] && cp "${DRACO_SOURCE_DIR}/.gitlab/ci/index.html" "${AUTODOCDIR}/."
 

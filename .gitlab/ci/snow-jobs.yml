@@ -43,7 +43,9 @@
     CTEST_BUILD_NAME: ${COMPILER}-${CMAKE_BUILD_TYPE}
     SCHEDULER_PARAMETERS: "-N 1 -A asc-ci --reservation=ci"
   script:
-    - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-nightly-regress.sh
+    - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-nightly-regress.sh -m "Configure,Build,Test"
+  after_script:
+    - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-nightly-regress.sh -m "Submit"
   only:
     - schedules
 

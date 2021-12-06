@@ -22,5 +22,4 @@
   - [Notes concerning CI testing](https://re-git.lanl.gov/jayenne/jayenne/-/wikis/Diagnosing_CI_Errors)
 * Required checks:
   - [ ] Gitlab Runner CI checks pass (coverage > 90%)
-  - [ ] [Tested on snow](https://rtt.lanl.gov/CDash/index.php?project=Draco&filtercount=1&showfilters=1&field1=buildname&compare1=63&value1=-pr)
   - [ ] [Tested on trinitite](https://rtt.lanl.gov/CDash/index.php?project=Draco&filtercount=1&showfilters=1&field1=buildname&compare1=63&value1=-pr)
