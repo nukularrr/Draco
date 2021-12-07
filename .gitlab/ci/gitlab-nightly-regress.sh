@@ -19,7 +19,9 @@ modes="Configure,Build,Test,Submit"
 while getopts "hm:" opt; do
 case $opt in
 h)  print_use; exit 0 ;;
-m)  modes="$OPTARG" ;;
+m)  modes="$OPTARG" 
+    echo "==> Setting modes to OPTARG = $OPTARG."
+    ;;
 \?) echo "" ;echo "invalid option: -$OPTARG"; print_use; exit 1 ;;
 :)  echo "" ;echo "option -$OPTARG requires an argument."; print_use; exit 1 ;;
 esac
