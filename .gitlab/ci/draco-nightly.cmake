@@ -199,12 +199,13 @@ ctest_test( RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
   endif()
 
 endif()
+message("==> Done with testing")
 
 # ------------------------------------------------------------------------------------------------ #
 # Submit the results to CDash
 # ------------------------------------------------------------------------------------------------ #
 if(${CTEST_SCRIPT_ARG} MATCHES Submit)
-
+  message("==> Trying to submit results to CDash")
   ctest_submit()
 
   if(test_failure)
