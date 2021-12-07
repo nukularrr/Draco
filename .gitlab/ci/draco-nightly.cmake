@@ -79,7 +79,14 @@ set(CTEST_CUSTOM_MAXIMUM_NUMBER_OF_WARNINGS 50)
 set(CTEST_UPDATE_COMMAND "git")
 set(CTEST_GIT_UPDATE_CUSTOM "${CMAKE_COMMAND}" "-E" "echo" "Skipping git update (no-op).")
 
-ctest_start(${CTEST_MODE})
+if(${CTEST_SCRIPT_ARG} MATCHES Configure)
+  message( "ctest_start( ${CTEST_MODEL} )")
+  ctest_start( ${CTEST_MODEL} )
+else()
+  message( "ctest_start( ${CTEST_MODEL} APPEND )")
+  ctest_start( ${CTEST_MODEL} APPEND )
+endif()
+
 ctest_update(SOURCE ${CTEST_SOURCE_DIRECTORY})
 
 # ------------------------------------------------------------------------------------------------ #
