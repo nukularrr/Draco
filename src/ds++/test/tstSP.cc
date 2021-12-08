@@ -4,8 +4,7 @@
  * \author Thomas M. Evans
  * \date   Wed Feb  5 17:29:59 2003
  * \brief  SP test.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "ds++/Release.hh"
@@ -1076,35 +1075,6 @@ void access_test(rtt_dsxx::UnitTest &ut) {
 
 //------------------------------------------------------------------------------------------------//
 
-void list_test(rtt_dsxx::UnitTest &ut) {
-  {
-    // This test was borrowed from Boost's shared_ptr_test.cpp
-
-    SP<List> p(new List);
-    p->next = SP<List>(new List);
-    p = p->next;
-    if (p->next)
-      ITFAILS;
-  }
-
-  {
-    // Test of a derived class.
-
-    SP<ListWithDerived> p(new ListWithDerived);
-    p->next = SP<ListD>(new ListD);
-    p = p->next;
-    if (p->next)
-      ITFAILS;
-  }
-
-  if (ut.numFails == 0)
-    PASSMSG("Linked-list test works ok.");
-
-  return;
-}
-
-//------------------------------------------------------------------------------------------------//
-
 int main(int argc, char *argv[]) {
   rtt_dsxx::ScalarUnitTest ut(argc, argv, rtt_dsxx::release);
   try {
@@ -1123,8 +1093,6 @@ int main(int argc, char *argv[]) {
     get_test(ut);
     cout << endl;
     access_test(ut);
-    cout << endl;
-    list_test(ut);
     cout << endl;
     CHECK_0_OBJECTS;
 

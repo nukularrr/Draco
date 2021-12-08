@@ -4,7 +4,7 @@
  * \author Kelly Thompson
  * \date   Mon Jan 8 15:29:17 2001
  * \brief  DummyGrayOpacity class header file (derived from ../GrayOpacity)
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_DummyGrayOpacity_hh
@@ -160,7 +160,7 @@ public:
   size_t getNumDensities() const override { return numDensities; }
 
   //! Dummy pack function.
-  std::vector<char> pack() const override { return std::vector<char>(); }
+  std::vector<char> pack() const override { return {}; }
 
   //! Returns the general opacity model type, defined in OpacityCommon.hh
   rtt_cdi::OpacityModelType getOpacityModelType() const override { return rtt_cdi::DUMMY_TYPE; }

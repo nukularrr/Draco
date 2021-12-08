@@ -3,8 +3,7 @@
  * \file   cdi_analytic/Pseudo_Line_Analytic_MultigroupOpacity.cc
  * \author Kent G. Budge
  * \date   Tue Apr  5 08:42:25 MDT 2011
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2011-2021 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "Pseudo_Line_Analytic_MultigroupOpacity.hh"
@@ -227,13 +226,12 @@ vf_double Pseudo_Line_Analytic_MultigroupOpacity::getOpacity(sf_double const &T,
 //------------------------------------------------------------------------------------------------//
 vf_double Pseudo_Line_Analytic_MultigroupOpacity::getOpacity(double const T,
                                                              sf_double const &rho) const {
-  return vf_double(rho.size(), getOpacity(T, rho[0]));
+  return {rho.size(), getOpacity(T, rho[0])};
 }
 
 //------------------------------------------------------------------------------------------------//
-Pseudo_Line_Analytic_MultigroupOpacity::std_string
-Pseudo_Line_Analytic_MultigroupOpacity::getDataDescriptor() const {
-  std_string descriptor;
+std::string Pseudo_Line_Analytic_MultigroupOpacity::getDataDescriptor() const {
+  std::string descriptor;
 
   rtt_cdi::Reaction const rxn = getReactionType();
 

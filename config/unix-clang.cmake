@@ -1,7 +1,7 @@
 # -------------------------------------------*-cmake-*-------------------------------------------- #
 # file   config/unix-clang.cmake
 # brief  Establish flags for Unix clang
-# note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2015-2021 Triad National Security, LLC., All rights reserved.
 # ------------------------------------------------------------------------------------------------ #
 
 include_guard(GLOBAL)
@@ -92,6 +92,11 @@ if(NOT CXX_FLAGS_INITIALIZED)
     if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0.0)
       string(APPEND CMAKE_EXE_LINKER_FLAGS " -fuse-ld=bfd")
     endif()
+  elseif("${CMAKE_HOST_SYSTEM}" MATCHES "-WSL2")
+    # no-op
+    #
+    # \note When building with LLVM-13 on WSL2, I don't need the '-stdlib' flag.  I'm not sure if
+    # the difference is WSL2 or newer llvm or something else.  For now, assume the diff is WSL2.
   else()
     string(APPEND CMAKE_CXX_FLAGS " -stdlib=libc++")
   endif()

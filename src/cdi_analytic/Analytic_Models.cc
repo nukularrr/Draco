@@ -4,8 +4,7 @@
  * \author Thomas M. Evans
  * \date   Wed Nov 21 14:36:15 2001
  * \brief  Analytic_Models implementation file.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "Analytic_Models.hh"
@@ -20,8 +19,7 @@ namespace rtt_cdi_analytic {
 //================================================================================================//
 
 /*!
- * \brief Calculate the electron temperature given density and Electron internal
- *        energy
+ * \brief Calculate the electron temperature given density and Electron internal energy
  *
  * \f[
  * U_e(T_i) = \int_{T=0}^{T_i}{C_v(\rho,T)dT}
@@ -29,11 +27,9 @@ namespace rtt_cdi_analytic {
  *
  * Where we assume \f$ U_e(0) \equiv 0 \f$.
  *
- * We have chosen to use absolute electron energy instead of dUe to mimik the
- * behavior of EOSPAC.
+ * We have chosen to use absolute electron energy instead of dUe to mimik the behavior of EOSPAC.
  *
- * \todo Consider using GSL root finding with Newton-Raphson for improved
- *       efficiency.
+ * \todo Consider using GSL root finding with Newton-Raphson for improved efficiency.
  */
 double Polynomial_Specific_Heat_Analytic_EoS_Model::calculate_elec_temperature(
     double const /*rho*/, double const Ue, double const Te0) const {
@@ -63,7 +59,9 @@ double Polynomial_Specific_Heat_Analytic_EoS_Model::calculate_elec_temperature(
   }
 }
 
-/*! \brief Calculate the ion temperature given density and ion internal energy
+//------------------------------------------------------------------------------------------------//
+/*!
+ * \brief Calculate the ion temperature given density and ion internal energy
  *
  * \f[
  * U_ic(T_n) = \int_{T=0}^{T_n}{C_v(\rho,T)dT}
@@ -71,11 +69,9 @@ double Polynomial_Specific_Heat_Analytic_EoS_Model::calculate_elec_temperature(
  *
  * Where we assume \f$ U_ic(0) \equiv 0 \f$.
  *
- * We have chosen to use absolute electron energy instead of dUe to mimik the
- * behavior of EOSPAC.
+ * We have chosen to use absolute electron energy instead of dUe to mimik the behavior of EOSPAC.
  *
- * \todo Consider using GSL root finding with Newton-Raphson for improved
- *       efficiency.
+ * \todo Consider using GSL root finding with Newton-Raphson for improved efficiency.
  */
 double Polynomial_Specific_Heat_Analytic_EoS_Model::calculate_ion_temperature(
     double const /*rho*/, double const Uic, double const Ti0) const {
@@ -108,8 +104,8 @@ double Polynomial_Specific_Heat_Analytic_EoS_Model::calculate_ion_temperature(
 //================================================================================================//
 // CONSTANT_ANALYTIC_MODEL MEMBER DEFINITIONS
 //================================================================================================//
-// Unpacking constructor.
 
+//! Unpacking constructor.
 Constant_Analytic_Opacity_Model::Constant_Analytic_Opacity_Model(const sf_char &packed) : sigma(0) {
   // size of stream
   int size(sizeof(int) + sizeof(double));
@@ -136,8 +132,7 @@ Constant_Analytic_Opacity_Model::Constant_Analytic_Opacity_Model(const sf_char &
 }
 
 //------------------------------------------------------------------------------------------------//
-// Packing function
-
+//! Packing function
 Analytic_Opacity_Model::sf_char Constant_Analytic_Opacity_Model::pack() const {
   // get the registered indicator
   int indicator = CONSTANT_ANALYTIC_OPACITY_MODEL;
@@ -167,17 +162,16 @@ Analytic_Opacity_Model::sf_char Constant_Analytic_Opacity_Model::pack() const {
 }
 
 //------------------------------------------------------------------------------------------------//
-// Return the model parameters
-
+//! Return the model parameters
 Analytic_Opacity_Model::sf_double Constant_Analytic_Opacity_Model::get_parameters() const {
-  return sf_double(1, sigma);
+  return {sigma};
 }
 
 //================================================================================================//
 // POLYNOMIAL_ANALYTIC_OPACITY_MODEL DEFINITIONS
 //================================================================================================//
-// Unpacking constructor.
 
+//! Unpacking constructor.
 Polynomial_Analytic_Opacity_Model::Polynomial_Analytic_Opacity_Model(const sf_char &packed)
     : a(0.0), b(0.0), c(0.0), d(0.0), e(0.0), f(1.0), g(1.0), h(1.0), i(0.0), j(0.0), k(0.0) {
   // size of stream
@@ -204,8 +198,7 @@ Polynomial_Analytic_Opacity_Model::Polynomial_Analytic_Opacity_Model(const sf_ch
 }
 
 //------------------------------------------------------------------------------------------------//
-// Packing function
-
+//! Packing function
 Analytic_Opacity_Model::sf_char Polynomial_Analytic_Opacity_Model::pack() const {
   // get the registered indicator
   int indicator = POLYNOMIAL_ANALYTIC_OPACITY_MODEL;
@@ -245,8 +238,7 @@ Analytic_Opacity_Model::sf_char Polynomial_Analytic_Opacity_Model::pack() const 
 }
 
 //------------------------------------------------------------------------------------------------//
-// Return the model parameters
-
+//! Return the model parameters
 Analytic_Opacity_Model::sf_double Polynomial_Analytic_Opacity_Model::get_parameters() const {
   sf_double p(11);
   p[0] = a;
@@ -267,8 +259,8 @@ Analytic_Opacity_Model::sf_double Polynomial_Analytic_Opacity_Model::get_paramet
 //================================================================================================//
 // POLYNOMIAL_SPECIFIC_HEAT_ANALYTIC_EOS_MODEL DEFINITIONS
 //================================================================================================//
-// Unpacking constructor.
 
+//! Unpacking constructor.
 Polynomial_Specific_Heat_Analytic_EoS_Model::Polynomial_Specific_Heat_Analytic_EoS_Model(
     const sf_char &packed)
     : a(0.0), b(0.0), c(0.0), d(0.0), e(0.0), f(0.0) {
@@ -297,8 +289,7 @@ Polynomial_Specific_Heat_Analytic_EoS_Model::Polynomial_Specific_Heat_Analytic_E
 }
 
 //------------------------------------------------------------------------------------------------//
-// Packing function
-
+//! Packing function
 Analytic_Opacity_Model::sf_char Polynomial_Specific_Heat_Analytic_EoS_Model::pack() const {
   // get the registered indicator
   int indicator = POLYNOMIAL_SPECIFIC_HEAT_ANALYTIC_EOS_MODEL;
@@ -333,7 +324,7 @@ Analytic_Opacity_Model::sf_char Polynomial_Specific_Heat_Analytic_EoS_Model::pac
 }
 
 //------------------------------------------------------------------------------------------------//
-// Return the model parameters
+//! Return the model parameters
 Analytic_EoS_Model::sf_double Polynomial_Specific_Heat_Analytic_EoS_Model::get_parameters() const {
   sf_double p(6);
   p[0] = a;
@@ -349,8 +340,8 @@ Analytic_EoS_Model::sf_double Polynomial_Specific_Heat_Analytic_EoS_Model::get_p
 //================================================================================================//
 // CONSTANT_ANALYTIC_EI_COUPLING_MODEL MEMBER DEFINITIONS
 //================================================================================================//
-// Unpacking constructor.
 
+//! Unpacking constructor.
 Constant_Analytic_EICoupling_Model::Constant_Analytic_EICoupling_Model(const sf_char &packed)
     : ei_coupling(0) {
   // size of stream
@@ -378,8 +369,7 @@ Constant_Analytic_EICoupling_Model::Constant_Analytic_EICoupling_Model(const sf_
 }
 
 //------------------------------------------------------------------------------------------------//
-// Packing function
-
+//! Packing function
 Analytic_EICoupling_Model::sf_char Constant_Analytic_EICoupling_Model::pack() const {
   // get the registered indicator
   int indicator = CONSTANT_ANALYTIC_EICOUPLING_MODEL;
@@ -409,23 +399,20 @@ Analytic_EICoupling_Model::sf_char Constant_Analytic_EICoupling_Model::pack() co
 }
 
 //------------------------------------------------------------------------------------------------//
-// Return the model parameters
-
+//! Return the model parameters
 Analytic_EICoupling_Model::sf_double Constant_Analytic_EICoupling_Model::get_parameters() const {
-  return sf_double(1, ei_coupling);
+  return {ei_coupling};
 }
 
 //================================================================================================//
 // ANALYTIC_KP_ALPHA_ELOSS_MODEL MEMBER DEFINITIONS
 //================================================================================================//
 
-/*! \brief Calculate the eloss in units of shk^-1; T given in keV, rho in g/cc,
- *         v0 in cm/shk
+/*! \brief Calculate the eloss in units of shk^-1; T given in keV, rho in g/cc, v0 in cm/shk
  *
- * The constants in this formula come directly from the fit in  Eq. (2) of
- * Kirkpatrick, R. C. and Wheeler, J. A. (1981).
- * ``The Physics of DT Ignition In Small Fusion Targets.'' 
- * Nuclear Fusion, 21(3):389–401.
+ * The constants in this formula come directly from the fit in Eq. (2) of Kirkpatrick, R. C. and
+ * Wheeler, J. A. (1981).  ``The Physics of DT Ignition In Small Fusion Targets.''  Nuclear Fusion,
+ * 21(3):389–401.
  *
  * These constants are ONLY valid for alpha energy loss in DT gas.
  *
@@ -433,7 +420,7 @@ Analytic_EICoupling_Model::sf_double Constant_Analytic_EICoupling_Model::get_par
  * \param rho material density in g/cm^3
  * \param v incident particle speed in cm/shk
  * \return eloss (vector of time coefficients) in shk^-1
- * 
+ *
  */
 double Analytic_KP_Alpha_Eloss_Model::calculate_eloss(const double T, const double rho,
                                                       const double v) const {
@@ -447,9 +434,9 @@ double Analytic_KP_Alpha_Eloss_Model::calculate_eloss(const double T, const doub
   // Exponent of energy deposition term, sans minus sign and delta_t:
   double eloss = rho * v / range;
 
-  // This analytic model can return negative elosses in some rho-T regimes;
-  // catch these and simply return a large, positive number instead
-  // (equivlant to a very small, positive value of "range" in the above formula)
+  // This analytic model can return negative elosses in some rho-T regimes; catch these and simply
+  // return a large, positive number instead (equivlant to a very small, positive value of "range"
+  // in the above formula)
   return (eloss >= 0.0) ? eloss : 1.0e25;
 }
 

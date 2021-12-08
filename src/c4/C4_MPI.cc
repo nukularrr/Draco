@@ -188,7 +188,7 @@ std::vector<int> wait_all_with_source(const unsigned count, C4_Req *const reques
 
   // Nothing to do if count is zero.
   if (count == 0)
-    return std::vector<int>();
+    return {};
 
   // Return value -- rank IDs for all message sources.
   std::vector<int> msg_sources(count);

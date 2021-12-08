@@ -50,9 +50,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #endif
 
-#if defined(__clang__) && !defined(__ibmxl__)
+#if defined(__clang__) && !defined(__ibmxl__) && !defined(__INTEL_LLVM_COMPILER)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
+#if defined(__clang_major__) && __clang_major__ > 12
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
 #endif
 
 #if defined(__INTEL_LLVM_COMPILER)
@@ -365,7 +368,7 @@ int main(int, char **) {
 #pragma clang diagnostic pop
 #endif
 
-#if defined(__clang__) && !defined(__ibmxl__)
+#if defined(__clang__) && !defined(__ibmxl__) && !defined(__INTEL_LLVM_COMPILER)
 #pragma clang diagnostic pop
 #endif
 

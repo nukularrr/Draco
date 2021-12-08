@@ -141,6 +141,13 @@ inline std::string cpuset_to_string(unsigned const num_cpu) {
 
 #else
 
+#if defined(__clang__) && !defined(__ibmxl__) && !defined(__INTEL_LLVM_COMPILER)
+#if defined(__clang_major__) && __clang_major__ > 12
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
+#endif
+
 #if defined(__INTEL_LLVM_COMPILER)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreserved-identifier"
@@ -179,6 +186,13 @@ inline std::string cpuset_to_string(unsigned const /*num_cpu*/) {
 
 #if defined(__INTEL_LLVM_COMPILER)
 #pragma clang diagnostic pop
+#endif
+
+#if defined(__clang__) && !defined(__ibmxl__) && !defined(__INTEL_LLVM_COMPILER)
+#if defined(__clang_major__) && __clang_major__ > 12
+// Restore clang diagnostics to previous state.
+#pragma clang diagnostic pop
+#endif
 #endif
 
 #endif
