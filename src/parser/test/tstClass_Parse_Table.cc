@@ -3,8 +3,7 @@
  * \file   parser/test/tstClass_Parser.cc
  * \author Kent Budge
  * \date   Mon Aug 28 07:36:50 2006
- * \note   Copyright (C) 2016-2018 Los Alamos National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2019-2021 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "ds++/Release.hh"
@@ -20,7 +19,7 @@ using namespace rtt_parser;
 //------------------------------------------------------------------------------------------------//
 class DummyClass {
 public:
-  DummyClass(double const insouciance_in) : insouciance(insouciance_in) {}
+  DummyClass(double const insouciance_in) noexcept : insouciance(insouciance_in) {}
 
   double Get_Insouciance() const { return insouciance; }
 
@@ -100,8 +99,7 @@ void Class_Parse_Table<DummyClass>::check_completeness(Token_Stream &tokens) {
 
 //------------------------------------------------------------------------------------------------//
 std::shared_ptr<DummyClass> Class_Parse_Table<DummyClass>::create_object() {
-  std::shared_ptr<DummyClass> Result =
-      std::shared_ptr<DummyClass>(new DummyClass(parsed_insouciance));
+  std::shared_ptr<DummyClass> Result = std::make_shared<DummyClass>(parsed_insouciance);
   return Result;
 }
 

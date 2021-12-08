@@ -77,7 +77,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #endif
 
-#if defined(__clang__) && !defined(__ibmxl__)
+#if defined(__clang__) && !defined(__ibmxl__) && !defined(__INTEL_LLVM_COMPILER)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wexpansion-to-defined"
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
@@ -85,6 +85,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wextra-semi"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#if defined(__clang_major__) && __clang_major__ > 12
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
 #endif
 
 #if defined(__INTEL_LLVM_COMPILER)
@@ -211,7 +214,7 @@ int main(int argc, char **argv) {
 #pragma clang diagnostic pop
 #endif
 
-#if defined(__clang__) && !defined(__ibmxl__)
+#if defined(__clang__) && !defined(__ibmxl__) && !defined(__INTEL_LLVM_COMPILER)
 // Restore clang diagnostics to previous state.
 #pragma clang diagnostic pop
 #endif

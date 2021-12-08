@@ -4,7 +4,7 @@
  * \author Kent G. Budge
  * \date   Feb 18 2003
  * \brief  Unit tests for the Parse_Table class.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "ds++/Release.hh"
@@ -75,7 +75,7 @@ protected:
     cout << "error reported to Error_Token_Stream" << endl;
   }
 
-  Token fill_() override { return Token(rtt_parser::ERROR, "error"); }
+  Token fill_() override { return {rtt_parser::ERROR, "error"}; }
 };
 
 class Colon_Token_Stream : public Token_Stream {
@@ -100,14 +100,14 @@ protected:
   Token fill_() override {
     switch (count_++) {
     case 0:
-      return Token(';', "");
+      return {';', ""};
     case 1:
-      return Token(END, "end");
+      return {END, "end"};
     case 2:
-      return Token(EXIT, "");
+      return {EXIT, ""};
     default:
       Insist(false, "bad case");
-      return Token(rtt_parser::ERROR, ""); // dummy return to eliminate warning
+      return {rtt_parser::ERROR, ""}; // dummy return to eliminate warning
     }
   }
 

@@ -4,7 +4,7 @@
  * \author Kelly Thompson
  * \date   Thu May 18 15:46:19 2006
  * \brief  Provide some common functions for unit testing within Draco
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef dsxx_UnitTest_hh
@@ -151,7 +151,7 @@ public:
 #else
     // We should never get here. However, when compiling ScalarUnitTest.cc, this function must be
     // valid.  ScalarUnitTest.cc is not a unit test so PROJECT_SOURCE_DIR is not defined.
-    return std::string("unknown");
+    return "unknown";
 #endif
   }
   /*!
@@ -175,7 +175,7 @@ public:
 #else
     // We should never get here. However, when compiling ScalarUnitTest.cc, this function must be
     // valid.  ScalarUnitTest.cc is not a unit test so PROJECT_SOURCE_DIR is not defined.
-    return std::string("unknown");
+    return "unknown";
 #endif
   }
 

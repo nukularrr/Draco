@@ -4,8 +4,7 @@
  * \author Thomas M. Evans
  * \date   Tue Nov 13 11:19:59 2001
  * \brief  Analytic_MultigroupOpacity class definition.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2011-2021 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_analytic_Analytic_MultigroupOpacity_hh
@@ -23,21 +22,19 @@ namespace rtt_cdi_analytic {
  *
  * \brief Derived rtt_cdi::MultigroupOpacity class for analytic opacities.
  *
- * The Analytic_MultigroupOpacity class is an abstract class derived from
- * rtt_cdi::MultigroupOpacity class.  It provides analytic opacity data. The
- * specific analytic opacity model is specified by concrete classes derived
- * from Analytic_MultigroupOpacity.
+ * The Analytic_MultigroupOpacity class is an abstract class derived from rtt_cdi::MultigroupOpacity
+ * class.  It provides analytic opacity data. The specific analytic opacity model is specified by
+ * concrete classes derived from Analytic_MultigroupOpacity.
  *
- * Note that opacities are returned in units of cm^2/g. Thus the resultant
- * opacity must be multiplied by density to get units of 1/cm.  See the
- * documentation in rtt_cdi_analytic::Analytic_Model for more info.
+ * Note that opacities are returned in units of cm^2/g. Thus the resultant opacity must be
+ * multiplied by density to get units of 1/cm.  See the documentation in
+ * rtt_cdi_analytic::Analytic_Model for more info.
  *
- * The constructors take a rtt_cdi::Reaction argument to determine the
- * reaction type.  The enumeration rtt_cdi::Reaction can have the value
- * TOTAL, ABSORPTION, or SCATTERING.
+ * The constructors take a rtt_cdi::Reaction argument to determine the reaction type.  The
+ * enumeration rtt_cdi::Reaction can have the value TOTAL, ABSORPTION, or SCATTERING.
  *
- * The default rtt_cdi::Model for an Analytic_MultigroupOpacity is
- * rtt_cdi::ANALYTIC.  However, this can be overridden in the constructor.
+ * The default rtt_cdi::Model for an Analytic_MultigroupOpacity is rtt_cdi::ANALYTIC.  However, this
+ * can be overridden in the constructor.
  *
  * \sa cdi_analytic/nGray_Analytic_MultigroupOpacity.hh
  * Example usage of Analytic_MultigroupOpacity.
@@ -49,7 +46,6 @@ public:
   // Useful typedefs.
   using sf_double = std::vector<double>;
   using vf_double = std::vector<sf_double>;
-  using std_string = std::string;
   using sf_char = std::vector<char>;
 
 private:
@@ -99,13 +95,13 @@ public:
   rtt_cdi::Model getModelType() const override { return model; }
 
   //! Return the energy policy descriptor (mg).
-  inline std_string getEnergyPolicyDescriptor() const override { return std_string("mg"); }
+  inline std::string getEnergyPolicyDescriptor() const override { return "mg"; }
 
   // Get the data description of the opacity.
-  std_string getDataDescriptor() const override = 0;
+  std::string getDataDescriptor() const override = 0;
 
   // Get the name of the associated data file.
-  inline std_string getDataFilename() const override { return std_string(); }
+  inline std::string getDataFilename() const override { return ""; }
 
   //! Get the temperature grid (size 0 for function-based analytic data).
   sf_double getTemperatureGrid() const override { return sf_double(0); }

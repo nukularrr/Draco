@@ -4,7 +4,7 @@
  * \author Kelly Thompson
  * \date   Mon Jan 8 17:12:51 2001
  * \brief  DummyMultigroupOpacity class header file (derived from ../MultigroupOpacity)
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved.  */
+ * \note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_DummyMultigroupOpacity_hh
@@ -265,7 +265,7 @@ public:
   size_t getNumGroups() const override { return numGroupBoundaries - 1; }
 
   //! Dummy pack function.
-  std::vector<char> pack() const override { return std::vector<char>(); }
+  std::vector<char> pack() const override { return {}; }
 
   //! Returns the general opacity model type, defined in OpacityCommon.hh
   rtt_cdi::OpacityModelType getOpacityModelType() const override { return rtt_cdi::DUMMY_TYPE; }

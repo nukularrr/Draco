@@ -68,7 +68,7 @@ std::string draco_gethostname() {
   int err = gethostname(&hostname[0], HOST_NAME_MAX);
   if (err)
     strncpy(&hostname[0], "gethostname() failed", HOST_NAME_MAX);
-  return std::string(hostname.data());
+  return hostname.data();
 
 // Catamount systems do not have gethostname().
 #else
