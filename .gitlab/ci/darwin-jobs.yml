@@ -20,6 +20,7 @@
     DRACO_BINARY_DIR: ${CI_PROJECT_DIR}/build
     DRACO_SOURCE_DIR: ${CI_PROJECT_DIR}
     SITE_ID: darwin
+    OMP_NUM_THREADS: 8
     DEPLOY: "FALSE"
     SP_arm: "--nodes=1 --partition=arm --qos=debug"
     SP_power9: "--nodes=1 --partition=power9 --qos=debug"
