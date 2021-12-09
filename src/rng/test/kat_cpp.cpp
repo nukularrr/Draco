@@ -61,7 +61,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma GCC diagnostic ignored "-Wexpansion-to-defined"
 #endif
 
-#if defined(__clang__) && !defined(__ibmxl__) && !defined(__INTEL_LLVM_COMPILER)
+#if defined(__clang__) && !defined(__ibmxl__)
+// Also use these for defined(__INTEL_LLVM_COMPILER)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
 #pragma clang diagnostic ignored "-Wmissing-variable-declarations"
@@ -71,11 +72,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #if defined(__clang_major__) && __clang_major__ > 12
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 #endif
-#endif
-
-#if defined(__INTEL_LLVM_COMPILER)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wreserved-identifier"
 #endif
 
 #include <Random123/MicroURNG.hpp>
@@ -251,11 +247,7 @@ void host_execute_tests(kat_instance *tests, unsigned ntests) {
   dev_execute_tests(tests, ntests);
 }
 
-#if defined(__INTEL_LLVM_COMPILER)
-#pragma clang diagnostic pop
-#endif
-
-#if defined(__clang__) && !defined(__ibmxl__) && !defined(__INTEL_LLVM_COMPILER)
+#if defined(__clang__) && !defined(__ibmxl__)
 // Restore clang diagnostics to previous state.
 #pragma clang diagnostic pop
 #endif

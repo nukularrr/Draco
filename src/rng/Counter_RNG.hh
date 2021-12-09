@@ -42,7 +42,8 @@
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 #endif
 
-#if defined(__clang__) && !defined(__ibmxl__) && !defined(__INTEL_LLVM_COMPILER)
+#if defined(__clang__) && !defined(__ibmxl__)
+// Also use these for defined(__INTEL_LLVM_COMPILER)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wexpansion-to-defined"
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
@@ -54,19 +55,10 @@
 #endif
 #endif
 
-#if defined(__INTEL_LLVM_COMPILER)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wreserved-identifier"
-#endif
-
 #include "Random123/threefry.h"
 #include "uniform.hpp"
 
-#if defined(__INTEL_LLVM_COMPILER)
-#pragma clang diagnostic pop
-#endif
-
-#if defined(__clang__) && !defined(__ibmxl__) && !defined(__INTEL_LLVM_COMPILER)
+#if defined(__clang__) && !defined(__ibmxl__)
 // Restore clang diagnostics to previous state.
 #pragma clang diagnostic pop
 #endif
