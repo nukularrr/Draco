@@ -33,7 +33,7 @@ case "${ddir:=notset}" in
       run "module use --append /projects/draco/Modules"
       run "module load draco/x64-gcc930"
       if [[ ${SLURM_JOB_PARTITION} =~ "volta-" || ${SLURM_JOB_PARTITION} =~ "gpu" ]]; then
-        run "module load cuda/11.0"
+        run "module load cuda/11.4.2"
       fi
       run "module list"
 
