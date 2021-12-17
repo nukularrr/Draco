@@ -20,6 +20,8 @@
     SITE_ID: snow
     ARCH: x86_64
     DEPLOY: "FALSE"
+    no_proxy: "localhost,127.0.0.1,.lanl.gov"
+    # CI_DEBUG_TRACE: "true"
 
 #--------------------------------------------------------------------------------------------------#
 # Build Templates
