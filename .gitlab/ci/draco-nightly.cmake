@@ -26,12 +26,11 @@ set(CTEST_BUILD_NAME "$ENV{CTEST_BUILD_NAME}")
 set(CTEST_MODE "$ENV{CTEST_MODE}")
 
 cmake_host_system_information(RESULT MPI_PHYSICAL_CORES QUERY NUMBER_OF_PHYSICAL_CORES)
-message("MPI_PHYSICAL_CORES = ${MPI_PHYSICAL_CORES}")
-set(CMAKE_BUILD_PARALLEL_LEVEL ${MPI_PHYSCIAL_CORES})
+set(CMAKE_BUILD_PARALLEL_LEVEL ${MPI_PHYSICAL_CORES})
 if(DEFINED ENV{CTEST_NPROC})
   set(CTEST_PARALLEL_LEVEL $ENV{CTEST_NPROC})
 else()
-  set(CTEST_PARALLEL_LEVEL ${MPI_PHYSCIAL_CORES})
+  set(CTEST_PARALLEL_LEVEL ${MPI_PHYSICAL_CORES})
 endif()
 set(CTEST_BUILD_TYPE $ENV{CMAKE_BUILD_TYPE})
 if(CTEST_BUILD_TYPE STREQUAL MemCheck)
@@ -69,6 +68,9 @@ endif()
 string(APPEND CTEST_CONFIGURE_COMMAND " ${CTEST_SOURCE_DIRECTORY}")
 message(
   "
+CTEST_PARALLEL_LEVEL = ${CTEST_PARALLEL_LEVEL}
+MPI_PHYSICAL_CORES   = ${MPI_PHYSICAL_CORES}
+
 CTEST_CMAKE_GENERATOR     = ${CTEST_CMAKE_GENERATOR}
 CTEST_BUILD_CONFIGURATION = ${CTEST_BUILD_CONFIGURATION}
 CTEST_CONFIGURE_COMMAND   = ${CTEST_CONFIGURE_COMMAND}
@@ -80,11 +82,11 @@ set(CTEST_UPDATE_COMMAND "git")
 set(CTEST_GIT_UPDATE_CUSTOM "${CMAKE_COMMAND}" "-E" "echo" "Skipping git update (no-op).")
 
 if(${CTEST_SCRIPT_ARG} MATCHES Configure)
-  message( "ctest_start( ${CTEST_MODE} )")
-  ctest_start( ${CTEST_MODE} )
+  message("ctest_start( ${CTEST_MODE} )")
+  ctest_start(${CTEST_MODE})
 else()
-  message( "ctest_start( ${CTEST_MODE} APPEND )")
-  ctest_start( ${CTEST_MODE} APPEND )
+  message("ctest_start( ${CTEST_MODE} APPEND )")
+  ctest_start(${CTEST_MODE} APPEND)
 endif()
 
 ctest_update(SOURCE ${CTEST_SOURCE_DIRECTORY})
@@ -119,10 +121,10 @@ endif()
 # ------------------------------------------------------------------------------------------------ #
 if(${CTEST_SCRIPT_ARG} MATCHES Build)
 
+  if(NOT WIN32)
+    set(CTEST_BUILD_FLAGS "-j ${CTEST_PARALLEL_LEVEL}")
+  endif()
   if(DEFINED ENV{AUTODOCDIR})
-    if(NOT WIN32)
-      set(CTEST_BUILD_FLAGS "-j ${CMAKE_BUILD_PARALLEL_LEVEL}")
-    endif()
     message(
       "
 ctest_build(
@@ -147,10 +149,12 @@ ctest_build(
 ctest_build(
   FLAGS $ENV{BUILD_FLAGS}
   RETURN_VALUE build_failure
+  PARALLEL_LEVEL ${CTEST_PARALLEL_LEVEL}
   CAPTURE_CMAKE_ERROR ctest_build_errors)")
     ctest_build(
       FLAGS "$ENV{BUILD_FLAGS}"
       RETURN_VALUE build_failure
+      # cmake-3.21 -- PARALLEL_LEVEL ${CMAKE_BUILD_PARALLEL_LEVEL}
       CAPTURE_CMAKE_ERROR ctest_build_errors)
 
     if(build_failure)

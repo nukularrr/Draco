@@ -101,6 +101,8 @@ echo "Fortran_FLAGS = $Fortran_FLAGS"
 # export OMPI_MCA_btl=self,sm
 export OMPI_MCA_btl=^openib
 
+export CTEST_NPROC
+
 #--------------------------------------------------------------------------------------------------#
 # Build and run the tests for draco; post results to CDash.
 #--------------------------------------------------------------------------------------------------#
