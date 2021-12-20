@@ -107,7 +107,7 @@ endfunction()
 # ------------------------------------------------------------------------------------------------ #
 function(deduplicate_flags FLAGS)
   set(flag_list ${${FLAGS}}) # ${FLAGS} is CMAKE_C_FLAGS, double ${${FLAGS}} is the string of flags.
-  separate_arguments(flag_list)
+  separate_arguments(flag_list NATIVE_COMMAND ${flag_list})
   list(REMOVE_DUPLICATES flag_list)
   string(REGEX REPLACE "([^\\]|^);" "\\1 " _TMP_STR "${flag_list}")
   string(REGEX REPLACE "[\\](.)" "\\1" _TMP_STR "${_TMP_STR}") # fixes escaping
@@ -119,6 +119,8 @@ endfunction()
 # ------------------------------------------------------------------------------------------------ #
 # Setup compilers
 # ------------------------------------------------------------------------------------------------ #
+
+# cmake-lint: disable=R0912,R0915,W0106
 macro(dbsSetupCompilers)
 
   if(NOT dbsSetupCompilers_done)
@@ -182,19 +184,33 @@ macro(dbsSetupCompilers)
     # Setup common options for targets
     # -------------------------------------------------------------------------------------------- #
 
-    # Control the use of interprocedural optimization. This used to be set by editing compiler flags
-    # directly, but now that CMake has a universal toggle, we use it. This value is used in
-    # component_macros.cmake when properties are assigned to individual targets.
+    # Control the use of interprocedural optimization. Precedence:
+    #
+    # * (1) If MSVC, disable
+    # * (2) If set in the cache or on the cmake configure line, use the provided value.
+    # * (3) If set in the developer environment, use the provided value.
+    # * (4) Guess
+    #
+    # Options (2) and (3) can be used by the CI/regression system to properly control IPO.  The
+    # USE_IPO variable is used in component_macros.cmake when properties are assigned to individual
+    # targets.
+    #
+    # Ref.: https://cmake.org/cmake/help/git-stage/policy/CMP0069.html
 
-    # See https://cmake.org/cmake/help/git-stage/policy/CMP0069.html
     if(WIN32)
-      set(USE_IPO
-          OFF
-          CACHE BOOL "Enable Interprocedural Optimization for Release builds." FORCE)
+      set(USE_IPO OFF)
+    elseif(DEFINED USE_IPO)
+      # no-op (use defined value, -DUSE_IPO=OFF,  instead of attempting to guess)
+    elseif(DEFINED ENV{USE_IPO})
+      # Use the value found in the enviornment: `export USE_IPO=OFF`
+      set(USE_IPO $ENV{USE_IPO})
     else()
       include(CheckIPOSupported)
       check_ipo_supported(RESULT USE_IPO)
     endif()
+    set(USE_IPO
+        ${USE_IPO}
+        CACHE BOOL "Enable Interprocedural Optimization for Release builds." FORCE)
 
     # -------------------------------------------------------------------------------------------- #
     # Special build mode for Coverage (gcov+lcov+genthml)
@@ -259,7 +275,8 @@ macro(dbsSetupCompilers)
               COMMAND ${LCOV} ${lcovopts2} --capture --directory .
               COMMAND ${LCOV} ${lcovopts2} --remove coverage.info ${lcov_ignore}
               COMMAND genhtml coverage.info --demangle-cpp --output-directory cov-html
-              COMMAND "${captureLcov}" -g "${GCOV}" -l "${LCOV}")
+              COMMAND "${captureLcov}" -g "${GCOV}" -l "${LCOV}"
+              COMMENT "Lcov is processing gcov data files...")
             unset(captureLcov)
             add_custom_target(
               covrep
@@ -464,8 +481,10 @@ endmacro()
 #
 # References:
 #
-# * https://blog.kitware.com/static-checks-with-cmake-cdash-iwyu-clang-tidy-lwyu-cpplint-and-cppcheck/
-# * https://github.com/KratosMultiphysics/Kratos/wiki/How-to-use-Clang-Tidy-to-automatically-correct-code
+# * https://blog.kitware.com/
+#   static-checks-with-cmake-cdash-iwyu-clang-tidy-lwyu-cpplint-and-cppcheck/
+# * https://github.com/KratosMultiphysics/Kratos/wiki/
+#   How-to-use-Clang-Tidy-to-automatically-correct-code
 # * https://www.kdab.com/clang-tidy-part-1-modernize-source-code-using-c11c14/
 #
 # ------------------------------------------------------------------------------------------------ #
@@ -610,8 +629,8 @@ macro(dbsSetupStaticAnalyzers)
     endif()
   endif()
 
-  # include-what-you-link
-  # https://blog.kitware.com/static-checks-with-cmake-cdash-iwyu-clang-tidy-lwyu-cpplint-and-cppcheck
+  # include-what-you-link, https://blog.kitware.com/
+  # static-checks-with-cmake-cdash-iwyu-clang-tidy-lwyu-cpplint-and-cppcheck
   if(${DRACO_STATIC_ANALYZER} MATCHES "iwyl" AND UNIX)
     option(CMAKE_LINK_WHAT_YOU_USE "Report if extra libraries are linked." TRUE)
   else()
