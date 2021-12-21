@@ -52,7 +52,6 @@
     paths:
       - ${DRACO_BINARY_DIR}/Testing
     expire_in: 1 hour
-
   only:
     - schedules
 
