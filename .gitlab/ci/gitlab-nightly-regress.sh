@@ -136,12 +136,16 @@ echo "modes = ${modes}"
 echo " "
 
 if [[ -d ${DRACO_BINARY_DIR}/Testing ]]; then
-  run "ls -aFlt ${DRACO_BINARY_DIR}/Testing"
+  run "ls -aFltR ${DRACO_BINARY_DIR}/Testing"
+  run "cat ${DRACO_BINARY_DIR}/Testing/TAG"
 fi
+
+set | grep CI
 
 run "ctest -S ${DRACO_SOURCE_DIR}/.gitlab/ci/draco-nightly.cmake,${modes}"
 
-run "ls -aFlt ${DRACO_BINARY_DIR}/Testing"
+run "ls -aFltR ${DRACO_BINARY_DIR}/Testing"
+run "cat ${DRACO_BINARY_DIR}/Testing/TAG"
 
 [[ "${AUTODOC}" == "ON" ]] && cp "${DRACO_SOURCE_DIR}/.gitlab/ci/index.html" "${AUTODOCDIR}/."
 

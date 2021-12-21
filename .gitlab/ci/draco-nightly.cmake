@@ -9,7 +9,6 @@
 
 set(CTEST_SOURCE_DIRECTORY "$ENV{DRACO_SOURCE_DIR}")
 set(CTEST_BINARY_DIRECTORY "$ENV{DRACO_BINARY_DIR}")
-ctest_empty_binary_directory("${CTEST_BINARY_DIRECTORY}")
 set(CTEST_PROJECT_NAME "$ENV{PROJECT}")
 
 set(CTEST_SUBMIT_URL "https://rtt.lanl.gov/cdash3/submit.php?project=$ENV{PROJECT}")
@@ -82,6 +81,7 @@ set(CTEST_UPDATE_COMMAND "git")
 set(CTEST_GIT_UPDATE_CUSTOM "${CMAKE_COMMAND}" "-E" "echo" "Skipping git update (no-op).")
 
 if(${CTEST_SCRIPT_ARG} MATCHES Configure)
+  ctest_empty_binary_directory("${CTEST_BINARY_DIRECTORY}")
   message("ctest_start( ${CTEST_MODE} )")
   ctest_start(${CTEST_MODE})
 else()
