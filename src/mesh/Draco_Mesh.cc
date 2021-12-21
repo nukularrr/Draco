@@ -154,6 +154,54 @@ const std::vector<unsigned> Draco_Mesh::get_flat_cell_node_linkage() const {
 }
 
 //------------------------------------------------------------------------------------------------//
+/*!
+ * \brief Obtain the face index of a neihbor cell across a particular face
+ *
+ * \param[in] cell the index of the cell, starting from 1
+ * \param[in] face the index of the cell's face, starting from 1
+ *
+ * \return a vector of node indices for the cell, without duplicates
+ */
+int32_t Draco_Mesh::next_face(const int32_t cell, const int32_t face) const {
+  Require(face >= 1);
+
+  // cast cell index to unsigned int
+  const unsigned l_cell = static_cast<unsigned>(cell) - 1;
+  Require(face <= static_cast<int32_t>(m_num_faces_per_cell[l_cell]));
+
+  // short-cuts
+  const auto num_cc_faces = static_cast<int32_t>(num_cellcell_faces_per_cell[l_cell]);
+  const auto num_cs_faces = static_cast<int32_t>(num_cellside_faces_per_cell[l_cell]);
+
+  if (face <= num_cc_faces) {
+
+    // get neighbor cell index
+    const unsigned next_cell = cell_to_cell_linkage.at(l_cell)[face - 1].first;
+    Check(num_cellcell_faces_per_cell[next_cell] > 0);
+
+    // get face nodes in set form
+    const std::vector<unsigned> &node_vec = cell_to_cell_linkage.at(l_cell)[face - 1].second;
+    const std::set<unsigned> nodes = std::set<unsigned>(node_vec.begin(), node_vec.end());
+
+    // check each cell-cell face of the next node
+    for (unsigned j = 1; j <= num_cellcell_faces_per_cell[next_cell]; ++j) {
+      const std::vector<unsigned> &node_nbr_vec = cell_to_cell_linkage.at(next_cell)[j - 1].second;
+      if (std::set<unsigned>(node_nbr_vec.begin(), node_nbr_vec.end()) == nodes)
+        return static_cast<int32_t>(j);
+    }
+
+  } else if (face > num_cc_faces && face <= num_cc_faces + num_cs_faces) {
+
+    // face is on a true mesh boundary, so return the local face index
+    return face;
+  }
+
+  // face must be on a MPI rank boundary
+  // \todo: what specialization is needed here?
+  return -1;
+}
+
+//------------------------------------------------------------------------------------------------//
 // PRIVATE FUNCTIONS
 //------------------------------------------------------------------------------------------------//
 /*!
@@ -310,6 +358,10 @@ void Draco_Mesh::compute_cell_to_cell_linkage(
 
   // (4) create cell-to-cell, cell-to-side, cell-to-ghost-cell linkage
 
+  // resize vectors with number of faces per cell for cell-cell or cell-side linkage
+  num_cellcell_faces_per_cell = std::vector<unsigned>(num_cells, 0);
+  num_cellside_faces_per_cell = std::vector<unsigned>(num_cells, 0);
+
   // reset cf_counter and cell-node iterator
   cf_counter = 0;
   cn_first = cell_to_node_linkage.begin();
@@ -344,6 +396,9 @@ void Draco_Mesh::compute_cell_to_cell_linkage(
         // add to cell-cell linkage
         cell_to_cell_linkage[cell].push_back(std::make_pair(oth_cell, node_vec));
 
+        // increment number of cell-cell faces for this cell
+        num_cellcell_faces_per_cell[cell]++;
+
         // a neighbor cell was found
         has_face_cond = true;
       }
@@ -353,6 +408,9 @@ void Draco_Mesh::compute_cell_to_cell_linkage(
 
         // populate cell-boundary face layout
         cell_to_side_linkage[cell].push_back(std::make_pair(nodes_to_side[node_set], node_vec));
+
+        // increment number of cell-side faces for this cell
+        num_cellside_faces_per_cell[cell]++;
 
         has_face_cond = true;
       }
