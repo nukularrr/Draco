@@ -13,6 +13,7 @@
 #include "ds++/config.h"
 #include "mesh_element/Geometry.hh"
 #include <array>
+#include <cstdint>
 #include <map>
 #include <set>
 #include <vector>
@@ -123,6 +124,12 @@ protected:
   // Node map to vector of adjacent coordinates bounding adjacent ghost cells
   Dual_Ghost_Layout_Coords node_to_ghost_coord_linkage;
 
+  // number of cell-cell linkage faces per cell
+  std::vector<unsigned> num_cellcell_faces_per_cell;
+
+  // number of cell-side linkage faces per cell
+  std::vector<unsigned> num_cellside_faces_per_cell;
+
 public:
   //! Constructor.
   Draco_Mesh(unsigned dimension_, Geometry geometry_,
@@ -169,6 +176,9 @@ public:
 
   const std::vector<unsigned> get_cell_nodes(const unsigned cell) const;
   const std::vector<unsigned> get_flat_cell_node_linkage() const;
+
+  //! Get face index of adjacent face in neighboring cell
+  int32_t next_face(const int32_t cell, const int32_t face) const;
 
 private:
   // >>> SUPPORT FUNCTIONS
