@@ -50,7 +50,8 @@
     - /bin/bash -l ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-nightly-regress.sh -m "Submit"
   artifacts:
     paths:
-      - ${DRACO_BINARY_DIR}/Testing
+      - ${DRACO_BINARY_DIR}/Testing/TAG
+      - ${DRACO_BINARY_DIR}/Testing/202*/*.xml
     expire_in: 1 hour
   only:
     - schedules
