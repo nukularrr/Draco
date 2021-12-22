@@ -8,13 +8,19 @@
 
 variables:
   PROJECT: Draco
+  DRACO_BINARY_DIR: ${CI_PROJECT_DIR}/build
+  DRACO_SOURCE_DIR: ${CI_PROJECT_DIR}
+  http_proxy: "http://proxyout.lanl.gov:8080"
+  https_proxy: "http://proxyout.lanl.gov:8080"
+  no_proxy: "localhost,127.0.0.1,.lanl.gov,lanl.gov"
+  OMP_NUM_THREADS: 8
 
 stages:
   - fasttest
   - test
   - slowtest
   - optional
-  - Deploy
+  - deploy
 
 include:
   - local: /.gitlab/ci/snow-jobs.yml

@@ -21,6 +21,7 @@ echo "HOSTNAME       = ${HOSTNAME}"
 # printenv
 # run "module avail"
 printenv | grep "CI_"
+printenv | grep -i proxy
 echo " "
 
 #--------------------------------------------------------------------------------------------------#
@@ -28,6 +29,8 @@ echo " "
 #--------------------------------------------------------------------------------------------------#
 
 run "cd $DRACO_SOURCE_DIR"
+run "git remote -v"
+run "git status"
 run "git fetch --all"
 run "git branch -a"
 if [[ $(git branch | grep -c develop) == 0 ]]; then
