@@ -14,7 +14,6 @@
 .ccscs:
   variables:
     # SITE_ID: ccscs1
-    ARCH: x86_64
     DEPLOY: "FALSE"
     # CI_DEBUG_TRACE: "true"
 
@@ -28,19 +27,15 @@
     CTEST_MODE: Experimental
   script:
     - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-ci-run-tests.sh
-#  only:
-#    - merge_requests
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-#    - if: '$CI_PROJECT_NAMESPACE != "draco"'
-#      when: never
 
 .ccscs_deploy:
   extends: .ccscs
   stage: deploy
   variables:
     DEPLOY: 'TRUE'
-    DRACO_INSTALL_DIR: /scratch/regress/deploy/draco/${COMPILER}/${BUILD_TYPE}
+    DRACO_INSTALL_DIR: /scratch/regress/deploy/draco/${CI_JOB_NAME}
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
@@ -79,7 +74,6 @@ ccs1_deploy_deb_gcc_1020:
   variables:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
-    ARCH: x86_64
     SITE_ID: ccscs1
 
 #--------------------------------------------------------------------------------------------------#
@@ -96,7 +90,6 @@ ccs1_style_cxx:
   variables:
     CMAKE_BUILD_TYPE: Release
     DRACO_ENV: gcc1020-ompi4
-    ARCH: x86_64
     SITE_ID: ccscs1
 
 ccs3_deb_gcc_1020:
@@ -107,7 +100,6 @@ ccs3_deb_gcc_1020:
   variables:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
-    ARCH: x86_64
     CTEST_NPROC: 32
     SITE_ID: ccscs3
     #TEST_EXCLUSIONS: mcgrid_cylindrical_mg_mgrztp04
@@ -120,7 +112,6 @@ ccs2_c4_scalar:
   variables:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
-    ARCH: x86_64
     EXTRA_CMAKE_ARGS: -DDRACO_C4=SCALAR
     CTEST_NPROC: 56
     SITE_ID: ccscs2
@@ -136,7 +127,6 @@ ccs3_deb_llvm11:
   variables:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: llvm11
-    ARCH: x86_64
     CTEST_NPROC: 32
     SITE_ID: ccscs3
 
@@ -149,7 +139,6 @@ ccs2_autodoc:
   variables:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
-    ARCH: x86_64
     AUTODOC: "ON"
     SITE_ID: ccscs2
 
@@ -163,7 +152,6 @@ ccs3_rel_llvm11:
   variables:
     CMAKE_BUILD_TYPE: Release
     DRACO_ENV: llvm11
-    ARCH: x86_64
     CTEST_NPROC: 32
     SITE_ID: ccscs3
 
@@ -175,7 +163,6 @@ ccs3_rel_gcc_1020:
   variables:
     CMAKE_BUILD_TYPE: Release
     DRACO_ENV: gcc1020-ompi4
-    ARCH: x86_64
     CTEST_NPROC: 32
     SITE_ID: ccscs3
 
@@ -187,7 +174,6 @@ ccs3_fulldiag:
   variables:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
-    ARCH: x86_64
     # DRACO_TIMING=1 enables caliper timers.
     # DRACO_DIAGNOSTICS=7 enables FPE traps.
     EXTRA_CMAKE_ARGS: -DDRACO_DIAGNOSTICS=7 -DDRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
@@ -203,7 +189,6 @@ ccs2_gcov:
   variables:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
-    ARCH: x86_64
     # --> Overall coverage rate:
     # --> lines......: 91.2% (34056 of 37338 lines)
     # --> functions..: 56.7% (8676 of 15304 functions)
@@ -222,7 +207,6 @@ ccs2_valgrind:
   variables:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
-    ARCH: x86_64
     EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE=/scratch/regress/ccsradregress/valgrind_suppress.txt
     EXTRA_CTEST_ARGS: -L memcheck -LE nomemcheck
     CTEST_NPROC: 20
@@ -240,7 +224,6 @@ ccs3_clangtidy:
   variables:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: llvm11
-    ARCH: x86_64
     CTEST_NPROC: 32
     EXTRA_CMAKE_ARGS: -DDRACO_STATIC_ANALYZER=clang-tidy
     SITE_ID: ccscs3
@@ -257,7 +240,6 @@ rel_gcc_10.2.0_regress:
     SITE_ID: ccscs1
     CMAKE_BUILD_TYPE: Release
     DRACO_ENV: gcc1020-ompi4
-    ARCH: x86_64
     # EXTRA_CMAKE_ARGS: -DDRACO_DIAGNOSTICS=7 -DDRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
     BUILD_FLAGS: -j 20
     CTEST_NPROC: 40
@@ -271,7 +253,6 @@ deb_gcc_10.2.0_regress:
     SITE_ID: ccscs3
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
-    ARCH: x86_64
     # EXTRA_CMAKE_ARGS: -DDRACO_DIAGNOSTICS=7 -DDRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
     BUILD_FLAGS: -j 20
     CTEST_NPROC: 40
@@ -288,7 +269,6 @@ pages:
     SITE_ID: ccscs2
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
-    ARCH: x86_64
     DEPLOY: "TRUE"
     AUTODOC: "ON"
     AUTODOCDIR: ${CI_PROJECT_DIR}/public

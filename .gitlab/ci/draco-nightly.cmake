@@ -20,7 +20,12 @@ if(WIN32)
 else()
   set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 endif()
-set(CTEST_SITE "$ENV{SITE_ID}-$ENV{ARCH}")
+set(CTEST_SITE "$ENV{SITE_ID}")
+if(DEFINED ENV{ARCH})
+  string(APPEND CTEST_SITE "-$ENV{ARCH}")
+endif()
+string(APPEND CTEST_SITE "-gr") # indicating job was initiated by a gitlab runner.
+
 set(CTEST_BUILD_NAME "$ENV{CTEST_BUILD_NAME}")
 set(CTEST_MODE "$ENV{CTEST_MODE}")
 
