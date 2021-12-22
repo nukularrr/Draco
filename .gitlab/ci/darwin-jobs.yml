@@ -90,8 +90,6 @@ dp9_rel_g930_mr:
     CTEST_NPROC: 10
     MAXLOAD: 40
     SCHEDULER_PARAMETERS: ${SP_power9}
-    # Disable IPO. See draco/draco#1375
-    EXTRA_CMAKE_ARGS: -DUSE_IPO=OFF
 
 dx86_deb_i1905_mr:
   stage: test
@@ -127,8 +125,6 @@ dx86_deb_volta_mr:
     ARCH: x86_64
     CTEST_NPROC: 10
     SCHEDULER_PARAMETERS: ${SP_volta_x86}
-    # Disable IPO. See draco/draco#1375
-    EXTRA_CMAKE_ARGS: -DUSE_IPO=OFF
     # TEST_EXCLUSIONS: mcgrid_cylindrical_mg_mgrztp04
 
 dp9_deb_g930_mr:
@@ -140,8 +136,6 @@ dp9_deb_g930_mr:
     ARCH: power9
     CTEST_NPROC: 10
     SCHEDULER_PARAMETERS: ${SP_power9}
-    # Disable IPO. See draco/draco#1375
-    EXTRA_CMAKE_ARGS: -DUSE_IPO=OFF
     # Some tests take too long for this build (> 7 min)
     # EXTRA_CTEST_ARGS: -E mcgrid_\(cylindrical_mg_mgrz_spikey\|cylindrical_mg_mgrzrw01\|spherical_mg_mgrtp01\|xyz_tp02\|xy_tp02\|cylindrical_mg_mgrzcutoff01_dd_1\|cylindrical_mg_mgrzcutoff01_rep_1\|um_rz_rz_ss01\|cylindrical_mg_mgrztp04\)
 
@@ -165,8 +159,6 @@ darm_rel_g930_mr:
     DRACO_ENV: arm-gcc930
     ARCH: arm
     SCHEDULER_PARAMETERS: ${SP_arm}
-    # Disable IPO. See draco/draco#1375
-    EXTRA_CMAKE_ARGS: -DUSE_IPO=OFF
 
 darm_deb_g930_mr:
   stage: slowtest
@@ -176,8 +168,6 @@ darm_deb_g930_mr:
     DRACO_ENV: arm-gcc930
     ARCH: arm
     SCHEDULER_PARAMETERS: ${SP_arm}
-    # Disable IPO. See draco/draco#1375
-    EXTRA_CMAKE_ARGS: -DUSE_IPO=OFF
     # TEST_EXCLUSIONS: mcgrid_cylindrical_mg_mgrztp04
 
 #--------------------------------------------------------------------------------------------------#
