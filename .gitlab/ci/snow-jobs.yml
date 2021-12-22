@@ -14,13 +14,9 @@
   tags:
     - snow
   variables:
-    DRACO_BINARY_DIR: ${CI_PROJECT_DIR}/build
-    DRACO_SOURCE_DIR: ${CI_PROJECT_DIR}
-    OMP_NUM_THREADS: 8
     SITE_ID: snow
     ARCH: x86_64
     DEPLOY: "FALSE"
-    no_proxy: "localhost,127.0.0.1,.lanl.gov"
     # CI_DEBUG_TRACE: "true"
 
 #--------------------------------------------------------------------------------------------------#

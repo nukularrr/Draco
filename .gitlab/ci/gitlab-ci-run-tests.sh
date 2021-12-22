@@ -21,6 +21,7 @@ fi
 
 [[ -z "${CTEST_NPROC}" ]] && CTEST_NPROC=$NPROC || echo "limiting CTEST_NPROC = $CTEST_NPROC"
 [[ -z "${MAXLOAD}" ]] && MAXLOAD=$NPROC || echo "limiting MAXLOAD = $MAXLOAD"
+[[ "${DEPLOY}" == "TRUE" ]] && EXTRA_CMAKE_ARGS="-DBUILD_TESTING=NO ${EXTRA_CMAKE_ARGS}"
 
 #if [[ -d /ccs/opt/texlive/2018/texmf-dist/tex/latex/newunicodechar ]]; then
 #  TEXINPUTS="${TEXINPUTS:+${TEXINPUTS}:}/ccs/opt/texlive/2018/texmf-dist/tex/latex/newunicodechar"
@@ -35,6 +36,7 @@ echo "HOSTNAME       = ${HOSTNAME}"
 echo -e "NPROC       = ${NPROC}\n"
 echo -e "CTEST_NPROC = ${CTEST_NPROC}\n"
 echo -e "MAXLOAD     = ${MAXLOAD}\n"
+echo -e "DEPLOY      = ${DEPLOY}\n"
 echo -e "EXTRA_CMAKE_ARGS = ${EXTRA_CMAKE_ARGS}\n"
 echo -e "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}\n"
 echo -e "EXTRA_CTEST_ARGS = ${EXTRA_CTEST_ARGS}\n"
@@ -113,7 +115,11 @@ else
   if [[ "${TEST_EXCLUSIONS:-no}" != "no"  ]]; then
     EXTRA_CTEST_ARGS+=" -E ${TEST_EXCLUSIONS}"
   fi
-  run "ctest ${EXTRA_CTEST_ARGS} -j ${CTEST_NPROC} --test-load ${MAXLOAD} --output-on-failure --stop-on-failure"
+  if [[ "${DEPLOY}" == "TRUE" ]]; then
+    run "make -j -l $MAXLOAD install"
+  else
+    run "ctest ${EXTRA_CTEST_ARGS} -j ${CTEST_NPROC} --test-load ${MAXLOAD} --output-on-failure --stop-on-failure"
+  fi
 fi
 
 # Generate a coverage report (text and html)
