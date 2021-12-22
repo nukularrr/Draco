@@ -73,8 +73,6 @@ x64_deb_msvc_19_mr:
   variables:
     CMAKE_BUILD_TYPE: Debug
     COMPILER: msvc-2019
-    ARCH: x86_64
-#    SCHEDULER_PARAMETERS: ${SP_x86_64}
 
 #-------------------------------------------------------------------------------------------------#
 # Nightly Regression
@@ -86,7 +84,6 @@ x64_deb_msvc_19_mr:
 #  variables:
 #    CMAKE_BUILD_TYPE: Debug
 #    COMPILER: msvc-2019
-#    ARCH: x86_64
 # for now, these options are set in csk-nightly.cmake
 #    EXTRA_CMAKE_ARGS: -G"Visual Studio 16 2019" -A x64 -DCMAKE_TOOLCHAIN_FILE="%CMAKE_TOOLCHAIN_FILE%" -DCSK_LIBRARY_TYPE=SHARED
 #    SCHEDULER_PARAMETERS: ${SP_x86_64}
