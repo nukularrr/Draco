@@ -68,6 +68,16 @@
 # Deployment Jobs (run on develop after MRs are merged)
 #--------------------------------------------------------------------------------------------------#
 
+# needed for client autodoc targets
+ccs2_deb_gcc_1020_deploy:
+  tags:
+    - CCSCS2-setuid-shared
+  extends: .ccscs_deploy
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: gcc1020-ompi4
+    SITE_ID: ccscs2
+
 ccs3_deb_gcc_1020_deploy:
   tags:
     - CCSCS3-setuid-shared
@@ -148,16 +158,16 @@ ccs2_valgrind_deploy:
     EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE=/scratch/regress/ccsradregress/valgrind_suppress.txt
     SITE_ID: ccscs2
 
-ccs3_clangtidy_deploy:
+ccs1_clangtidy_deploy:
   tags:
-    - CCSCS3-setuid-shared
+    - CCSCS1-setuid-shared
   extends: .ccscs_deploy
   variables:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: llvm11
     FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-clang-tidy
     EXTRA_CMAKE_ARGS: -DDRACO_STATIC_ANALYZER=clang-tidy
-    SITE_ID: ccscs3
+    SITE_ID: ccscs1
 
 #--------------------------------------------------------------------------------------------------#
 # Merge Requests
