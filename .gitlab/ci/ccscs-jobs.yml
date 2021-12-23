@@ -68,7 +68,7 @@
 # Deployment Jobs (run on develop after MRs are merged)
 #--------------------------------------------------------------------------------------------------#
 
-ccs3_deploy_deb_gcc_1020:
+ccs3_deb_gcc_1020_deploy:
   tags:
     - CCSCS3-setuid-shared
   extends: .ccscs_deploy
@@ -77,7 +77,7 @@ ccs3_deploy_deb_gcc_1020:
     DRACO_ENV: gcc1020-ompi4
     SITE_ID: ccscs3
 
-ccs2_deploy_c4_scalar:
+ccs2_c4_scalar_deploy:
   tags:
     - CCSCS2-setuid-shared
   extends: .ccscs_deploy
@@ -88,7 +88,7 @@ ccs2_deploy_c4_scalar:
     EXTRA_CMAKE_ARGS: -DDRACO_C4=SCALAR
     SITE_ID: ccscs2
 
-ccs3_deploy_deb_llvm:
+ccs3_deb_llvm_deploy:
   tags:
     - CCSCS3-setuid-shared
   extends: .ccscs_deploy
@@ -97,7 +97,7 @@ ccs3_deploy_deb_llvm:
     DRACO_ENV: llvm11
     SITE_ID: ccscs3
 
-ccs3_deploy_rel_llvm:
+ccs3_rel_llvm_deploy:
   tags:
     - CCSCS3-setuid-shared
   extends: .ccscs_deploy
@@ -106,7 +106,7 @@ ccs3_deploy_rel_llvm:
     DRACO_ENV: llvm11
     SITE_ID: ccscs3
 
-ccs3_deploy_rel_gcc_1020:
+ccs3_rel_gcc_1020_deploy:
   tags:
     - CCSCS3-setuid-shared
   extends: .ccscs_deploy
@@ -115,7 +115,7 @@ ccs3_deploy_rel_gcc_1020:
     DRACO_ENV: gcc1020-ompi4
     SITE_ID: ccscs3
 
-ccs3_deploy_fulldiag:
+ccs3_fulldiag_deploy:
   tags:
     - CCSCS3-setuid-shared
   extends: .ccscs_deploy
@@ -126,7 +126,7 @@ ccs3_deploy_fulldiag:
     EXTRA_CMAKE_ARGS: -DDRACO_DIAGNOSTICS=7 -DDRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
     SITE_ID: ccscs3
 
-ccs2_deploy_gcov:
+ccs2_gcov_deploy:
   tags:
     - CCSCS2-setuid-shared
   extends: .ccscs_deploy
@@ -137,7 +137,7 @@ ccs2_deploy_gcov:
     EXTRA_CMAKE_ARGS: -DCODE_COVERAGE=ON
     SITE_ID: ccscs2
 
-ccs2_deploy_valgrind:
+ccs2_valgrind_deploy:
   tags:
     - CCSCS2-setuid-shared
   extends: .ccscs_deploy
@@ -148,14 +148,14 @@ ccs2_deploy_valgrind:
     EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE=/scratch/regress/ccsradregress/valgrind_suppress.txt
     SITE_ID: ccscs2
 
-ccs3_deploy_clangtidy:
+ccs3_clangtidy_deploy:
   tags:
     - CCSCS3-setuid-shared
   extends: .ccscs_deploy
   variables:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: llvm11
-    FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-valgrind
+    FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-clang-tidy
     EXTRA_CMAKE_ARGS: -DDRACO_STATIC_ANALYZER=clang-tidy
     SITE_ID: ccscs3
 

@@ -103,10 +103,6 @@ run "cd ${DRACO_BINARY_DIR}"
 echo -e "\n========"
 run "cmake ${EXTRA_CMAKE_ARGS} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ${DRACO_SOURCE_DIR}"
 echo " "
-#if [[ -f CMakeCache.txt ]]; then
-#  echo -e "\n===== CMakeCache.txt =====\n"
-#  run "cat CMakeCache.txt"
-#fi
 echo -e "\n========\n"
 if [[ "${AUTODOC}" == "ON" ]]; then
   run "make -j -l $MAXLOAD autodoc"
