@@ -126,7 +126,7 @@ else
 fi
 
 # Generate a coverage report (text and html)
-if [[ "${CODECOV}" == "ON" ]]; then
+if [[ "${CODECOV}" == "ON" && "${DEPLOY}" != "TRUE" ]]; then
   run "make covrep"
 fi
 
