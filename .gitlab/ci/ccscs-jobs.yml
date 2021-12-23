@@ -35,7 +35,8 @@
   stage: deploy
   variables:
     DEPLOY: 'TRUE'
-    DRACO_INSTALL_DIR: /scratch/regress/deploy/draco/${CI_JOB_NAME}
+    FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}
+    DRACO_INSTALL_DIR: /scratch/regress/deploy/draco/${FLAVOR}
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
@@ -64,17 +65,99 @@
     - schedules
 
 #--------------------------------------------------------------------------------------------------#
-# Deployment
+# Deployment Jobs (run on develop after MRs are merged)
 #--------------------------------------------------------------------------------------------------#
 
-ccs1_deploy_deb_gcc_1020:
+ccs3_deploy_deb_gcc_1020:
   tags:
-    - CCSCS1-setuid-shared
+    - CCSCS3-setuid-shared
   extends: .ccscs_deploy
   variables:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
-    SITE_ID: ccscs1
+    SITE_ID: ccscs3
+
+ccs2_deploy_c4_scalar:
+  tags:
+    - CCSCS2-setuid-shared
+  extends: .ccscs_deploy
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: gcc1020-ompi4
+    FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-scalar
+    EXTRA_CMAKE_ARGS: -DDRACO_C4=SCALAR
+    SITE_ID: ccscs2
+
+ccs3_deploy_deb_llvm:
+  tags:
+    - CCSCS3-setuid-shared
+  extends: .ccscs_deploy
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: llvm11
+    SITE_ID: ccscs3
+
+ccs3_deploy_rel_llvm:
+  tags:
+    - CCSCS3-setuid-shared
+  extends: .ccscs_deploy
+  variables:
+    CMAKE_BUILD_TYPE: Release
+    DRACO_ENV: llvm11
+    SITE_ID: ccscs3
+
+ccs3_deploy_rel_gcc_1020:
+  tags:
+    - CCSCS3-setuid-shared
+  extends: .ccscs_deploy
+  variables:
+    CMAKE_BUILD_TYPE: Release
+    DRACO_ENV: gcc1020-ompi4
+    SITE_ID: ccscs3
+
+ccs3_deploy_fulldiag:
+  tags:
+    - CCSCS3-setuid-shared
+  extends: .ccscs_deploy
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: gcc1020-ompi4
+    FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-fulldiag
+    EXTRA_CMAKE_ARGS: -DDRACO_DIAGNOSTICS=7 -DDRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
+    SITE_ID: ccscs3
+
+ccs2_deploy_gcov:
+  tags:
+    - CCSCS2-setuid-shared
+  extends: .ccscs_deploy
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: gcc1020-ompi4
+    FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-gcov
+    EXTRA_CMAKE_ARGS: -DCODE_COVERAGE=ON
+    SITE_ID: ccscs2
+
+ccs2_deploy_valgrind:
+  tags:
+    - CCSCS2-setuid-shared
+  extends: .ccscs_deploy
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: gcc1020-ompi4
+    FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-valgrind
+    EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE=/scratch/regress/ccsradregress/valgrind_suppress.txt
+    SITE_ID: ccscs2
+
+ccs3_deploy_clangtidy:
+  tags:
+    - CCSCS3-setuid-shared
+  extends: .ccscs_deploy
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: llvm11
+    FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-valgrind
+    EXTRA_CMAKE_ARGS: -DDRACO_STATIC_ANALYZER=clang-tidy
+    SITE_ID: ccscs3
 
 #--------------------------------------------------------------------------------------------------#
 # Merge Requests
@@ -106,7 +189,7 @@ ccs3_deb_gcc_1020:
 
 ccs2_c4_scalar:
   tags:
-    - CCSCS3-setuid-shared
+    - CCSCS2-setuid-shared
   stage: fasttest
   extends: .ccscs_merge
   variables:
@@ -132,7 +215,7 @@ ccs3_deb_llvm11:
 
 ccs2_autodoc:
   tags:
-    - CCSCS1-setuid-shared
+    - CCSCS2-setuid-shared
   stage: test
   extends: .ccscs_merge
   allow_failure: true
