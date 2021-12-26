@@ -176,7 +176,13 @@ endif()
 # ------------------------------------------------------------------------------------------------ #
 if(${CTEST_SCRIPT_ARG} MATCHES Test)
 
-  if(NOT DEFINED ENV{AUTODOCDIR})
+  if(DEFINED ENV{AUTODOCDIR})
+    # Run one test to avoid missing data on CDash
+    message("
+ctest_test( RETURN_VALUE test_failure INCLUDE dsxx_tstAssert)
+")
+    ctest_test(RETURN_VALUE test_failure INCLUDE dsxx_tstAssert)
+  else()
     if(DEFINED ENV{TEST_EXCLUSIONS})
       set(CTEST_TEST_EXTRAS EXCLUDE $ENV{TEST_EXCLUSIONS})
     endif()

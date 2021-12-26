@@ -30,6 +30,19 @@
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
+.ccscs_style_checks:
+  extends: .ccscs
+  variables:
+    CTEST_MODE: Experimental
+  script:
+    - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-ci-style-checks.sh
+  only:
+    - merge_requests
+
+#--------------------------------------------------------------------------------------------------#
+# Deployment Jobs (run on develop after MRs are merged)
+#--------------------------------------------------------------------------------------------------#
+
 .ccscs_deploy:
   extends: .ccscs
   stage: deploy
@@ -45,30 +58,6 @@
   script:
     - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-ci-run-tests.sh
 
-.ccscs_style_checks:
-  extends: .ccscs
-  variables:
-    CTEST_MODE: Experimental
-  script:
-    - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-ci-style-checks.sh
-  only:
-    - merge_requests
-
-.ccscs_nightly:
-  extends: .ccscs
-  variables:
-    CTEST_MODE: Nightly
-    CTEST_BUILD_NAME: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}
-  script:
-    - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-nightly-regress.sh
-  only:
-    - schedules
-
-#--------------------------------------------------------------------------------------------------#
-# Deployment Jobs (run on develop after MRs are merged)
-#--------------------------------------------------------------------------------------------------#
-
-# needed for client autodoc targets
 ccs2_deb_gcc_1020_deploy:
   tags:
     - CCSCS2-setuid-shared
@@ -86,6 +75,15 @@ ccs3_deb_gcc_1020_deploy:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
     SITE_ID: ccscs3
+
+ccs4_deb_gcc_1020_deploy:
+  tags:
+    - CCSCS4-setuid-shared
+  extends: .ccscs_deploy
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: gcc1020-ompi4
+    SITE_ID: ccscs4
 
 ccs2_c4_scalar_deploy:
   tags:
@@ -115,6 +113,15 @@ ccs3_rel_llvm_deploy:
     CMAKE_BUILD_TYPE: Release
     DRACO_ENV: llvm11
     SITE_ID: ccscs3
+
+ccs2_rel_gcc_1020_deploy:
+  tags:
+    - CCSCS2-setuid-shared
+  extends: .ccscs_deploy
+  variables:
+    CMAKE_BUILD_TYPE: Release
+    DRACO_ENV: gcc1020-ompi4
+    SITE_ID: ccscs2
 
 ccs3_rel_gcc_1020_deploy:
   tags:
@@ -307,9 +314,9 @@ ccs2_valgrind:
 
 # ---------- Optional ---------- #
 
-ccs3_clangtidy:
+ccs1_clangtidy:
   tags:
-    - CCSCS3-setuid-shared
+    - CCSCS1-setuid-shared
   # stage: optional
   stage: fasttest
   # allow_failure: true
@@ -319,11 +326,21 @@ ccs3_clangtidy:
     DRACO_ENV: llvm11
     CTEST_NPROC: 32
     EXTRA_CMAKE_ARGS: -DDRACO_STATIC_ANALYZER=clang-tidy
-    SITE_ID: ccscs3
+    SITE_ID: ccscs1
 
 #--------------------------------------------------------------------------------------------------#
 # Nightly Regression
 #--------------------------------------------------------------------------------------------------#
+
+.ccscs_nightly:
+  extends: .ccscs
+  variables:
+    CTEST_MODE: Nightly
+    CTEST_BUILD_NAME: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}
+  script:
+    - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-nightly-regress-ccsnet.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
 rel_gcc_10.2.0_regress:
   tags:
