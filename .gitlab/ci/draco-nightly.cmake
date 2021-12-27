@@ -130,6 +130,21 @@ if(${CTEST_SCRIPT_ARG} MATCHES Build)
     set(CTEST_BUILD_FLAGS "-j ${CTEST_PARALLEL_LEVEL}")
   endif()
   if(DEFINED ENV{AUTODOCDIR})
+    # build one unit test
+    message(
+      "
+ctest_build(
+  TARGET Ut_dsxx_tstAssert_exe
+  FLAGS $ENV{BUILD_FLAGS}
+  RETURN_VALUE build_failure
+  CAPTURE_CMAKE_ERROR ctest_build_errors)
+")
+    ctest_build(
+      TARGET Ut_dsxx_tstAssert_exe
+      FLAGS "$ENV{BUILD_FLAGS}"
+      RETURN_VALUE build_failure
+      CAPTURE_CMAKE_ERROR ctest_build_errors)
+    # build autodoc target.
     message(
       "
 ctest_build(
