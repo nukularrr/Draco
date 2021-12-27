@@ -338,7 +338,7 @@ ccs1_clangtidy:
     CTEST_MODE: Nightly
     CTEST_BUILD_NAME: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}
   script:
-    - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-nightly-regress-ccsnet.sh
+    - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-nightly-regress.sh
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
