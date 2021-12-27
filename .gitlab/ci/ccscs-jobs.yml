@@ -357,26 +357,44 @@ rel_gcc_10.2.0_regress:
 
 deb_gcc_10.2.0_regress:
   tags:
+    - CCSCS2-setuid-shared
+  extends: .ccscs_nightly
+  variables:
+    SITE_ID: ccscs2
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: gcc1020-ompi4
+    BUILD_FLAGS: -j 20
+    CTEST_NPROC: 40
+
+deb_llvm_regress:
+  tags:
     - CCSCS3-setuid-shared
   extends: .ccscs_nightly
   variables:
     SITE_ID: ccscs3
     CMAKE_BUILD_TYPE: Debug
-    DRACO_ENV: gcc1020-ompi4
-    # EXTRA_CMAKE_ARGS: -DDRACO_DIAGNOSTICS=7 -DDRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
+    DRACO_ENV: llvm11
     BUILD_FLAGS: -j 20
     CTEST_NPROC: 40
-    # TEST_EXCLUSIONS: tracking_tstU3
-    # AUTODOCDIR: /ccs/codes/radtran/autodoc
+
+rel_llvm_regress:
+  tags:
+    - CCSCS3-setuid-shared
+  extends: .ccscs_nightly
+  variables:
+    SITE_ID: ccscs3
+    CMAKE_BUILD_TYPE: Release
+    DRACO_ENV: llvm11
+    BUILD_FLAGS: -j 20
+    CTEST_NPROC: 40
 
 pages:
   tags:
-    - CCSCS1-setuid-shared
+    - CCSCS4-setuid-shared
   stage: test
   extends: .ccscs_nightly
-  # allow_failure: false
   variables:
-    SITE_ID: ccscs2
+    SITE_ID: ccscs4
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
     DEPLOY: "TRUE"
