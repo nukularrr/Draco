@@ -65,6 +65,9 @@ printenv >& environment.log
 run "pwd"
 
 [[ "${EXTRA_CMAKE_ARGS}" =~ "CODE_COVERAGE" ]] && CODECOV=ON || CODECOV=OFF
+[[ "${EXTRA_CMAKE_ARGS}" =~ "ENABLE_MEMORYCHECK" ]] && MEMCHECK_CONFIGURATION=ON || \
+    MEMCHECK_CONFIGURATION=OFF
+export CODECOV MEMCHECK_CONFIGURATION
 
 #--------------------------------------------------------------------------------------------------#
 # Setup compiler flags

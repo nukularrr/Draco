@@ -207,7 +207,7 @@ ctest_test( RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
 ")
     ctest_test(RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
 
-    if(DEFINED ENV{COVERAGE_CONFIGURATION})
+    if(DEFINED ENV{CODECOV} AND "$ENV{CODECOV}" MATCHES "ON")
       find_program(CTEST_COVERAGE_COMMAND NAMES gcov)
       ctest_coverage()
     endif()

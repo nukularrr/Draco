@@ -462,7 +462,7 @@ valgrind_regress:
   extends: .ccscs_nightly
   variables:
     SITE_ID: ccscs2
-    CMAKE_BUILD_TYPE: Debug
+    CMAKE_BUILD_TYPE: MemCheck
     DRACO_ENV: gcc1020-ompi4
     FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-valgrind
     EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE=/scratch/regress/ccsradregress/valgrind_suppress.txt
