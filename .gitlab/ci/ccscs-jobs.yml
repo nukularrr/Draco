@@ -114,6 +114,17 @@ ccs3_rel_llvm_deploy:
     DRACO_ENV: llvm11
     SITE_ID: ccscs3
 
+ccs1_clangtidy_deploy:
+  tags:
+    - CCSCS1-setuid-shared
+  extends: .ccscs_deploy
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: llvm11
+    FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-clang-tidy
+    EXTRA_CMAKE_ARGS: -DDRACO_STATIC_ANALYZER=clang-tidy
+    SITE_ID: ccscs1
+
 ccs2_rel_gcc_1020_deploy:
   tags:
     - CCSCS2-setuid-shared
@@ -140,6 +151,8 @@ ccs1_fulldiag_deploy:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
     FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-fulldiag
+    # DRACO_TIMING=1 enables caliper timers.
+    # DRACO_DIAGNOSTICS=7 enables FPE traps.
     EXTRA_CMAKE_ARGS: -DDRACO_DIAGNOSTICS=7 -DDRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
     SITE_ID: ccscs1
 
@@ -348,7 +361,6 @@ rel_gcc_10.2.0_regress:
     SITE_ID: ccscs1
     CMAKE_BUILD_TYPE: Release
     DRACO_ENV: gcc1020-ompi4
-    # EXTRA_CMAKE_ARGS: -DDRACO_DIAGNOSTICS=7 -DDRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
     BUILD_FLAGS: -j 20
     CTEST_NPROC: 40
     # TEST_EXCLUSIONS: tracking_tstU3
@@ -386,6 +398,20 @@ rel_llvm_regress:
     BUILD_FLAGS: -j 20
     CTEST_NPROC: 40
 
+clangtidy_regress:
+  tags:
+    - CCSCS1-setuid-shared
+  extends: .ccscs_nightly
+  variables:
+    SITE_ID: ccscs1
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: llvm11
+    BUILD_FLAGS: -j 20
+    CTEST_NPROC: 40
+    EXTRA_CMAKE_ARGS: -DDRACO_STATIC_ANALYZER=clang-tidy
+    FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-clang-tidy
+    CTEST_BUILD_NAME: clang-tidy
+
 deb_gcc_scalar_regress:
   tags:
     - CCSCS1-setuid-shared
@@ -398,6 +424,7 @@ deb_gcc_scalar_regress:
     EXTRA_CMAKE_ARGS: -DDRACO_C4=SCALAR
     BUILD_FLAGS: -j 20
     CTEST_NPROC: 40
+    CTEST_BUILD_NAME: c4-scalar
 
 fulldiag_regress:
   tags:
@@ -413,6 +440,7 @@ fulldiag_regress:
     EXTRA_CMAKE_ARGS: -DDRACO_DIAGNOSTICS=7 -DDRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
     BUILD_FLAGS: -j 20
     CTEST_NPROC: 32
+    CTEST_BUILD_NAME: fulldiag
 
 pages:
   tags:
