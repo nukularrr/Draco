@@ -42,6 +42,10 @@ fi
 
 [[ -z "${CTEST_NPROC}" ]] && CTEST_NPROC=$NPROC || echo "limiting CTEST_NPROC = $CTEST_NPROC"
 [[ -z "${MAXLOAD}" ]] && MAXLOAD=$NPROC || echo "limiting MAXLOAD = $MAXLOAD"
+[[ "${EXTRA_CMAKE_ARGS}" =~ "CODE_COVERAGE" ]] && CODECOV=ON || CODECOV=OFF
+[[ "${EXTRA_CMAKE_ARGS}" =~ "ENABLE_MEMORYCHECK" ]] && MEMCHECK_CONFIGURATION=ON || \
+    MEMCHECK_CONFIGURATION=OFF
+export CODECOV MEMCHECK_CONFIGURATION
 
 echo -e "\n========== printenv ==========\n"
 [[ -z "${SLURM_NODELIST}" ]] || echo "SLURM_NODELIST = ${SLURM_NODELIST}"
@@ -52,6 +56,8 @@ echo -e "MAXLOAD     = ${MAXLOAD}\n"
 echo -e "EXTRA_CMAKE_ARGS = ${EXTRA_CMAKE_ARGS}\n"
 echo -e "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}\n"
 echo -e "EXTRA_CTEST_ARGS = ${EXTRA_CTEST_ARGS}\n"
+echo -e "CODECOV          = ${CODECOV}\n"
+echo -e "MEMCHECK_CONFIGURATION = ${MEMCHECK_CONFIGURATION}\n"
 if [[ "${AUTODOC}" == "ON" ]]; then
   run "which doxygen"
   run "which latex"
@@ -64,10 +70,6 @@ fi
 printenv >& environment.log
 run "pwd"
 
-[[ "${EXTRA_CMAKE_ARGS}" =~ "CODE_COVERAGE" ]] && CODECOV=ON || CODECOV=OFF
-[[ "${EXTRA_CMAKE_ARGS}" =~ "ENABLE_MEMORYCHECK" ]] && MEMCHECK_CONFIGURATION=ON || \
-    MEMCHECK_CONFIGURATION=OFF
-export CODECOV MEMCHECK_CONFIGURATION
 
 #--------------------------------------------------------------------------------------------------#
 # Setup compiler flags
@@ -130,10 +132,10 @@ echo "SITE_ID            = ${SITE_ID}"
 echo "TEST_EXCLUSIONS    = ${TEST_EXCLUSIONS}"
 echo " "
 echo "CMAKE_TOOLCHAIN_FILE     = ${CMAKE_TOOLCHAINFILE}"
-echo "COVERAGE_CONFIGURATION   = ${COVERAGE_CONFIGURATION}"
-echo "MEMCHECK_COMMAND_OPTIONS = ${MEMCHECK_COMMAND_OPTIONS}"
+echo "CODECOV                  = ${CODECOV}"
+#echo "MEMCHECK_COMMAND_OPTIONS = ${MEMCHECK_COMMAND_OPTIONS}"
 echo "MEMCHECK_CONFIGURATION   = ${MEMCHECK_CONFIGURATION}"
-echo "MEMORYCHECK_TYPE         = ${MEMORYCHECK_TYPE}"
+#echo "MEMORYCHECK_TYPE         = ${MEMORYCHECK_TYPE}"
 echo " "
 echo "modes = ${modes}"
 echo " "
