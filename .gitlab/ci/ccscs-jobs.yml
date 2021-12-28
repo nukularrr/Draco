@@ -442,6 +442,34 @@ fulldiag_regress:
     CTEST_NPROC: 32
     CTEST_BUILD_NAME: fulldiag
 
+gcov_regress:
+  tags:
+    - CCSCS2-setuid-shared
+  extends: .ccscs_nightly
+  variables:
+    SITE_ID: ccscs2
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: gcc1020-ompi4
+    FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-gcov
+    EXTRA_CMAKE_ARGS: -DCODE_COVERAGE=ON
+    BUILD_FLAGS: -j 40
+    CTEST_NPROC: 32
+    CTEST_BUILD_NAME: gcov
+
+valgrind_regress:
+  tags:
+    - CCSCS2-setuid-shared
+  extends: .ccscs_nightly
+  variables:
+    SITE_ID: ccscs2
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: gcc1020-ompi4
+    FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-valgrind
+    EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE=/scratch/regress/ccsradregress/valgrind_suppress.txt
+    BUILD_FLAGS: -j 40
+    CTEST_NPROC: 32
+    CTEST_BUILD_NAME: valgrind
+
 pages:
   tags:
     - CCSCS4-setuid-shared
