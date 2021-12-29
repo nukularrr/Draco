@@ -69,6 +69,10 @@ endif()
 if(DEFINED ENV{AUTODOCDIR})
   string(APPEND CTEST_CONFIGURE_COMMAND " -DAUTODOCDIR=$ENV{AUTODOCDIR}")
 endif()
+if(DEFINED ENV{CODECOV} AND "$ENV{CODECOV}" MATCHES "ON")
+  set(CODE_COVERAGE "ON")
+  string(APPEND CTEST_CONFIGURE_COMMAND " -DCODE_COVERAGE=ON")
+endif()
 string(APPEND CTEST_CONFIGURE_COMMAND " ${CTEST_SOURCE_DIRECTORY}")
 message(
   "
@@ -296,7 +300,11 @@ ctest_coverage( BUILD \"${CTEST_BINARY_DIRECTORY}\" APPEND )
 
     endif()
 
-    if(DEFINED ENV{MEMCHECK_CONFIGURATION} AND "$ENV{MEMCHECK_CONFIGURATION}" MATCHES "ON")
+    message("
+==> ENV{MEMCHECK_CONFIGURATION} = $ENV{MEMCHECK_CONFIGURATION}
+==> ENV{MEMORYCHECK_TYPE})      = $ENV{MEMORYCHECK_TYPE}
+")
+    if(DEFINED ENV{MEMCHECK_CONFIGURATION} AND "$ENV{MEMCHECK_CONFIGURATION}")
       if(DEFINED ENV{MEMORYCHECK_TYPE})
         set(CTEST_MEMORYCHECK_TYPE $ENV{MEMORYCHECK_TYPE})
       else()
@@ -333,11 +341,11 @@ if(${CTEST_SCRIPT_ARG} MATCHES Submit)
   # files to look for
   set( datafiles
     "${CTEST_BINARY_DIRECTORY}/coverage.txt"
-    "${CTEST_BINARY_DIRECTORY}/lines-of-code.log"
-    "${CTEST_BINARY_DIRECTORY}/lines-of-code-notest.log"
-    "${CTEST_BINARY_DIRECTORY}/cloc-categorize.log"
-    "${CTEST_BINARY_DIRECTORY}/cloc-counted.log"
-    "${CTEST_BINARY_DIRECTORY}/cloc-ignored.log")
+    "${CTEST_SOURCE_DIRECTORY}/lines-of-code.log"
+    "${CTEST_SOURCE_DIRECTORY}/lines-of-code-notest.log"
+    "${CTEST_SOURCE_DIRECTORY}/cloc-categorize.log"
+    "${CTEST_SOURCE_DIRECTORY}/cloc-counted.log"
+    "${CTEST_SOURCE_DIRECTORY}/cloc-ignored.log")
   foreach( file ${datafiles} )
     if(EXISTS "${file}")
       list(APPEND files_to_upload "${file}")
