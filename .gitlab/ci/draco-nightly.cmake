@@ -129,6 +129,7 @@ if(${CTEST_SCRIPT_ARG} MATCHES Build)
   if(NOT WIN32)
     set(CTEST_BUILD_FLAGS "-j ${CTEST_PARALLEL_LEVEL}")
   endif()
+
   if(DEFINED ENV{AUTODOCDIR})
     # build one unit test
     message(
@@ -216,26 +217,26 @@ ctest_test( RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
         # Process and save lines of code
         message( "Generating lines of code statistics...
 /ccs/codes/radtran/bin/cloc
-        --exclude-list-file=$ENV{rscriptdir}/cloc-exclude.cfg
+        --exclude-list-file=${CTEST_SOURCE_DIRECTORY}/.gitlab/ci/cloc-exclude.cfg
         --exclude-lang=Text,Postscript
         --categorize=cloc-categorize.log
         --counted=cloc-counted.log
         --ignored=cloc-ignored.log
         --progress-rate=0
         --report-file=lines-of-code.log
-        --force-lang-def=$ENV{rscriptdir}/cloc-lang.defs
+        --force-lang-def=${CTEST_SOURCE_DIRECTORY}/.gitlab/ci/cloc-lang.defs
         ${CTEST_SOURCE_DIRECTORY}
             ")
         execute_process(
           COMMAND /ccs/codes/radtran/bin/cloc
-          --exclude-list-file=$ENV{rscriptdir}/cloc-exclude.cfg
+          --exclude-list-file=${CTEST_SOURCE_DIRECTORY}/.gitlab/ci/cloc-exclude.cfg
           --exclude-lang=Text,Postscript
           --categorize=cloc-categorize.log
           --counted=cloc-counted.log
           --ignored=cloc-ignored.log
           --progress-rate=0
           --report-file=lines-of-code.log
-          --force-lang-def=$ENV{rscriptdir}/cloc-lang.defs
+          --force-lang-def=${CTEST_SOURCE_DIRECTORY}/.gitlab/ci/cloc-lang.defs
           ${CTEST_SOURCE_DIRECTORY}
           #  --3
           #  --diff
@@ -244,26 +245,26 @@ ctest_test( RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
         message( "Lines of code data at ${CTEST_BINARY_DIRECTORY}/lines-of-code.log")
         message( "Generating lines of code statistics (omitting test directories)
 /ccs/codes/radtran/bin/cloc
-        --exclude-list-file=$ENV{rscriptdir}/cloc-exclude.cfg
+        --exclude-list-file=${CTEST_SOURCE_DIRECTORY}/.gitlab/ci/cloc-exclude.cfg
         --exclude-lang=Text,Postscript
         --categorize=cloc-categorize-notest.log
         --counted=cloc-counted-notest.log
         --ignored=cloc-ignored-notest.log
         --progress-rate=0
         --report-file=lines-of-code-notest.log
-        --force-lang-def=$ENV{rscriptdir}/cloc-lang.defs
+        --force-lang-def=${CTEST_SOURCE_DIRECTORY}/.gitlab/ci/cloc-lang.defs
         ${CTEST_SOURCE_DIRECTORY}
             ")
         execute_process(
           COMMAND /ccs/codes/radtran/bin/cloc
-          --exclude-list-file=$ENV{rscriptdir}/cloc-exclude.cfg
+          --exclude-list-file=${CTEST_SOURCE_DIRECTORY}/.gitlab/ci/cloc-exclude.cfg
           --exclude-lang=Text,Postscript
           --categorize=cloc-categorize.log
           --counted=cloc-counted.log
           --ignored=cloc-ignored.log
           --progress-rate=0
           --report-file=lines-of-code-notest.log
-          --force-lang-def=$ENV{rscriptdir}/cloc-lang.defs
+          --force-lang-def=${CTEST_SOURCE_DIRECTORY}/.gitlab/ci/cloc-lang.defs
           ${CTEST_SOURCE_DIRECTORY}
           #  --3
           #  --diff
@@ -278,7 +279,7 @@ ctest_test( RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
 
       message("
 ctest_build(APPEND TARGET covrep)
-ctest_coverage( BUILD "${CTEST_BINARY_DIRECTORY}" APPEND )
+ctest_coverage( BUILD \"${CTEST_BINARY_DIRECTORY}\" APPEND )
 ")
       ctest_build(APPEND TARGET covrep)
       ctest_coverage( BUILD "${CTEST_BINARY_DIRECTORY}" APPEND )
@@ -312,9 +313,11 @@ ctest_coverage( BUILD "${CTEST_BINARY_DIRECTORY}" APPEND )
       endif()
 
       set(CTEST_TEST_TIMEOUT 1200) # 1200 seconds = 20 minutes per test
-      message("ctest_memcheck( ${CTEST_TEST_EXTRAS} INCLUDE_LABEL memcheck"
-              " EXCLUDE_LABEL nomemcheck)")
-      ctest_memcheck(${CTEST_TEST_EXTRAS} INCLUDE_LABEL memcheck EXCLUDE_LABEL nomemcheck)
+      # message("ctest_memcheck( ${CTEST_TEST_EXTRAS} INCLUDE_LABEL memcheck"
+      #         " EXCLUDE_LABEL nomemcheck)")
+      # ctest_memcheck(${CTEST_TEST_EXTRAS} INCLUDE_LABEL memcheck EXCLUDE_LABEL nomemcheck)
+      message("ctest_memcheck( ${CTEST_TEST_EXTRAS} EXCLUDE_LABEL nomemcheck)")
+      ctest_memcheck(${CTEST_TEST_EXTRAS} EXCLUDE_LABEL nomemcheck)
     endif()
   endif()
 

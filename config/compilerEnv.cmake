@@ -242,7 +242,7 @@ macro(dbsSetupCompilers)
             ${CODE_COVERAGE_IGNORE_REGEX}
             CACHE STRING "List of regex that lcov will ignore" FORCE)
 
-        if(CMAKE_BUILD_TYPE STREQUAL Debug)
+        if(CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL DEBUG )
           # Add required flags (GCC & LLVM/Clang)
           target_compile_options(coverage_config INTERFACE --coverage)
           target_link_options(coverage_config INTERFACE --coverage)
@@ -295,7 +295,7 @@ macro(dbsSetupCompilers)
           endif() # EXISTS "${LCOV}" AND EXISTS "${GCOV}"
 
         else() # CMAKE_BUILD_TYPE STREQUAL Debug
-          message(STATUS "Code coverage build ... disabled (CMAKE_BUILD_TYPE != Debug")
+          message(STATUS "Code coverage build ... disabled (CMAKE_BUILD_TYPE != Debug)")
         endif() # CMAKE_BUILD_TYPE STREQUAL Debug
       endif() # CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang"
     endif(UNIX)
