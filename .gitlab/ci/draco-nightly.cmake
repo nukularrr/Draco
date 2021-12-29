@@ -240,9 +240,9 @@ ctest_test( RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
           ${CTEST_SOURCE_DIRECTORY}
           #  --3
           #  --diff
-          WORKING_DIRECTORY ${CTEST_BINARY_DIRECTORY}
+          WORKING_DIRECTORY ${CTEST_SOURCE_DIRECTORY}
           )
-        message( "Lines of code data at ${CTEST_BINARY_DIRECTORY}/lines-of-code.log")
+        message( "Lines of code data at ${CTEST_SOURCE_DIRECTORY}/lines-of-code.log")
         message( "Generating lines of code statistics (omitting test directories)
 /ccs/codes/radtran/bin/cloc
         --exclude-list-file=${CTEST_SOURCE_DIRECTORY}/.gitlab/ci/cloc-exclude.cfg
@@ -268,9 +268,9 @@ ctest_test( RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
           ${CTEST_SOURCE_DIRECTORY}
           #  --3
           #  --diff
-          WORKING_DIRECTORY ${CTEST_BINARY_DIRECTORY}
+          WORKING_DIRECTORY ${CTEST_SOURCE_DIRECTORY}
           )
-        message( "Lines of code data at ${CTEST_BINARY_DIRECTORY}/lines-of-code.log")
+        message( "Lines of code data at ${CTEST_SOURCE_DIRECTORY}/lines-of-code.log")
       endif()
 
       # GCOV/LCOV report
