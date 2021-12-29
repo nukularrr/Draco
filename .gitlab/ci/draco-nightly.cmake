@@ -208,8 +208,91 @@ ctest_test( RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
     ctest_test(RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
 
     if(DEFINED ENV{CODECOV} AND "$ENV{CODECOV}" MATCHES "ON")
+      set(CODE_COVERAGE "ON")
+
+      # Count lines of code and upload results. CLOC commands:
+      if( EXISTS "/ccs/codes/radtran/bin/cloc" )
+
+        # Process and save lines of code
+        message( "Generating lines of code statistics...
+/ccs/codes/radtran/bin/cloc
+        --exclude-list-file=$ENV{rscriptdir}/cloc-exclude.cfg
+        --exclude-lang=Text,Postscript
+        --categorize=cloc-categorize.log
+        --counted=cloc-counted.log
+        --ignored=cloc-ignored.log
+        --progress-rate=0
+        --report-file=lines-of-code.log
+        --force-lang-def=$ENV{rscriptdir}/cloc-lang.defs
+        ${CTEST_SOURCE_DIRECTORY}
+            ")
+        execute_process(
+          COMMAND /ccs/codes/radtran/bin/cloc
+          --exclude-list-file=$ENV{rscriptdir}/cloc-exclude.cfg
+          --exclude-lang=Text,Postscript
+          --categorize=cloc-categorize.log
+          --counted=cloc-counted.log
+          --ignored=cloc-ignored.log
+          --progress-rate=0
+          --report-file=lines-of-code.log
+          --force-lang-def=$ENV{rscriptdir}/cloc-lang.defs
+          ${CTEST_SOURCE_DIRECTORY}
+          #  --3
+          #  --diff
+          WORKING_DIRECTORY ${CTEST_BINARY_DIRECTORY}
+          )
+        message( "Lines of code data at ${CTEST_BINARY_DIRECTORY}/lines-of-code.log")
+        message( "Generating lines of code statistics (omitting test directories)
+/ccs/codes/radtran/bin/cloc
+        --exclude-list-file=$ENV{rscriptdir}/cloc-exclude.cfg
+        --exclude-lang=Text,Postscript
+        --categorize=cloc-categorize-notest.log
+        --counted=cloc-counted-notest.log
+        --ignored=cloc-ignored-notest.log
+        --progress-rate=0
+        --report-file=lines-of-code-notest.log
+        --force-lang-def=$ENV{rscriptdir}/cloc-lang.defs
+        ${CTEST_SOURCE_DIRECTORY}
+            ")
+        execute_process(
+          COMMAND /ccs/codes/radtran/bin/cloc
+          --exclude-list-file=$ENV{rscriptdir}/cloc-exclude.cfg
+          --exclude-lang=Text,Postscript
+          --categorize=cloc-categorize.log
+          --counted=cloc-counted.log
+          --ignored=cloc-ignored.log
+          --progress-rate=0
+          --report-file=lines-of-code-notest.log
+          --force-lang-def=$ENV{rscriptdir}/cloc-lang.defs
+          ${CTEST_SOURCE_DIRECTORY}
+          #  --3
+          #  --diff
+          WORKING_DIRECTORY ${CTEST_BINARY_DIRECTORY}
+          )
+        message( "Lines of code data at ${CTEST_BINARY_DIRECTORY}/lines-of-code.log")
+      endif()
+
+      # GCOV/LCOV report
       find_program(CTEST_COVERAGE_COMMAND NAMES gcov)
-      ctest_coverage()
+      include(CTestCoverageCollectGCOV)
+
+      message("
+ctest_build(APPEND TARGET covrep)
+ctest_coverage( BUILD "${CTEST_BINARY_DIRECTORY}" APPEND )
+")
+      ctest_build(APPEND TARGET covrep)
+      ctest_coverage( BUILD "${CTEST_BINARY_DIRECTORY}" APPEND )
+      message("ctest_coverage_collect_gcov( TARBALL gcov.tgz
+        TARBALL_COMPRESSION \"FROM_EXT\"
+        QUIET
+        GCOV_OPTIONS -b -p -l -x
+        DELETE )")
+      ctest_coverage_collect_gcov( TARBALL gcov.tgz
+        TARBALL_COMPRESSION "FROM_EXT"
+        QUIET
+        GCOV_OPTIONS -b -p -l -x
+        DELETE )
+
     endif()
 
     if(DEFINED ENV{MEMCHECK_CONFIGURATION} AND "$ENV{MEMCHECK_CONFIGURATION}" MATCHES "ON")
@@ -229,10 +312,9 @@ ctest_test( RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
       endif()
 
       set(CTEST_TEST_TIMEOUT 1200) # 1200 seconds = 20 minutes per test
-      # message("ctest_memcheck(INCLUDE_LABEL memcheck)") ctest_memcheck(INCLUDE_LABEL memcheck)
-      message("ctest_memcheck()")
-      ctest_memcheck()
-
+      message("ctest_memcheck( ${CTEST_TEST_EXTRAS} INCLUDE_LABEL memcheck"
+              " EXCLUDE_LABEL nomemcheck)")
+      ctest_memcheck(${CTEST_TEST_EXTRAS} INCLUDE_LABEL memcheck EXCLUDE_LABEL nomemcheck)
     endif()
   endif()
 
@@ -244,6 +326,33 @@ message("==> Done with testing")
 # ------------------------------------------------------------------------------------------------ #
 if(${CTEST_SCRIPT_ARG} MATCHES Submit)
   message("==> Trying to submit results to CDash")
+
+  # files to look for
+  set( datafiles
+    "${CTEST_BINARY_DIRECTORY}/coverage.txt"
+    "${CTEST_BINARY_DIRECTORY}/lines-of-code.log"
+    "${CTEST_BINARY_DIRECTORY}/lines-of-code-notest.log"
+    "${CTEST_BINARY_DIRECTORY}/cloc-categorize.log"
+    "${CTEST_BINARY_DIRECTORY}/cloc-counted.log"
+    "${CTEST_BINARY_DIRECTORY}/cloc-ignored.log")
+  foreach( file ${datafiles} )
+    if(EXISTS "${file}")
+      list(APPEND files_to_upload "${file}")
+    endif()
+  endforeach()
+  message("ctest_upload( FILES ${files_to_upload} )" )
+  ctest_upload( FILES ${files_to_upload} CAPTURE_CMAKE_ERROR err)
+  message( "return code = ${err}" )
+  if(EXISTS "${CTEST_BINARY_DIRECTORY}/gcov.tar")
+    message("
+==> ctest_submit(CDASH_UPLOAD \"${CTEST_BINARY_DIRECTORY}/gcov.tar\"
+      CDASH_UPLOAD_TYPE GcovTar)
+")
+    ctest_submit(CDASH_UPLOAD "${CTEST_BINARY_DIRECTORY}/gcov.tar"
+      CDASH_UPLOAD_TYPE GcovTar)
+  endif()
+
+  message("ctest_submit()")
   ctest_submit()
 
   if(test_failure)
