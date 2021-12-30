@@ -36,7 +36,7 @@ class DracoTerminal {
 
   //! Private constructor and destructor so that no objects can be created or destroyed.
   explicit DracoTerminal(bool useColor_in = true) { useColor = useColor_in; }
-  ~DracoTerminal() { }
+  ~DracoTerminal() = default;
 
 public:
 
