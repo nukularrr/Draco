@@ -28,6 +28,7 @@ string(APPEND CTEST_SITE "-gr") # indicating job was initiated by a gitlab runne
 
 set(CTEST_BUILD_NAME "$ENV{CTEST_BUILD_NAME}")
 set(CTEST_MODE "$ENV{CTEST_MODE}")
+set(CTEST_OUTPUT_ON_FAILURE ON)
 
 cmake_host_system_information(RESULT MPI_PHYSICAL_CORES QUERY NUMBER_OF_PHYSICAL_CORES)
 set(CMAKE_BUILD_PARALLEL_LEVEL ${MPI_PHYSICAL_CORES})
@@ -37,23 +38,24 @@ else()
   set(CTEST_PARALLEL_LEVEL ${MPI_PHYSICAL_CORES})
 endif()
 set(CTEST_BUILD_TYPE $ENV{CMAKE_BUILD_TYPE})
-if(CTEST_BUILD_TYPE STREQUAL MemCheck)
-  set(CTEST_BUILD_TYPE Debug)
-endif()
+# if(CTEST_BUILD_TYPE STREQUAL MemCheck)
+#   set(CTEST_BUILD_TYPE Debug)
+# endif()
 string(APPEND EXTRA_CMAKE_ARGS " $ENV{EXTRA_CMAKE_ARGS}")
 
 string(TOUPPER ${CTEST_BUILD_TYPE} UPPER_CTEST_BUILD_TYPE)
 if(${UPPER_CTEST_BUILD_TYPE} MATCHES DEBUG)
-  set(CTEST_BUILD_CONFIGURATION "DEBUG")
+  set(CTEST_BUILD_CONFIGURATION "Debug")
 elseif(${UPPER_CTEST_BUILD_TYPE} MATCHES RELWITHDEBINFO)
-  set(CTEST_BUILD_CONFIGURATION "RELWITHDEBINFO")
+  set(CTEST_BUILD_CONFIGURATION "RelWithDebInfo")
 elseif(${UPPER_CTEST_BUILD_TYPE} MATCHES MINSIZEREL)
-  set(CTEST_BUILD_CONFIGURATION "MINSIZEREL")
+  set(CTEST_BUILD_CONFIGURATION "MinSizeRel")
 elseif(${UPPER_CTEST_BUILD_TYPE} MATCHES RELEASE)
-  set(CTEST_BUILD_CONFIGURATION "RELEASE")
+  set(CTEST_BUILD_CONFIGURATION "Release")
 else()
-  message(FATAL_ERROR, "CTEST_BUILD_TYPE (= ${UPPER_CTEST_BUILD_TYPE}) not set or not valid.")
+  message(FATAL_ERROR "CTEST_BUILD_TYPE (= ${UPPER_CTEST_BUILD_TYPE}) not set or not valid.")
 endif()
+set( CTEST_CONFIGURATION_TYPE "${CTEST_BUILD_CONFIGURATION}" ) # mayby only needed by msvc?
 
 file(TO_CMAKE_PATH "${CI_PROJECT_DIR}" CI_PROJECT_DIR)
 string(CONCAT CTEST_CONFIGURE_COMMAND "cmake"
@@ -73,7 +75,16 @@ if(DEFINED ENV{CODECOV} AND "$ENV{CODECOV}" MATCHES "ON")
   set(CODE_COVERAGE "ON")
   string(APPEND CTEST_CONFIGURE_COMMAND " -DCODE_COVERAGE=ON")
 endif()
+string(APPEND CTEST_CONFIGURE_COMMAND " -DCMAKE_VERBOSE_MAKEFILE=ON")
 string(APPEND CTEST_CONFIGURE_COMMAND " ${CTEST_SOURCE_DIRECTORY}")
+if(DEFINED ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE})
+  if(EXISTS "$ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
+    set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE "$ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
+    set(MEMORYCHECK_SUPPRESSIONS_FILE "$ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
+  else()
+    message(FATAL_ERROR "CTEST_MEMORYCHECK_SUPPRESSIONS_FILE set to invalid path.")
+  endif()
+endif()
 message(
   "
 CTEST_PARALLEL_LEVEL = ${CTEST_PARALLEL_LEVEL}
@@ -88,6 +99,21 @@ set(CTEST_USE_LAUNCHERS FALSE)
 set(CTEST_CUSTOM_MAXIMUM_NUMBER_OF_WARNINGS 50)
 set(CTEST_UPDATE_COMMAND "git")
 set(CTEST_GIT_UPDATE_CUSTOM "${CMAKE_COMMAND}" "-E" "echo" "Skipping git update (no-op).")
+
+#message("Parsing ${CTEST_SCRIPT_DIRECTORY}/CTestCustom.cmake")
+#ctest_read_custom_files("${CTEST_SCRIPT_DIRECTORY}")
+
+# CTEST_CUSTOM_COVERAGE_EXCLUDE is a list of regular expressions. Any file name that matches any of
+# the regular expressions in the list is excluded from the reported coverage data.
+list(APPEND CTEST_CUSTOM_COVERAGE_EXCLUDE
+  # don't report on actual unit tests
+  "src/.*/test/"
+  "src/.*/ftest/"
+  # terminal isn't our code. don't report lack of coverage
+  "src/.*/terminal/.*"
+  "src/api/test_.*/"
+  "src/.*/test_.*/"
+  )
 
 if(${CTEST_SCRIPT_ARG} MATCHES Configure)
   ctest_empty_binary_directory("${CTEST_BINARY_DIRECTORY}")
@@ -131,7 +157,7 @@ endif()
 if(${CTEST_SCRIPT_ARG} MATCHES Build)
 
   if(NOT WIN32)
-    set(CTEST_BUILD_FLAGS "-j ${CTEST_PARALLEL_LEVEL}")
+    set(CTEST_BUILD_FLAGS "-j ${CTEST_PARALLEL_LEVEL} -l ${CMAKE_BUILD_PARALLEL_LEVEL}")
   endif()
 
   if(DEFINED ENV{AUTODOCDIR})
@@ -279,19 +305,22 @@ ctest_test( RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
 
       # GCOV/LCOV report
       find_program(CTEST_COVERAGE_COMMAND NAMES gcov)
-      include(CTestCoverageCollectGCOV)
 
       message("
+CTEST_COVERAGE_COMMAND = ${CTEST_COVERAGE_COMMAND}
 ctest_build(APPEND TARGET covrep)
-ctest_coverage( BUILD \"${CTEST_BINARY_DIRECTORY}\" APPEND )
 ")
       ctest_build(APPEND TARGET covrep)
+      message("
+ctest_coverage( BUILD \"${CTEST_BINARY_DIRECTORY}\" APPEND )
+")
       ctest_coverage( BUILD "${CTEST_BINARY_DIRECTORY}" APPEND )
       message("ctest_coverage_collect_gcov( TARBALL gcov.tgz
         TARBALL_COMPRESSION \"FROM_EXT\"
         QUIET
         GCOV_OPTIONS -b -p -l -x
         DELETE )")
+      include(CTestCoverageCollectGCOV)
       ctest_coverage_collect_gcov( TARBALL gcov.tgz
         TARBALL_COMPRESSION "FROM_EXT"
         QUIET
@@ -304,7 +333,7 @@ ctest_coverage( BUILD \"${CTEST_BINARY_DIRECTORY}\" APPEND )
 ==> ENV{MEMCHECK_CONFIGURATION} = $ENV{MEMCHECK_CONFIGURATION}
 ==> ENV{MEMORYCHECK_TYPE})      = $ENV{MEMORYCHECK_TYPE}
 ")
-    if(DEFINED ENV{MEMCHECK_CONFIGURATION} AND "$ENV{MEMCHECK_CONFIGURATION}")
+    if(DEFINED ENV{MEMCHECK_CONFIGURATION} AND ("$ENV{MEMCHECK_CONFIGURATION}" STREQUAL "ON"))
       if(DEFINED ENV{MEMORYCHECK_TYPE})
         set(CTEST_MEMORYCHECK_TYPE $ENV{MEMORYCHECK_TYPE})
       else()
@@ -315,9 +344,10 @@ ctest_coverage( BUILD \"${CTEST_BINARY_DIRECTORY}\" APPEND )
         if(ENV{MEMCHECK_COMMAND_OPTIONS})
           string(APPEND CTEST_MEMORYCHECK_COMMAND_OPTIONS " $ENV{MEMCHECK_COMMAND_OPTIONS}")
         endif()
-        if( DEFINED ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE} )
-          set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE "$ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
-        endif()
+        #if( DEFINED CTEST_MEMORYCHECK_SUPPRESSIONS_FILE )
+        #  string(APPEND CTEST_MEMORYCHECK_COMMAND_OPTIONS
+        #    " --suppressions=${CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
+        #endif()
       endif()
 
       set(CTEST_TEST_TIMEOUT 1200) # 1200 seconds = 20 minutes per test

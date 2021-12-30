@@ -14,7 +14,7 @@
 
 //------------------------------------------------------------------------------------------------//
 // Initialize pointer to zero so that it can be initialized in first call to getInstance
-Term::DracoTerminal *Term::DracoTerminal::instance = nullptr;
+// Term::DracoTerminal *Term::DracoTerminal::instance = nullptr;
 
 //------------------------------------------------------------------------------------------------//
 //! Global bool to enable/disable color
@@ -42,7 +42,8 @@ const std::vector<uint32_t> Term::DracoTerminal::reset = {00, 39};
 //! specialization for std::vector<std::string>
 std::string Term::ccolor(std::vector<uint32_t> const &value) {
   std::string retVal;
-  if (Term::DracoTerminal::is_initialized() && Term::DracoTerminal::useColor)
+  Term::DracoTerminal::getInstance();
+  if (Term::DracoTerminal::useColor)
     for (uint32_t const &it : value)
       retVal += "\033[" + std::to_string(static_cast<int>(it)) + "m";
   return retVal;

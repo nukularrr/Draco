@@ -30,17 +30,20 @@ class DracoTerminal {
 
   // >> DATA <<
 
-  //! Private pointer to this object (this defines the singleton)
-  DLL_PUBLIC_dsxx static DracoTerminal *instance;
-
   /*! \brief Construct a terminal object on creation.  This is will do some terminal initialization
    *         that is required for some older software (like Windows cmd.exe). */
   Term::Terminal term;
 
-  //! Private constructor so that no objects can be created.
-  DracoTerminal(bool useColor_in = true) { useColor = useColor_in; }
+  //! Private constructor and destructor so that no objects can be created or destroyed.
+  explicit DracoTerminal(bool useColor_in = true) { useColor = useColor_in; }
+  ~DracoTerminal() { }
 
 public:
+
+  //! Disable copy ctor and assignment
+  DracoTerminal(const DracoTerminal &) = delete;
+  DracoTerminal & operator= (const DracoTerminal &) = delete;
+
   // >> DATA <<
 
   //! Set to false to disable all color.
@@ -57,17 +60,19 @@ public:
 
   // >> MANIPULATORS <<
 
-  /*! \brief Calling this public function should always return true.
+  /*! \brief Calling this public function should always return true. Creates the singleton object
+   *         on the first call.
    *
-   * \arg useColor If false, then avoid inserting color control strings when Term::ccolor is called.
+   * \param[in] useColor If false, then avoid inserting color control strings when Term::ccolor is
+   *               called.
    *
-   * If this singleton has not be created, then it will be created. Otherwise, just check that the
-   * pointer to instance is valid and return true.
+   * If this singleton has not be created, then it will be created.
+   *
+   * \note This is a  Meyer's Singleton. There is no heap allocation.
    */
-  static bool is_initialized(bool useColor_in = true) {
-    if (instance == nullptr)
-      instance = new DracoTerminal(useColor_in);
-    return instance != nullptr;
+  static DracoTerminal &getInstance(bool useColor_in = true) {
+    static DracoTerminal instance(useColor_in);
+    return instance;
   }
 };
 
@@ -76,7 +81,8 @@ public:
  *         singleton terminal object has been constructed prior to the use of color strings. */
 template <typename T> std::string ccolor(T const value) {
   std::string retVal;
-  if (Term::DracoTerminal::is_initialized() && Term::DracoTerminal::useColor)
+  Term::DracoTerminal::getInstance();
+  if (Term::DracoTerminal::useColor)
     retVal += "\033[" + std::to_string(static_cast<int>(value)) + "m";
   return retVal;
 }

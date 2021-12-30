@@ -175,7 +175,7 @@ ccs2_valgrind_deploy:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
     FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-valgrind
-    EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE=/scratch/regress/ccsradregress/valgrind_suppress.txt
+    EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE=${CI_PROJECT_DIR}/.gitlab/ci/valgrind_suppress.txt
     SITE_ID: ccscs2
 
 ccs1_clangtidy_deploy:
@@ -462,13 +462,13 @@ valgrind_regress:
   extends: .ccscs_nightly
   variables:
     SITE_ID: ccscs2
-    CMAKE_BUILD_TYPE: MemCheck
+    CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
     FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-valgrind
     MEMCHECK_CONFIGURATION: "ON"
     # EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON
-    CTEST_MEMORYCHECK_SUPPRESSIONS_FILE: /scratch/regress/ccsradregress/valgrind_suppress.txt
-    BUILD_FLAGS: -j 40
+    CTEST_MEMORYCHECK_SUPPRESSIONS_FILE: "${CI_PROJECT_DIR}/.gitlab/ci/valgrind_suppress.txt"
+    BUILD_FLAGS: -j 40 -l 40
     # EXTRA_CTEST_ARGS: -L memcheck -LE nomemcheck
     CTEST_NPROC: 32
     CTEST_BUILD_NAME: valgrind
