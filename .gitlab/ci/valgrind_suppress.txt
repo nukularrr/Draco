@@ -4,7 +4,7 @@
 # Date  : Friday, May 19, 2017, 10:26 am
 # Author: Kelly Thompson <kgt@lanl.gov>
 # Breif : Valgrind Suppression Instructions
-# Note  : Copyright (C) 2016-2019, Triad National Security, LLC., All rights are reserved.
+# Note  : Copyright (C) 2021 Triad National Security, LLC., All rights reserved.
 # ------------------------------------------------------------------------------------------------ #
 #
 # Example valgrind use:
@@ -2102,6 +2102,54 @@
    match-leak-kinds: reachable
    fun:malloc
    fun:ompi_datatype_set_args
+   fun:PMPI_Type_create_struct
+   ...
+}
+{  openmpi/405/014
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:opal_datatype_create_desc
+   ...
+   fun:PMPI_Type_dup
+   ...
+}
+{
+   openmpi/405/015
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:opal_datatype_commit
+   fun:PMPI_Type_commit
+   ...
+}
+{
+   openmpi/405/016
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:ompi_datatype_create
+   ...
+   fun:PMPI_Type_create_struct
+   ...
+}
+{
+   openmpi/405/017
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:ompi_datatype_create
+   ...
+   fun:PMPI_Type_dup
+   ...
+}
+{
+   openmpi/405/108
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:opal_datatype_create_desc
+   ...
    fun:PMPI_Type_create_struct
    ...
 }

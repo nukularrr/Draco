@@ -11,6 +11,7 @@
 # Machine-wide default job settings
 #--------------------------------------------------------------------------------------------------#
 
+---
 .ccscs:
   variables:
     # SITE_ID: ccscs1
@@ -175,19 +176,9 @@ ccs2_valgrind_deploy:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
     FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-valgrind
-    EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE=${CI_PROJECT_DIR}/.gitlab/ci/valgrind_suppress.txt
+    EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON
+      -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE=${CI_PROJECT_DIR}/.gitlab/ci/valgrind_suppress.txt
     SITE_ID: ccscs2
-
-ccs1_clangtidy_deploy:
-  tags:
-    - CCSCS1-setuid-shared
-  extends: .ccscs_deploy
-  variables:
-    CMAKE_BUILD_TYPE: Debug
-    DRACO_ENV: llvm11
-    FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-clang-tidy
-    EXTRA_CMAKE_ARGS: -DDRACO_STATIC_ANALYZER=clang-tidy
-    SITE_ID: ccscs1
 
 #--------------------------------------------------------------------------------------------------#
 # Merge Requests
@@ -318,7 +309,8 @@ ccs2_valgrind:
   variables:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
-    EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE=/scratch/regress/ccsradregress/valgrind_suppress.txt
+    EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON
+      -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE=/scratch/regress/ccsradregress/valgrind_suppress.txt
     EXTRA_CTEST_ARGS: -L memcheck -LE nomemcheck
     CTEST_NPROC: 20
     SITE_ID: ccscs2
@@ -488,7 +480,7 @@ pages:
     CTEST_BUILD_NAME: autodoc
   artifacts:
     paths:
-    - public
+      - public
 
 #--------------------------------------------------------------------------------------------------#
 # end .gitlab/ci/ccscs-jobs.yml

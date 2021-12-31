@@ -73,6 +73,7 @@ x64_deb_msvc_19_mr:
   variables:
     CMAKE_BUILD_TYPE: Debug
     COMPILER: msvc-2019
+  allow_failure: true
 
 #-------------------------------------------------------------------------------------------------#
 # Nightly Regression
