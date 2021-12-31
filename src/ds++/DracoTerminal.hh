@@ -4,7 +4,9 @@
  * \author Kelly Thompson
  * \date   Sat Oct 05 2019
  * \brief  Wrapper for a Terminal class that provides colored output.
- * \note   https://github.com/certik/terminal/blob/master/terminal.h
+ * \note   Copyright (C) 2019-2021 Triad National Security, LLC., All rights reserved.
+ *
+ * \sa https://github.com/certik/terminal/blob/master/terminal.h
  *
  * \todo Consider an enum class for colors that derives from $LS_COLORS on Linux.  This would allow
  *       color selection based on users's terminal colors (e.g.: light vs dark scheme). */
@@ -30,19 +32,23 @@ class DracoTerminal {
 
   // >> DATA <<
 
-  /*! \brief Construct a terminal object on creation.  This is will do some terminal initialization
-   *         that is required for some older software (like Windows cmd.exe). */
+  /*! Construct a terminal object on creation.  This is will do some terminal initialization that is
+   *  required for some older software (like Windows cmd.exe). */
   Term::Terminal term;
 
-  //! Private constructor and destructor so that no objects can be created or destroyed.
+  /*!
+   * \brief Private constructor and destructor so that no objects can be created or destroyed.
+   * \param[in] useColor_in if true use ansi-color for terminal output.
+   */
   explicit DracoTerminal(bool useColor_in = true) { useColor = useColor_in; }
+  //! Private default destructor.
   ~DracoTerminal() = default;
 
 public:
-
-  //! Disable copy ctor and assignment
+  //! Disable copy construction to prevent making copies (this is a singleton pattern).
   DracoTerminal(const DracoTerminal &) = delete;
-  DracoTerminal & operator= (const DracoTerminal &) = delete;
+  //! Disable assigment to prevent making copies (this is a singleton pattern).
+  DracoTerminal &operator=(const DracoTerminal &) = delete;
 
   // >> DATA <<
 
@@ -63,8 +69,8 @@ public:
   /*! \brief Calling this public function should always return true. Creates the singleton object
    *         on the first call.
    *
-   * \param[in] useColor If false, then avoid inserting color control strings when Term::ccolor is
-   *               called.
+   * \param[in] useColor_in If false, then avoid inserting color control strings when Term::ccolor
+   *               is called.
    *
    * If this singleton has not be created, then it will be created.
    *
@@ -77,8 +83,14 @@ public:
 };
 
 //------------------------------------------------------------------------------------------------//
-/*! \brief Replacement for terminal/terminal.h's color function that will ensure the global
- *         singleton terminal object has been constructed prior to the use of color strings. */
+/*!
+ * \brief Replacement for terminal/terminal.h's color function that will ensure the global
+ *         singleton terminal object has been constructed prior to the use of color strings.
+ *
+ * \param[in] value A value that represents an ansi-color once \c value is converted to an \c
+ *               int. Normally, this will be one of {error, warning, ...} as defined in the
+ *               DracoTerminal class definition.
+ */
 template <typename T> std::string ccolor(T const value) {
   std::string retVal;
   Term::DracoTerminal::getInstance();
