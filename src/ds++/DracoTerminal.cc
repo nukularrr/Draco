@@ -15,10 +15,6 @@
 #include "DracoTerminal.hh"
 
 //------------------------------------------------------------------------------------------------//
-//! Global bool to enable/disable color
-bool Term::DracoTerminal::useColor = true;
-
-//------------------------------------------------------------------------------------------------//
 /*! \brief Initialize other static const data (color map)
  *
  * \todo Eval ENV{GCC_COLORS} to override the defaults listed below? This probably would need to be
@@ -28,20 +24,37 @@ bool Term::DracoTerminal::useColor = true;
  *
  * \sa https://gcc.gnu.org/onlinedocs/gcc/Diagnostic-Message-Formatting-Options.html
  */
-const std::vector<uint32_t> Term::DracoTerminal::error = {01, 31};
-const std::vector<uint32_t> Term::DracoTerminal::warning = {01, 35};
-const std::vector<uint32_t> Term::DracoTerminal::note = {01, 36};
-const std::vector<uint32_t> Term::DracoTerminal::quote = {01};
-const std::vector<uint32_t> Term::DracoTerminal::pass = {32};
-const std::vector<uint32_t> Term::DracoTerminal::fail = {01, 31};
-const std::vector<uint32_t> Term::DracoTerminal::reset = {00, 39};
+const std::array<uint32_t, 2> Term::DracoTerminal::error = {01, 31};
+const std::array<uint32_t, 2> Term::DracoTerminal::warning = {01, 35};
+const std::array<uint32_t, 2> Term::DracoTerminal::note = {01, 36};
+const std::array<uint32_t, 1> Term::DracoTerminal::quote = {01};
+const std::array<uint32_t, 1> Term::DracoTerminal::pass = {32};
+const std::array<uint32_t, 2> Term::DracoTerminal::fail = {01, 31};
+const std::array<uint32_t, 2> Term::DracoTerminal::reset = {00, 39};
 
 //------------------------------------------------------------------------------------------------//
-//! specialization for std::vector<std::string>
-std::string Term::ccolor(std::vector<uint32_t> const &value) {
+//! specialization of ccolor for T=array<uint32_t> to be us
+
+//! Instantiate the singleton as a static object that exists for the lifetime of the program.
+Term::DracoTerminal &Term::DracoTerminal::getInstance() {
+  static Term::DracoTerminal instance;
+  return instance;
+}
+
+//! specialization of ccolor to be used with Term::DracoTerminal::error, etc.
+std::string Term::ccolor(std::array<uint32_t, 1> const value) {
+  // Access the singleton wrapper for Term::Terminal
+  Term::DracoTerminal &term_inst = Term::DracoTerminal::getInstance();
+  if (term_inst.use_color())
+    return "\033[" + std::to_string(static_cast<int>(value[0])) + "m";
+  return "";
+}
+//! specialization of ccolor to be used with Term::DracoTerminal::error, etc.
+std::string Term::ccolor(std::array<uint32_t, 2> const value) {
+  // Access the singleton wrapper for Term::Terminal
+  Term::DracoTerminal &term_inst = Term::DracoTerminal::getInstance();
   std::string retVal;
-  Term::DracoTerminal::getInstance();
-  if (Term::DracoTerminal::useColor)
+  if (term_inst.use_color())
     for (uint32_t const &it : value)
       retVal += "\033[" + std::to_string(static_cast<int>(it)) + "m";
   return retVal;
