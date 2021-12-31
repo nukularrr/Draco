@@ -17,6 +17,7 @@
 
 #include "terminal/terminal.h"
 #include "ds++/config.h"
+#include <array>
 
 namespace Term {
 
@@ -26,7 +27,11 @@ namespace Term {
  * \brief Global scope singleton object to ensure terminal setup/teardown is done correctly.
  *
  * This will self construct on first call to Term::ccolor and it will remain in scope until the
- * program exits.
+ * program exits.  This design is based on the Meyer's Singleton Pattern, but the creation of the
+ * instance MUST occur in the .cc file for proper exposure from MSVC DLLs. Some useful discussion
+ * about this failure mode is at [this github project>(https://github.com/AlexWorx/ALib-Singletons).
+ * The Meyer's singleton pattern has the advantage of avoiding heap allocation and possible memory
+ * leaks.
  */
 class DracoTerminal {
 
@@ -36,50 +41,45 @@ class DracoTerminal {
    *  required for some older software (like Windows cmd.exe). */
   Term::Terminal term;
 
-  /*!
-   * \brief Private constructor and destructor so that no objects can be created or destroyed.
-   * \param[in] useColor_in if true use ansi-color for terminal output.
-   */
-  explicit DracoTerminal(bool useColor_in = true) { useColor = useColor_in; }
-  //! Private default destructor.
+  //! Private constructor and destructor so that no objects can be created or destroyed.
+  DracoTerminal() = default;
   ~DracoTerminal() = default;
-
-public:
-  //! Disable copy construction to prevent making copies (this is a singleton pattern).
-  DracoTerminal(const DracoTerminal &) = delete;
-  //! Disable assigment to prevent making copies (this is a singleton pattern).
-  DracoTerminal &operator=(const DracoTerminal &) = delete;
 
   // >> DATA <<
 
   //! Set to false to disable all color.
-  DLL_PUBLIC_dsxx static bool useColor;
+  bool useColor = true;
+
+public:
+  //! Disable copy/move construction and assignment
+  DracoTerminal(const DracoTerminal &) = delete;
+  DracoTerminal(const DracoTerminal &&) = delete;
+  DracoTerminal &operator=(const DracoTerminal &) = delete;
+  DracoTerminal &operator=(const DracoTerminal &&) = delete;
+
+  // >> DATA <<
 
   //! Colors based on condition (error, warn, etc).
-  DLL_PUBLIC_dsxx static const std::vector<uint32_t> error;
-  DLL_PUBLIC_dsxx static const std::vector<uint32_t> warning;
-  DLL_PUBLIC_dsxx static const std::vector<uint32_t> note;
-  DLL_PUBLIC_dsxx static const std::vector<uint32_t> quote;
-  DLL_PUBLIC_dsxx static const std::vector<uint32_t> pass;
-  DLL_PUBLIC_dsxx static const std::vector<uint32_t> fail;
-  DLL_PUBLIC_dsxx static const std::vector<uint32_t> reset;
+  DLL_PUBLIC_dsxx static const std::array<uint32_t, 2> error;
+  DLL_PUBLIC_dsxx static const std::array<uint32_t, 2> warning;
+  DLL_PUBLIC_dsxx static const std::array<uint32_t, 2> note;
+  DLL_PUBLIC_dsxx static const std::array<uint32_t, 1> quote;
+  DLL_PUBLIC_dsxx static const std::array<uint32_t, 1> pass;
+  DLL_PUBLIC_dsxx static const std::array<uint32_t, 2> fail;
+  DLL_PUBLIC_dsxx static const std::array<uint32_t, 2> reset;
 
   // >> MANIPULATORS <<
 
-  /*! \brief Calling this public function should always return true. Creates the singleton object
-   *         on the first call.
-   *
-   * \param[in] useColor_in If false, then avoid inserting color control strings when Term::ccolor
-   *               is called.
-   *
-   * If this singleton has not be created, then it will be created.
-   *
-   * \note This is a  Meyer's Singleton. There is no heap allocation.
-   */
-  static DracoTerminal &getInstance(bool useColor_in = true) {
-    static DracoTerminal instance(useColor_in);
-    return instance;
-  }
+  /*! \brief Calling this public function should always return true. It creates the singleton object
+   *         on the first call. */
+  static DracoTerminal &getInstance();
+
+  //! Enable/Disable color text
+  inline void enable_color_text() { useColor = true; }
+  inline void disable_color_text() { useColor = false; }
+
+  // >> ACCESSORS <<
+  inline bool use_color() { return useColor; }
 };
 
 //------------------------------------------------------------------------------------------------//
@@ -87,19 +87,25 @@ public:
  * \brief Replacement for terminal/terminal.h's color function that will ensure the global
  *         singleton terminal object has been constructed prior to the use of color strings.
  *
- * \param[in] value A value that represents an ansi-color once \c value is converted to an \c
- *               int. Normally, this will be one of {error, warning, ...} as defined in the
- *               DracoTerminal class definition.
+ * \tparam T is an arbitrary type that can be converted to an integer that represents ansi-color
+ *           codes.
+ * \param[in] value represents a set of integer values that can be converted into ansi-color
+ *               strings.  For example, "\033[01m" indicates bold text.  Use the codes provided in
+ *               the DracoTerminal to make these more readable.
  */
 template <typename T> std::string ccolor(T const value) {
+  // Access the singleton wrapper for Term::Terminal
+  Term::DracoTerminal &term_inst = Term::DracoTerminal::getInstance();
   std::string retVal;
-  Term::DracoTerminal::getInstance();
-  if (Term::DracoTerminal::useColor)
+  if (term_inst.use_color())
     retVal += "\033[" + std::to_string(static_cast<int>(value)) + "m";
   return retVal;
 }
-//! specialization for vector<uint32_t> to be used with Term::DracoTerminal::error, etc.
-std::string ccolor(std::vector<uint32_t> const &value);
+
+//! specialization of ccolor to be used with Term::DracoTerminal::error, etc.
+std::string ccolor(std::array<uint32_t, 1> const value);
+//! specialization of ccolor to be used with Term::DracoTerminal::error, etc.
+std::string ccolor(std::array<uint32_t, 2> const value);
 
 } // namespace Term
 
