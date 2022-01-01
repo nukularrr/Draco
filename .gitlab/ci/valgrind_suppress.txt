@@ -4,7 +4,7 @@
 # Date  : Friday, May 19, 2017, 10:26 am
 # Author: Kelly Thompson <kgt@lanl.gov>
 # Breif : Valgrind Suppression Instructions
-# Note  : Copyright (C) 2021 Triad National Security, LLC., All rights reserved.
+# Note  : Copyright (C) 2021-2022 Triad National Security, LLC., All rights reserved.
 # ------------------------------------------------------------------------------------------------ #
 #
 # Example valgrind use:
@@ -2105,7 +2105,8 @@
    fun:PMPI_Type_create_struct
    ...
 }
-{  openmpi/405/014
+{
+   openmpi/405/014
    Memcheck:Leak
    match-leak-kinds: reachable
    fun:calloc

@@ -14,7 +14,6 @@
 ---
 .ccscs:
   variables:
-    # SITE_ID: ccscs1
     DEPLOY: "FALSE"
     # CI_DEBUG_TRACE: "true"
 
@@ -22,23 +21,14 @@
 # Build Templates
 #--------------------------------------------------------------------------------------------------#
 
-.ccscs_merge:
-  extends: .ccscs
-  variables:
-    CTEST_MODE: Experimental
-  script:
-    - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-ci-run-tests.sh
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-
 .ccscs_style_checks:
   extends: .ccscs
   variables:
     CTEST_MODE: Experimental
   script:
-    - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-ci-style-checks.sh
-  only:
-    - merge_requests
+    - /bin/bash -l -c "${CI_PROJECT_DIR}/.gitlab/ci/gitlab-ci-style-checks.sh"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 #--------------------------------------------------------------------------------------------------#
 # Deployment Jobs (run on develop after MRs are merged)
@@ -50,14 +40,14 @@
   variables:
     DEPLOY: 'TRUE'
     FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}
-    DRACO_INSTALL_DIR: /scratch/regress/deploy/draco/${FLAVOR}
+    DRACO_INSTALL_DIR: "/scratch/regress/deploy/draco/${FLAVOR}"
+  script:
+    - /bin/bash -l -c "${CI_PROJECT_DIR}/.gitlab/ci/gitlab-ci-run-tests.sh"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
     - if: '$CI_COMMIT_BRANCH == "develop"'
     - if: '$CI_PIPELINE_SOURCE == "web"'
-  script:
-    - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-ci-run-tests.sh
 
 ccs2_deb_gcc_1020_deploy:
   tags:
@@ -177,12 +167,21 @@ ccs2_valgrind_deploy:
     DRACO_ENV: gcc1020-ompi4
     FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-valgrind
     EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON
-      -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE=${CI_PROJECT_DIR}/.gitlab/ci/valgrind_suppress.txt
+      -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE="${CI_PROJECT_DIR}/.gitlab/ci/valgrind_suppress.txt"
     SITE_ID: ccscs2
 
 #--------------------------------------------------------------------------------------------------#
 # Merge Requests
 #--------------------------------------------------------------------------------------------------#
+
+.ccscs_merge:
+  extends: .ccscs
+  variables:
+    CTEST_MODE: Experimental
+  script:
+    - /bin/bash -l -c "${CI_PROJECT_DIR}/.gitlab/ci/gitlab-ci-run-tests.sh"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 # FAST TEST
 
@@ -285,17 +284,13 @@ ccs1_fulldiag:
 
 ccs2_gcov:
   tags:
-    - CCSCS1-setuid-shared
+    - CCSCS2-setuid-shared
   stage: slowtest
   extends: .ccscs_merge
   variables:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
-    # --> Overall coverage rate:
-    # --> lines......: 91.2% (34056 of 37338 lines)
-    # --> functions..: 56.7% (8676 of 15304 functions)
-    # ...
-    # -->   Total:|91.2% 37338|56.7% 15k|
+    FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-gcov
     EXTRA_CMAKE_ARGS: -DCODE_COVERAGE=ON
     CTEST_NPROC: 56
     SITE_ID: ccscs2
@@ -303,16 +298,16 @@ ccs2_gcov:
 
 ccs2_valgrind:
   tags:
-    - CCSCS3-setuid-shared
+    - CCSCS2-setuid-shared
   stage: slowtest
   extends: .ccscs_merge
   variables:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: gcc1020-ompi4
     EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON
-      -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE=/scratch/regress/ccsradregress/valgrind_suppress.txt
+      -DCTEST_MEMORYCHECK_SUPPRESSIONS_FILE="${CI_PROJECT_DIR}/.gitlab/ci/valgrind_suppress.txt"
     EXTRA_CTEST_ARGS: -L memcheck -LE nomemcheck
-    CTEST_NPROC: 20
+    CTEST_NPROC: 40
     SITE_ID: ccscs2
 
 # ---------- Optional ---------- #
@@ -341,7 +336,7 @@ ccs1_clangtidy:
     CTEST_MODE: Nightly
     CTEST_BUILD_NAME: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}
   script:
-    - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-nightly-regress.sh
+    - /bin/bash -l -c "${CI_PROJECT_DIR}/.gitlab/ci/gitlab-nightly-regress.sh"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
@@ -355,7 +350,6 @@ rel_gcc_10.2.0_regress:
     DRACO_ENV: gcc1020-ompi4
     BUILD_FLAGS: -j 20
     CTEST_NPROC: 40
-    # TEST_EXCLUSIONS: tracking_tstU3
 
 deb_gcc_10.2.0_regress:
   tags:
@@ -476,7 +470,7 @@ pages:
     DRACO_ENV: gcc1020-ompi4
     DEPLOY: "TRUE"
     AUTODOC: "ON"
-    AUTODOCDIR: ${CI_PROJECT_DIR}/public
+    AUTODOCDIR: "${CI_PROJECT_DIR}/public"
     CTEST_BUILD_NAME: autodoc
   artifacts:
     paths:
