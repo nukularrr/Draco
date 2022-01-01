@@ -38,9 +38,6 @@ else()
   set(CTEST_PARALLEL_LEVEL ${MPI_PHYSICAL_CORES})
 endif()
 set(CTEST_BUILD_TYPE $ENV{CMAKE_BUILD_TYPE})
-# if(CTEST_BUILD_TYPE STREQUAL MemCheck)
-#   set(CTEST_BUILD_TYPE Debug)
-# endif()
 string(APPEND EXTRA_CMAKE_ARGS " $ENV{EXTRA_CMAKE_ARGS}")
 
 string(TOUPPER ${CTEST_BUILD_TYPE} UPPER_CTEST_BUILD_TYPE)
@@ -321,7 +318,8 @@ ctest_coverage( BUILD \"${CTEST_BINARY_DIRECTORY}\" APPEND )
         GCOV_OPTIONS -b -p -l -x
         DELETE )")
       include(CTestCoverageCollectGCOV)
-      ctest_coverage_collect_gcov( TARBALL gcov.tgz
+      ctest_coverage_collect_gcov(
+        TARBALL gcov.tgz
         TARBALL_COMPRESSION "FROM_EXT"
         QUIET
         GCOV_OPTIONS -b -p -l -x
@@ -339,23 +337,16 @@ ctest_coverage( BUILD \"${CTEST_BINARY_DIRECTORY}\" APPEND )
       else()
         find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
         string(CONCAT CTEST_MEMORYCHECK_COMMAND_OPTIONS
-                      "-q --tool=memcheck --trace-children=yes --leak-check=full "
-                      "--show-reachable=yes --num-callers=20 --gen-suppressions=all")
+          "-q --tool=memcheck --trace-children=yes --leak-check=full "
+          "--show-reachable=yes --num-callers=20 --gen-suppressions=all")
         if(ENV{MEMCHECK_COMMAND_OPTIONS})
           string(APPEND CTEST_MEMORYCHECK_COMMAND_OPTIONS " $ENV{MEMCHECK_COMMAND_OPTIONS}")
         endif()
-        #if( DEFINED CTEST_MEMORYCHECK_SUPPRESSIONS_FILE )
-        #  string(APPEND CTEST_MEMORYCHECK_COMMAND_OPTIONS
-        #    " --suppressions=${CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
-        #endif()
       endif()
 
       set(CTEST_TEST_TIMEOUT 1200) # 1200 seconds = 20 minutes per test
-      # message("ctest_memcheck( ${CTEST_TEST_EXTRAS} INCLUDE_LABEL memcheck"
-      #         " EXCLUDE_LABEL nomemcheck)")
-      # ctest_memcheck(${CTEST_TEST_EXTRAS} INCLUDE_LABEL memcheck EXCLUDE_LABEL nomemcheck)
       message("ctest_memcheck( ${CTEST_TEST_EXTRAS} EXCLUDE_LABEL nomemcheck)")
-      ctest_memcheck(${CTEST_TEST_EXTRAS} EXCLUDE_LABEL nomemcheck)
+      ctest_memcheck(${CTEST_TEST_EXTRAS} EXCLUDE_LABEL nomemcheck INCLUDE_LABEL memcheck)
     endif()
   endif()
 

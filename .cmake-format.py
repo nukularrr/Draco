@@ -1,8 +1,11 @@
-# ----------------------------------
-# Options affecting listfile parsing
+# -------------------------------------------*-python-*------------------------------------------- #
+# \file   .cmake-format.py
+# \author Kelly Thompson <kgt@lanl.gov>
+# \brief  Options affecting listfile parsing
+# \note   Copyright (C) 2021-2022 Triad National Security, LLC., All rights reserved.
 #
 # https://cmake-format.readthedocs.io/en/latest/configuration.html
-# ----------------------------------
+# ------------------------------------------------------------------------------------------------ #
 with section("parse"):  # noqa: F821
 
     # Specify structure for custom cmake functions

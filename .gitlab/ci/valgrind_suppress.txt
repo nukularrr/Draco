@@ -2145,7 +2145,7 @@
    ...
 }
 {
-   openmpi/405/108
+   openmpi/405/018
    Memcheck:Leak
    match-leak-kinds: reachable
    fun:calloc
@@ -2153,6 +2153,25 @@
    ...
    fun:PMPI_Type_create_struct
    ...
+}
+{
+   openmpi/405/019
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:ompi_datatype_get_pack_description
+   ...
+   fun:PMPI_Accumulate
+   ...
+}
+{
+   openmpi/405/020
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   ...
+   fun:mca_base_framework_open
+   ...
+   fun:MPI_INIT
 }
 
 #------------------------------------------------------------------------------#
