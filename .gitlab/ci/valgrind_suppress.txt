@@ -2173,6 +2173,28 @@
    ...
    fun:MPI_INIT
 }
+{
+   openmpi/405/021
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:event_config_avoid_method
+   ...
+   fun:PMPI_Init
+   ...
+}
+
+{
+   openmpi/405/022
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:OPAL_MCA_PMIX3X_pmix_bfrops_base_unpack_string
+   ...
+   fun:PMPI_Init
+   ...
+}
 
 #------------------------------------------------------------------------------#
 # Python 2.7
