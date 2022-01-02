@@ -452,7 +452,7 @@ valgrind_regress:
     DRACO_ENV: gcc1020-ompi4
     FLAVOR: ${DRACO_ENV}-${CMAKE_BUILD_TYPE}-valgrind
     MEMCHECK_CONFIGURATION: "ON"
-    # EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON
+    EXTRA_CMAKE_ARGS: -DENABLE_MEMORYCHECK=ON
     CTEST_MEMORYCHECK_SUPPRESSIONS_FILE: "${CI_PROJECT_DIR}/.gitlab/ci/valgrind_suppress.txt"
     BUILD_FLAGS: -j 40 -l 40
     # EXTRA_CTEST_ARGS: -L memcheck -LE nomemcheck
