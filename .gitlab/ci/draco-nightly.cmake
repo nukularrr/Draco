@@ -20,26 +20,89 @@ if(WIN32)
 else()
   set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 endif()
+set(CTEST_UPDATE_COMMAND "git")
+set(CTEST_GIT_UPDATE_CUSTOM "${CMAKE_COMMAND}" "-E" "echo" "Skipping git update (no-op).")
+
+message(
+  "==> Starting a regression build...
+CTEST_SOURCE_DIRECTORY = ${CTEST_SOURCE_DIRECTORY}
+CTEST_BINARY_DIRECTORY = ${CTEST_BINARY_DIRECTORY}
+CTEST_PROJECT_NAME     = ${CTEST_PROJECT_NAME}
+CTEST_NIGHTLY_START_TIME = ${CTEST_NIGHTLY_START_TIME}
+CTEST_CMAKE_GENERATOR  = ${CTEST_CMAKE_GENERATOR}
+")
+
+# ------------------------------------------------------------------------------------------------ #
+# Collect information about this system
+# - MPI_PHYSCIAL_CORES
+# ------------------------------------------------------------------------------------------------ #
+cmake_host_system_information(RESULT MPI_PHYSICAL_CORES QUERY NUMBER_OF_PHYSICAL_CORES)
+
+# ------------------------------------------------------------------------------------------------ #
+# Collect information specified by the *-jobs.yml job configuration
+# - ARCH (optional)
+# - CI_PROJECT_DIR
+# - CTEST_BUILD_NAME
+# - CTEST_BUILD_TYPE = {Debug, Release}
+# - CTEST_MODE = {Nightly, Experimental}
+# - CTEST_NPROC - Number of cores to use when running tests.
+# - SITE_ID
+#
+# - EXTRA_CMAKE_ARGS
+# - EXTRA_CTEST_ARGS
+# - CTEST_MEMORYCHECK_SUPPRESSIONS_FILE
+# ------------------------------------------------------------------------------------------------ #
+file(TO_CMAKE_PATH "${CI_PROJECT_DIR}" CI_PROJECT_DIR)
+set(CTEST_BUILD_NAME "$ENV{CTEST_BUILD_NAME}")
+set(CTEST_BUILD_TYPE "$ENV{CMAKE_BUILD_TYPE}")
+set(CTEST_MODE "$ENV{CTEST_MODE}")
+
 set(CTEST_SITE "$ENV{SITE_ID}")
 if(DEFINED ENV{ARCH})
   string(APPEND CTEST_SITE "-$ENV{ARCH}")
 endif()
 string(APPEND CTEST_SITE "-gr") # indicating job was initiated by a gitlab runner.
 
-set(CTEST_BUILD_NAME "$ENV{CTEST_BUILD_NAME}")
-set(CTEST_MODE "$ENV{CTEST_MODE}")
-set(CTEST_OUTPUT_ON_FAILURE ON)
+separate_arguments(EXTRA_CMAKE_ARGS UNIX_COMMAND "$ENV{EXTRA_CMAKE_ARGS}")
+separate_arguments(EXTRA_CTEST_ARGS UNIX_COMMAND "$ENV{EXTRA_CTEST_ARGS}")
 
-cmake_host_system_information(RESULT MPI_PHYSICAL_CORES QUERY NUMBER_OF_PHYSICAL_CORES)
+if(DEFINED ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE})
+  if(EXISTS "$ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
+    set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE "$ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
+    set(MEMORYCHECK_SUPPRESSIONS_FILE "$ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
+  else()
+    message(FATAL_ERROR "CTEST_MEMORYCHECK_SUPPRESSIONS_FILE set to invalid path.")
+  endif()
+endif()
+
+message(
+  " ==> Job specification from yml
+CI_PROJECT_DIR = ${CI_PROJECT_DIR}
+CTEST_BUILD_NAME = ${CTEST_BUILD_NAME}
+CTEST_BUILD_TYPE = ${CTEST_BUILD_TYPE}
+CTEST_MODE       = ${CTEST_MODE}
+CTEST_SITE       = ${CTEST_SITE}
+EXTRA_CMAKE_ARGS = ${EXTRA_CMAKE_ARGS}
+EXTRA_CTEST_ARGS = ${EXTRA_CTEST_ARGS}
+")
+
+# ------------------------------------------------------------------------------------------------ #
+# Options that control the build (but not set by yaml)
+# ------------------------------------------------------------------------------------------------ #
+
+# Verbosity controls
+set(CTEST_OUTPUT_ON_FAILURE ON)
+set(CTEST_USE_LAUNCHERS FALSE)
+set(CTEST_CUSTOM_MAXIMUM_NUMBER_OF_WARNINGS 50)
+
+# Build/test parallelism
 set(CMAKE_BUILD_PARALLEL_LEVEL ${MPI_PHYSICAL_CORES})
+
 if(DEFINED ENV{CTEST_NPROC})
   set(CTEST_PARALLEL_LEVEL $ENV{CTEST_NPROC})
 else()
   set(CTEST_PARALLEL_LEVEL ${MPI_PHYSICAL_CORES})
 endif()
-set(CTEST_BUILD_TYPE $ENV{CMAKE_BUILD_TYPE})
-separate_arguments(EXTRA_CMAKE_ARGS UNIX_COMMAND "$ENV{EXTRA_CMAKE_ARGS}")
-separate_arguments(EXTRA_CTEST_ARGS UNIX_COMMAND "$ENV{EXTRA_CTEST_ARGS}")
 
 string(TOUPPER ${CTEST_BUILD_TYPE} UPPER_CTEST_BUILD_TYPE)
 if(${UPPER_CTEST_BUILD_TYPE} MATCHES DEBUG)
@@ -53,51 +116,8 @@ elseif(${UPPER_CTEST_BUILD_TYPE} MATCHES RELEASE)
 else()
   message(FATAL_ERROR "CTEST_BUILD_TYPE (= ${UPPER_CTEST_BUILD_TYPE}) not set or not valid.")
 endif()
-set( CTEST_CONFIGURATION_TYPE "${CTEST_BUILD_CONFIGURATION}" ) # mayby only needed by msvc?
+set( CTEST_CONFIGURATION_TYPE "${CTEST_BUILD_CONFIGURATION}" )
 
-file(TO_CMAKE_PATH "${CI_PROJECT_DIR}" CI_PROJECT_DIR)
-string(CONCAT CTEST_CONFIGURE_COMMAND "cmake"
-              " -DCMAKE_INSTALL_PREFIX=$ENV{CI_PROJECT_DIR}/install" " ${EXTRA_CMAKE_ARGS}")
-if(WIN32)
-  file(TO_CMAKE_PATH "${CTEST_SOURCE_DIRECTORY}" CTEST_SOURCE_DIRECTORY)
-  file(TO_CMAKE_PATH "$ENV{CMAKE_TOOLCHAIN_FILE}" CMAKE_TOOLCHAIN_FILE)
-  string(APPEND CTEST_CONFIGURE_COMMAND " -A x64 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
-  string(APPEND CTEST_CONFIGURE_COMMAND " -DDRACO_LIBRARY_TYPE=SHARED")
-else()
-  string(APPEND CTEST_CONFIGURE_COMMAND " -DCMAKE_BUILD_TYPE=${UPPER_CTEST_BUILD_TYPE}")
-endif()
-if(DEFINED ENV{AUTODOCDIR})
-  string(APPEND CTEST_CONFIGURE_COMMAND " -DAUTODOCDIR=$ENV{AUTODOCDIR}")
-endif()
-if(DEFINED ENV{CODECOV} AND "$ENV{CODECOV}" MATCHES "ON")
-  set(CODE_COVERAGE "ON")
-  string(APPEND CTEST_CONFIGURE_COMMAND " -DCODE_COVERAGE=ON")
-endif()
-# string(APPEND CTEST_CONFIGURE_COMMAND " -DCMAKE_VERBOSE_MAKEFILE=ON")
-string(APPEND CTEST_CONFIGURE_COMMAND " ${CTEST_SOURCE_DIRECTORY}")
-
-if(DEFINED ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE})
-  if(EXISTS "$ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
-    set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE "$ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
-    set(MEMORYCHECK_SUPPRESSIONS_FILE "$ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
-  else()
-    message(FATAL_ERROR "CTEST_MEMORYCHECK_SUPPRESSIONS_FILE set to invalid path.")
-  endif()
-endif()
-message(
-  "
-CTEST_PARALLEL_LEVEL = ${CTEST_PARALLEL_LEVEL}
-MPI_PHYSICAL_CORES   = ${MPI_PHYSICAL_CORES}
-
-CTEST_CMAKE_GENERATOR     = ${CTEST_CMAKE_GENERATOR}
-CTEST_BUILD_CONFIGURATION = ${CTEST_BUILD_CONFIGURATION}
-CTEST_CONFIGURE_COMMAND   = ${CTEST_CONFIGURE_COMMAND}
-")
-
-set(CTEST_USE_LAUNCHERS FALSE)
-set(CTEST_CUSTOM_MAXIMUM_NUMBER_OF_WARNINGS 50)
-set(CTEST_UPDATE_COMMAND "git")
-set(CTEST_GIT_UPDATE_CUSTOM "${CMAKE_COMMAND}" "-E" "echo" "Skipping git update (no-op).")
 
 # CTEST_CUSTOM_COVERAGE_EXCLUDE is a list of regular expressions. Any file name that matches any of
 # the regular expressions in the list is excluded from the reported coverage data.
@@ -109,8 +129,11 @@ list(
   "src/.*/ftest/"
   # terminal isn't our code. don't report lack of coverage
   "src/.*/terminal/.*"
-  "src/api/test_.*/"
   "src/.*/test_.*/")
+
+# ------------------------------------------------------------------------------------------------ #
+# Start the build (clone, prep the build directory)
+# ------------------------------------------------------------------------------------------------ #
 
 if(${CTEST_SCRIPT_ARG} MATCHES Configure)
   ctest_empty_binary_directory("${CTEST_BINARY_DIRECTORY}")
@@ -127,6 +150,27 @@ ctest_update(SOURCE ${CTEST_SOURCE_DIRECTORY})
 # Configure the project with cmake.
 # ------------------------------------------------------------------------------------------------ #
 if(${CTEST_SCRIPT_ARG} MATCHES Configure)
+
+  # create the comnand used to configure the build:
+  string(CONCAT CTEST_CONFIGURE_COMMAND "cmake"
+    " -DCMAKE_INSTALL_PREFIX=$ENV{CI_PROJECT_DIR}/install" " ${EXTRA_CMAKE_ARGS}")
+  if(WIN32)
+    file(TO_CMAKE_PATH "${CTEST_SOURCE_DIRECTORY}" CTEST_SOURCE_DIRECTORY)
+    file(TO_CMAKE_PATH "$ENV{CMAKE_TOOLCHAIN_FILE}" CMAKE_TOOLCHAIN_FILE)
+    string(APPEND CTEST_CONFIGURE_COMMAND " -A x64 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
+    string(APPEND CTEST_CONFIGURE_COMMAND " -DDRACO_LIBRARY_TYPE=SHARED")
+  else()
+    string(APPEND CTEST_CONFIGURE_COMMAND " -DCMAKE_BUILD_TYPE=${UPPER_CTEST_BUILD_TYPE}")
+  endif()
+  if(DEFINED ENV{AUTODOCDIR})
+    string(APPEND CTEST_CONFIGURE_COMMAND " -DAUTODOCDIR=$ENV{AUTODOCDIR}")
+  endif()
+  if(DEFINED ENV{CODECOV} AND "$ENV{CODECOV}" MATCHES "ON")
+    set(CODE_COVERAGE "ON")
+    string(APPEND CTEST_CONFIGURE_COMMAND " -DCODE_COVERAGE=ON")
+  endif()
+  # string(APPEND CTEST_CONFIGURE_COMMAND " -DCMAKE_VERBOSE_MAKEFILE=ON")
+  string(APPEND CTEST_CONFIGURE_COMMAND " ${CTEST_SOURCE_DIRECTORY}")
 
   message(
     "
@@ -153,22 +197,19 @@ endif()
 # ------------------------------------------------------------------------------------------------ #
 if(${CTEST_SCRIPT_ARG} MATCHES Build)
 
-  if(NOT WIN32)
-    set(CTEST_BUILD_FLAGS "-j ${CTEST_PARALLEL_LEVEL} -l ${CMAKE_BUILD_PARALLEL_LEVEL}")
-  endif()
   if(DEFINED ENV{AUTODOCDIR})
     # build one unit test
     message(
       "
 ctest_build(
   TARGET Ut_dsxx_tstAssert_exe
-  FLAGS $ENV{BUILD_FLAGS}
+  FLAGS $ENV{MAKEFILE_FLAGS}
   RETURN_VALUE build_failure
   CAPTURE_CMAKE_ERROR ctest_build_errors)
 ")
     ctest_build(
       TARGET Ut_dsxx_tstAssert_exe
-      FLAGS "$ENV{BUILD_FLAGS}"
+      FLAGS "$ENV{MAKEFILE_FLAGS}"
       RETURN_VALUE build_failure
       CAPTURE_CMAKE_ERROR ctest_build_errors)
     # build autodoc target.
@@ -176,13 +217,13 @@ ctest_build(
       "
 ctest_build(
   TARGET autodoc
-  FLAGS $ENV{BUILD_FLAGS}
+  FLAGS $ENV{MAKEFILE_FLAGS}
   RETURN_VALUE build_failure
   CAPTURE_CMAKE_ERROR ctest_build_errors)
 ")
     ctest_build(
       TARGET autodoc
-      FLAGS "$ENV{BUILD_FLAGS}"
+      FLAGS "$ENV{MAKEFILE_FLAGS}"
       RETURN_VALUE build_failure
       CAPTURE_CMAKE_ERROR ctest_build_errors)
     if(build_failure)
@@ -194,12 +235,11 @@ ctest_build(
     message(
       "
 ctest_build(
-  FLAGS $ENV{BUILD_FLAGS}
+  FLAGS $ENV{MAKEFILE_FLAGS}
   RETURN_VALUE build_failure
-  PARALLEL_LEVEL ${CTEST_PARALLEL_LEVEL}
   CAPTURE_CMAKE_ERROR ctest_build_errors)")
     ctest_build(
-      FLAGS "$ENV{BUILD_FLAGS}"
+      FLAGS "$ENV{MAKEFILE_FLAGS}"
       RETURN_VALUE build_failure
       # cmake-3.21 -- PARALLEL_LEVEL ${CMAKE_BUILD_PARALLEL_LEVEL}
       CAPTURE_CMAKE_ERROR ctest_build_errors)
