@@ -63,7 +63,7 @@ if(DEFINED ENV{ARCH})
 endif()
 string(APPEND CTEST_SITE "-gr") # indicating job was initiated by a gitlab runner.
 
-separate_arguments(EXTRA_CMAKE_ARGS UNIX_COMMAND "$ENV{EXTRA_CMAKE_ARGS}")
+# separate_arguments(EXTRA_CMAKE_ARGS UNIX_COMMAND "$ENV{EXTRA_CMAKE_ARGS}") # leave as string
 separate_arguments(EXTRA_CTEST_ARGS UNIX_COMMAND "$ENV{EXTRA_CTEST_ARGS}")
 
 if(DEFINED ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE})
@@ -174,6 +174,7 @@ if(${CTEST_SCRIPT_ARG} MATCHES Configure)
 
   message(
     "
+CTEST_CONFIGURE_COMMAND = ${CTEST_CONFIGURE_COMMAND}
 ctest_configure(
   BUILD        ${CTEST_BINARY_DIRECTORY}
   RETURN_VALUE configure_failure
@@ -386,7 +387,7 @@ ctest_coverage( BUILD \"${CTEST_BINARY_DIRECTORY}\" APPEND )
       endif()
 
       set(CTEST_TEST_TIMEOUT 1200) # 1200 seconds = 20 minutes per test
-      message("ctest_memcheck( ${EXTRA_CTESTARGS})")
+      message("ctest_memcheck( ${EXTRA_CTEST_ARGS})")
       ctest_memcheck(${EXTRA_CTEST_ARGS})
     endif()
   endif() # AUTODOC
