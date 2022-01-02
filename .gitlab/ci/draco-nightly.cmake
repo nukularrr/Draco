@@ -39,6 +39,7 @@ else()
 endif()
 set(CTEST_BUILD_TYPE $ENV{CMAKE_BUILD_TYPE})
 string(APPEND EXTRA_CMAKE_ARGS " $ENV{EXTRA_CMAKE_ARGS}")
+string(APPEND EXTRA_CTEST_ARGS " $ENV{EXTRA_CTEST_ARGS}")
 
 string(TOUPPER ${CTEST_BUILD_TYPE} UPPER_CTEST_BUILD_TYPE)
 if(${UPPER_CTEST_BUILD_TYPE} MATCHES DEBUG)
@@ -222,18 +223,20 @@ if(${CTEST_SCRIPT_ARG} MATCHES Test)
   if(DEFINED ENV{AUTODOCDIR})
     # Run one test to avoid missing data on CDash
     message("
-ctest_test( RETURN_VALUE test_failure INCLUDE dsxx_tstAssert)
+ctest_test( RETURN_VALUE test_failure INCLUDE dsxx_tstAssert ${EXTRA_CTEST_ARGS})
 ")
-    ctest_test(RETURN_VALUE test_failure INCLUDE dsxx_tstAssert)
+    ctest_test(RETURN_VALUE test_failure INCLUDE dsxx_tstAssert ${EXTRA_CTEST_ARGS})
   else()
+    string(APPEND EXTRA_CTEST_ARGS " TEST_LOAD ${MPI_PHYSICAL_CORES}")
     if(DEFINED ENV{TEST_EXCLUSIONS})
-      set(CTEST_TEST_EXTRAS EXCLUDE $ENV{TEST_EXCLUSIONS})
+      string(APPEND EXTRA_CTEST_ARGS " EXCLUDE $ENV{TEST_EXCLUSIONS}")
     endif()
-    list(APPEND CTEST_TEST_EXTRAS PARALLEL_LEVEL ${CTEST_PARALLEL_LEVEL})
+    string(APPEND EXTRA_CTEST_ARGS " PARALLEL_LEVEL ${CTEST_PARALLEL_LEVEL}")
+
     message("
-ctest_test( RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
+ctest_test( RETURN_VALUE test_failure ${EXTRA_CTEST_ARGS})
 ")
-    ctest_test(RETURN_VALUE test_failure ${CTEST_TEST_EXTRAS})
+    ctest_test(RETURN_VALUE test_failure ${EXTRA_CTEST_ARGS})
 
     if(DEFINED ENV{CODECOV} AND "$ENV{CODECOV}" MATCHES "ON")
       set(CODE_COVERAGE "ON")
@@ -345,8 +348,8 @@ ctest_coverage( BUILD \"${CTEST_BINARY_DIRECTORY}\" APPEND )
       endif()
 
       set(CTEST_TEST_TIMEOUT 1200) # 1200 seconds = 20 minutes per test
-      message("ctest_memcheck( ${CTEST_TEST_EXTRAS} EXCLUDE_LABEL nomemcheck INCLUDE_LABEL memcheck)")
-      ctest_memcheck(${CTEST_TEST_EXTRAS} EXCLUDE_LABEL nomemcheck INCLUDE_LABEL memcheck)
+      message("ctest_memcheck( ${EXTRA_CTESTARGS})")
+      ctest_memcheck(${EXTRA_CTEST_ARGS})
     endif()
   endif()
 
