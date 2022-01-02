@@ -3,7 +3,7 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2012 Aug 1
 # brief  Generate build project files for c4/test.
-# note   Copyright (C) 2016-2021, Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
 project(c4_test CXX)
 
@@ -123,14 +123,16 @@ if(OPENMP_FOUND AND TARGET Exe_xthi)
   add_app_unit_test(
     DRIVER ${CMAKE_CURRENT_SOURCE_DIR}/tstXthi.py
     APP $<TARGET_FILE_DIR:Exe_xthi>/$<TARGET_FILE_NAME:Exe_xthi>
-    PE_LIST "1;2")
+    PE_LIST "1;2"
+    LABELS "nomemcheck")
 endif()
 if(TARGET Exe_ythi)
   add_app_unit_test(
     DRIVER ${CMAKE_CURRENT_SOURCE_DIR}/tstYthi.py
     APP $<TARGET_FILE_DIR:Exe_ythi>/$<TARGET_FILE_NAME:Exe_ythi>
     TEST_ARGS 2
-    PE_LIST "1;2")
+    PE_LIST "1;2"
+    LABELS "nomemcheck")
 endif()
 
 # ------------------------------------------------------------------------------------------------ #

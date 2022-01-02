@@ -64,6 +64,7 @@ endif()
 string(APPEND CTEST_SITE "-gr") # indicating job was initiated by a gitlab runner.
 
 # separate_arguments(EXTRA_CMAKE_ARGS UNIX_COMMAND "$ENV{EXTRA_CMAKE_ARGS}") # leave as string
+set(EXTRA_CMAKE_ARGS "$ENV{EXTRA_CMAKE_ARGS}")
 separate_arguments(EXTRA_CTEST_ARGS UNIX_COMMAND "$ENV{EXTRA_CTEST_ARGS}")
 
 if(DEFINED ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE})
@@ -117,7 +118,6 @@ else()
   message(FATAL_ERROR "CTEST_BUILD_TYPE (= ${UPPER_CTEST_BUILD_TYPE}) not set or not valid.")
 endif()
 set( CTEST_CONFIGURATION_TYPE "${CTEST_BUILD_CONFIGURATION}" )
-
 
 # CTEST_CUSTOM_COVERAGE_EXCLUDE is a list of regular expressions. Any file name that matches any of
 # the regular expressions in the list is excluded from the reported coverage data.
