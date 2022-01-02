@@ -3,7 +3,7 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   Tuesday, Jun 02, 2020, 11:44 am
 # brief  CTest regression script for DRACO
-# note   Copyright (C) 2021 Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2021-2022 Triad National Security, LLC., All rights reserved.
 # ------------------------------------------------------------------------------------------------ #
 # Ref: http://www.cmake.org/Wiki/CMake_Scripting_Of_CTest
 
@@ -38,8 +38,8 @@ else()
   set(CTEST_PARALLEL_LEVEL ${MPI_PHYSICAL_CORES})
 endif()
 set(CTEST_BUILD_TYPE $ENV{CMAKE_BUILD_TYPE})
-string(APPEND EXTRA_CMAKE_ARGS " $ENV{EXTRA_CMAKE_ARGS}")
-string(APPEND EXTRA_CTEST_ARGS " $ENV{EXTRA_CTEST_ARGS}")
+separate_arguments(EXTRA_CMAKE_ARGS UNIX_COMMAND "$ENV{EXTRA_CMAKE_ARGS}")
+separate_arguments(EXTRA_CTEST_ARGS UNIX_COMMAND "$ENV{EXTRA_CTEST_ARGS}")
 
 string(TOUPPER ${CTEST_BUILD_TYPE} UPPER_CTEST_BUILD_TYPE)
 if(${UPPER_CTEST_BUILD_TYPE} MATCHES DEBUG)
@@ -75,6 +75,7 @@ if(DEFINED ENV{CODECOV} AND "$ENV{CODECOV}" MATCHES "ON")
 endif()
 # string(APPEND CTEST_CONFIGURE_COMMAND " -DCMAKE_VERBOSE_MAKEFILE=ON")
 string(APPEND CTEST_CONFIGURE_COMMAND " ${CTEST_SOURCE_DIRECTORY}")
+
 if(DEFINED ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE})
   if(EXISTS "$ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
     set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE "$ENV{CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
@@ -98,20 +99,18 @@ set(CTEST_CUSTOM_MAXIMUM_NUMBER_OF_WARNINGS 50)
 set(CTEST_UPDATE_COMMAND "git")
 set(CTEST_GIT_UPDATE_CUSTOM "${CMAKE_COMMAND}" "-E" "echo" "Skipping git update (no-op).")
 
-#message("Parsing ${CTEST_SCRIPT_DIRECTORY}/CTestCustom.cmake")
-#ctest_read_custom_files("${CTEST_SCRIPT_DIRECTORY}")
-
 # CTEST_CUSTOM_COVERAGE_EXCLUDE is a list of regular expressions. Any file name that matches any of
 # the regular expressions in the list is excluded from the reported coverage data.
-list(APPEND CTEST_CUSTOM_COVERAGE_EXCLUDE
+list(
+  APPEND
+  CTEST_CUSTOM_COVERAGE_EXCLUDE
   # don't report on actual unit tests
   "src/.*/test/"
   "src/.*/ftest/"
   # terminal isn't our code. don't report lack of coverage
   "src/.*/terminal/.*"
   "src/api/test_.*/"
-  "src/.*/test_.*/"
-  )
+  "src/.*/test_.*/")
 
 if(${CTEST_SCRIPT_ARG} MATCHES Configure)
   ctest_empty_binary_directory("${CTEST_BINARY_DIRECTORY}")
@@ -157,7 +156,6 @@ if(${CTEST_SCRIPT_ARG} MATCHES Build)
   if(NOT WIN32)
     set(CTEST_BUILD_FLAGS "-j ${CTEST_PARALLEL_LEVEL} -l ${CMAKE_BUILD_PARALLEL_LEVEL}")
   endif()
-
   if(DEFINED ENV{AUTODOCDIR})
     # build one unit test
     message(
@@ -227,11 +225,11 @@ ctest_test( RETURN_VALUE test_failure INCLUDE dsxx_tstAssert ${EXTRA_CTEST_ARGS}
 ")
     ctest_test(RETURN_VALUE test_failure INCLUDE dsxx_tstAssert ${EXTRA_CTEST_ARGS})
   else()
-    string(APPEND EXTRA_CTEST_ARGS " TEST_LOAD ${MPI_PHYSICAL_CORES}")
+    list(APPEND EXTRA_CTEST_ARGS TEST_LOAD ${MPI_PHYSICAL_CORES})
     if(DEFINED ENV{TEST_EXCLUSIONS})
-      string(APPEND EXTRA_CTEST_ARGS " EXCLUDE $ENV{TEST_EXCLUSIONS}")
+      list(APPEND EXTRA_CTEST_ARGS EXCLUDE $ENV{TEST_EXCLUSIONS})
     endif()
-    string(APPEND EXTRA_CTEST_ARGS " PARALLEL_LEVEL ${CTEST_PARALLEL_LEVEL}")
+    list(APPEND EXTRA_CTEST_ARGS PARALLEL_LEVEL ${CTEST_PARALLEL_LEVEL})
 
     message("
 ctest_test( RETURN_VALUE test_failure ${EXTRA_CTEST_ARGS})
@@ -328,7 +326,7 @@ ctest_coverage( BUILD \"${CTEST_BINARY_DIRECTORY}\" APPEND )
         GCOV_OPTIONS -b -p -l -x
         DELETE )
 
-    endif()
+    endif() # CODECOV
 
     message("
 ==> ENV{MEMCHECK_CONFIGURATION} = $ENV{MEMCHECK_CONFIGURATION}
@@ -351,9 +349,10 @@ ctest_coverage( BUILD \"${CTEST_BINARY_DIRECTORY}\" APPEND )
       message("ctest_memcheck( ${EXTRA_CTESTARGS})")
       ctest_memcheck(${EXTRA_CTEST_ARGS})
     endif()
-  endif()
+  endif() # AUTODOC
 
-endif()
+endif() # Test
+
 message("==> Done with testing")
 
 # ------------------------------------------------------------------------------------------------ #
