@@ -206,7 +206,7 @@ if [[ -x "${CMF}" ]]; then
   # file types to parse.
   FILE_EXTS=".cmake"
   FILE_ENDINGS_INCLUDE="CMakeLists.txt"
-  # FILE_ENDINGS_EXLCUDE=".cmake.in"
+  # FILE_ENDINGS_EXCLUDE=".cmake.in"
 
   # Loop over all modified cmake files.  Create one patch containing all changes to these files
   for file in $modifiedfiles; do
@@ -277,8 +277,8 @@ if [[ -x $CML ]]; then
   # file types to parse.
   FILE_EXTS=".cmake"
   FILE_ENDINGS_INCLUDE="CMakeLists.txt"
-  # FILE_ENDINGS_EXLCUDE=".cmake.in"
-  export FILE_EXTS FILE_ENDINGS_INCLUDE
+  FILE_ENDINGS_EXCLUDE="draco-nightly.cmake"
+  export FILE_EXTS FILE_ENDINGS_INCLUDE FILE_ENDINGS_EXCLUDE
 
   cml_issues=0
   # Loop over all modified cmake files.  Create one patch containing all changes to these files
@@ -336,7 +336,7 @@ if [[ -x "$FPY" ]]; then
   # file types to parse.
   FILE_EXTS=".f90 .F90 .f .F"
   # FILE_ENDINGS_INCLUDE="CMakeLists.txt"
-  # FILE_ENDINGS_EXLCUDE=".cmake.in"
+  # FILE_ENDINGS_EXCLUDE=".cmake.in"
   export FILE_EXTS
 
   # Loop over all modified F90 files.  Create one patch containing all changes to these files
