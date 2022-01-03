@@ -3,7 +3,7 @@
 # Author:  Kelly Thompson <kgt@lanl.gov>
 # Date:    Thursday, Dec 02, 2021, 09:36 am
 # Purpose: gitlab jacamar runner commands for Snow (LANL HPC). This script wil be run to test MRs.
-# Note:    Copyright (C) 2021 Triad National Security, LLC., All rights reserved.
+# Note:    Copyright (C) 2021-2022 Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
 
 #--------------------------------------------------------------------------------------------------#
@@ -14,47 +14,77 @@
   tags:
     - snow
   variables:
-    SITE_ID: snow
+    CTEST_MODE: Experimental
     DEPLOY: "FALSE"
+    SITE_ID: snow
+    SCHEDULER_PARAMETERS: "-N 1 -A asc-ci --reservation=ci"
     # CI_DEBUG_TRACE: "true"
 
 #--------------------------------------------------------------------------------------------------#
-# Build Templates
+# Deployment Jobs (run on develop after MRs are merged)
 #--------------------------------------------------------------------------------------------------#
 
-.snow_merge:
+.snow_deploy:
   extends: .snow
+  stage: deploy
   variables:
-    CTEST_MODE: Experimental
-    SCHEDULER_PARAMETERS: "-N 1 -A asc-ci --reservation=ci"
-  allow_failure: true
+    DEPLOY: 'TRUE'
+    DRACO_INSTALL_DIR: "/usr/projects/draco/deploy/${FLAVOR}"
   script:
-    - /bin/bash -l -c ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-ci-run-tests.sh
-  only:
-    - merge_requests
+    - /bin/bash -l -c "${CI_PROJECT_DIR}/.gitlab/ci/gitlab-ci-run-tests.sh"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
 
-.snow_nightly:
-  extends: .snow
+sn_rel_i1904_deploy:
+  extends: .snow_deploy
   variables:
-    CTEST_MODE: Nightly
-    CTEST_BUILD_NAME: ${COMPILER}-${CMAKE_BUILD_TYPE}
-    SCHEDULER_PARAMETERS: "-N 1 -A asc-ci --reservation=ci"
-  script:
-    - /bin/bash -l ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-nightly-regress.sh -m "Configure,Build,Test"
-  after_script:
-    - /bin/bash -l ${CI_PROJECT_DIR}/.gitlab/ci/gitlab-nightly-regress.sh -m "Submit"
-  # artifacts:
-  #   paths:
-  #     - ${DRACO_BINARY_DIR}/Testing/TAG
-  #     - ${DRACO_BINARY_DIR}/Testing/202*/*.xml
-  #     - ${DRACO_BINARY_DIR}/Testing/Temporary/*
-  #   expire_in: 1 hour
-  only:
-    - schedules
+    CMAKE_BUILD_TYPE: Release
+    DRACO_ENV: "lapse/1.8-intel"
+    FLAVOR: lapse18-intel-Release
+
+sn_deb_i1904_deploy:
+  extends: .snow_deploy
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: "lapse/1.8-intel"
+    FLAVOR: lapse18-intel-Debug
+
+sn_rel_i1913_deploy:
+  extends: .snow_deploy
+  variables:
+    CMAKE_BUILD_TYPE: Release
+    DRACO_ENV: "draco/intel1913"
+    FLAVOR: intel1913-Release
+
+sn_deb_g830_deploy:
+  extends: .snow_deploy
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: "lapse/1.8-gnu"
+    FLAVOR: lapse18-gnu-Debug
+
+sn_deb_fulldiag_deploy:
+  extends: .snow_deploy
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: "lapse/1.8-intel"
+    EXTRA_CMAKE_ARGS: -DRACO_DIAGNOSTICS=7 -DRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
+    FLAVOR: intel-fulldiag-static
 
 #--------------------------------------------------------------------------------------------------#
 # Merge Requests
 #--------------------------------------------------------------------------------------------------#
+
+.snow_merge:
+  extends: .snow
+  # allow_failure: true
+  script:
+    - /bin/bash -l -c "${CI_PROJECT_DIR}/.gitlab/ci/gitlab-ci-run-tests.sh"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 # ----- fast -----
 
@@ -96,35 +126,63 @@ sn_deb_fulldiag_mr:
   variables:
     CMAKE_BUILD_TYPE: Debug
     DRACO_ENV: "lapse/1.8-intel"
-    EXTRA_CMAKE_ARGS: -DRACO_DIAGNOSTICS=7 -DRACO_TIMING=1
+    EXTRA_CMAKE_ARGS: -DRACO_DIAGNOSTICS=7 -DRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
 
 #--------------------------------------------------------------------------------------------------#
 # Nightly Regression
 #--------------------------------------------------------------------------------------------------#
+
+.snow_nightly:
+  extends: .snow
+  variables:
+    CTEST_MODE: Nightly
+    MAKEFILE_FLAGS: -j -l 36
+    CTEST_NPROC: 36
+  script:
+    - /bin/bash -l "${CI_PROJECT_DIR}/.gitlab/ci/gitlab-nightly-regress.sh" -m "Configure,Build,Test"
+  after_script:
+    - /bin/bash -l "${CI_PROJECT_DIR}/.gitlab/ci/gitlab-nightly-regress.sh" -m "Submit"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
 sn_rel_i1904_regress:
   stage: test
   extends: .snow_nightly
   variables:
     CMAKE_BUILD_TYPE: Release
-    COMPILER: intel-19.0.4
     DRACO_ENV: "lapse/1.8-intel"
+    CTEST_BUILD_NAME: "lapse18-intel-Release"
 
 sn_deb_i1904_regress:
   stage: test
   extends: .snow_nightly
   variables:
     CMAKE_BUILD_TYPE: Debug
-    COMPILER: intel-19.0.4
     DRACO_ENV: "lapse/1.8-intel"
+    CTEST_BUILD_NAME: "lapse18-intel-Debug"
 
-# x86_deb_intel_19.0.5_regress:
-#   stage: fasttest
-#   extends: .snow_nightly
-#   variables:
-#     CMAKE_BUILD_TYPE: Debug
-#     COMPILER: intel-19.0.5
-#     SCHEDULER_PARAMETERS: ${SP_x86_64}
+sn_rel_i1913_regress:
+  extends: .snow_nightly
+  variables:
+    CMAKE_BUILD_TYPE: Release
+    DRACO_ENV: "draco/intel1913"
+    CTEST_BUILD_NAME: "intel1913-Release"
+
+sn_deb_g830_regress:
+  extends: .snow_nightly
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: "lapse/1.8-gnu"
+    CTEST_BUILD_NAME: "lapse18-gnu-Debug"
+
+sn_deb_fulldiag_regress:
+  extends: .snow_nightly
+  variables:
+    CMAKE_BUILD_TYPE: Debug
+    DRACO_ENV: "lapse/1.8-intel"
+    FLAVOR: intel-fulldiag-static
+    EXTRA_CMAKE_ARGS: -DRACO_DIAGNOSTICS=7 -DRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
+    CTEST_BUILD_NAME: intel-fulldiag-static
 
 #--------------------------------------------------------------------------------------------------#
 # end .gitlab/ci/snow-jobs.yml
