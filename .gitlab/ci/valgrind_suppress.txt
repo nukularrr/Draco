@@ -2195,6 +2195,36 @@
    fun:PMPI_Init
    ...
 }
+{
+   openmpi/405/023
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:event_config_avoid_method
+   ...
+   fun:PMPI_Init
+   ...
+}
+{
+   openmpi/405/024
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:event_config_new
+   ...
+   fun:PMPI_Init
+   ...
+}
+{
+   openmpi/405/025
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:opal_hwloc201_hwloc_bitmap_alloc
+   ...
+   fun:PMPI_Init
+   ...
+}
 
 #------------------------------------------------------------------------------#
 # Python 2.7
