@@ -426,7 +426,7 @@ fulldiag_regress:
     EXTRA_CMAKE_ARGS: -DDRACO_DIAGNOSTICS=7 -DDRACO_TIMING=1 -DDRACO_LIBRARY_TYPE=STATIC
     MAKEFILE_FLAGS: -j -l 112
     CTEST_NPROC: 56
-    CTEST_BUILD_NAME: fulldiag
+    CTEST_BUILD_NAME: fulldiag-static
 
 gcov_regress:
   tags:
