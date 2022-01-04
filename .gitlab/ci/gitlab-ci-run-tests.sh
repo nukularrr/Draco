@@ -29,7 +29,7 @@ if [[ -n "${DRACO_INSTALL_DIR}" ]]; then
   if ! [[ -d "${DRACO_INSTALL_DIR}" ]]; then
     run "mkdir -p ${DRACO_INSTALL_DIR}"
     run "chgrp ccsrad ${DRACO_INSTALL_DIR}"
-    run "chmod g+rwX ${DRACO_INSTALL_DIR}"
+    run "chmod g+rwX,o+rX ${DRACO_INSTALL_DIR}"
     run "chmod g+s ${DRACO_INSTALL_DIR}"
   fi
   EXTRA_CMAKE_ARGS="-DCMAKE_INSTALL_PREFIX=${DRACO_INSTALL_DIR} ${EXTRA_CMAKE_ARGS}"
@@ -137,8 +137,8 @@ fi
 
 # Double check permissions for installed (deployed) files
 if [["${DEPLOY}" != "TRUE" ]]; then
-  run "find ${mydir} ! -perm -g+rw -exec ls -aFl {} \;"
-  badpermfiles=$(find ${mydir} ! -perm -g+rw -exec ls  {} \;)
+  run "find ${DRACO_INSTALL_DIR} ! -perm -g+rw -exec ls -aFl {} \;"
+  badpermfiles=$(find ${DRACO_INSTALL_DIR} ! -perm -g+rw -exec ls  {} \;)
   run "chgrp ccsard $badpermfiles"
   run "chmod g+rwX,o+rX $badpermfiles"
 fi
