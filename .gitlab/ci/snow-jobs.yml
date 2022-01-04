@@ -34,7 +34,7 @@
     - /bin/bash -l -c "${CI_PROJECT_DIR}/.gitlab/ci/gitlab-ci-run-tests.sh"
   rules:
     # Don't deploy if this is a forked repository.
-    - if: '$CI_PROJECT_NAMESPACE != "draco"
+    - if: '$CI_PROJECT_NAMESPACE != "draco"'
       when: never
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
