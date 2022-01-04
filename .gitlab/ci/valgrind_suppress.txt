@@ -2267,6 +2267,46 @@
    fun:PMPI_Init
    ...
 }
+{
+   openmpi/405/030
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:OPAL_MCA_PMIX3X_pmix_bfrops_base_unpack_bo
+   ...
+   fun:PMPI_Init
+   ...
+}
+{
+   openmpi/405/031
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:ompi_datatype_get_pack_description
+   ...
+   fun:PMPI_Put
+   ...
+}
+{
+   openmpi/405/032
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:calloc
+   fun:opal_hash_table_init2
+   ...
+   fun:PMPI_Comm_dup
+   ...
+}
+{
+   openmpi/405/033
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:ompi_attr_copy_all
+   ...
+   fun:PMPI_Comm_dup
+   ...
+}
 
 #------------------------------------------------------------------------------#
 # Python 2.7
