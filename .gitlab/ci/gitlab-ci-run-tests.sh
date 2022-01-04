@@ -3,8 +3,11 @@
 # File  : ./.gitlab/ci/gitlab-ci-run-tests.sh
 # Date  : Tuesday, Jun 02, 2020, 12:28 pm
 # Author: Kelly Thompson <kgt@lanl.gov>
-# Note  : Copyright (C) 2020-2021 Triad National Security, LLC., All rights reserved.
+# Note  : Copyright (C) 2021-2022 Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
+
+# Draco is open source.  Set permissions to g+rwX,o=g-w
+umask 0002
 
 # preliminaries and environment
 set -e
@@ -23,7 +26,13 @@ fi
 [[ -z "${MAXLOAD}" ]] && MAXLOAD=$NPROC || echo "limiting MAXLOAD = $MAXLOAD"
 [[ "${DEPLOY}" == "TRUE" ]] && EXTRA_CMAKE_ARGS="-DBUILD_TESTING=NO ${EXTRA_CMAKE_ARGS}"
 if [[ -n "${DRACO_INSTALL_DIR}" ]]; then
-   EXTRA_CMAKE_ARGS="-DCMAKE_INSTALL_PREFIX=${DRACO_INSTALL_DIR} ${EXTRA_CMAKE_ARGS}"
+  if ! [[ -d "${DRACO_INSTALL_DIR}" ]]; then
+    run "mkdir -p ${DRACO_INSTALL_DIR}"
+    run "chgrp ccsrad ${DRACO_INSTALL_DIR}"
+    run "chmod g+rwX ${DRACO_INSTALL_DIR}"
+    run "chmod g+s ${DRACO_INSTALL_DIR}"
+  fi
+  EXTRA_CMAKE_ARGS="-DCMAKE_INSTALL_PREFIX=${DRACO_INSTALL_DIR} ${EXTRA_CMAKE_ARGS}"
 fi
 
 #if [[ -d /ccs/opt/texlive/2018/texmf-dist/tex/latex/newunicodechar ]]; then
@@ -124,6 +133,14 @@ fi
 # Generate a coverage report (text and html)
 if [[ "${CODECOV}" == "ON" && "${DEPLOY}" != "TRUE" ]]; then
   run "make covrep"
+fi
+
+# Double check permissions for installed (deployed) files
+if [["${DEPLOY}" != "TRUE" ]]; then
+  run "find ${mydir} ! -perm -g+rw -exec ls -aFl {} \;"
+  badpermfiles=$(find ${mydir} ! -perm -g+rw -exec ls  {} \;)
+  run "chgrp ccsard $badpermfiles"
+  run "chmod g+rwX,o+rX $badpermfiles"
 fi
 
 if [[ ${CTEST_MODE} == "Nightly" ]]; then
