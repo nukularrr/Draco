@@ -136,7 +136,7 @@ if [[ "${CODECOV}" == "ON" && "${DEPLOY}" != "TRUE" ]]; then
 fi
 
 # Double check permissions for installed (deployed) files
-if [["${DEPLOY}" != "TRUE" ]]; then
+if [[ "${DEPLOY}" != "TRUE" ]]; then
   run "find ${DRACO_INSTALL_DIR} ! -perm -g+rw -exec ls -aFl {} \;"
   badpermfiles=$(find ${DRACO_INSTALL_DIR} ! -perm -g+rw -exec ls  {} \;)
   run "chgrp ccsard $badpermfiles"
