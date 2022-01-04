@@ -8,6 +8,7 @@
 
 # Draco is open source.  Set permissions to g+rwX,o=g-w
 umask 0002
+umask
 
 # preliminaries and environment
 set -e
@@ -137,10 +138,10 @@ fi
 
 # Double check permissions for installed (deployed) files
 if [[ "${DEPLOY}" == "TRUE" ]]; then
-  run "find ${DRACO_INSTALL_DIR} ! -perm -g+rw -exec ls -aFl {} \;"
-  badpermfiles=$(find ${DRACO_INSTALL_DIR} ! -perm -g+rw -exec ls  {} \;)
-  run "chgrp ccsrad $badpermfiles"
-  run "chmod g+rwX,o+rX $badpermfiles"
+  # run "find ${DRACO_INSTALL_DIR} ! -perm -g+rw -exec ls -aFl {} \;"
+  # badpermfiles=$(find ${DRACO_INSTALL_DIR} ! -perm -g+rw -exec ls  {} \;)
+  run "chgrp -R ccsrad ${DRACO_INSTALL_DIR}"
+  run "chmod -R g+rwX,o+rX ${DRACO_INSTALL_DIR}"
 fi
 
 if [[ ${CTEST_MODE} == "Nightly" ]]; then
