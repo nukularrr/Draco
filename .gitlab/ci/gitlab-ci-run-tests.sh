@@ -139,7 +139,7 @@ fi
 if [[ "${DEPLOY}" == "TRUE" ]]; then
   run "find ${DRACO_INSTALL_DIR} ! -perm -g+rw -exec ls -aFl {} \;"
   badpermfiles=$(find ${DRACO_INSTALL_DIR} ! -perm -g+rw -exec ls  {} \;)
-  run "chgrp ccsard $badpermfiles"
+  run "chgrp ccsrad $badpermfiles"
   run "chmod g+rwX,o+rX $badpermfiles"
 fi
 
