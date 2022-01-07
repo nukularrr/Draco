@@ -52,8 +52,8 @@ os.environ['no_proxy'] = '*'
 # MAC: I found this by looking at the HTML source of the draco gitlab page (see
 # https://stackoverflow.com/questions/39559689/where-do-i-find-the-project-id-for-the-gitlab-api)
 # for instructions.
-jn_id = "503"  # Draco
-api_url = 'https://re-git.lanl.gov/api/v4/projects/{0}/merge_requests?'.format(jn_id)
+draco_id = "503"  # Draco
+api_url = 'https://re-git.lanl.gov/api/v4/projects/{0}/merge_requests?'.format(draco_id)
 api_url += 'state=merged&private_token={0}'.format(git_token)
 
 result = requests.get(api_url, auth=(username, git_token))
@@ -112,10 +112,10 @@ while 'next' in result.links.keys() and not all_done:
 # Issues - Fixed
 # ------------------------------------------------------------------------------------------------ #
 
-# this API url gets all of the closed merge resquests in jayenne, this generally looks like
+# this API url gets all of the closed merge resquests in Draco, this generally looks like
 # https://api.github.com/DATA/ORG/REPO_NAME/DESCRIPTOR, see the github API for more information
 
-api_url = 'https://re-git.lanl.gov/api/v4/projects/{0}/issues?'.format(jn_id)
+api_url = 'https://re-git.lanl.gov/api/v4/projects/{0}/issues?'.format(draco_id)
 api_url += 'state=closed&private_token={0}'.format(git_token)
 result = requests.get(api_url, auth=(username, git_token))
 result_json = result.json()
@@ -147,7 +147,7 @@ for entry in result_json:
 # this API url gets all of the closed pull resquests in draco, this generally looks like
 # https://api.github.com/DATA/ORG/REPO_NAME/DESCRIPTOR, see the github API for more information
 
-api_url = 'https://re-git.lanl.gov/api/v4/projects/{0}/issues?'.format(jn_id)
+api_url = 'https://re-git.lanl.gov/api/v4/projects/{0}/issues?'.format(draco_id)
 api_url += 'state=opened&private_token={0}'.format(git_token)
 result = requests.get(api_url, auth=(username, git_token))
 result_json = result.json()
