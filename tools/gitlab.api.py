@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------------------------ #
 # File: gitlab.api.py
-# Note: Copyright (C) 2021 Triad National Security, LLC., All rights reserved.
+# Note: Copyright (C) 2022 Triad National Security, LLC., All rights reserved.
 #
 # Sample use:
 # ---------------------------------------
