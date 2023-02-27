@@ -4,11 +4,7 @@
  * \author Rob Lowrie
  * \date   Fri Jan 14 09:12:16 2005
  * \brief  Tests Norms.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved.
- */
-//------------------------------------------------------------------------------------------------//
-
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "c4/ParallelUnitTest.hh"
@@ -86,7 +82,7 @@ void test_Norms(rtt_dsxx::UnitTest &ut) {
 
   { // test copy ctor.
 
-    Norms nc(norms);
+    Norms nc(norms); // NOLINT(performance-unnecessary-copy-initialization) testing the ctor
     UNIT_TEST(nc == norms);
   }
 
@@ -155,7 +151,7 @@ void test_Norms_Labeled(rtt_dsxx::UnitTest &ut) {
 
   { // test copy ctor.
 
-    Norms_Labeled nc(norms);
+    Norms_Labeled nc(norms); // NOLINT(performance-unnecessary-copy-initialization) testing the ctor
     UNIT_TEST(nc == norms);
   }
 
@@ -221,7 +217,7 @@ void test_Norms_Proc(rtt_dsxx::UnitTest &ut) {
 
   { // test copy ctor.
 
-    Norms_Proc nc(norms);
+    Norms_Proc nc(norms); // NOLINT(performance-unnecessary-copy-initialization) testing the ctor
     UNIT_TEST(nc == norms);
   }
 

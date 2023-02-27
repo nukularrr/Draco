@@ -54,9 +54,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #endif
 
+/*
 #if defined(__INTEL_LLVM_COMPILER)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-but-set-variable"
+#endif
+*/
+
+#ifdef __NVCOMPILER
+#pragma diag_suppress 550 // set_but_not_used
 #endif
 
 #include <Random123/features/compilerfeatures.h>
@@ -194,9 +200,15 @@ int main(int, char **) {
 
 #endif
 
+#ifdef __NVCOMPILER
+#pragma diag_warning 550 // set_but_not_used
+#endif
+
+/*
 #if defined(__INTEL_LLVM_COMPILER)
 #pragma clang diagnostic pop
 #endif
+*/
 
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop

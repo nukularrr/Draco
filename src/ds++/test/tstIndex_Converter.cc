@@ -3,7 +3,7 @@
  * \file   ds++/test/tstIndex_Converter.cc
  * \author Mike Buksas
  * \date   Fri Jan 20 15:53:51 2006
- * \note   Copyright (C) 2016-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "ds++/Index_Converter.hh"
@@ -81,7 +81,7 @@ void test_index_converter(rtt_dsxx::UnitTest &ut) {
     FAIL_IF_NOT(box.get_next_index(index, 5) == 18);
     FAIL_IF_NOT(box.get_next_index(index, 6) == 42);
 
-    Index_Converter<3, 0> copy(box);
+    Index_Converter<3, 0> copy(box); // NOLINT
     FAIL_IF_NOT(copy == box);
   }
 

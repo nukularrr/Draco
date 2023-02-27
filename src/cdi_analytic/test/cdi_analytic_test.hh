@@ -4,8 +4,7 @@
  * \author Thomas M. Evans
  * \date   Mon Sep 24 12:04:00 2001
  * \brief  Dummy model used for testing cdi_analytic software.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_analytic_test_hh
@@ -38,7 +37,7 @@ public:
     return calculate_opacity(T, rho);
   }
 
-  std::vector<double> get_parameters() const override { return std::vector<double>(1, a); }
+  std::vector<double> get_parameters() const override { return {a}; }
 
   std::vector<char> pack() const override {
     rtt_dsxx::Packer packer;

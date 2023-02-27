@@ -4,7 +4,7 @@
  * \author Thomas M. Evans
  * \date   Wed Mar 27 10:26:42 2002
  * \brief  RTT_Format_Reader test.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "TestRTTFormatReader.hh"
@@ -50,33 +50,21 @@ void runTest(UnitTest &ut) {
     // called by the other tests (with the exception of check header) if not invoked herein.  The
     // comparison data must also be provided for additional meshes within the switch structure
     // residing in the test functions.
-    switch (mesh_number) {
-    // Test all nested class accessor functions for a very simplistic mesh file (enum DEFINED).
-    case (0):
+    if (mesh_number == 0) {
+      // Test all nested class accessor functions for a very simplistic mesh file (enum DEFINED).
       mesh_type = DEFINED;
-      all_passed = all_passed && check_header(mesh, mesh_type, ut);
-      all_passed = all_passed && check_dims(mesh, mesh_type, ut);
-      all_passed = all_passed && check_node_flags(mesh, mesh_type, ut);
-      all_passed = all_passed && check_side_flags(mesh, mesh_type, ut);
-      all_passed = all_passed && check_cell_flags(mesh, mesh_type, ut);
-      all_passed = all_passed && check_node_data_ids(mesh, mesh_type, ut);
-      all_passed = all_passed && check_side_data_ids(mesh, mesh_type, ut);
-      all_passed = all_passed && check_cell_data_ids(mesh, mesh_type, ut);
-      all_passed = all_passed && check_cell_defs(mesh, mesh_type, ut);
-      all_passed = all_passed && check_nodes(mesh, mesh_type, ut);
-      all_passed = all_passed && check_sides(mesh, mesh_type, ut);
-      all_passed = all_passed && check_cells(mesh, mesh_type, ut);
-      all_passed = all_passed && check_node_data(mesh, mesh_type, ut);
-      all_passed = all_passed && check_side_data(mesh, mesh_type, ut);
-      all_passed = all_passed && check_cell_data(mesh, mesh_type, ut);
-      break;
-
-    default:
-      ostringstream m;
-      m << "Invalid mesh type encountered." << std::endl;
-      FAILMSG(m.str());
+      all_passed =
+          check_header(mesh, mesh_type, ut) && check_dims(mesh, mesh_type, ut) &&
+          check_node_flags(mesh, mesh_type, ut) && check_side_flags(mesh, mesh_type, ut) &&
+          check_cell_flags(mesh, mesh_type, ut) && check_node_data_ids(mesh, mesh_type, ut) &&
+          check_side_data_ids(mesh, mesh_type, ut) && check_cell_data_ids(mesh, mesh_type, ut) &&
+          check_cell_defs(mesh, mesh_type, ut) && check_nodes(mesh, mesh_type, ut) &&
+          check_sides(mesh, mesh_type, ut) && check_cells(mesh, mesh_type, ut) &&
+          check_node_data(mesh, mesh_type, ut) && check_side_data(mesh, mesh_type, ut) &&
+          check_cell_data(mesh, mesh_type, ut);
+    } else {
+      FAILMSG("Invalid mesh type encountered.");
       all_passed = false;
-      break;
     }
 
     if (!all_passed) {
@@ -1071,7 +1059,7 @@ bool check_cell_defs(RTT_Format_Reader const &mesh, Meshes const &meshtype, Unit
 
   // Check cell definition access
   {
-    rtt_RTT_Format_Reader::CellDef const myCellDef(mesh.get_cell_defs_cell_def(0));
+    rtt_RTT_Format_Reader::CellDef const myCellDef(mesh.get_cell_defs_cell_def(0)); // NOLINT
     if (myCellDef.get_name() == std::string("point") && myCellDef.get_nnodes() == 1 &&
         myCellDef.get_nsides() == 0 && myCellDef.get_all_side_types().size() == 0 &&
         myCellDef.get_all_sides().size() == 0 && myCellDef.get_all_ordered_sides().size() == 0) {
@@ -1083,7 +1071,7 @@ bool check_cell_defs(RTT_Format_Reader const &mesh, Meshes const &meshtype, Unit
 
   // Check get_cell_defs_node_map(int)
   {
-    std::vector<unsigned> const myNodes = mesh.get_cell_defs_node_map(0);
+    std::vector<unsigned> const myNodes = mesh.get_cell_defs_node_map(0); // NOLINT
     size_t mySize = myNodes.size();
     // std::cout << "mySize = " << mySize << std::endl;
     if (mySize == 0) {

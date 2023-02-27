@@ -4,7 +4,7 @@
  * \author B.T. Adams
  * \date   Wed Jun 7 10:33:26 2000
  * \brief  Header file for RTT_Format_Reader/NodeDataIDs class.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_RTT_Format_Reader_NodeDataIDs_hh
@@ -21,6 +21,12 @@ namespace rtt_RTT_Format_Reader {
  */
 //================================================================================================//
 class NodeDataIDs {
+
+private:
+  void readKeyword(std::ifstream &meshfile);
+  void readData(std::ifstream &meshfile);
+  void readEndKeyword(std::ifstream &meshfile);
+
   // typedefs
   using ifstream = std::ifstream;
   using string = std::string;
@@ -31,19 +37,16 @@ class NodeDataIDs {
   vector_str units;
 
 public:
-  NodeDataIDs(const Dims &dims_)
-      : dims(dims_), names(dims.get_nnode_data()), units(dims.get_nnode_data()) { /* empty */
-  }
+  explicit NodeDataIDs(const Dims &dims_)
+      : dims(dims_), names(dims.get_nnode_data()), units(dims.get_nnode_data()) {}
   ~NodeDataIDs() = default;
+  NodeDataIDs(NodeDataIDs const &rhs) = delete;
+  NodeDataIDs(NodeDataIDs &&rhs) noexcept = delete;
+  NodeDataIDs &operator=(NodeDataIDs const &rhs) = delete;
+  NodeDataIDs &operator=(NodeDataIDs &&rhs) noexcept = delete;
 
   void readDataIDs(ifstream &meshfile);
 
-private:
-  void readKeyword(ifstream &meshfile);
-  void readData(ifstream &meshfile);
-  void readEndKeyword(ifstream &meshfile);
-
-public:
   /*!
    * \brief Returns the specified node_data_id name.
    * \param id_numb node_data_id index number.

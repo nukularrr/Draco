@@ -3,7 +3,7 @@
  * \file   kde/quick_index.cc
  * \author Mathew Cleveland
  * \brief  Explicitly defined quick_index functions.
- * \note   Copyright (C) 2021-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2021-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "quick_index.hh"
@@ -38,9 +38,8 @@ quick_index::quick_index(const size_t dim_, const std::vector<std::array<double,
                          const std::array<double, 3> &sphere_center_)
     : dim(dim_), domain_decomposed(domain_decomposed_), spherical(spherical_),
       sphere_center(sphere_center_), coarse_bin_resolution(bins_per_dimension_),
-      max_window_size(max_window_size_),
       locations(spherical ? transform_spherical(dim_, sphere_center_, locations_) : locations_),
-      n_locations(locations_.size()) {
+      n_locations(locations_.size()), max_window_size(max_window_size_) {
   Require(dim > 0);
   Require(coarse_bin_resolution > 0);
 
@@ -66,12 +65,21 @@ quick_index::quick_index(const size_t dim_, const std::vector<std::array<double,
     // Store the local bounding box and extend to maximum non-local data size
     local_bounding_box_min = bounding_box_min;
     local_bounding_box_max = bounding_box_max;
+    // Global reduce to get the global min and max
+    rtt_c4::global_min(&bounding_box_min[0], 3);
+    rtt_c4::global_max(&bounding_box_max[0], 3);
+    double max_bin_size = 0.0;
     for (size_t d = 0; d < dim; d++) {
-      double wsize = max_window_size * 0.5;
+      // pad by one coarse index
+      const double coarse_bin_size =
+          (bounding_box_max[d] - bounding_box_min[d]) / static_cast<double>(coarse_bin_resolution);
+      max_bin_size = std::max(max_bin_size, coarse_bin_size);
+      double wsize = coarse_bin_size + max_window_size * 0.5;
       if (spherical && d == 1) {
         // Transform to dtheta via arch_lenght=r*dtheta
         // enforce a 90 degree maximum angle
-        wsize = std::min(rtt_units::PI / 2, 0.5 * max_window_size / local_bounding_box_max[0]);
+        wsize = std::min(rtt_units::PI / 2,
+                         0.5 * (max_window_size + coarse_bin_size) / local_bounding_box_max[0]);
       }
       local_bounding_box_min[d] -= wsize;
       local_bounding_box_max[d] += wsize;
@@ -79,35 +87,54 @@ quick_index::quick_index(const size_t dim_, const std::vector<std::array<double,
       if (spherical && d == 0)
         local_bounding_box_min[d] = std::max(0.0, local_bounding_box_min[d]);
     }
-    // Global reduce to get the global min and max
-    rtt_c4::global_min(&bounding_box_min[0], 3);
-    rtt_c4::global_max(&bounding_box_max[0], 3);
+
+    // increase the max window size to reflect the coarse index padding
+    max_window_size += max_bin_size;
+
     if (!spherical) {
       // spherical theta bounds can exceed global bounds because the window wraps around theta=0.
       for (size_t d = 0; d < dim; d++) {
         local_bounding_box_min[d] = std::max(local_bounding_box_min[d], bounding_box_min[d]);
         local_bounding_box_max[d] = std::min(local_bounding_box_max[d], bounding_box_max[d]);
       }
+    } else if (spherical && local_bounding_box_min[1] < 0.0 &&
+               local_bounding_box_max[1] > 2.0 * rtt_units::PI) {
+      // if the domain contains the full sphere hard code the bounds
+      local_bounding_box_min[1] = 0.0;
+      local_bounding_box_max[1] = 2.0 * rtt_units::PI;
     }
   }
 
   // temp cast corse_bin_resolution to double for interpolation
   const auto crd = static_cast<double>(coarse_bin_resolution);
+  const auto inv_crd = 1.0 / crd;
 
   // build up the local hash table of into global bins
   size_t locIndex = 0;
   for (auto &loc : locations) {
     std::array<size_t, 3> index{0UL, 0UL, 0UL};
+    std::array<double, 3> index_center{0.0, 0.0, 0.0};
+    std::array<double, 3> index_size{0.0, 0.0, 0.0};
     for (size_t d = 0; d < dim; d++) {
+      if (rtt_dsxx::soft_equiv(bounding_box_min[d], bounding_box_max[d])) {
+        index[d] = 0;
+        index_size[d] = 1;
+        index_center[d] = bounding_box_min[d];
+        continue;
+      }
       Check(bounding_box_min[d] < bounding_box_max[d]);
       index[d] = static_cast<size_t>(std::floor(crd * (loc[d] - bounding_box_min[d]) /
                                                 (bounding_box_max[d] - bounding_box_min[d])));
       index[d] = std::min(index[d], coarse_bin_resolution - 1);
+      index_size[d] = (bounding_box_max[d] - bounding_box_min[d]) * inv_crd;
+      index_center[d] = index_size[d] * (static_cast<double>(index[d]) + 0.5);
     }
     // build up the local index hash
     const size_t global_index = index[0] + index[1] * coarse_bin_resolution +
                                 index[2] * coarse_bin_resolution * coarse_bin_resolution;
     coarse_index_map[global_index].push_back(locIndex);
+    coarse_index_center[global_index] = index_center;
+    coarse_index_size[global_index] = index_size;
     locIndex++;
   }
 
@@ -120,17 +147,18 @@ quick_index::quick_index(const size_t dim_, const std::vector<std::array<double,
     // build list of local bins based on the local bounds
     local_bins = window_coarse_index_list(local_bounding_box_min, local_bounding_box_max);
 
-    // build a global map for number of entries into the global bins on each processor
-    // creates a (nbins**dim)*nranks sized array
-    // NOTE: If this gets to big we could stride over a subset of coarse bins
-    // and do multiple iterations of mpi communication to build up the map
+    // build a global map for number of entries into the global bins on each processor creates a
+    // (nbins**dim)*nranks sized array
+    //
+    // \note If this gets to big we could stride over a subset of coarse bins and do multiple
+    // iterations of mpi communication to build up the map
     size_t nbins = coarse_bin_resolution;
     for (size_t d = 1; d < dim; d++)
       nbins *= coarse_bin_resolution;
 
     std::vector<int> global_index_per_bin_per_proc(nbins * nodes, 0UL);
     for (auto &map : coarse_index_map) {
-      size_t gipbpp_index = map.first + nbins * node;
+      const size_t gipbpp_index = map.first + nbins * node;
       // must cast to an int to accomidate mpi int types.
       global_index_per_bin_per_proc[gipbpp_index] = static_cast<int>(map.second.size());
     }
@@ -141,7 +169,7 @@ quick_index::quick_index(const size_t dim_, const std::vector<std::array<double,
     for (size_t proc = 0; proc < nodes; proc++) {
       for (auto &bin : local_bins) {
         if (node != proc) {
-          size_t gipbpp_index = bin + nbins * proc;
+          const size_t gipbpp_index = bin + nbins * proc;
           // build up the local ghost index map
           for (int i = 0; i < global_index_per_bin_per_proc[gipbpp_index]; i++)
             local_ghost_index_map[bin].push_back(local_ghost_buffer_size + i);
@@ -177,7 +205,7 @@ quick_index::quick_index(const size_t dim_, const std::vector<std::array<double,
       }
       for (auto &map : coarse_index_map) {
         if (rtt_c4::node() != rec_proc) {
-          size_t gipbpp_index = map.first + nbins * rec_proc;
+          const size_t gipbpp_index = map.first + nbins * rec_proc;
           if (global_need_bins_per_proc[gipbpp_index] > 0) {
             // capture the largest put buffer on this rank
             if (map.second.size() > max_put_buffer_size)
@@ -203,7 +231,8 @@ quick_index::quick_index(const size_t dim_, const std::vector<std::array<double,
 #ifdef C4_MPI
 //------------------------------------------------------------------------------------------------//
 // call MPI_put using a chunk style write to avoid error in MPI_put with large local buffers.
-auto put_lambda = [](auto &put, auto &put_buffer, auto &put_size, auto &win) {
+auto put_lambda = [](auto &put, auto &put_buffer, auto &put_size, auto &win,
+                     MPI_Datatype mpi_data_type) {
   // temporary work around until RMA is available in c4
   // loop over all ranks we need to send this buffer too.
   for (auto &putv : put.second) {
@@ -218,8 +247,8 @@ auto put_lambda = [](auto &put, auto &put_buffer, auto &put_size, auto &win) {
     for (int c = 0; c < nchunks; c++) {
       chunk_size = std::min(chunk_size, static_cast<int>(put_size) - nput);
       Check(chunk_size > 0);
-      MPI_Put(&put_buffer[nput], chunk_size, MPI_DOUBLE, put_rank, put_offset, chunk_size,
-              MPI_DOUBLE, win);
+      MPI_Put(&put_buffer[nput], chunk_size, mpi_data_type, put_rank, put_offset, chunk_size,
+              mpi_data_type, win);
       nput += chunk_size;
     }
   }
@@ -235,7 +264,7 @@ auto put_lambda = [](auto &put, auto &put_buffer, auto &put_size, auto &win) {
  * ranks.
  *
  * \param[in] local_data the local 3 dimensional data that is required to be available as ghost cell
- * data on other processors.
+ *              data on other processors.
  * \param[in] local_ghost_data the resulting 3 dimensional ghost data data.
  */
 void quick_index::collect_ghost_data(const std::vector<std::array<double, 3>> &local_data,
@@ -267,9 +296,11 @@ void quick_index::collect_ghost_data(const std::vector<std::array<double, 3>> &l
         put_buffer[putIndex] = local_data[l][d];
         putIndex++;
       }
-      put_lambda(put, put_buffer, putIndex, win);
+      put_lambda(put, put_buffer, putIndex, win, MPI_DOUBLE);
     }
-    Remember(errorcode =) MPI_Win_fence((MPI_MODE_NOSTORE | MPI_MODE_NOSUCCEED), win);
+    Remember(errorcode =)
+        MPI_Win_fence((MPI_MODE_NOSTORE | MPI_MODE_NOSUCCEED), // NOLINT [hicpp-signed-bitwise]
+                      win);
     Check(errorcode == MPI_SUCCESS);
 
     // alright move the position buffer to the final correct array positions
@@ -331,9 +362,11 @@ void quick_index::collect_ghost_data(const std::vector<std::vector<double>> &loc
         put_buffer[putIndex] = local_data[d][l];
         putIndex++;
       }
-      put_lambda(put, put_buffer, putIndex, win);
+      put_lambda(put, put_buffer, putIndex, win, MPI_DOUBLE);
     }
-    Remember(errorcode =) MPI_Win_fence((MPI_MODE_NOSTORE | MPI_MODE_NOSUCCEED), win);
+    Remember(errorcode =)
+        MPI_Win_fence((MPI_MODE_NOSTORE | MPI_MODE_NOSUCCEED), // NOLINT [hicpp-signed-bitwise]
+                      win);
     Check(errorcode == MPI_SUCCESS);
     // alright move the position buffer to the final correct vector positions
     int posIndex = 0;
@@ -354,7 +387,7 @@ void quick_index::collect_ghost_data(const std::vector<std::vector<double>> &loc
  * allow each rank to independently fill in its data to ghost cells of other ranks.
  *
  * \param[in] local_data the local vector data that is required to be available as ghost cell data
- * on other processors.
+ *              on other processors.
  * \param[in,out] local_ghost_data the resulting ghost data
  */
 void quick_index::collect_ghost_data(const std::vector<double> &local_data,
@@ -383,9 +416,58 @@ void quick_index::collect_ghost_data(const std::vector<double> &local_data,
       put_buffer[putIndex] = local_data[l];
       putIndex++;
     }
-    put_lambda(put, put_buffer, putIndex, win);
+    put_lambda(put, put_buffer, putIndex, win, MPI_DOUBLE);
   }
-  Remember(errorcode =) MPI_Win_fence((MPI_MODE_NOSTORE | MPI_MODE_NOSUCCEED), win);
+  Remember(errorcode =)
+      MPI_Win_fence((MPI_MODE_NOSTORE | MPI_MODE_NOSUCCEED), // NOLINT [hicpp-signed-bitwise]
+                    win);
+  Check(errorcode == MPI_SUCCESS);
+  MPI_Win_free(&win);
+#endif
+}
+
+//------------------------------------------------------------------------------------------------//
+/*!
+ * \brief Collect ghost data for a vector<int>
+ *
+ * Collect ghost data for a single vector. This function uses RMA and the local put_window_map to
+ * allow each rank to independently fill in its data to ghost cells of other ranks.
+ *
+ * \param[in] local_data the local vector data that is required to be available as ghost cell data
+ *              on other processors.
+ * \param[in,out] local_ghost_data the resulting ghost data
+ */
+void quick_index::collect_ghost_data(const std::vector<int> &local_data,
+                                     std::vector<int> &local_ghost_data) const {
+  Require(local_data.size() == n_locations);
+  Insist(domain_decomposed, "Calling collect_ghost_data with a quick_index object that specified "
+                            "domain_decomposed=.false.");
+  Insist(local_ghost_data.size() == local_ghost_buffer_size,
+         "ghost_data input must be sized via quick_index.local_ghost_buffer_size");
+#ifdef C4_MPI // temporary work around until RMA is available in c4
+  std::vector<int> local_ghost_buffer(local_ghost_buffer_size, 0);
+  std::vector<int> put_buffer(max_put_buffer_size, 0);
+  MPI_Win win;
+  MPI_Win_create(local_ghost_data.data(), local_ghost_buffer_size * sizeof(int), sizeof(int),
+                 MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+
+  // working from my local data put the ghost data on the other ranks
+  Remember(int errorcode =) MPI_Win_fence(MPI_MODE_NOSTORE, win);
+  Check(errorcode == MPI_SUCCESS);
+  for (auto put : put_window_map) {
+    // use map.at() to allow const access
+    Check((coarse_index_map.at(put.first)).size() <= max_put_buffer_size);
+    // fill up the current ghost cell data for this dimension
+    int putIndex = 0;
+    for (auto &l : coarse_index_map.at(put.first)) {
+      put_buffer[putIndex] = local_data[l];
+      putIndex++;
+    }
+    put_lambda(put, put_buffer, putIndex, win, MPI_INT);
+  }
+  Remember(errorcode =)
+      MPI_Win_fence((MPI_MODE_NOSTORE | MPI_MODE_NOSUCCEED), // NOLINT [hicpp-signed-bitwise]
+                    win);
   Check(errorcode == MPI_SUCCESS);
   MPI_Win_free(&win);
 #endif
@@ -411,8 +493,8 @@ quick_index::window_coarse_index_list(const std::array<double, 3> &window_min,
   // temp cast corse_bin_resolution to double for interpolation
   const auto crd = static_cast<double>(coarse_bin_resolution);
 
-  // calculate the global index range that each processor needs to
-  // accommodate the specified data window size
+  // calculate the global index range that each processor needs to accommodate the specified data
+  // window size
   std::array<size_t, 3> index_min = {0UL, 0UL, 0UL};
   std::array<size_t, 3> index_max = {0UL, 0UL, 0UL};
   size_t nbins = 1;
@@ -425,18 +507,24 @@ quick_index::window_coarse_index_list(const std::array<double, 3> &window_min,
     double wmax = window_max[d];
     if (spherical && d == 1 && window_max[d] > bounding_box_max[d])
       wmax = bounding_box_max[d]; // truncate to standard theta space
+    if (rtt_dsxx::soft_equiv(bounding_box_min[d], bounding_box_max[d])) {
+      index_min[d] = 0;
+      index_max[d] = 0;
+      continue;
+    }
     index_min[d] = static_cast<size_t>(std::floor(std::max(
         crd * (wmin - bounding_box_min[d]) / (bounding_box_max[d] - bounding_box_min[d]), 0.0)));
     index_max[d] = static_cast<size_t>(std::floor(crd * (wmax - bounding_box_min[d]) /
                                                   (bounding_box_max[d] - bounding_box_min[d])));
-    // because local bounds can extend beyond the mesh we need to floor to
-    // the max bin size
+    // because local bounds can extend beyond the mesh we need to floor to the max bin size
     index_max[d] = std::min(index_max[d], coarse_bin_resolution - 1);
+    index_min[d] = std::min(index_min[d], coarse_bin_resolution - 1);
 
     // Use multiplicity to accumulate total bins;
     if ((index_max[d] - index_min[d]) > 0)
       nbins *= index_max[d] - index_min[d] + 1;
   }
+  Check(nbins > 0);
 
   // Fill up bin list
   size_t count = 0;
@@ -451,6 +539,7 @@ quick_index::window_coarse_index_list(const std::array<double, 3> &window_min,
       }
     }
   }
+  Check(bin_list.size() > 0);
   // Fill in the overflow around theta=0.0
   if (spherical && (window_min[1] < 0.0 || window_max[1] > 2.0 * rtt_units::PI)) {
     // Only one bound of the window should every overshoot zero
@@ -486,6 +575,7 @@ quick_index::window_coarse_index_list(const std::array<double, 3> &window_min,
       index_max[d] = std::min(index_max[d], coarse_bin_resolution - 1);
 
       // Use multiplicity to accumulate total bins;
+
       // if ((index_max[d] - index_min[d]) > 0)
       //   overlap_nbins *= index_max[d] - index_min[d] + 1;
     }
@@ -516,6 +606,11 @@ auto get_window_bin = [](auto spherical, const auto dim, const auto &grid_bins,
   std::array<size_t, 3> bin_id{0, 0, 0};
   double distance_to_bin_center = 0.0;
   for (size_t d = 0; d < dim; d++) {
+    if (rtt_dsxx::soft_equiv(window_max[d], window_min[d])) {
+      bin_id[d] = 0;
+      distance_to_bin_center = 0.0;
+      continue;
+    }
     Check((window_max[d] - window_min[d]) > 0.0);
     double loc = location[d];
     // transform location for zero theta overshoot
@@ -532,15 +627,17 @@ auto get_window_bin = [](auto spherical, const auto dim, const auto &grid_bins,
       valid = false;
       break;
     } else {
+      const double delta = window_max[d] - window_min[d];
+      Check(delta > 0.0);
       bin_id[d] = static_cast<size_t>(bin_value);
       // catch any values exactly on the edge of the top bin
       bin_id[d] = std::min(grid_bins[d] - 1, bin_id[d]);
       const double bin_center =
           window_min[d] + (static_cast<double>(bin_id[d]) / static_cast<double>(grid_bins[d]) +
                            0.5 / static_cast<double>(grid_bins[d])) *
-                              (window_max[d] - window_min[d]);
+                              delta;
       // approximate in spherical geometry;
-      distance_to_bin_center += (bin_center - loc) * (bin_center - loc);
+      distance_to_bin_center += (bin_center - loc) * (bin_center - loc) / delta;
     }
   }
   distance_to_bin_center =
@@ -558,8 +655,7 @@ auto get_window_bin = [](auto spherical, const auto dim, const auto &grid_bins,
 auto map_data = [](auto &bias_cell_count, auto &data_count, auto &grid_data, auto &min_distance,
                    const auto &map_type, const auto &data, const auto &distance_to_bin_center,
                    const auto &local_window_bin, const auto &data_bin) {
-  // regardless of map type if it is the first value to enter the bin it
-  // gets set to that value
+  // regardless of map type if it is the first value to enter the bin it gets set to that value
   if (data_count[local_window_bin] == 0) {
     bias_cell_count += 1.0;
     data_count[local_window_bin]++;
@@ -595,7 +691,6 @@ auto map_data = [](auto &bias_cell_count, auto &data_count, auto &grid_data, aut
  * Maps local+ghost data to a fixed mesh grid based on a specified weighting type. This data can
  * additionally be normalized and positively biased on the grid.
  *
- *
  * \param[in] local_data the local data on the processor to be mapped to the window
  * \param[in] ghost_data the ghost data on the processor to be mapped to the window
  * \param[in,out] grid_data the resulting data map
@@ -605,7 +700,7 @@ auto map_data = [](auto &bias_cell_count, auto &data_count, auto &grid_data, aut
  * \param[in] map_type_in string indicating the mapping (max, min, ave)
  * \param[in] normalize bool operator to specify if the data should be normalized to a pdf
  * \param[in] bias bool operator to specify if the data should be moved to the
- * positive domain space
+ *              positive domain space
  */
 void quick_index::map_data_to_grid_window(
     const std::vector<double> &local_data, const std::vector<double> &ghost_data,
@@ -680,8 +775,8 @@ void quick_index::map_data_to_grid_window(
   double bias_cell_count = 0.0;
   // Loop over all possible bins
   for (auto &cb : global_bins) {
-    // skip bins that aren't present in the map (can't use [] operator with constness)
-    // loop over the local data
+    // * skip bins that aren't present in the map (can't use [] operator with constness)
+    // * loop over the local data
     auto mapItr = coarse_index_map.find(cb);
     if (mapItr != coarse_index_map.end()) {
       for (auto &l : mapItr->second) {
@@ -734,15 +829,25 @@ void quick_index::map_data_to_grid_window(
     }
   }
   if (fill) {
-    double last_val = 0.0;
-    int last_data_count = 0;
+    double left_val = 0.0;
+    int left_data_count = 0;
+    double right_val = 0.0;
+    int right_data_count = 0;
     for (size_t i = 0; i < n_map_bins; i++) {
+      size_t ri = n_map_bins - 1 - i;
       if (data_count[i] > 0) {
-        last_val = grid_data[i];
-        last_data_count = data_count[i];
-      } else {
-        grid_data[i] = last_val;
-        data_count[i] = last_data_count;
+        left_val = grid_data[i];
+        left_data_count = data_count[i];
+      } else if (i > static_cast<size_t>(std::floor(n_map_bins / 2))) {
+        grid_data[i] = left_val;
+        data_count[i] = left_data_count;
+      }
+      if (data_count[ri] > 0) {
+        right_val = grid_data[ri];
+        right_data_count = data_count[ri];
+      } else if (ri <= static_cast<size_t>(std::floor(n_map_bins / 2))) {
+        grid_data[ri] = right_val;
+        data_count[ri] = right_data_count;
       }
     }
   }
@@ -821,7 +926,6 @@ auto map_vector_data = [](auto &bias_cell_count, auto &data_count, auto &grid_da
  * Maps multiple local+ghost data vectors to a fixed mesh grid based on a specified weighting type.
  * This data can additionally be normalized and positively biased on the grid.
  *
- *
  * \param[in] local_data the local data on the processor to be mapped to the window
  * \param[in] ghost_data the ghost data on the processor to be mapped to the window
  * \param[in,out] grid_data the resulting data map
@@ -830,10 +934,11 @@ auto map_vector_data = [](auto &bias_cell_count, auto &data_count, auto &grid_da
  * \param[in] grid_bins number of equally spaced bins in each dir
  * \param[in] map_type_in string indicating the mapping (max, min, ave)
  * \param[in] normalize bool operator to specify if the data should be normalized to a pdf
- * (independent of each data vector)
+ *               (independent of each data vector)
  * \param[in] bias bool operator to specify if the data should be moved to the positive domain space
- * (independent of each data vector)
- * \return bin_list list of global bins requested for the current window.
+ *               (independent of each data vector)
+ *
+ * Return the updated bin_list list of global bins requested for the current window.
  */
 void quick_index::map_data_to_grid_window(const std::vector<std::vector<double>> &local_data,
                                           const std::vector<std::vector<double>> &ghost_data,
@@ -966,17 +1071,28 @@ void quick_index::map_data_to_grid_window(const std::vector<std::vector<double>>
     }
   }
   if (fill) {
-    std::vector<double> last_val(vsize, 0.0);
-    int last_data_count = 0;
+    std::vector<double> left_val(vsize, 0.0);
+    int left_data_count = 0;
+    std::vector<double> right_val(vsize, 0.0);
+    int right_data_count = 0;
     for (size_t i = 0; i < n_map_bins; i++) {
       for (size_t v = 0; v < vsize; v++) {
+        size_t ri = n_map_bins - 1 - i;
         if (data_count[i] > 0) {
-          last_val[v] = grid_data[v][i];
-          last_data_count = data_count[i];
-        } else {
-          grid_data[v][i] = last_val[v];
+          left_val[v] = grid_data[v][i];
+          left_data_count = data_count[i];
+        } else if (i > static_cast<size_t>(std::floor(n_map_bins / 2))) {
+          grid_data[v][i] = left_val[v];
           if (v == vsize - 1)
-            data_count[i] = last_data_count;
+            data_count[i] = left_data_count;
+        }
+        if (data_count[ri] > 0) {
+          right_val[v] = grid_data[v][ri];
+          right_data_count = data_count[ri];
+        } else if (ri <= static_cast<size_t>(std::floor(n_map_bins / 2))) {
+          grid_data[v][ri] = right_val[v];
+          if (v == vsize - 1)
+            data_count[ri] = right_data_count;
         }
       }
     }
@@ -1024,19 +1140,14 @@ void quick_index::map_data_to_grid_window(const std::vector<std::vector<double>>
  * Maps multiple local+ghost data vectors to a fixed mesh grid based on a specified weighting type.
  * This data can additionally be normalized and positively biased on the grid.
  *
- *
  * \param[in] r0 initial position
  * \param[in] r final position
- * \param[in] arch_radius this is used for spherical geometry to determine at what radial point the
- * orthognal archlength is measured. This point must be bound by the initial and final point radius.
  * \return orthognal distance between the initial and final point in each direction
  */
 std::array<double, 3> quick_index::calc_orthogonal_distance(const std::array<double, 3> &r0,
-                                                            const std::array<double, 3> &r,
-                                                            const double arch_radius) const {
+                                                            const std::array<double, 3> &r) const {
   Require(spherical ? dim == 2 : true);
-  Require(spherical ? !(arch_radius < 0.0) : true);
-  return {r[0] - r0[0], spherical ? arch_radius * (r[1] - r0[1]) : r[1] - r0[1], r[2] - r0[2]};
+  return {r[0] - r0[0], r[1] - r0[1], r[2] - r0[2]};
 }
 
 } // namespace rtt_kde

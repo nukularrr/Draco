@@ -1,9 +1,9 @@
 #--------------------------------------------*-cmake-*---------------------------------------------#
 # file   src/c4/bin/CMakeLists.txt
 # brief  Instructions for building xthi Makefiles
-# note   Copyright (C) 2017-2021 Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2017-2022 Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.21.0)
 project(c4_bin CXX)
 
 # -------------------------------------------------------------------------------------------------#
@@ -11,7 +11,7 @@ project(c4_bin CXX)
 # -------------------------------------------------------------------------------------------------#
 
 # xthi depends on OpenMP, don't attempt to build it if we don't have it
-if(OPENMP_FOUND)
+if(OpenMP_FOUND)
   add_component_executable(
     TARGET Exe_xthi
     TARGET_DEPS Lib_c4

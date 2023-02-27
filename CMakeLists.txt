@@ -3,26 +3,26 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2010 April 28
 # brief  Instructions for building root level Makefile.
-# note   Copyright (C) 2019-2021 Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2010-2023 Triad National Security, LLC., All rights reserved.
 #
 # Build notes:
 #
 # * https://re-git.lanl.gov/draco/draco/-/wikis/home
 # * https://re-git.lanl.gov/draco/draco/-/wiki/Common_Configure_Options
 #--------------------------------------------------------------------------------------------------#
-cmake_minimum_required(VERSION 3.18.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.21.0 FATAL_ERROR)
 string(CONCAT ddesc "An object-oriented component library supporting radiation transport "
               "applications.")
 project(
   Draco
   DESCRIPTION ${ddesc}
-  VERSION 7.12
+  VERSION 7.15.0
   LANGUAGES CXX C)
 
 # Export compile commands for compiler tools
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
-# Do not look for Fortran/CUDA for
+# Do not look for Fortran/CUDA/HIP for
 #
 # 1. XCode based Generators, or
 # 2. Visual Studio IDE or NMake Generators (MSYS or CYGWIN environments will look for Fortran).
@@ -31,15 +31,26 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 #
 #   * Fortran only: $ENV{FC} is not set (e.g. clang on Linux)
 #   * Cuda only   : $ENV{CUDADIR} is not set (e.g. cuda module not loaded)
-if(${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
-  if(DEFINED ENV{FC} OR DEFINED CMAKE_Fortran_COMPILER)
-    enable_language(Fortran OPTIONAL)
-  endif()
+if((${CMAKE_GENERATOR} MATCHES "Unix Makefiles" OR ${CMAKE_GENERATOR} MATCHES "Ninja") AND NOT MSVC)
+  # For non-MSVC builds, always look for Fortran.  If $ENV{FC} or ${CMAKE_Fortran_COMPILER} are
+  # defined, they will be used.  Otherwise cmake will search for a Fortran compiler based on its
+  # internal rules.  Normally, it will look for gfortran first.
+  enable_language(Fortran OPTIONAL)
   if(DEFINED ENV{CUDADIR}
      OR DEFINED ENV{CUDACXX}
      OR DEFINED ENV{CUDA_HOME})
-    if((DEFINED USE_CUDA AND USE_CUDA) OR NOT DEFINED USE_CUDA)
+    if((DEFINED USE_GPU AND USE_GPU) OR NOT DEFINED USE_GPU)
       enable_language(CUDA OPTIONAL)
+    endif()
+  elseif(
+    "rocmcc" MATCHES $ENV{LOADEDMODULES}
+    OR DEFINED ENV{HIPCXX}
+    OR DEFINED CMAKE_HIP_COMPILER)
+    if((DEFINED USE_GPU AND USE_GPU) OR NOT DEFINED USE_GPU)
+      enable_language(HIP OPTIONAL)
+      if(CMAKE_HIP_COMPILER MATCHES "CC")
+        set(CMAKE_HIP_FLAGS "-x hip")
+      endif()
     endif()
   endif()
 endif()

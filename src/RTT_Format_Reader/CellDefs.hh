@@ -4,7 +4,7 @@
  * \author B.T. Adams
  * \date   Wed Jun 7 10:33:26 2000
  * \brief  Header file for CellDefs library.
- * \note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_RTT_Format_Reader_CellDefs_hh
@@ -50,11 +50,9 @@ class CellDef {
   vector_uint node_map;
 
 public:
-  CellDef(const CellDefs &cellDefs_, const string name_)
+  CellDef(const CellDefs &cellDefs_, string name_)
       : cellDefs(cellDefs_), name(std::move(name_)), nnodes(0), nsides(0),
-        side_types(vector_uint()), sides(vector_vector_uint()), ordered_sides(0),
-        node_map() { /* empty */
-  }
+        side_types(vector_uint()), sides(vector_vector_uint()), ordered_sides(0), node_map() {}
 
   ~CellDef() = default;
 
@@ -62,10 +60,8 @@ public:
   CellDef(CellDef const &rhs) = default;
   CellDef(CellDef &&rhs) = default;
 
-  // Assignment operator - "explicitly defaulted assignment op is implicitly deleted because
-  // CellsDefs is of reference type.
-  // CellDef & operator=(CellDef const & rhs) = default;
-  // CellDef & operator=(CellDef && rhs) = default;
+  CellDef &operator=(CellDef const &rhs) = delete;
+  CellDef &operator=(CellDef &&rhs) noexcept = delete;
 
   void readDef(ifstream &meshfile);
   void redefineCellDef(vector_uint const &new_side_types_,
@@ -118,7 +114,7 @@ public:
    */
   vector_uint const &get_ordered_side(size_t s) const { return ordered_sides[s]; }
 
-  //-------------------------------------------------------------------------//
+  //----------------------------------------------------------------------------------------------//
   /*!
    * \brief Returns the new nodes map when cell redefinition has been performed.
    * \return New nodes map.
@@ -148,10 +144,17 @@ class CellDefs {
   bool redefined;
 
 public:
-  CellDefs(const Dims &dims_)
+  explicit CellDefs(const Dims &dims_)
       : dims(dims_), defs(dims.get_ncell_defs()), redefined(false) { /*empty*/
   }
   ~CellDefs() = default;
+
+  //! Copy constructor
+  CellDefs(CellDefs const &rhs) = default;
+  CellDefs(CellDefs &&rhs) noexcept = default;
+
+  CellDefs &operator=(CellDefs const &rhs) = delete;
+  CellDefs &operator=(CellDefs &&rhs) noexcept = delete;
 
   void readCellDefs(ifstream &meshfile);
   void redefineCellDefs(vector_vector_uint const &cell_side_types,

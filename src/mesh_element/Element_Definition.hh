@@ -4,7 +4,7 @@
  * \author John McGhee
  * \date   Fri Feb 25 10:03:18 2000
  * \brief  Header file for the RTT Element_Definition class.
- * \note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_mesh_element_Element_Definition_hh
@@ -237,7 +237,7 @@ public:
    *
    * \post <code> get_side_nodes(i)==side_nodes_[i]  </code>
    */
-  Element_Definition(std::string name_, unsigned dimension_, unsigned number_of_nodes_,
+  Element_Definition(std::string const &name_, unsigned dimension_, unsigned number_of_nodes_,
                      unsigned number_of_sides_, std::vector<Element_Definition> const &elem_defs_,
                      std::vector<unsigned> const &side_type_,
                      std::vector<std::vector<unsigned>> const &side_nodes_);

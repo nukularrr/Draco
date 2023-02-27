@@ -4,7 +4,7 @@
  * \author B.T. Adams
  * \date   Wed Jun 7 10:33:26 2000
  * \brief  Header file for RTT_Mesh_Reader library.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_RTT_Format_Reader_RTT_Mesh_Reader_hh
@@ -30,6 +30,8 @@ namespace rtt_RTT_Format_Reader {
  */
 //================================================================================================//
 class RTT_Mesh_Reader : public rtt_meshReaders::Mesh_Reader {
+
+private:
   // NESTED CLASSES AND TYPEDEFS
   using string = std::string;
   using set_int = std::set<int>;
@@ -43,8 +45,6 @@ class RTT_Mesh_Reader : public rtt_meshReaders::Mesh_Reader {
   using vector_vector_vector_uint = std::vector<std::vector<std::vector<unsigned int>>>;
 
   // DATA
-
-private:
   std::shared_ptr<RTT_Format_Reader> rttMesh;
   std::vector<std::shared_ptr<rtt_mesh_element::Element_Definition>> element_defs;
   std::vector<rtt_mesh_element::Element_Definition::Element_Type> element_types;
@@ -55,14 +55,18 @@ public:
    * \brief Constructs an RTT_Mesh_Reader class object.
    * \param RTT_File Mesh file name.
    */
-  explicit RTT_Mesh_Reader(string RTT_File)
-      : rttMesh(new RTT_Format_Reader(std::move(RTT_File))), element_defs(), element_types(),
+  explicit RTT_Mesh_Reader(string const &RTT_File)
+      : rttMesh(new RTT_Format_Reader(RTT_File)), element_defs(), element_types(),
         unique_element_types() {
     transform2CGNS();
   }
 
   //! Destroys an RTT_Mesh_Reader class object
   ~RTT_Mesh_Reader() override = default;
+  RTT_Mesh_Reader(RTT_Mesh_Reader const &rhs) = delete;
+  RTT_Mesh_Reader(RTT_Mesh_Reader &&rhs) noexcept = delete;
+  RTT_Mesh_Reader &operator=(RTT_Mesh_Reader const &rhs) = delete;
+  RTT_Mesh_Reader &operator=(RTT_Mesh_Reader &&rhs) noexcept = delete;
 
   // ACCESSORS
 

@@ -4,7 +4,7 @@
  * \author Kelly Thompson
  * \date   Mon Jan 8 15:29:17 2001
  * \brief  DummyGrayOpacity class header file (derived from ../GrayOpacity)
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_DummyGrayOpacity_hh
@@ -68,14 +68,8 @@ public:
    * The constructor assigns fixed values for all of the member data.  Every instance of this object
    * has the same member data.
    */
-  DummyGrayOpacity(rtt_cdi::Reaction = rtt_cdi::TOTAL, rtt_cdi::Model = rtt_cdi::ANALYTIC);
-
-  /*!
-   * \brief Default DummyGrayOpacity() destructor.
-   *
-   * This is required to correctly release memory when a DummyGrayOpacity object is destroyed.
-   */
-  ~DummyGrayOpacity() override = default;
+  explicit DummyGrayOpacity(rtt_cdi::Reaction reaction = rtt_cdi::TOTAL,
+                            rtt_cdi::Model model = rtt_cdi::ANALYTIC);
 
   // --------- //
   // Accessors //
@@ -160,7 +154,7 @@ public:
   size_t getNumDensities() const override { return numDensities; }
 
   //! Dummy pack function.
-  std::vector<char> pack() const override { return std::vector<char>(); }
+  std::vector<char> pack() const override { return {}; }
 
   //! Returns the general opacity model type, defined in OpacityCommon.hh
   rtt_cdi::OpacityModelType getOpacityModelType() const override { return rtt_cdi::DUMMY_TYPE; }

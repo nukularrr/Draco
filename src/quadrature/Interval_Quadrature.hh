@@ -4,7 +4,7 @@
  * \author Kelly Thompson
  * \date   Tue Feb 22 10:21:50 2000
  * \brief  A class representing an interval Legendre quadrature set.
- * \note   Copyright 2016-2020 Triad National Security, LLC. All rights reserved.  */
+ * \note   Copyright (C) 2012-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_quadrature_Interval_Quadrature_hh
@@ -58,13 +58,13 @@ protected:
   using Quadrature::create_ordinates_;
 
   //! Virtual hook for create_ordinate_set
-  std::vector<Ordinate> create_ordinates_(unsigned dimension, Geometry, double norm,
+  std::vector<Ordinate> create_ordinates_(unsigned dimension, Geometry /*unused*/, double norm,
                                           unsigned mu_axis, unsigned eta_axis,
                                           bool include_starting_directions,
                                           bool include_extra_directions) const override;
 
   //! Virtual hook for create_ordinate_set
-  std::vector<Ordinate> create_ordinates_(unsigned dimension, Geometry, double norm,
+  std::vector<Ordinate> create_ordinates_(unsigned dimension, Geometry /*unused*/, double norm,
                                           bool include_starting_directions,
                                           bool include_extra_directions) const override;
 

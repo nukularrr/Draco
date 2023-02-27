@@ -3,7 +3,7 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2012 Aug 1
 # brief  Generate build project files for cdi_eospac/test.
-# note   Copyright (C) 2016-2021, Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2012-2022 Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
 project(cdi_eospac_test CXX)
 
@@ -21,7 +21,6 @@ if((DEFINED ENV{SESAMEPATH} AND EXISTS "$ENV{SESAMEPATH}")
    OR IS_DIRECTORY "/usr/projects/data/eos")
 
   # These tests require a datafile to be defined in the environment.
-
   add_scalar_tests(SOURCES "${test_sources}" DEPS "Lib_cdi_eospac")
 
   include(ApplicationUnitTest)
@@ -33,7 +32,8 @@ if((DEFINED ENV{SESAMEPATH} AND EXISTS "$ENV{SESAMEPATH}")
     DRIVER ${CMAKE_CURRENT_SOURCE_DIR}/tQueryEospac.cmake
     APP $<TARGET_FILE_DIR:Exe_QueryEospac>/$<TARGET_FILE_NAME:Exe_QueryEospac>
     STDINFILE ${PROJECT_SOURCE_DIR}/QueryEospacInput.dat
-    GOLDFILE ${PROJECT_SOURCE_DIR}/QueryEospac.gold)
+    GOLDFILE ${PROJECT_SOURCE_DIR}/QueryEospac.gold
+    LABELS "nomemcheck")
 endif()
 
 # Run the QueryEospac executable with options '--version' and '--help' to ensure these options print
@@ -41,7 +41,8 @@ endif()
 add_app_unit_test(
   DRIVER ${CMAKE_CURRENT_SOURCE_DIR}/tQueryEospac.cmake
   APP $<TARGET_FILE_DIR:Exe_QueryEospac>/$<TARGET_FILE_NAME:Exe_QueryEospac>
-  TEST_ARGS "--version;--help")
+  TEST_ARGS "--version;--help"
+  LABELS "nomemcheck")
 
 # ------------------------------------------------------------------------------------------------ #
 # End cdi_eospac/test/CMakeLists.txt

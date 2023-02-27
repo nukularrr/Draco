@@ -3,7 +3,7 @@
  * \file   VendorChecks/test/tstParmetis.cc
  * \date   Monday, May 16, 2016, 16:30 pm
  * \brief  Attempt to link to libparmetis and run a simple problem.
- * \note   Copyright (C) 2016-2021, Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2016-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "c4/ParallelUnitTest.hh"
@@ -58,7 +58,7 @@ void test_parmetis(rtt_c4::ParallelUnitTest &ut) {
 #if REALTYPEWIDTH == 64
   real_t ubvec = 1.05;
 #else
-  real_t ubvec = 1.05f;
+  real_t ubvec = 1.05F;
 #endif
   // This is an array of integers that is used to pass additional parameters for the routine.
   std::vector<idx_t> options(4, 0);

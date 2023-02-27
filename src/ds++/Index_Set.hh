@@ -3,7 +3,7 @@
  * \file   ds++/Index_Set.hh
  * \author Mike Buksas
  * \date   Thu Feb  2 10:01:46 2006
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef dsxx_Index_Set_hh
@@ -20,8 +20,7 @@ namespace rtt_dsxx {
  * \class Index_Set
  * \brief Represents a D-dimensional set if indices.
  * \sa Index_Set.cc for detailed descriptions.
- */
-/*!
+ *
  * \example ds++/test/tstIndex_Set.cc
  */
 //================================================================================================//
@@ -41,6 +40,14 @@ public:
   //! Copy constructor
   Index_Set(Index_Set const &rhs)
       : m_array_size(rhs.m_array_size), m_dimensions(rhs.m_dimensions) {}
+
+  //! Move constructor
+  Index_Set(Index_Set const &&rhs) noexcept
+      : m_array_size(rhs.m_array_size), m_dimensions(rhs.m_dimensions) {}
+
+  //! Assignment operator
+  Index_Set &operator=(Index_Set const &rhs) = delete;
+  Index_Set &operator=(Index_Set &&rhs) noexcept = delete;
 
   //! Destructor
   virtual ~Index_Set() = default;
@@ -75,11 +82,11 @@ public:
     Check(dimension_okay(d));
     return m_dimensions[d];
   }
-  int min_of_index(const unsigned Remember(d)) const {
+  int min_of_index(const size_t Remember(d)) const {
     Check(dimension_okay(d));
     return OFFSET;
   }
-  int max_of_index(const unsigned d) const {
+  int max_of_index(const size_t d) const {
     Check(dimension_okay(d));
     return OFFSET + m_dimensions[d] - 1;
   }
@@ -93,13 +100,13 @@ public:
 private:
   void compute_size();
 
-  unsigned m_array_size{0};             //!< Sizes of the whole index range
-  std::array<unsigned, D> m_dimensions; //!< Sizes of each dimension
+  unsigned m_array_size{0};               //!< Sizes of the whole index range
+  std::array<unsigned, D> m_dimensions{}; //!< Sizes of each dimension
 
 protected:
   // Make sure the index sizes are all positive when creating or resizing:
   bool sizes_okay() const {
-    return (std::find(m_dimensions.begin(), m_dimensions.begin() + D, 0u) ==
+    return (std::find(m_dimensions.begin(), m_dimensions.begin() + D, 0U) ==
             m_dimensions.begin() + D);
   }
 

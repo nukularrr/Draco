@@ -4,8 +4,7 @@
  * \author Thomas M. Evans
  * \date   Fri Aug 24 13:13:46 2001
  * \brief  Analytic_Gray_Opacity class definition.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_analytic_Analytic_Gray_Opacity_hh
@@ -23,34 +22,32 @@ namespace rtt_cdi_analytic {
  *
  * \brief Derived rtt_cdi::GrayOpacity class for analytic opacities.
  *
- * The Analytic_Gray_Opacity class is a derived rtt_cdi::GrayOpacity class.
- * It provides analytic opacity data. The specific analytic opacity model is
- * derived from the rtt_cdi_analytic::Analytic_Opacity_Model base class.
- * Several pre-built derived classes are provided in Analytic_Models.hh.
+ * The Analytic_Gray_Opacity class is a derived rtt_cdi::GrayOpacity class.  It provides analytic
+ * opacity data. The specific analytic opacity model is derived from the
+ * rtt_cdi_analytic::Analytic_Opacity_Model base class.  Several pre-built derived classes are
+ * provided in Analytic_Models.hh.
  *
- * Clients of this class can provide any analytic model class as long as it
- * conforms to the rtt_cdi_analytic::Analytic_Opacity_Model interface.  This
- * interface consists of a single function,
- * Analytic_Opacity_Model::calculate_opacity().
+ * Clients of this class can provide any analytic model class as long as it conforms to the
+ * rtt_cdi_analytic::Analytic_Opacity_Model interface.  This interface consists of a single
+ * function, Analytic_Opacity_Model::calculate_opacity().
  *
- * Note that opacities are returned in units of cm^2/g. Thus the resultant
- * opacity must be multiplied by density to get units of 1/cm.  See the
- * documentation in rtt_cdi_analytic::Analytic_Model for more info.
+ * Note that opacities are returned in units of cm^2/g. Thus the resultant opacity must be
+ * multiplied by density to get units of 1/cm.  See the documentation in
+ * rtt_cdi_analytic::Analytic_Model for more info.
  *
- * The constructors take a rtt_cdi::Reaction argument to determine the
- * reaction type.  The enumeration rtt_cdi::Reaction can have the value
- * TOTAL, ABSORPTION, or SCATTERING.
+ * The constructors take a rtt_cdi::Reaction argument to determine the reaction type.  The
+ * enumeration rtt_cdi::Reaction can have the value TOTAL, ABSORPTION, or SCATTERING.
  *
- * The default rtt_cdi::Model for an Analytic_Gray_Opacity is
- * rtt_cdi::ANALYTIC.  However, this can be overridden in the constructor.
+ * The default rtt_cdi::Model for an Analytic_Gray_Opacity is rtt_cdi::ANALYTIC.  However, this can
+ * be overridden in the constructor.
  *
- * This class conforms to the interface specified by rtt_cdi::GrayOpacity and
- * can be used with rtt_cdi::CDI to get analytic opacities.
+ * This class conforms to the interface specified by rtt_cdi::GrayOpacity and can be used with
+ * rtt_cdi::CDI to get analytic opacities.
  *
  * \example cdi_analytic/test/tstAnalytic_Gray_Opacity.cc
  *
- * Example usage of Analytic_Gray_Opacity, Analytic_Opacity_Model, and their
- * incorporation into rtt_cdi::CDI.
+ * Example usage of Analytic_Gray_Opacity, Analytic_Opacity_Model, and their incorporation into
+ * rtt_cdi::CDI.
  */
 //================================================================================================//
 
@@ -79,7 +76,7 @@ public:
                         rtt_cdi::Model cdi_model_in = rtt_cdi::ANALYTIC);
 
   // Constructor for packed Analytic_Gray_Opacities.
-  explicit Analytic_Gray_Opacity(const sf_char &);
+  explicit Analytic_Gray_Opacity(const sf_char &packed);
 
   // >>> ACCESSORS
   const_SP_Model get_Analytic_Model() const { return analytic_model; }
@@ -87,13 +84,13 @@ public:
   // >>> INTERFACE SPECIFIED BY rtt_cdi::GrayOpacity
 
   // Get an opacity.
-  double getOpacity(double, double) const override;
+  double getOpacity(double temperature, double density) const override;
 
   // Get an opacity field given a field of temperatures.
-  sf_double getOpacity(const sf_double &, double) const override;
+  sf_double getOpacity(const sf_double &temperature, double density) const override;
 
   // Get an opacity field given a field of densities.
-  sf_double getOpacity(double, const sf_double &) const override;
+  sf_double getOpacity(double temperature, const sf_double &density) const override;
 
   //! Query to see if data is in tabular or functional form (false).
   bool data_in_tabular_form() const override { return false; }
@@ -139,18 +136,13 @@ public:
 //------------------------------------------------------------------------------------------------//
 // INLINE FUNCTIONS
 //------------------------------------------------------------------------------------------------//
-/*!
- * \brief Return the energy policy descriptor (gray for
- * Analytic_Gray_Opacity).
- */
+//! Return the energy policy descriptor (gray for Analytic_Gray_Opacity).
 Analytic_Gray_Opacity::std_string Analytic_Gray_Opacity::getEnergyPolicyDescriptor() const {
-  return std_string("gray");
+  return "gray";
 }
 
 //------------------------------------------------------------------------------------------------//
-/*!
- * \brief Return a string describing the opacity model.
- */
+//! Return a string describing the opacity model.
 Analytic_Gray_Opacity::std_string Analytic_Gray_Opacity::getDataDescriptor() const {
   std_string descriptor;
 
@@ -170,9 +162,7 @@ Analytic_Gray_Opacity::std_string Analytic_Gray_Opacity::getDataDescriptor() con
 /*!
  * \brief Return NULL string for the data filename.
  */
-Analytic_Gray_Opacity::std_string Analytic_Gray_Opacity::getDataFilename() const {
-  return std_string();
-}
+Analytic_Gray_Opacity::std_string Analytic_Gray_Opacity::getDataFilename() const { return ""; }
 
 } // end namespace rtt_cdi_analytic
 

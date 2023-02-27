@@ -2,7 +2,7 @@
 /*!
  * \file   ds++/path.hh
  * \brief  Encapsulate path information (path separator, etc.)
- * \note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved.
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved.
  *
  * \bug Consider replacing path.cc and path.hh with C++17 filesystem */
 //------------------------------------------------------------------------------------------------//
@@ -159,17 +159,18 @@ void draco_walk_directory_tree(std::string const &dirname, T const &myOperator) 
 
     // Loop over all entries in the current directory.
     while ((entry = readdir(dir)) != nullptr) {
-      std::string d_name(entry->d_name);
+      std::string d_name(entry->d_name); // NOLINT [hicpp-no-array-decay]
 
       // Don't include "." or ".." entries.
       if (d_name[0] == '.')
         continue;
 
       std::string itemPath;
+      std::string const uds(1, UnixDirSep);
       if (dirname[dirname.length() - 1] == UnixDirSep)
-        itemPath = dirname + d_name;
+        itemPath.append(dirname).append(d_name);
       else
-        itemPath = dirname + UnixDirSep + d_name;
+        itemPath.append(dirname).append(uds).append(d_name);
 
       // if the entry is a directory, recursively delete it, otherwise, delete the file
       if (draco_getstat(itemPath).isdir())

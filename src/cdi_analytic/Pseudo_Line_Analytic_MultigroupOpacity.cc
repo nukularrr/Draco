@@ -3,8 +3,7 @@
  * \file   cdi_analytic/Pseudo_Line_Analytic_MultigroupOpacity.cc
  * \author Kent G. Budge
  * \date   Tue Apr  5 08:42:25 MDT 2011
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2011-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "Pseudo_Line_Analytic_MultigroupOpacity.hh"
@@ -27,9 +26,7 @@ using vf_double = Analytic_MultigroupOpacity::vf_double;
 class PLP_Functor {
 public:
   using return_type = double;
-
   PLP_Functor(Pseudo_Line_Base const *ptr, double const T) : ptr_(ptr), T_(T) {}
-
   double operator()(double x);
 
 private:
@@ -45,9 +42,7 @@ double PLP_Functor::operator()(double x) {
 class PLPW_Functor {
 public:
   using return_type = double;
-
-  PLPW_Functor(double const T) : T_(T) {}
-
+  explicit PLPW_Functor(double const T) : T_(T) {}
   double operator()(double x);
 
 private:
@@ -60,9 +55,7 @@ double PLPW_Functor::operator()(double x) { return Pseudo_Line_Base::BB(T_, x); 
 class PLR_Functor {
 public:
   using return_type = double;
-
   PLR_Functor(Pseudo_Line_Base const *ptr, double const T) : ptr_(ptr), T_(T) {}
-
   double operator()(double x);
 
 private:
@@ -78,9 +71,7 @@ double PLR_Functor::operator()(double x) {
 class PLRW_Functor {
 public:
   using return_type = double;
-
-  PLRW_Functor(double const T) : T_(T) {}
-
+  explicit PLRW_Functor(double const T) : T_(T) {}
   double operator()(double x);
 
 private:
@@ -103,14 +94,9 @@ Pseudo_Line_Analytic_MultigroupOpacity::Pseudo_Line_Analytic_MultigroupOpacity(
 //------------------------------------------------------------------------------------------------//
 //! Packing function
 //! \bug No unit tests so commenting out until a test can be added.
-
 Analytic_MultigroupOpacity::sf_char Pseudo_Line_Analytic_MultigroupOpacity::pack() const {
-  sf_char const pdata = Analytic_MultigroupOpacity::pack();
+  sf_char pdata = Analytic_MultigroupOpacity::pack();
   Insist(false, "Please add a Draco Unit Test before restoring this code.");
-  //   sf_char const pdata2 = Pseudo_Line_Base::pack();
-  //   sf_char Result(pdata.size() + pdata2.size());
-  //   copy(pdata.begin(), pdata.end(), Result.begin());
-  //   copy(pdata2.begin(), pdata2.end(), Result.begin() + pdata.size());
   return pdata;
 }
 
@@ -227,13 +213,12 @@ vf_double Pseudo_Line_Analytic_MultigroupOpacity::getOpacity(sf_double const &T,
 //------------------------------------------------------------------------------------------------//
 vf_double Pseudo_Line_Analytic_MultigroupOpacity::getOpacity(double const T,
                                                              sf_double const &rho) const {
-  return vf_double(rho.size(), getOpacity(T, rho[0]));
+  return {rho.size(), getOpacity(T, rho[0])};
 }
 
 //------------------------------------------------------------------------------------------------//
-Pseudo_Line_Analytic_MultigroupOpacity::std_string
-Pseudo_Line_Analytic_MultigroupOpacity::getDataDescriptor() const {
-  std_string descriptor;
+std::string Pseudo_Line_Analytic_MultigroupOpacity::getDataDescriptor() const {
+  std::string descriptor;
 
   rtt_cdi::Reaction const rxn = getReactionType();
 

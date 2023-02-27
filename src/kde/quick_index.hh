@@ -4,9 +4,8 @@
  * \author Mathew Cleveland
  * \brief  This class generates coarse spatial indexing to quickly access near-neighbor data. This
  *         additionally provides simple interpolation schemes to map data to simple structured
- *         meshes. 
- * \note   Copyright (C) 2021-2021 Triad National Security, LLC., All rights reserved.
- */
+ *         meshes.
+ * \note   Copyright (C) 2021-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_kde_quick_index_hh
@@ -31,7 +30,6 @@ namespace rtt_kde {
  * \param[in] dim used to ensure it is only used in valid dimension ranges
  * \param[in] sphere_center center of sphere in (x,y,z) or (r,z) coordinates
  * \param[in] locations (x,y,z) or (r,z) locations to transform to relative (r, theta, phi) space.
- *
  */
 inline std::vector<std::array<double, 3>>
 transform_spherical(const size_t dim, const std::array<double, 3> &sphere_center,
@@ -52,12 +50,7 @@ transform_spherical(const size_t dim, const std::array<double, 3> &sphere_center
 }
 
 //================================================================================================//
-/*!
- * \brief quick_index
- *
- * Provide a hash like index of spatial distributed data along with simple mapping functions.
- * 
- */
+//! Provide a hash like index of spatial distributed data along with simple mapping functions.
 //================================================================================================//
 
 class quick_index {
@@ -71,6 +64,10 @@ public:
   //! Collect Ghost Data
   void collect_ghost_data(const std::vector<double> &local_data,
                           std::vector<double> &local_ghost_data) const;
+
+  //! Override function for integer vectors
+  void collect_ghost_data(const std::vector<int> &local_data,
+                          std::vector<int> &local_ghost_data) const;
 
   //! Override function of 3D array ghost data.
   void collect_ghost_data(const std::vector<std::array<double, 3>> &local_data,
@@ -104,8 +101,7 @@ public:
 
   //! Calculate the orthogonal distance between to locations
   std::array<double, 3> calc_orthogonal_distance(const std::array<double, 3> &r0,
-                                                 const std::array<double, 3> &r,
-                                                 const double arch_radius) const;
+                                                 const std::array<double, 3> &r) const;
 
   // PUBLIC DATA
   // Quick index initialization data
@@ -114,20 +110,21 @@ public:
   const bool spherical;
   const std::array<double, 3> sphere_center;
   const size_t coarse_bin_resolution;
-  const double max_window_size;
   const std::vector<std::array<double, 3>> locations;
   const size_t n_locations;
 
   // Global bounds
-  std::array<double, 3> bounding_box_min;
-  std::array<double, 3> bounding_box_max;
+  std::array<double, 3> bounding_box_min{0.0};
+  std::array<double, 3> bounding_box_max{0.0};
   // Local Data map
   std::map<size_t, std::vector<size_t>> coarse_index_map;
+  std::map<size_t, std::array<double, 3>> coarse_index_center;
+  std::map<size_t, std::array<double, 3>> coarse_index_size;
 
   // DOMAIN DECOMPOSED DATA
   // Local bounds
-  std::array<double, 3> local_bounding_box_min;
-  std::array<double, 3> local_bounding_box_max;
+  std::array<double, 3> local_bounding_box_min{0.0};
+  std::array<double, 3> local_bounding_box_max{0.0};
   // Ordered list of local bins (indexes values are based on the global bin structure)
   std::vector<size_t> local_bins;
   // Size of ghost data buffer
@@ -145,6 +142,7 @@ private:
   std::map<size_t, std::vector<std::array<int, 2>>> put_window_map;
   // max put buffer size;
   size_t max_put_buffer_size;
+  double max_window_size;
 };
 
 } // end namespace  rtt_kde

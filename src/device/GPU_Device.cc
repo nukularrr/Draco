@@ -3,7 +3,7 @@
  * \file   device/GPU_Device.cc
  * \author Kelly (KT) Thompson
  * \date   Thu Oct 20 15:28:48 2011
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2011-2023 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "GPU_Device.hh"
@@ -23,7 +23,7 @@ namespace rtt_device {
  * - Set device and context handles.
  * - Query the devices for features.
  */
-GPU_Device::GPU_Device(void) : deviceCount(0), computeCapability(), deviceName() {
+GPU_Device::GPU_Device() : deviceCount(0), computeCapability(), deviceName() {
 
   // Get a device count, determine compute capability
   cudaError_t err = cudaGetDeviceCount(&deviceCount);
@@ -44,8 +44,12 @@ GPU_Device::GPU_Device(void) : deviceCount(0), computeCapability(), deviceName()
     // Compute capability revision
     int major = 0;
     int minor = 0;
+#ifdef USE_CUDA
     cudaDeviceGetAttribute(&major, cudaDevAttrComputeCapabilityMajor, device);
     cudaDeviceGetAttribute(&minor, cudaDevAttrComputeCapabilityMinor, device);
+#else
+    hipDeviceComputeCapability(&major, &minor, device);
+#endif
     computeCapability[device].push_back(major);
     computeCapability[device].push_back(minor);
 
@@ -125,7 +129,6 @@ void GPU_Device::printDeviceSummary(int const idevice, std::ostream &out) const 
  * \brief Convert a CUDA return enum value into a descriptive string.
  *
  * \param errorCode CUDA enum return value
- * \return descriptive string associated with
  *
  * For optimized builds with DRACO_DBC_LEVEL=0, this function will be empty and any decent compiler
  * will optimize this call away.
@@ -138,10 +141,7 @@ void GPU_Device::checkForCudaError(cudaError_t const errorCode) {
 
 #else
 //------------------------------------------------------------------------------------------------//
-/*!
- * \brief Convert a CUDA return enum value into a descriptive string.
- * \return descriptive string associated with
- */
+//! Convert a CUDA return enum value into a descriptive string.
 void GPU_Device::checkForCudaError(cudaError_t const) { /* empty */
 }
 #endif

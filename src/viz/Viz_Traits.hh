@@ -4,7 +4,7 @@
  * \author Thomas M. Evans
  * \date   Fri Jan 21 17:10:54 2000
  * \brief  Viz_Traits header file.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2014-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_viz_Viz_Traits_hh
@@ -43,17 +43,22 @@ private:
 
 public:
   //! Constructor.
-  Viz_Traits(const FT &field_in) : field(field_in) { /*...*/
-  }
+  explicit Viz_Traits(const FT &field_in) : field(field_in) {}
 
   //! Overloaded operator().
   typename FT::value_type operator()(size_t i, size_t j) const { return field(i, j); }
+
+  // Overloaded operator().
+  typename FT::value_type operator()(size_t i, size_t j, size_t /*k*/) const { return field(i, j); }
 
   //! Row size accessor.
   size_t nrows() const { return field.nrows(); }
 
   //! Column size accessor.
   size_t ncols(size_t row) const { return field.ncols(row); }
+
+  // Depth size accessor.
+  size_t ndpth(size_t /*row*/, size_t /*col*/) const { return 0; }
 };
 
 //------------------------------------------------------------------------------------------------//
@@ -70,12 +75,19 @@ private:
 
 public:
   // Constructor.
-  Viz_Traits(const std::vector<std::vector<T>> &fin) : field(fin) {
+  explicit Viz_Traits(const std::vector<std::vector<T>> &fin) : field(fin) {
     // Nothing to do here
   }
 
   // Overloaded operator().
   T operator()(size_t i, size_t j) const {
+    Require(i < field.size());
+    Require(j < field[i].size());
+    return field[i][j];
+  }
+
+  // Overloaded operator().
+  T operator()(size_t i, size_t j, size_t /*k*/) const {
     Require(i < field.size());
     Require(j < field[i].size());
     return field[i][j];
@@ -88,6 +100,59 @@ public:
   size_t ncols(size_t row) const {
     Require(row < field.size());
     return field[row].size();
+  }
+
+  // Depth size accessor.
+  size_t ndpth(size_t /*row*/, size_t /*col*/) const { return 0; }
+};
+
+//------------------------------------------------------------------------------------------------//
+// Specialization for std::vector<std::vector<std::vector>>
+
+template <typename T> class Viz_Traits<std::vector<std::vector<std::vector<T>>>> {
+public:
+  // Type traits
+  using elementType = T;
+
+private:
+  // Reference to vector<vector> field.
+  const std::vector<std::vector<std::vector<T>>> &field;
+
+public:
+  // Constructor.
+  explicit Viz_Traits(const std::vector<std::vector<std::vector<T>>> &fin) : field(fin) {
+    // Nothing to do here
+  }
+
+  // Overloaded operator().
+  std::vector<T> operator()(size_t i, size_t j) const {
+    Require(i < field.size());
+    Require(j < field[i].size());
+    return field[i][j];
+  }
+
+  // Overloaded operator().
+  T operator()(size_t i, size_t j, size_t k) const {
+    Require(i < field.size());
+    Require(j < field[i].size());
+    Require(k < field[i][j].size());
+    return field[i][j][k];
+  }
+
+  // Row size accessor.
+  size_t nrows() const { return field.size(); }
+
+  // Column size accessor.
+  size_t ncols(size_t row) const {
+    Require(row < field.size());
+    return field[row].size();
+  }
+
+  // Depth size accessor.
+  size_t ndpth(size_t row, size_t col) const {
+    Require(row < field.size());
+    Require(col < field[row].size());
+    return field[row][col].size();
   }
 };
 } // namespace rtt_viz

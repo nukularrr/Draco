@@ -4,7 +4,7 @@
  * \author B.T. Adams
  * \date   Wed Jun 7 10:33:26 2000
  * \brief  Header file for RTT_Format_Reader/SideFlags class.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_RTT_Format_Reader_SideFlags_hh
@@ -23,6 +23,12 @@ namespace rtt_RTT_Format_Reader {
  */
 //================================================================================================//
 class SideFlags {
+
+private:
+  void readKeyword(std::ifstream &meshfile);
+  void readFlagTypes(std::ifstream &meshfile);
+  void readEndKeyword(std::ifstream &meshfile);
+
   // typedefs
   using ifstream = std::ifstream;
   using string = std::string;
@@ -31,18 +37,15 @@ class SideFlags {
   std::vector<std::shared_ptr<Flags>> flagTypes;
 
 public:
-  SideFlags(const Dims &dims_) : dims(dims_), flagTypes(dims.get_nside_flag_types()) { /* empty */
-  }
+  explicit SideFlags(const Dims &dims_) : dims(dims_), flagTypes(dims.get_nside_flag_types()) {}
   ~SideFlags() = default;
+  SideFlags(SideFlags const &rhs) = delete;
+  SideFlags(SideFlags &&rhs) noexcept = delete;
+  SideFlags &operator=(SideFlags const &rhs) = delete;
+  SideFlags &operator=(SideFlags &&rhs) noexcept = delete;
 
   void readSideFlags(ifstream &meshfile);
 
-private:
-  void readKeyword(ifstream &meshfile);
-  void readFlagTypes(ifstream &meshfile);
-  void readEndKeyword(ifstream &meshfile);
-
-public:
   /*!
    * \brief Validates the specified side flag type and number.
    * \param flagtype Side flag type number.

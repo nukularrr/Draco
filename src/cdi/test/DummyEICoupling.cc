@@ -4,34 +4,13 @@
  * \author Mathew Cleveland
  * \date   March 2019
  * \brief  DummyEICoupling class header file (derived from ../EICoupling)
- * \note   Copyright (C) 2019-2020 Triad National Security, LLC., All rights reserved.  */
+ * \note   Copyright (C) 2019-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "DummyEICoupling.hh"
 #include <cmath>
 
 namespace rtt_cdi_test {
-
-// -------------------------- //
-// Constructors & Destructors //
-// -------------------------- //
-
-//------------------------------------------------------------------------------------------------//
-/*!
- * \brief Constructor for DummyEICoupling object.
- *
- * The constructor assigns fixed values for all of the member data.  Every instance of this object
- * has the same member data.
- */
-DummyEICoupling::DummyEICoupling() = default;
-
-//------------------------------------------------------------------------------------------------//
-/*!
- * \brief Default DummyEICoupling() destructor.
- *
- * This is required to correctly release memory when a DummyEICoupling object is destroyed.
- */
-DummyEICoupling::~DummyEICoupling() = default;
 
 // --------- //
 // Accessors //

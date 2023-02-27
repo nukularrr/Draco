@@ -3,8 +3,7 @@
  * \file   rng/Rnd_Control_Inline.hh
  * \author Paul Henning
  * \brief  Rnd_Control header file.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_rng_Rnd_Control_Inline_hh
@@ -20,9 +19,8 @@ namespace rtt_rng {
  * \class Rnd_Control
  * \brief A stream number manager that can initialize RNGs.
  *
- * Rnd_Control manages application-facing RNG information---a seed used by all
- * generators, and the next available stream number to be used when
- * constructing a new generator.
+ * Rnd_Control manages application-facing RNG information---a seed used by all generators, and the
+ * next available stream number to be used when constructing a new generator.
  */
 //================================================================================================//
 class Rnd_Control {
@@ -38,8 +36,8 @@ private:
 
 public:
   //! Constructor.
-  Rnd_Control(const uint32_t seed, const uint64_t streamnum = 0,
-              const uint64_t max_streams = std::numeric_limits<uint64_t>::max())
+  explicit Rnd_Control(const uint32_t seed, const uint64_t streamnum = 0,
+                       const uint64_t max_streams = std::numeric_limits<uint64_t>::max())
       : d_seed(seed), d_streamnum(streamnum), d_max_streams(max_streams) {
     Require(max_streams > 0);
     Require(streamnum < max_streams);
@@ -62,9 +60,9 @@ public:
   uint64_t get_max_streams() const { return d_max_streams; }
 
   GPU_HOST_DEVICE
-  inline void initialize(const uint64_t snum, Counter_RNG &);
+  inline void initialize(const uint64_t snum, Counter_RNG &cbrng);
   GPU_HOST_DEVICE
-  inline void initialize(Counter_RNG &);
+  inline void initialize(Counter_RNG &cbrng);
 };
 
 //------------------------------------------------------------------------------------------------//

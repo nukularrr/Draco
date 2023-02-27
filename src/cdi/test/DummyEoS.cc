@@ -4,34 +4,13 @@
  * \author Kelly Thompson
  * \date   Mon Jan 8 16:25:09 2001
  * \brief  DummyEoS class header file (derived from ../EoS)
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved.  */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "DummyEoS.hh"
 #include <cmath>
 
 namespace rtt_cdi_test {
-
-// -------------------------- //
-// Constructors & Destructors //
-// -------------------------- //
-
-//------------------------------------------------------------------------------------------------//
-/*!
- * \brief Constructor for DummyEoS object.
- *
- * The constructor assigns fixed values for all of the member data.  Every instance of this object
- * has the same member data.
- */
-DummyEoS::DummyEoS() = default;
-
-//------------------------------------------------------------------------------------------------//
-/*!
- * \brief Default DummyEoS() destructor.
- *
- * This is required to correctly release memory when a DummyEoS object is destroyed.
- */
-DummyEoS::~DummyEoS() = default;
 
 // --------- //
 // Accessors //

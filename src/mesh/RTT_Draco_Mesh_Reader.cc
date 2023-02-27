@@ -4,7 +4,7 @@
  * \author Ryan Wollaeger <wollaeger@lanl.gov>
  * \date   Friday, Jul 13, 2018, 08:38 am
  * \brief  RTT_Draco_Mesh_Reader header file.
- * \note   Copyright (C) 2018-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2018-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "RTT_Draco_Mesh_Reader.hh"
@@ -19,7 +19,7 @@ namespace rtt_mesh {
  *
  * \param[in] filename_ name of file to be parsed
  */
-RTT_Draco_Mesh_Reader::RTT_Draco_Mesh_Reader(const std::string filename_) : filename(filename_) {
+RTT_Draco_Mesh_Reader::RTT_Draco_Mesh_Reader(const std::string &filename_) : filename(filename_) {
   // check for valid file name
   Insist(filename_.size() > 0, "No file name supplied.");
 

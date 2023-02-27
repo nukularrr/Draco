@@ -4,7 +4,7 @@
  *  \brief  Provide a definition of a unit system (7 dimensions: length,  mass, time, temperature,
  *          current, angle, quantity).
  *  \date   Fri Oct 24 15:07:43 2003
- *  \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ *  \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_units_UnitSystem_hh
@@ -100,10 +100,14 @@ public:
 
   //! Define the equality operator for Units==Units.
   friend bool operator!=(UnitSystem const &op1, UnitSystem const &op2);
+
   // CREATORS
 
   //! Prefered constructor
-  UnitSystem(UnitSystemType const &ust) : d_ust(ust) { Require(validUnits()); }
+  UnitSystem(UnitSystemType ust) // NOLINT [hicpp-explicit-conversions]
+      : d_ust(std::move(ust)) {
+    Require(validUnits());
+  }
 
   //! Default constructor provides SI Units
   UnitSystem() : d_ust(UnitSystemType().SI()) { Require(validUnits()); }

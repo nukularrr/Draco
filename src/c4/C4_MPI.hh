@@ -4,7 +4,7 @@
  * \author Thomas M. Evans
  * \date   Thu Mar 21 16:56:16 2002
  * \brief  C4 MPI function declarations.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef c4_C4_MPI_hh
@@ -79,7 +79,7 @@ void broadcast(ForwardIterator first, ForwardIterator last, OutputIterator resul
   if (node() == 0)
     size = std::distance(first, last);
 
-  Remember(int check =) broadcast(&size, 1u, root);
+  Remember(int check =) broadcast(&size, 1U, root);
   Check(check == MPI_SUCCESS);
 
   if (size > 0) {

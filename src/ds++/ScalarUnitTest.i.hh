@@ -4,7 +4,7 @@
  * \author Kent Grimmett Budge
  * \date   Tue Nov  6 13:12:37 2018
  * \brief  Member definitions of class test
- * \note   Copyright (C) 2018-2020 Triad Nationaol Security, LLC. All rights reserved. */
+ * \note   Copyright (C) 2018-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef dsxx_ScalarUnitTest_i_hh
@@ -18,13 +18,13 @@ template <typename Lambda> void implement_do_unit_test(UnitTest &ut, Lambda cons
 
 template <typename First_Lambda, typename... More_Lambdas>
 void implement_do_unit_test(UnitTest &ut, First_Lambda const &first_lambda,
-                            More_Lambdas const &... more_lambdas) {
+                            More_Lambdas const &...more_lambdas) {
   first_lambda(ut);
   implement_do_unit_test(ut, more_lambdas...);
 }
 
 template <typename... Lambda, typename Release>
-int do_scalar_unit_test(int argc, char **argv, Release release, Lambda const &... lambda) {
+int do_scalar_unit_test(int argc, char **argv, Release release, Lambda const &...lambda) {
   ScalarUnitTest ut(argc, argv, release);
   try {
     implement_do_unit_test(ut, lambda...);

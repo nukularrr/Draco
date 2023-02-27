@@ -219,13 +219,16 @@ if [[ -x "${CMF}" ]]; then
     # extensions specified in $FILE_EXTS
     if ! matches_extension "$file"; then continue; fi
 
+    # ignore file if it no longer exists
+    if ! [[ -f "${file}" ]]; then continue; fi
+
     file_nameonly=$(basename "${file}")
     tmpfile1="/tmp/$USER/cmf-${file_nameonly}"
     echo "==> cmake-format ${file}"
     cp -f "${file}" "${tmpfile1}"
     $CMF -c "${rscriptdir}/../.cmake-format.py" -i "${tmpfile1}" &> /dev/null
     # color output is possible if diff -version >= 3.4 with option `--color`
-    diff ${DIFFCOLOR} -u "${file}" "${tmpfile1}" | \
+    diff "${DIFFCOLOR}" -u "${file}" "${tmpfile1}" | \
       sed -e "1s|--- |--- a/|" -e "2s|+++ ${tmpfile1}|+++ b/${file}|" >> "$patchfile_cmf"
     rm "${tmpfile1}"
 
@@ -292,8 +295,11 @@ if [[ -x $CML ]]; then
     # extensions specified in $FILE_EXTS
     if ! matches_extension "$file"; then continue; fi
 
+    # ignore file if it no longer exists
+    if ! [[ -f "${file}" ]]; then continue; fi
+
     printf "==> cmake-lint %s\n" "$file"
-    $CML --suppress-decoration "${file}" && echo -ne "==> cmake-lint ${file} ... OK\n" || cml_issues=1
+    $CML --suppress-decoration --max-branches 20 "${file}" && echo -ne "==> cmake-lint ${file} ... OK\n" || cml_issues=1
 
   done
 
@@ -349,6 +355,9 @@ if [[ -x "$FPY" ]]; then
     # ignore file if we do check for file extensions and the file does not match any of the
     # extensions specified in $FILE_EXTS
     if ! matches_extension "$file"; then continue; fi
+
+    # ignore file if it no longer exists
+    if ! [[ -f "${file}" ]]; then continue; fi
 
     file_nameonly=$(basename "${file}")
     tmpfile1="/tmp/$USER/f90-format-${file_nameonly}"
@@ -406,7 +415,7 @@ echo -e "Checking modified code for copyright block conformance.\n"
 patchfile_cb=$(mktemp "/tmp/$USER/copyright_block.patch.XXXXXXXX")
 
 # file types to parse.
-FILE_EXTS=".c .cc .cmake .h .hh .in .f90 .F90 .f .F .py .txt"
+FILE_EXTS=".c .cc .cmake .h .hh .in .f90 .F90 .f .F .md .py .txt"
 #FILE_ENDINGS_INCLUDE="_f.h _f77.h _f90.h"
 FILE_ENDINGS_EXCLUDE="ChangeLog Release.cc Release.hh info.cc check_style.sh"
 export FILE_EXTS FILE_ENDINGS_EXCLUDE
@@ -417,6 +426,7 @@ for file in $modifiedfiles; do
   # ignore file if we do check for file extensions and the file does not match any of the
   # extensions specified in $FILE_EXTS
   if ! matches_extension "$file"; then continue; fi
+
   # If this PR deletes a file, skip it
   if ! [[ -f "${file}" ]]; then continue; fi
 
@@ -454,15 +464,15 @@ for file in $modifiedfiles; do
     exit 1
   fi
   if [[ "${create_date}" -gt "${today}" ]] || [[ "${create_date}" -lt "1990" ]]; then
-    echo "Existing copyright date range is corrupt. Please fix $filename manually."
+    echo "Existing copyright date range is corrupt. Please fix $file manually."
     exit 1
   fi
   if [[ "${git_create_date}" -gt "${today}" ]] || [[ "${git_create_date}" -lt "1990" ]]; then
-    echo "Existing copyright date range is corrupt. Please fix $filename manually."
+    echo "Existing copyright date range is corrupt. Please fix $file manually."
     exit 1
   fi
   if [[ "${create_date}" -gt "${today}" ]] || [[ "${create_date}" -lt "1990" ]]; then
-    echo "Existing copyright date range is corrupt. Please fix $filename manually."
+    echo "Existing copyright date range is corrupt. Please fix $file manually."
     exit 1
   fi
 
@@ -480,13 +490,13 @@ for file in $modifiedfiles; do
   ecrl+="${today} Triad National Security, LLC., All rights reserved."
 
   # If existing copyright spans two lines, reduce it to one line.
-  twolines=$(grep -A 1 Copyright "${filename}" | tail -n 1 | grep -c reserved)
-  twolines_closes_cpp_comment=$(grep -A 1 Copyright "${filename}" | tail -n 1 | grep -c '[*]/')
+  twolines=$(grep -A 1 Copyright "${file}" | tail -n 1 | grep -c reserved)
+  twolines_closes_cpp_comment=$(grep -A 1 Copyright "${file}" | tail -n 1 | grep -c '[*]/')
   if [[ $twolines -gt 0 ]]; then
     if [[ $twolines_closes_cpp_comment -gt 0 ]]; then
-      sed -i 's%^.*All [Rr]ights [Rr]eserved[.]*.*[*]/$% */%' "${filename}"
+      sed -i 's%^.*All [Rr]ights [Rr]eserved[.]*.*[*]/$% */%' "${file}"
     else
-      sed -i '/All rights reserved/d' "${filename}"
+      sed -i '/All rights reserved/d' "${file}"
     fi
   fi
 

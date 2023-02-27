@@ -4,7 +4,7 @@
  * \author Ryan Wollaeger <wollaeger@lanl.gov>
  * \date   Thursday, Jun 07, 2018, 15:38 pm
  * \brief  Draco_Mesh class header file.
- * \note   Copyright (C) 2018-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2018-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_mesh_Draco_Mesh_hh
@@ -13,6 +13,7 @@
 #include "ds++/config.h"
 #include "mesh_element/Geometry.hh"
 #include <array>
+#include <cstdint>
 #include <map>
 #include <set>
 #include <vector>
@@ -123,13 +124,18 @@ protected:
   // Node map to vector of adjacent coordinates bounding adjacent ghost cells
   Dual_Ghost_Layout_Coords node_to_ghost_coord_linkage;
 
+  // number of cell-cell linkage faces per cell
+  std::vector<unsigned> num_cellcell_faces_per_cell;
+
+  // number of cell-side linkage faces per cell
+  std::vector<unsigned> num_cellside_faces_per_cell;
+
 public:
   //! Constructor.
   Draco_Mesh(unsigned dimension_, Geometry geometry_,
              const std::vector<unsigned> &num_faces_per_cell_,
              const std::vector<unsigned> &cell_to_node_linkage_,
-             const std::vector<unsigned> side_set_flag_,
-             const std::vector<unsigned> &side_node_count_,
+             std::vector<unsigned> side_set_flag_, const std::vector<unsigned> &side_node_count_,
              const std::vector<unsigned> &side_to_node_linkage_,
              const std::vector<double> &coordinates_,
              const std::vector<unsigned> &global_node_number_,
@@ -169,6 +175,9 @@ public:
 
   const std::vector<unsigned> get_cell_nodes(const unsigned cell) const;
   const std::vector<unsigned> get_flat_cell_node_linkage() const;
+
+  //! Get face index of adjacent face in neighboring cell
+  int32_t next_face(const int32_t cell, const int32_t face) const;
 
 private:
   // >>> SUPPORT FUNCTIONS

@@ -1,5 +1,7 @@
 # Draco
 
+## GitHub Status
+
 [![GNU Build Status](https://github.com/lanl/Draco/actions/workflows/ci-gcc-mpi.yml/badge.svg)](https://github.com/lanl/Draco/actions/workflows/ci-gcc-mpi.yml)
 [![LLVM Build Status](https://github.com/lanl/Draco/actions/workflows/ci-llvm-mpi.yml/badge.svg)](https://github.com/lanl/Draco/actions/workflows/ci-llvm-mpi.yml)
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/yp8r9jxl2gc9n1fs/branch/develop?svg=true)](https://ci.appveyor.com/project/lanl/Draco)
@@ -7,6 +9,8 @@
 [![Latest Version](https://img.shields.io/github/release/lanl/draco.svg?style=flat-square)](https://github.com/lanl/Draco/releases)
 [![PyPI](https://img.shields.io/pypi/l/Django.svg)](https://github.com/lanl/Draco/blob/develop/LICENSE.md)
 [![GitHub Super-Linter](https://github.com/lanl/Draco/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
+
+## Summary
 
 Draco is an object-oriented component library geared towards numerically intensive, radiation
 (particle) transport applications built for parallel computing hardware.  It consists of
@@ -58,6 +62,7 @@ Spack - Draco can be installed via the [spack package manager](https:://github.c
 * experimental - Implementations of C++ features that are not yet available to all compilers that
     are used when installing Draco libraries.  Currently, this component provides
     [mdspan](https://github.com/kokkos/mdspan).
+* fc4 - Fortran wrapper around portions of c4
 * fit - Least squares fitting routines.
 * fpe_trap - Catch IEEE floating point exceptions
 * FortranCheck - Test Fortran compatibility and interoperability
@@ -66,7 +71,6 @@ Spack - Draco can be installed via the [spack package manager](https:://github.c
 * kde - KDE are a natural extension of quadrature. They reconstruct a smooth representation of a
   sampled field based on a specified Kernel shape. This populates the initial KDE infrastructure and
   some simple 1D reconstructions.
-* lapack_wrap - C++ wrapper for BLAS and LAPACK.
 * linear - direct solvers for small linear systems of equations.
 * mesh - Encapsulate mesh definition and accessors.
 * mesh_element - defines fundamental mesh element types used by mesh, meshReaders and
@@ -93,6 +97,7 @@ Spack - Draco can be installed via the [spack package manager](https:://github.c
 
 ## Deprecated packages
 
+* lapack_wrap - C++ wrapper for BLAS and LAPACK (removed 2022 July 12).
 * plot2d - C++ interface to XMGrace 2-dimensional plotting (removed 2020 Dec 3).
 * shared_lib - Dynamically load/unload shared object libraries via dl load (removed 2020 Sep 7).
 * traits - A traits class used by viz.
@@ -104,14 +109,15 @@ Many thanks go to Draco's [contributors](https://github.com/lanl/Draco/graphs/co
 Draco was originally written by staff from Los Alamos's [CCS-2 Computational Physics and Methods
 Group](http://www.lanl.gov/org/padste/adtsc/computer-computational-statistical-sciences/computational-physics-methods/index.php):
 
-> *CCS-2 Draco Team:* Kelly G. Thompson, Kent G. Budge, Matt A. Cleveland, Ryan T. Wollaeger,
-> Alex R. Long, Ben R. Ryan, Kendra P. Long, James S. Warsa, Tim Kelley, Jae H. Chang,
-> Andrew T. Till, Seth D. Cook, Ondrej Certik, and David A. Dixon.
+> *CCS-2 Draco Team:* Kelly G. Thompson, Matt A. Cleveland, Ryan T. Wollaeger, Ben R. Ryan,
+> Alex R. Long, Kendra P. Long, James S. Warsa, and Jae H. Chang.
 >
-> *Prior Contributors:* Gabriel M. Rockefeller, Allan B. Wollaber, Rob B. Lowrie, Paul W. Talbot,
-> Katherine J. Wang, Peter Ahrens, Daniel Holladay, Massimiliano Rosa, Todd J. Urbatsch,
+> *Prior Contributors:* Kent. G. Budge, Gabriel M. Rockefeller, Allan B. Wollaber, Tim Kelley,
+> Rob B. Lowrie, Andrew T. Till, Paul W. Talbot, Katherine J. Wang, Ondrej Certik, Peter Ahrens,
+> David A. Dixon, Massimiliano Rosa, Todd J. Urbatsch, Daniel Holladay, Howard Pritchard,
 > Jeff D. Densmore, Jeff Furnish, John McGhee, Kris C. Garrett, Mike Buksas, Nick Myers,
-> Paul Henning, Randy Roberts, Seth Johnson, Todd Adams, Tom Evans, and Lori Pritchett-Sheats.
+> Paul Henning, Randy Roberts, Seth Johnson, Todd Adams, Tom Evans, Lori Pritchett-Sheats,
+> and Seth D. Cook.
 
 ## Release
 

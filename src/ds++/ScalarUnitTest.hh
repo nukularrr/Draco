@@ -4,7 +4,7 @@
  * \author Kelly Thompson
  * \date   Thu May 18 17:08:54 2006
  * \brief  Provide services for scalar unit tests
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef dsxx_ScalarUnitTest_hh
@@ -55,17 +55,17 @@ public:
 
   //! The copy constructor is disabled.
   ScalarUnitTest(const ScalarUnitTest &rhs) = delete;
+  ScalarUnitTest(const ScalarUnitTest &&rhs) = delete;
+
+  //! Disabled assignment operator
+  ScalarUnitTest &operator=(const ScalarUnitTest &rhs) = delete;
+  ScalarUnitTest &operator=(ScalarUnitTest &&rhs) noexcept = delete;
 
   //! Destructor.
   ~ScalarUnitTest() override {
     out << resultMessage() << std::endl;
     return;
   }
-
-  // MANIPULATORS
-
-  //! The assignment operator for ScalarUnitTest is disabled.
-  ScalarUnitTest &operator=(const ScalarUnitTest &rhs) = delete;
 };
 
 //------------------------------------------------------------------------------------------------//
@@ -80,7 +80,7 @@ public:
  */
 
 template <typename... Lambda, typename Release>
-int do_scalar_unit_test(int argc, char **argv, Release release, Lambda const &... lambda);
+int do_scalar_unit_test(int argc, char **argv, Release release, Lambda const &...lambda);
 
 } // end namespace rtt_dsxx
 

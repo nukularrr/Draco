@@ -4,80 +4,20 @@
  * \author Ben R. Ryan
  * \date   2019 Nov 4
  * \brief  Tabular_CP_Eloss member definitions.
- * \note   Copyright (C) 2019-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2020-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "Tabular_CP_Eloss.hh"
 #include "ds++/DracoStrings.hh"
+#include "ds++/Interpolate.hh"
 #include <utility>
 
 namespace rtt_cdi_cpeloss {
 
-namespace stdex = std::experimental;
 using std::experimental::basic_mdspan;
 using std::experimental::dynamic_extent;
 using std::experimental::extents;
 using std::experimental::layout_left;
-
-//------------------------------------------------------------------------------------------------//
-/*!
- * \brief Do a 3D linear interpolation between vertices of a rectangular prism.
- *
- * Algorithm from wikipedia's Trilinear Interpolation article, hat tip to E.
- * Norris for the reference.
- *
- * \param[in] x0   lower x coordinate of lattice
- * \param[in] x1   upper x coordinate of lattic
- * \param[in] y0   lower y coordinate of lattice
- * \param[in] y1   upper y coordinate of lattice
- * \param[in] z0   lower z coordinate of lattice
- * \param[in] z1   upper z coordinate of lattic
- * \param[in] f000 function at (x0,y0,z0)
- * \param[in] f100 function at (x1,y0,z0)
- * \param[in] f001 function at (x0,y0,z1)
- * \param[in] f101 function at (x1,y0,z1)
- * \param[in] f010 function at (x0,y1,z0)
- * \param[in] f110 function at (x1,y1,z0)
- * \param[in] f011 function at (x0,y1,z1)
- * \param[in] f111 function at (x1,y1,z1)
- * \param[in] x    x coordinate of interpolation point
- * \param[in] y    y coordinate of interpolation point
- * \param[in] z    z coordinate of interpolation point
- * \return The function value linearly interpolated to (x,y,z)
- */
-inline double linear_interpolate_3(double const x0, double const x1, double const y0,
-                                   double const y1, double const z0, double const z1,
-                                   double const f000, double const f100, double const f001,
-                                   double const f101, double const f010, double const f110,
-                                   double const f011, double const f111, double const x,
-                                   double const y, double const z) {
-  Require(std::abs(x1 - x0) > std::numeric_limits<double>::epsilon());
-  Require(std::abs(y1 - y0) > std::numeric_limits<double>::epsilon());
-  Require(std::abs(z1 - z0) > std::numeric_limits<double>::epsilon());
-  Require(x >= x0);
-  Require(x <= x1);
-  Require(y >= y0);
-  Require(y <= y1);
-  Require(z >= z0);
-  Require(z <= z1);
-
-  const double xd = (x - x0) / (x1 - x0);
-  const double yd = (y - y0) / (y1 - y0);
-  const double zd = (z - z0) / (z1 - z0);
-
-  const double f00 = f000 * (1. - xd) + f100 * xd;
-  const double f01 = f001 * (1. - xd) + f101 * xd;
-  const double f10 = f010 * (1. - xd) + f110 * xd;
-  const double f11 = f011 * (1. - xd) + f111 * xd;
-
-  const double f0 = f00 * (1. - yd) + f10 * yd;
-  const double f1 = f01 * (1. - yd) + f11 * yd;
-
-  const double f = f0 * (1. - zd) + f1 * zd;
-
-  return f;
-}
 
 //------------------------------------------------------------------------------------------------//
 // CONSTRUCTORS
@@ -85,19 +25,17 @@ inline double linear_interpolate_3(double const x0, double const x1, double cons
 /*!
  * \brief Constructor for an analytic tabular eloss model.
  *
- * This constructor builds an eloss model defined by the
- * rtt_cdi_cpeloss::Tabular_Eloss_Model derived class argument.
+ * This constructor builds an eloss model defined by the rtt_cdi_cpeloss::Tabular_Eloss_Model
+ * derived class argument.
  *
- * The path to an eloss datafile is passed to the constructor, which opens and
- * parses the file. The file format is the usual LANL format for stopping
- * powers.
+ * The path to an eloss datafile is passed to the constructor, which opens and parses the file. The
+ * file format is the usual LANL format for stopping powers.
  *
  * \param[in] filename_in path to eloss file
  * \param[in] target_in target particle zaid
  * \param[in] projectile_in transporting particle zaid
- * \param[in] model_angle_cutoff_in rtt_cdi::CPModelAngleCutoff the angle
- *                 separating the stopping power approximation from analog
- *                 scattering
+ * \param[in] model_angle_cutoff_in rtt_cdi::CPModelAngleCutoff the angle separating the stopping
+ *                 power approximation from analog scattering
  */
 Tabular_CP_Eloss::Tabular_CP_Eloss(std::string filename_in, rtt_cdi::CParticle target_in,
                                    rtt_cdi::CParticle projectile_in,
@@ -112,8 +50,7 @@ Tabular_CP_Eloss::Tabular_CP_Eloss(std::string filename_in, rtt_cdi::CParticle t
   Insist(file.is_open(), "Error opening DEDX file \"" + filename + "\"");
 
   constexpr uint32_t max_entries =
-      6; // This is a statement about the file format, maximum of six entries
-         // per row
+      6; // This is a statement about the file format, maximum of six entries per row
 
   std::vector<std::string> line_entries = read_line(); // ZAID
   int32_t projectile_zaid_file = stoi(line_entries[0]);
@@ -174,15 +111,14 @@ Tabular_CP_Eloss::Tabular_CP_Eloss(std::string filename_in, rtt_cdi::CParticle t
 
   bool target_found = false;
   nlines = (n_energy * n_density * n_temperature + max_entries - 1) /
-           max_entries; // The number of lines taken up by stopping power data for
-                        // one target
+           max_entries; // The number of lines taken up by stopping power data for one target
   if (target.get_zaid() == -1) {
     // Target is free electrons
     target_found = true;
     uint32_t nentry = 0;
     for (uint32_t n = 0; n < nlines; n++) {
       line_entries = read_line();
-      for (std::string entry : line_entries) {
+      for (std::string const &entry : line_entries) {
         stopping_data_1d[nentry++] = stod(entry);
       }
     }
@@ -201,7 +137,7 @@ Tabular_CP_Eloss::Tabular_CP_Eloss(std::string filename_in, rtt_cdi::CParticle t
         uint32_t nentry = 0;
         for (uint32_t n = 0; n < nlines; n++) {
           line_entries = read_line();
-          for (std::string entry : line_entries) {
+          for (std::string const &entry : line_entries) {
             stopping_data_1d[nentry] = stod(entry);
             nentry++;
           }
@@ -223,13 +159,15 @@ Tabular_CP_Eloss::Tabular_CP_Eloss(std::string filename_in, rtt_cdi::CParticle t
           stopping_data_1d.data(), n_energy, n_density, n_temperature);
 
   // Convert units on table to match those of getEloss:
-  //   energy:      MeV -> cm/shk (using target particle mass)
+  //
+  // energy:      MeV -> cm/shk (using target particle mass)
   double energy_cgs = exp(min_log_energy) * (1.e6 * pc.electronVolt());
   min_log_energy = log(sqrt(2. * energy_cgs / target.get_mass()) * 1.e-8);
   d_log_energy = d_log_energy / 2.;
-  //   density:     cm^-3 -> g cm^-3
+  // density:     cm^-3 -> g cm^-3
   min_log_density = log(exp(min_log_density) * target.get_mass());
-  //   temperature: keV -> keV
+  // temperature: keV -> keV
+  //
   // Note that d log x = dx / x is not affected by unit conversion factors
   for (auto &energy : energies) {
     energy = sqrt(2. * (energy * 1.e6 * pc.electronVolt()) / target.get_mass()) * 1.e-8;
@@ -272,8 +210,7 @@ std::vector<std::string> const Tabular_CP_Eloss::read_line() {
 
 //------------------------------------------------------------------------------------------------//
 /*!
- * \brief Interpolate the tabulated stopping power for a given material and
- *        projectile state.
+ * \brief Interpolate the tabulated stopping power for a given material and projectile state.
  * \param[in] temperature Material temperature [keV]
  * \param[in] density Material density [g cm^-3]
  * \param[in] partSpeed Particle speed [cm shk^-1]
@@ -311,8 +248,9 @@ double Tabular_CP_Eloss::getEloss(const double temperature, const double density
   const double f110 = stopping_data(pt1_energy, pt1_density, pt0_temperature);
   const double f011 = stopping_data(pt0_energy, pt1_density, pt1_temperature);
   const double f111 = stopping_data(pt1_energy, pt1_density, pt1_temperature);
-  const double dedx = exp(linear_interpolate_3(x0, x1, y0, y1, z0, z1, f000, f100, f001, f101, f010,
-                                               f110, f011, f111, partSpeed, density, temperature));
+  const double dedx =
+      exp(rtt_dsxx::interpolate::linear_3d(x0, x1, y0, y1, z0, z1, f000, f100, f001, f101, f010,
+                                           f110, f011, f111, partSpeed, density, temperature));
   const double number_density = density / target.get_mass();
   return dedx * 1000. * number_density * partSpeed; // MeV cm^2 -> keV shk^-1
 }

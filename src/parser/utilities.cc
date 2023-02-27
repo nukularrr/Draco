@@ -4,7 +4,7 @@
  * \author Kent G. Budge
  * \date   18 Feb 2003
  * \brief  Definitions of parsing utility functions.
- * \note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "utilities.hh"
@@ -437,7 +437,7 @@ Unit parse_unit(Token_Stream &tokens);
  */
 static Unit parse_unit_name(Token_Stream &tokens) {
   // Return value
-  Unit retval;
+  Unit retval{};
   Token token = tokens.shift();
   if (token.type() == KEYWORD) {
     string const &u = token.text();

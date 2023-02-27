@@ -4,7 +4,7 @@
  * \author Andrew Till
  * \date   11 May 2020
  * \brief  Implementation file for native Compton binary-read and temperature interpolation
- * \note   Copyright (C) 2020 Triad National Security, LLC. All rights reserved. */
+ * \note   Copyright (C) 2020-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "compton_tools/Compton_Native.hh"
@@ -155,7 +155,7 @@ void Compton_Native::broadcast_MPI(int errcode) {
   rtt_c4::broadcast(Ts_.begin(), Ts_.end(), Ts_.begin());
 
   if (rank != bcast_rank)
-    Egs_.resize(num_groups_ + 1u);
+    Egs_.resize(num_groups_ + 1U);
   rtt_c4::broadcast(Egs_.begin(), Egs_.end(), Egs_.begin());
 
   // Broadcast sparse data structures
@@ -164,7 +164,7 @@ void Compton_Native::broadcast_MPI(int errcode) {
   rtt_c4::broadcast(first_groups_.begin(), first_groups_.end(), first_groups_.begin());
 
   if (rank != bcast_rank)
-    indexes_.resize(num_temperatures_ * num_groups_ + 1u);
+    indexes_.resize(num_temperatures_ * num_groups_ + 1U);
   rtt_c4::broadcast(indexes_.begin(), indexes_.end(), indexes_.begin());
 
   // Broadcast data itself
@@ -204,7 +204,7 @@ int Compton_Native::read_binary(const std::string &filename) {
   // Ensure valid type
   // (using vector of char to avoid using C-style strings)
   std::array<char, 6> expected = {' ', 'c', 's', 'k', ' ', '\0'};
-  std::array<char, 6> actual;
+  std::array<char, 6> actual{' ', ' ', ' ', ' ', ' ', ' '};
   for (char &c : actual)
     fin.read(&c, sizeof(char));
   if (!std::equal(expected.begin(), expected.end(), actual.begin())) {
@@ -231,7 +231,7 @@ int Compton_Native::read_binary(const std::string &filename) {
   }
 
   constexpr size_t n = 7U;
-  std::array<UINT64, n> szs;
+  std::array<UINT64, n> szs{0};
   for (size_t i = 0; i < n; ++i)
     fin.read(reinterpret_cast<char *>(&szs[i]), sizeof(szs[i]));
   size_t j = 0;

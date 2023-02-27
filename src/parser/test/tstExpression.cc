@@ -4,8 +4,7 @@
  * \author Kent Budge
  * \date   Wed Jul 26 08:15:18 2006
  * \brief  Test the Expression class and expression parsing.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "ds++/DracoMath.hh"
@@ -13,6 +12,7 @@
 #include "ds++/ScalarUnitTest.hh"
 #include "parser/Expression.hh"
 #include "parser/String_Token_Stream.hh"
+#include "parser/utilities.hh"
 
 using namespace std;
 using namespace rtt_dsxx;
@@ -56,8 +56,7 @@ void tstExpression(UnitTest &ut) {
   expression->write(vars, expression_text_copy);
 
   char const *expression_text_raw = "((1&&1.3||!(y<-m))/5+(2>1)*r/m*pow(2.7-1.1*z/m,2))*t/s";
-  // changes slightly due to stripping of extraneous whitespace, parentheses,
-  // and positive prefix
+  // changes slightly due to stripping of extraneous whitespace, parentheses, and positive prefix
   if (expression_text_copy.str() == expression_text_raw) {
     PASSMSG("expression successfully rendered as text");
   } else {
@@ -130,9 +129,9 @@ void tstExpression(UnitTest &ut) {
 #pragma warning(pop)
 #endif
 
-  tokens = string("20*(r>=1.1*m && z<=1.5*m || r>=2.0*m && r<=7.0*m)");
+  String_Token_Stream tokens2 = string("20*(r>=1.1*m && z<=1.5*m || r>=2.0*m && r<=7.0*m)");
 
-  expression = Expression::parse(4, variable_map, tokens);
+  expression = Expression::parse(4, variable_map, tokens2);
 
   if (expression != std::shared_ptr<Expression>())
     PASSMSG("expression successfully parsed");
@@ -151,8 +150,7 @@ void tstExpression(UnitTest &ut) {
     expression->write(vars, lexpression_text_copy);
 
     char const *lexpression_text_raw = "20*(r>=1.1*m&&z<=1.5*m||r>=2*m&&r<=7*m)";
-    // changes slightly due to stripping of extraneous whitespace, parentheses,
-    // and positive prefix
+    // changes slightly due to stripping of extraneous whitespace, parentheses, and positive prefix
     if (lexpression_text_copy.str() == lexpression_text_raw) {
       PASSMSG("expression successfully rendered as text");
     } else {
@@ -162,16 +160,16 @@ void tstExpression(UnitTest &ut) {
     }
   }
 
-  tokens = String_Token_Stream("(1 && (4>=6 || 4>6 || 6<4 || 6<=4 || !0))"
-                               "* ( (r/m)^(t/s) + -3 - z/m)");
+  String_Token_Stream tokens3 = String_Token_Stream("(1 && (4>=6 || 4>6 || 6<4 || 6<=4 || !0))"
+                                                    "* ( (r/m)^(t/s) + -3 - z/m)");
 
-  expression = Expression::parse(4, variable_map, tokens);
+  expression = Expression::parse(4, variable_map, tokens3);
 
-  if (tokens.error_count() == 0 && tokens.lookahead().type() == EXIT) {
+  if (tokens3.error_count() == 0 && tokens3.lookahead().type() == EXIT) {
     PASSMSG("expression successfully parsed");
   } else {
     FAILMSG("expression NOT successfully parsed");
-    cerr << tokens.messages() << endl;
+    cerr << tokens3.messages() << endl;
   }
 
   if (soft_equiv((*expression)(xs), pow(r, t) + -3 - z))
@@ -184,9 +182,9 @@ void tstExpression(UnitTest &ut) {
   else
     FAILMSG("is_constant NOT good");
 
-  tokens = String_Token_Stream("exp(-0.5*r/m)*(3*cos(2*y/m) + 5*sin(3*y/m))");
+  String_Token_Stream tokens4 = String_Token_Stream("exp(-0.5*r/m)*(3*cos(2*y/m) + 5*sin(3*y/m))");
 
-  expression = Expression::parse(4, variable_map, tokens);
+  expression = Expression::parse(4, variable_map, tokens4);
 
   if (expression != std::shared_ptr<Expression>())
     PASSMSG("expression successfully parsed");
@@ -204,8 +202,7 @@ void tstExpression(UnitTest &ut) {
     expression->write(vars, lexpression_text_copy);
 
     char const *lexpression_text_raw = "exp(-0.5*r/m)*(3*cos(2*y/m)+5*sin(3*y/m))";
-    // changes slightly due to stripping of extraneous whitespace, parentheses,
-    // and positive prefix
+    // changes slightly due to stripping of extraneous whitespace, parentheses, and positive prefix
     if (lexpression_text_copy.str() == lexpression_text_raw) {
       PASSMSG("expression successfully rendered as text");
     } else {
@@ -215,9 +212,9 @@ void tstExpression(UnitTest &ut) {
     }
   }
 
-  tokens = String_Token_Stream("log(1.0)");
+  String_Token_Stream tokens5 = String_Token_Stream("log(1.0)");
 
-  expression = Expression::parse(4, variable_map, tokens);
+  expression = Expression::parse(4, variable_map, tokens5);
 
   if (expression != std::shared_ptr<Expression>())
     PASSMSG("expression successfully parsed");
@@ -234,8 +231,7 @@ void tstExpression(UnitTest &ut) {
     expression->write(vars, lexpression_text_copy);
 
     char const *lexpression_text_raw = "log(1)";
-    // changes slightly due to stripping of extraneous whitespace, parentheses,
-    // and positive prefix
+    // changes slightly due to stripping of extraneous whitespace, parentheses, and positive prefix
     if (lexpression_text_copy.str() == lexpression_text_raw) {
       PASSMSG("expression successfully rendered as text");
     } else {
@@ -246,9 +242,9 @@ void tstExpression(UnitTest &ut) {
   }
 
   {
-    tokens = String_Token_Stream("log(1.0) + cos(2.0) + exp(3.0) + sin(4.0)");
+    String_Token_Stream tokens6 = String_Token_Stream("log(1.0) + cos(2.0) + exp(3.0) + sin(4.0)");
 
-    std::shared_ptr<Expression> lexpression = Expression::parse(4, variable_map, tokens);
+    std::shared_ptr<Expression> lexpression = Expression::parse(4, variable_map, tokens6);
 
     if (lexpression->is_constant(0))
       PASSMSG("expression successfully const tested");
@@ -263,9 +259,10 @@ void tstExpression(UnitTest &ut) {
   }
 
   {
-    tokens = String_Token_Stream("(log(1.0) + cos(2.0) + exp(3.0) + sin(4.0))/(m*s)");
+    String_Token_Stream tokens7 =
+        String_Token_Stream("(log(1.0) + cos(2.0) + exp(3.0) + sin(4.0))/(m*s)");
 
-    std::shared_ptr<Expression> lexpression = Expression::parse(4, variable_map, tokens);
+    std::shared_ptr<Expression> lexpression = Expression::parse(4, variable_map, tokens7);
 
     if (lexpression->is_constant(0))
       PASSMSG("expression successfully const tested");
@@ -278,8 +275,7 @@ void tstExpression(UnitTest &ut) {
     cout << lexpression_text_copy.str() << endl;
 
     char const *lexpression_text_raw = "(log(1)+cos(2)+exp(3)+sin(4))/(m*s)";
-    // changes slightly due to stripping of extraneous whitespace, parentheses,
-    // and positive prefix
+    // changes slightly due to stripping of extraneous whitespace, parentheses, and positive prefix
     if (lexpression_text_copy.str() == lexpression_text_raw) {
       PASSMSG("expression successfully rendered as text");
     } else {
@@ -296,13 +292,17 @@ void tstExpression(UnitTest &ut) {
   }
 
   {
-    tokens = String_Token_Stream("(log(1.0) + cos(2.0) + exp(3.0) + sin(4.0))/(jerk*sh)");
+    String_Token_Stream tokens8 =
+        String_Token_Stream("(log(1.0) + cos(2.0) + exp(3.0) + sin(4.0))/(jerk*sh)");
 
-    std::shared_ptr<Expression> lexpression = Expression::parse(4, variable_map, tokens);
+    std::shared_ptr<Expression> lexpression = Expression::parse(4, variable_map, tokens8);
 
     ut.check(soft_equiv((*lexpression)(xs), (cos(2.0) + exp(3.0) + sin(4.0)) / (1e9 * 1e-8)),
              "parse of exotic units");
   }
+
+  // Clean up memory
+  free_internal_unit_system();
 }
 
 //------------------------------------------------------------------------------------------------//

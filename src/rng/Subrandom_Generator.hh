@@ -3,7 +3,7 @@
  * \file   rng/Subrandom_Generator.hh
  * \author Kent Budge
  * \brief  Definition of class Subrandom_Generator
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rng_Subrandom_Generator_hh
@@ -35,6 +35,10 @@ public:
   // CREATORS
 
   virtual ~Subrandom_Generator() = default;
+  Subrandom_Generator(Subrandom_Generator const &rhs) = delete;
+  Subrandom_Generator(Subrandom_Generator &&rhs) noexcept = delete;
+  Subrandom_Generator &operator=(Subrandom_Generator const &rhs) = delete;
+  Subrandom_Generator &operator=(Subrandom_Generator &&rhs) noexcept = delete;
 
   //! Advance sequence to the next vector.
   virtual void shift_vector() = 0;

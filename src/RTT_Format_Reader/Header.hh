@@ -4,7 +4,7 @@
  * \author B.T. Adams
  * \date   Wed Jun 7 10:33:26 2000
  * \brief  Header file for RTT_Format_Reader/Header class.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_RTT_Format_Reader_Header_hh
@@ -24,6 +24,12 @@ namespace rtt_RTT_Format_Reader {
  */
 //================================================================================================//
 class Header {
+
+private:
+  void readKeyword(std::ifstream &meshfile);
+  void readData(std::ifstream &meshfile);
+  void readEndKeyword(std::ifstream &meshfile);
+
   // typedefs
   using ifstream = std::ifstream;
   using string = std::string;
@@ -43,16 +49,13 @@ public:
         comments(std::vector<string>()) { /*empty*/
   }
   ~Header() = default;
+  Header(Header const &rhs) = delete;
+  Header(Header &&rhs) noexcept = delete;
+  Header &operator=(Header const &rhs) = delete;
+  Header &operator=(Header &&rhs) noexcept = delete;
 
   void readHeader(ifstream &meshfile);
 
-private:
-  void readKeyword(ifstream &meshfile);
-  void readData(ifstream &meshfile);
-  void readEndKeyword(ifstream &meshfile);
-
-public:
-  // header data access
   /*!
    * \brief Returns the mesh file version number.
    * \return Version number.

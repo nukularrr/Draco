@@ -4,7 +4,7 @@
  * \author B.T. Adams
  * \date   Wed Jun 7 10:33:26 2000
  * \brief  Header file for RTT_Format_Reader/Flags class.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_RTT_Format_Reader_Flags_hh
@@ -39,14 +39,16 @@ class Flags {
   vector_str flag_names;
 
 public:
-  Flags(size_t nflags_, const string name_)
-      : nflags(nflags_), name(std::move(name_)), flag_nums(nflags), flag_names(nflags) { /* empty */
-  }
+  Flags(size_t nflags_, string name_)
+      : nflags(nflags_), name(std::move(name_)), flag_nums(nflags), flag_names(nflags) {}
   ~Flags() = default;
+  Flags(Flags const &rhs) = delete;
+  Flags(Flags &&rhs) noexcept = delete;
+  Flags &operator=(Flags const &rhs) = delete;
+  Flags &operator=(Flags &&rhs) noexcept = delete;
 
   void readFlags(ifstream &meshfile);
 
-public:
   /*!
    * \brief Validates the specified flag index.
    * \param flag Flag index.

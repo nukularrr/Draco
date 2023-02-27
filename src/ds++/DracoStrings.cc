@@ -4,7 +4,7 @@
  * \author Kelly G. Thompson <kgt@lanl.gov>
  * \date   Wednesday, Aug 23, 2017, 12:48 pm
  * \brief  Encapsulates common string manipulations (implementation).
- * \note   Copyright (C) 2017-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2017-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "DracoStrings.hh"
@@ -171,7 +171,7 @@ std::map<std::string, unsigned> get_word_count(std::ostringstream const &msg, bo
     cout << "The messages from the message stream contained the following "
          << "words/occurrences." << endl;
     // print the word_list
-    for (auto it : word_list)
+    for (auto const &it : word_list)
       cout << it.first << ": " << it.second << endl;
   }
 

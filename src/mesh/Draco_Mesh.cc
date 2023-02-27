@@ -4,7 +4,7 @@
  * \author Ryan Wollaeger <wollaeger@lanl.gov>
  * \date   Thursday, Jun 07, 2018, 15:38 pm
  * \brief  Draco_Mesh class implementation file.
- * \note   Copyright (C) 2018-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2018-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "Draco_Mesh.hh"
@@ -52,7 +52,7 @@ unsigned safe_convert_from_size_t(size_t const in_) {
  */
 Draco_Mesh::Draco_Mesh(
     unsigned dimension_, Geometry geometry_, const std::vector<unsigned> &num_faces_per_cell_,
-    const std::vector<unsigned> &cell_to_node_linkage_, const std::vector<unsigned> side_set_flag_,
+    const std::vector<unsigned> &cell_to_node_linkage_, std::vector<unsigned> side_set_flag_,
     const std::vector<unsigned> &side_node_count_,
     const std::vector<unsigned> &side_to_node_linkage_, const std::vector<double> &coordinates_,
     const std::vector<unsigned> &global_node_number_,
@@ -73,14 +73,14 @@ Draco_Mesh::Draco_Mesh(
 
   Require(dimension_ <= 3);
   Require(side_to_node_linkage_.size() ==
-          std::accumulate(side_node_count_.begin(), side_node_count_.end(), 0u));
+          std::accumulate(side_node_count_.begin(), side_node_count_.end(), 0U));
   Require(coordinates_.size() == dimension_ * global_node_number_.size());
 
   // check ghost data (should be true even when none are supplied)
   Require(ghost_cell_type_.size() == ghost_cell_number_.size());
   Require(ghost_cell_rank_.size() == ghost_cell_number_.size());
   Require(ghost_cell_to_node_linkage_.size() ==
-          std::accumulate(ghost_cell_type_.begin(), ghost_cell_type_.end(), 0u));
+          std::accumulate(ghost_cell_type_.begin(), ghost_cell_type_.end(), 0U));
 
   // build the layout using face types (number of nodes per face per cell)
   compute_cell_to_cell_linkage(
@@ -151,6 +151,54 @@ const std::vector<unsigned> Draco_Mesh::get_flat_cell_node_linkage() const {
   Ensure(ret_flat_cell_node.size() >= 2 * m_cell_to_node_linkage.size());
   Ensure(!ret_flat_cell_node.empty());
   return ret_flat_cell_node;
+}
+
+//------------------------------------------------------------------------------------------------//
+/*!
+ * \brief Obtain the face index of a neihbor cell across a particular face
+ *
+ * \param[in] cell the index of the cell, starting from 1
+ * \param[in] face the index of the cell's face, starting from 1
+ *
+ * \return a vector of node indices for the cell, without duplicates
+ */
+int32_t Draco_Mesh::next_face(const int32_t cell, const int32_t face) const {
+  Require(face >= 1);
+
+  // cast cell index to unsigned int
+  const unsigned l_cell = static_cast<unsigned>(cell) - 1;
+  Require(face <= static_cast<int32_t>(m_num_faces_per_cell[l_cell]));
+
+  // short-cuts
+  const auto num_cc_faces = static_cast<int32_t>(num_cellcell_faces_per_cell[l_cell]);
+  const auto num_cs_faces = static_cast<int32_t>(num_cellside_faces_per_cell[l_cell]);
+
+  if (face <= num_cc_faces) {
+
+    // get neighbor cell index
+    const unsigned next_cell = cell_to_cell_linkage.at(l_cell)[face - 1].first;
+    Check(num_cellcell_faces_per_cell[next_cell] > 0);
+
+    // get face nodes in set form
+    const std::vector<unsigned> &node_vec = cell_to_cell_linkage.at(l_cell)[face - 1].second;
+    const std::set<unsigned> nodes = std::set<unsigned>(node_vec.begin(), node_vec.end());
+
+    // check each cell-cell face of the next node
+    for (unsigned j = 1; j <= num_cellcell_faces_per_cell[next_cell]; ++j) {
+      const std::vector<unsigned> &node_nbr_vec = cell_to_cell_linkage.at(next_cell)[j - 1].second;
+      if (std::set<unsigned>(node_nbr_vec.begin(), node_nbr_vec.end()) == nodes)
+        return static_cast<int32_t>(j);
+    }
+
+  } else if (face > num_cc_faces && face <= num_cc_faces + num_cs_faces) {
+
+    // face is on a true mesh boundary, so return the local face index
+    return face;
+  }
+
+  // face must be on a MPI rank boundary
+  // \todo: what specialization is needed here?
+  return -1;
 }
 
 //------------------------------------------------------------------------------------------------//
@@ -256,7 +304,7 @@ void Draco_Mesh::compute_cell_to_cell_linkage(
 
   Require(num_nodes_per_face_per_cell.size() > 0);
   Require(num_nodes_per_face_per_cell.size() ==
-          std::accumulate(num_faces_per_cell.begin(), num_faces_per_cell.end(), 0u));
+          std::accumulate(num_faces_per_cell.begin(), num_faces_per_cell.end(), 0U));
 
   // (1) create map of cell face to node set
 
@@ -310,6 +358,10 @@ void Draco_Mesh::compute_cell_to_cell_linkage(
 
   // (4) create cell-to-cell, cell-to-side, cell-to-ghost-cell linkage
 
+  // resize vectors with number of faces per cell for cell-cell or cell-side linkage
+  num_cellcell_faces_per_cell = std::vector<unsigned>(num_cells, 0);
+  num_cellside_faces_per_cell = std::vector<unsigned>(num_cells, 0);
+
   // reset cf_counter and cell-node iterator
   cf_counter = 0;
   cn_first = cell_to_node_linkage.begin();
@@ -318,7 +370,7 @@ void Draco_Mesh::compute_cell_to_cell_linkage(
     for (unsigned face = 0; face < num_faces_per_cell[cell]; ++face) {
 
       // initialize this face to not having a condition
-      bool has_face_cond = false;
+      uint32_t num_cond = 0;
 
       // get the node set for this cell and face
       const std::set<unsigned> &node_set = cface_to_nodes[cf_counter];
@@ -344,8 +396,11 @@ void Draco_Mesh::compute_cell_to_cell_linkage(
         // add to cell-cell linkage
         cell_to_cell_linkage[cell].push_back(std::make_pair(oth_cell, node_vec));
 
-        // a neighbor cell was found
-        has_face_cond = true;
+        // increment number of cell-cell faces for this cell
+        num_cellcell_faces_per_cell[cell]++;
+
+        // increment number of face conditions: a neighbor cell was found
+        num_cond++;
       }
 
       // check if a boundary/side exists for this node set
@@ -354,7 +409,11 @@ void Draco_Mesh::compute_cell_to_cell_linkage(
         // populate cell-boundary face layout
         cell_to_side_linkage[cell].push_back(std::make_pair(nodes_to_side[node_set], node_vec));
 
-        has_face_cond = true;
+        // increment number of cell-side faces for this cell
+        num_cellside_faces_per_cell[cell]++;
+
+        // increment number of face conditions: a true boundary was found
+        num_cond++;
       }
 
       // check if a parallel face exists for this node set
@@ -364,11 +423,15 @@ void Draco_Mesh::compute_cell_to_cell_linkage(
         cell_to_ghost_cell_linkage[cell].push_back(
             std::make_pair(nodes_to_ghost[node_set], node_vec));
 
-        has_face_cond = true;
+        // increment number of face conditions: a off-rank face was found
+        num_cond++;
       }
 
+      // check face has only one condition (internal, boundary, or ghost)
+      Insist(num_cond <= 1, "More than one condition detected on cell face.");
+
       // make face a boundary if no face conditions have been found
-      if (!has_face_cond) {
+      if (num_cond == 0) {
 
         // augment side flags with vacuum b.c.
         side_set_flag.push_back(0);

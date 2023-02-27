@@ -3,7 +3,7 @@
  * \file  ds++/SystemCall.cc
  * \brief Implementation for the Draco wrapper for system calls. This routine attempts to hide
  *        differences between Unix/Windows system calls.
- * \note  Copyright (C) 2012-2021 Triad National Security, LLC., All rights reserved. */
+ * \note  Copyright (C) 2012-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "SystemCall.hh"
@@ -55,20 +55,20 @@ std::string draco_gethostname() {
   hostname.fill('x');
   int err = gethostname(&hostname[0], sizeof(hostname));
   if (err) {
-    return std::string("gethostname() failed!");
+    return "gethostname() failed!";
   }
-  return std::string(hostname.data());
+  return hostname.data();
 
 #else
 
 // Linux: gethostname from <unistd.h>
 #ifdef HAVE_GETHOSTNAME
-  std::array<char, HOST_NAME_MAX> hostname;
+  std::array<char, HOST_NAME_MAX> hostname{};
   hostname.fill('y');
   int err = gethostname(&hostname[0], HOST_NAME_MAX);
   if (err)
     strncpy(&hostname[0], "gethostname() failed", HOST_NAME_MAX);
-  return std::string(hostname.data());
+  return hostname.data();
 
 // Catamount systems do not have gethostname().
 #else
@@ -111,7 +111,7 @@ std::string draco_getcwd() {
   std::string cwd(buffer, buffer + strnlen(buffer, MAXPATHLEN));
   free(buffer);
 #else
-  std::array<char, MAXPATHLEN> curr_path;
+  std::array<char, MAXPATHLEN> curr_path{};
   curr_path.fill('z');
   Insist(getcwd(&curr_path[0], MAXPATHLEN) != nullptr,
          "getcwd failed: " + std::string(strerror(errno)));
@@ -134,8 +134,7 @@ std::string draco_getcwd() {
  *    http://en.wikipedia.org/wiki/Stat_%28system_call%29
  */
 #ifdef _MSC_VER
-draco_getstat::draco_getstat(std::string const &fqName)
-    : stat_return_code(0), buf(), FileInformation({0}) {
+draco_getstat::draco_getstat(std::string const &fqName) {
   filefound = true;
   /*! \note If path contains the location of a directory, it cannot contain a trailing backslash. If
    * it does, -1 will be returned and errno will be set to ENOENT. */
@@ -171,7 +170,7 @@ draco_getstat::draco_getstat(std::string const &fqName)
   }
 }
 #else
-draco_getstat::draco_getstat(std::string const &fqName) : stat_return_code(0), buf() {
+draco_getstat::draco_getstat(std::string const &fqName) {
   stat_return_code = stat(fqName.c_str(), &buf);
 }
 #endif
@@ -183,7 +182,7 @@ bool draco_getstat::isreg() {
   bool b = FileInformation.dwFileAttributes & FILE_ATTRIBUTE_NORMAL;
   return filefound && b;
 #else
-  bool b = S_ISREG(buf.st_mode);
+  bool b = S_ISREG(buf.st_mode); // NOLINT [hicpp-signed-bitwise]
   return b;
 #endif
 }
@@ -195,7 +194,7 @@ bool draco_getstat::isdir() {
   bool b = FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY;
   return filefound && b;
 #else
-  bool b = S_ISDIR(buf.st_mode);
+  bool b = S_ISDIR(buf.st_mode); // NOLINT [hicpp-signed-bitwise]
   return b;
 #endif
 }
@@ -212,14 +211,14 @@ bool draco_getstat::has_permission_bit(int /*mask*/) {
 bool draco_getstat::has_permission_bit(int mask) {
   Insist(isreg(), "Can only check permission bit for regular files.");
   // check execute bit (buf.st_mode & 0111)
-  return (buf.st_mode & mask);
+  return (buf.st_mode & mask); // NOLINT [hicpp-signed-bitwise]
 }
 #endif
 
 //------------------------------------------------------------------------------------------------//
 //! Wrapper for system dependent realpath call.
 std::string draco_getrealpath(std::string const &path) {
-  std::array<char, MAXPATHLEN> buffer; // _MAX_PATH
+  std::array<char, MAXPATHLEN> buffer{}; // _MAX_PATH
   buffer.fill('a');
 #ifdef _MSC_VER
   // http://msdn.microsoft.com/en-us/library/506720ff%28v=vs.100%29.aspx
@@ -227,9 +226,11 @@ std::string draco_getrealpath(std::string const &path) {
   std::string retVal(buffer.data());
 #else
   Insist((realpath(path.c_str(), &buffer[0])) != nullptr, "Invalid path.");
-  // realpath trims the trailing slash, append now.
   std::string retVal(buffer.data());
-  retVal += std::string(&dirSep, 1);
+  if (draco_getstat(retVal).isdir()) {
+    // realpath trims the trailing slash, append now.
+    retVal += std::string(&dirSep, 1);
+  }
 #endif
   return retVal;
 }

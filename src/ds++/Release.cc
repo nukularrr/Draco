@@ -99,36 +99,35 @@ const std::string author_list(bool const use_doxygen_formatting) {
 
   mmdevs current_developers;
   // not totally fair... KT got credit for LOC when svn repository was converted to git.
-  current_developers.insert(fomdev(174829, "Kelly G. Thompson"));
-  current_developers.insert(fomdev(22854, "Kent G. Budge"));
-  current_developers.insert(fomdev(12730, "Matt A. Cleveland"));
-  current_developers.insert(fomdev(5464, "Ryan T. Wollaeger"));
-  current_developers.insert(fomdev(4074, "Ben R. Ryan"));
-  current_developers.insert(fomdev(3169, "Alex R. Long"));
-  current_developers.insert(fomdev(1565, "Kendra P. Long"));
-  current_developers.insert(fomdev(1267, "James S. Warsa"));
+  current_developers.insert(fomdev(178687, "Kelly G. Thompson"));
+  current_developers.insert(fomdev(22763, "Kent G. Budge"));
+  current_developers.insert(fomdev(17033, "Matt A. Cleveland"));
+  current_developers.insert(fomdev(8396, "Ryan T. Wollaeger"));
+  current_developers.insert(fomdev(4044, "Ben R. Ryan"));
+  current_developers.insert(fomdev(3162, "Alex R. Long"));
+  current_developers.insert(fomdev(1614, "Kendra P. Long"));
+  current_developers.insert(fomdev(1263, "James S. Warsa"));
   current_developers.insert(fomdev(354, "Jae H. Chang"));
-  current_developers.insert(fomdev(127, "Andrew T. Till"));
-  current_developers.insert(fomdev(15, "David A. Dixon"));
+  current_developers.insert(fomdev(152, "Andrew T. Till"));
 
   mmdevs prior_developers;
 
-  prior_developers.insert(fomdev(3628, "Gabriel M. Rockefeller"));
-  prior_developers.insert(fomdev(1716, "Allan B. Wollaber"));
-  prior_developers.insert(fomdev(879, "Tim Kelley"));
+  prior_developers.insert(fomdev(3602, "Gabriel M. Rockefeller"));
+  prior_developers.insert(fomdev(1711, "Allan B. Wollaber"));
+  prior_developers.insert(fomdev(858, "Tim Kelley"));
   prior_developers.insert(fomdev(407, "Rob B. Lowrie"));
   prior_developers.insert(fomdev(282, "Paul W. Talbot"));
   prior_developers.insert(fomdev(184, "Katherine J. Wang"));
-  prior_developers.insert(fomdev(98, "Seth D. Cook"));
   prior_developers.insert(fomdev(90, "Ondrej Certik"));
-  prior_developers.insert(fomdev(65, "Peter Ahrens"));
+  prior_developers.insert(fomdev(64, "Peter Ahrens"));
+  prior_developers.insert(fomdev(15, "David A. Dixon"));
 
   // Previous authors with no current LOC attribution (less than 10):
   prior_developers.insert(fomdev(9, "Massimiliano Rosa"));
   prior_developers.insert(fomdev(7, "Todd J. Urbatsch"));
   prior_developers.insert(fomdev(6, "Daniel Holladay"));
-  prior_developers.insert(fomdev(5, "Jeff D. Densmore"));
   prior_developers.insert(fomdev(4, "Howard Pritchard"));
+  prior_developers.insert(fomdev(1, "Jeff D. Densmore"));
   prior_developers.insert(fomdev(1, "Jeff Furnish"));
   prior_developers.insert(fomdev(1, "John McGhee"));
   prior_developers.insert(fomdev(1, "Kris C. Garrett"));
@@ -140,6 +139,7 @@ const std::string author_list(bool const use_doxygen_formatting) {
   prior_developers.insert(fomdev(1, "Todd Adams"));
   prior_developers.insert(fomdev(1, "Tom Evans"));
   prior_developers.insert(fomdev(1, "Lori Pritchett-Sheats"));
+  prior_developers.insert(fomdev(1, "Seth D. Cook"));
 
   size_t maxlinelen(100);
   std::string line_name("CCS-2 Draco Team: ");
@@ -176,7 +176,7 @@ const std::string copyright() {
 
   msg << author_list() << "\n"
       << Term::ccolor(Term::fg::green)
-      << "Copyright (C) 2016-2021 Triad National Security, LLC. "
+      << "Copyright (C) 2016-2023 Triad National Security, LLC. "
          "(C19028, LA-CC-16-016),\n     Released under a 3-Clause BSD License."
       << Term::ccolor(Term::fg::reset) << std::endl;
 

@@ -4,7 +4,7 @@
  * \author Thomas M. Evans, Geoffrey Furnish
  * \date   Thu Jun  2 09:54:02 2005
  * \brief  C4_Req member definitions.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "C4_Req.hh"
@@ -34,7 +34,13 @@ C4_Req::C4_Req(const C4_Req &req) : p(nullptr) {
     p = new C4_ReqRefRep;
   ++p->n;
 }
-
+C4_Req::C4_Req(C4_Req &&req) noexcept : p(nullptr) {
+  if (req.inuse())
+    p = req.p;
+  else
+    p = new C4_ReqRefRep;
+  ++p->n;
+}
 //------------------------------------------------------------------------------------------------//
 /*!
  * \brief Destructor.
@@ -64,7 +70,18 @@ C4_Req &C4_Req::operator=(const C4_Req &req) {
 
   return *this;
 }
+C4_Req &C4_Req::operator=(C4_Req &&req) noexcept {
+  this->free_();
 
+  if (req.inuse())
+    p = req.p;
+  else
+    p = new C4_ReqRefRep;
+
+  ++p->n;
+
+  return *this;
+}
 //------------------------------------------------------------------------------------------------//
 /*!
  * Utility for cleaning up letter in letter/envelope idiom

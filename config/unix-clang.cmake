@@ -1,7 +1,7 @@
 # -------------------------------------------*-cmake-*-------------------------------------------- #
 # file   config/unix-clang.cmake
 # brief  Establish flags for Unix clang
-# note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2015-2023 Triad National Security, LLC., All rights reserved.
 # ------------------------------------------------------------------------------------------------ #
 
 include_guard(GLOBAL)
@@ -23,6 +23,12 @@ include_guard(GLOBAL)
 # * must use clang++ for linking
 # * suppressions: LSAN_OPTIONS=suppressions=MyLSan.supp
 # * human readable: ASAN_SYMBOLIZER_PATH=/usr/local/bin/llvm-symbolizer ./a.out
+#
+# Sanitizers were attempted in Dec 2022 but none work correctly with our link time dependencies.
+#
+# * See https://re-git.lanl.gov/draco/devops/-/issues/107
+# * These failed with undefined symbol errors: `-fsanitize=address`, `-fsanitize=thread`,
+#   `-fsanitize=memory`, `-fsanitize=undefined`, and `-fsanitize=dataflow`.
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0 AND NOT MSVC)
   message(FATAL_ERROR "Draco requires LLVM clang version >= 6.0.")
@@ -75,7 +81,6 @@ if(NOT CXX_FLAGS_INITIALIZED)
          " -Wno-potentially-evaluated-expression")
 
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Woverloaded-virtual")
-  # Tried to use -fsanitize=safe-stack but this caused build issues.
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
   set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_RELEASE}")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
@@ -87,13 +92,21 @@ if(NOT CXX_FLAGS_INITIALIZED)
     # ld.lld: error: corrupt input file: version definition index 0 for symbol mpiprivc_ is out of
     # bounds
     #
-    # As of 2021-08-10, this is required on Capulin/Thunder when using cce@11, but must be ommitted
-    # on rznevada when using cce@12.
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0.0)
+    # As of 2021-08-10, this is required on Capulin/Thunder/Trinitite, but must be ommitted on
+    # rznevada when using cce@12.
+    if(EXISTS /usr/gapps)
+      # ATS-2: no-op
+    else()
+      # trinitite/trinity/capulin/thunder
       string(APPEND CMAKE_EXE_LINKER_FLAGS " -fuse-ld=bfd")
     endif()
-  else()
+  elseif(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13.0.0)
+    # \note When building with LLVM-13 on WSL2 or Linux, I don't need the '-stdlib' flag.  I'm not
+    # sure if the difference is WSL2 or newer llvm or something else.  For now, assume that we only
+    # need this flag for older versions of llvm.
     string(APPEND CMAKE_CXX_FLAGS " -stdlib=libc++")
+  else()
+    string(APPEND CMAKE_CXX_FLAGS " -pthread")
   endif()
 
 endif()
@@ -101,10 +114,10 @@ endif()
 # ------------------------------------------------------------------------------------------------ #
 # Toggle for OpenMP support
 if(OpenMP_C_FLAGS)
-  toggle_compiler_flag(OPENMP_FOUND "${OpenMP_C_FLAGS}" "C" "")
+  toggle_compiler_flag(OpenMP_FOUND "${OpenMP_C_FLAGS}" "C" "")
 endif()
 if(OpenMP_CXX_FLAGS)
-  toggle_compiler_flag(OPENMP_FOUND "${OpenMP_CXX_FLAGS}" "CXX" "")
+  toggle_compiler_flag(OpenMP_FOUND "${OpenMP_CXX_FLAGS}" "CXX" "")
 endif()
 # Note: adding openmp option to EXE_LINKER will break MPI detection for gfortran when running with
 # clang++/clang/gfortran.

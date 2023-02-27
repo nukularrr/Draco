@@ -3,7 +3,7 @@
  * \file   c4/Termination_Detector.hh
  * \author Kent Budge
  * \brief  Definition of class Termination_Detector
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef c4_Termination_Detector_hh
@@ -53,7 +53,7 @@ public:
   explicit Termination_Detector(int tag);
 
   //! Destructor.
-  ~Termination_Detector();
+  ~Termination_Detector(); // NOLINT(performance-trivially-destructible) bc optional debug behavior.
 
   //! Copy/Move assignment/construction operators not implemented.
   Termination_Detector &operator=(const Termination_Detector &rhs) = delete;

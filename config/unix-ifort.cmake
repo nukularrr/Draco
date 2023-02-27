@@ -3,7 +3,7 @@
 # author Kelly Thompson
 # date   2008 May 30
 # brief  Establish flags for Unix - Intel Fortran
-# note   Copyright (C) 2016-2021 Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2010-2023 Triad National Security, LLC., All rights reserved.
 # ------------------------------------------------------------------------------------------------ #
 
 #
@@ -27,7 +27,11 @@ if(NOT Fortran_FLAGS_INITIALIZED)
   #   aobut ifort's non-standard  name mangling for module procedures. Not sure if we need this yet.
 
   string(APPEND CMAKE_Fortran_FLAGS " -g -warn -fpp -implicitnone -diag-disable=11060")
-  string(CONCAT CMAKE_Fortran_FLAGS_DEBUG "-O0 -ftrapuv -check -fno-omit-frame-pointer -DDEBUG")
+  string(CONCAT CMAKE_Fortran_FLAGS_DEBUG "-O0 -ftrapuv -fno-omit-frame-pointer -DDEBUG")
+  # -check doesn't work for ifx as of Nov, 2021
+  if(NOT (DEFINED ENV{INTEL_COMPILER_TYPE} AND "$ENV{INTEL_COMPILER_TYPE}" STREQUAL "ONEAPI"))
+    string(APPEND CMAKE_Fortran_FLAGS_DEBUG " -check")
+  endif()
   if(NOT DEFINED CMAKE_CXX_COMPILER_WRAPPER AND NOT "${CMAKE_CXX_COMPILER_WRAPPER}" STREQUAL
                                                 "CrayPrgEnv")
     string(APPEND CMAKE_Fortran_FLAGS_DEBUG " -traceback")
@@ -42,13 +46,13 @@ endif()
 # ------------------------------------------------------------------------------------------------ #
 # Ensure cache values always match current selection
 deduplicate_flags(CMAKE_Fortran_FLAGS)
-force_compiler_flags_to_cache("Fortran")
 
 # Optional compiler flags
 if(NOT ${SITENAME} STREQUAL "Trinitite")
   toggle_compiler_flag(ENABLE_SSE "-mia32 -axSSSE3" "Fortran" "") # sse3, ssse3
 endif()
-toggle_compiler_flag(OPENMP_FOUND ${OpenMP_Fortran_FLAGS} "Fortran" "")
+toggle_compiler_flag(OpenMP_FOUND "${OpenMP_Fortran_FLAGS}" "Fortran" "")
+force_compiler_flags_to_cache("Fortran")
 
 # ------------------------------------------------------------------------------------------------ #
 # End config/unix-ifort.cmake

@@ -4,7 +4,7 @@
  * \author Kelly Thompson
  * \date   Fri Apr 13 16:15:59 2001
  * \brief  EoS class header file (an abstract class)
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_EoS_hh
@@ -48,6 +48,16 @@ public:
    * This is required to correctly release memory when any object derived from EoS is destroyed.
    */
   virtual ~EoS() = default;
+  //! Default constructor
+  EoS() = default;
+  //! Disable copy construction
+  EoS(EoS const &rhs) = delete;
+  //! Disable move construction
+  EoS(EoS &&rhs) noexcept = delete;
+  //! Disable assignment
+  EoS &operator=(EoS const &rhs) = delete;
+  //! Disable move-assignment
+  EoS &operator=(EoS &&rhs) noexcept = delete;
 
   // --------- //
   // Accessors //

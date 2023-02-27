@@ -3,13 +3,16 @@
 # author Gabriel Rockefeller, Kelly Thompson <kgt@lanl.gov>
 # date   2012 Nov 1
 # brief  Establish flags for Linux64 - IBM XL C++
-# note   Copyright (C) 2016-2021 Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2012-2022 Triad National Security, LLC., All rights reserved.
 # ------------------------------------------------------------------------------------------------ #
 
 include_guard(GLOBAL)
 
-# Ref:
-# https://www.ibm.com/support/knowledgecenter/en/SSXVZZ_16.1.1/com.ibm.xlcpp1611.lelinux.doc/compiler_ref/rucmpopt.html
+# cmake-lint: disable=C0301
+# ~~~
+# Ref:https://www.ibm.com/support/knowledgecenter/en/SSXVZZ_16.1.1/com.ibm.xlcpp1611.lelinux.doc/compiler_ref/rucmpopt.html
+# ~~~
+
 #
 # Compiler flag checks
 #
@@ -43,7 +46,14 @@ if(NOT CXX_FLAGS_INITIALIZED)
                              ${xlc_version})
       elseif(${module} MATCHES "^cuda")
         if(NOT DEFINED cuda_version)
-          string(REGEX REPLACE "[^0-9]*([0-9]+).([0-9]+).*" "\\1.\\2" cuda_version ${module})
+          # string(REGEX REPLACE "[^0-9]*([0-9]+).([0-9]+).*" "\\1.\\2" cuda_version ${module})
+          string(REGEX REPLACE "[^0-9]*([0-9]+).([0-9]+).*" "\\1" cuda_version_major ${module})
+          # As of 2022-09-27, the config on Darwin files are either *.cuda.10.1 or *.cuda.11.0.
+          if(cuda_version_major MATCHES "10")
+            set(cuda_version "10.1")
+          elseif(cuda_version_major MATCHES "11")
+            set(cuda_version "11.0")
+          endif()
         endif()
       endif()
     endforeach()
@@ -73,9 +83,9 @@ if(NOT CXX_FLAGS_INITIALIZED)
     unset(config_file)
   endif()
 
-  set(CMAKE_C_FLAGS_DEBUG "-O0 -qsmp=omp:noopt -qfullpath -DDEBUG")
-  set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -qsmp=omp -qstrict=nans:operationprecision")
-  set(CMAKE_C_FLAGS_RELEASE "-O2 -qsmp=omp -qstrict=nans:operationprecision -DNDEBUG")
+  set(CMAKE_C_FLAGS_DEBUG "-O0 -qfullpath -DDEBUG")
+  set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -qstrict=nans:operationprecision")
+  set(CMAKE_C_FLAGS_RELEASE "-O2 -qstrict=nans:operationprecision -DNDEBUG")
   set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_RELEASE}")
 
   if(${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "ppc64le")
@@ -97,22 +107,17 @@ endif()
 # Ensure cache values always match current selection
 deduplicate_flags(CMAKE_C_FLAGS)
 deduplicate_flags(CMAKE_CXX_FLAGS)
-force_compiler_flags_to_cache("C;CXX")
 
 # Toggle for OpenMP support
 if(OpenMP_C_FLAGS)
-  toggle_compiler_flag(OPENMP_FOUND "${OpenMP_C_FLAGS}" "C" "")
+  toggle_compiler_flag(OpenMP_FOUND "-qsmp=omp" "C" "RELEASE")
+  toggle_compiler_flag(OpenMP_FOUND "-qsmp=noopt" "C" "DEBUG")
 endif()
 if(OpenMP_CXX_FLAGS)
-  toggle_compiler_flag(OPENMP_FOUND "${OpenMP_CXX_FLAGS}" "CXX" "")
+  toggle_compiler_flag(OpenMP_FOUND "-qsmp=omp" "CXX" "RELEASE")
+  toggle_compiler_flag(OpenMP_FOUND "-qsmp=noopt" "CXX" "DEBUG")
 endif()
-
-# CMake will set OpenMP_C_FLAGS to '-qsmp.'  This option turns on OpenMP but also activates the
-# auto-parallelizer.  We don't want to enable the 2nd feature so we need to specify the OpenMP flag
-# to be '-qsmp=omp.'
-if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13.0)
-  toggle_compiler_flag(OPENMP_FOUND "-qsmp=omp" "C;CXX;EXE_LINKER" "")
-endif()
+force_compiler_flags_to_cache("C;CXX")
 
 # ------------------------------------------------------------------------------------------------ #
 # End config/unix-xl.cmake

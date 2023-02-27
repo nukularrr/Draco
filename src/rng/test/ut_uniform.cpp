@@ -78,6 +78,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #if defined(__clang__) && !defined(__ibmxl__)
+// Also use these for defined(__INTEL_LLVM_COMPILER)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wexpansion-to-defined"
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
@@ -85,11 +86,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wextra-semi"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#if defined(__clang_major__) && __clang_major__ > 12
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
 #endif
 
-#if defined(__INTEL_LLVM_COMPILER)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wreserved-identifier"
+#ifdef __NVCOMPILER
+#pragma diag_suppress 550 // set_but_not_used
 #endif
 
 #include "uniform.hpp"
@@ -207,8 +210,8 @@ int main(int argc, char **argv) {
   return !!nfail;
 }
 
-#if defined(__INTEL_LLVM_COMPILER)
-#pragma clang diagnostic pop
+#ifdef __NVCOMPILER
+#pragma diag_warning 550 // set_but_not_used
 #endif
 
 #if defined(__clang__) && !defined(__ibmxl__)

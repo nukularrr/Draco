@@ -1,8 +1,11 @@
-# ----------------------------------
-# Options affecting listfile parsing
+# -------------------------------------------*-python-*------------------------------------------- #
+# \file   .cmake-format.py
+# \author Kelly Thompson <kgt@lanl.gov>
+# \brief  Options affecting listfile parsing
+# \note   Copyright (C) 2021-2023 Triad National Security, LLC., All rights reserved.
 #
 # https://cmake-format.readthedocs.io/en/latest/configuration.html
-# ----------------------------------
+# ------------------------------------------------------------------------------------------------ #
 with section("parse"):  # noqa: F821
 
     # Specify structure for custom cmake functions
@@ -10,10 +13,10 @@ with section("parse"):  # noqa: F821
 
         "add_component_library": {
             "pargs": 1,
-            "flags": ["NOEXPORT"],
+            "flags": ["NOEXPORT", "PROVIDE_DLL_DEPS"],
             "kwargs": {"TARGET": '*', "LIBRARY_NAME": '*', "SOURCES": '*', "HEADERS": '*',
-                       "INCLUDE_DIRS": '*', "TARGET_DEPS": '*', "LINK_LANGUAGE": '*',
-                       "LIBRARY_TYPE": '*'}},
+                       "INCLUDE_DIRS": '*', "TARGET_DEPS": '*', "LANGUAGE": '*',
+                       "LINK_LANGUAGE": '*', "LIBRARY_TYPE": '*'}},
 
         "add_component_executable": {
             "kwargs": {"TARGET": '*', "LIBRARY_NAME": '*', "SOURCES": '*', "HEADERS": '*',
@@ -38,6 +41,53 @@ with section("parse"):  # noqa: F821
             "kwargs": {"PROJECT": '*', "ARCHIVE_DIR": '*', "RUNTIME_DIR": '*', "LIBRARIES": '*',
                        "TARGET_NAMES": '*', "DEPENDS": '*', "CMAKE_COMMAND_LINE": '*'}},
 
+        "cmake_parse_arguments": {
+            "pargs": 5,
+            "flags": ["VERBOSE"],
+            "kwargs": {"FOOBAR": '*'}},
+
+        "fortrancinterface_header": {
+            "pargs": 1,
+            "kwargs": {"MACRO_NAMESPACE": '*', "SYMBOLS": '*', "SYMBOL_NAMESPACE": '*'}},
+
+        "register_parallel_test": {
+            "pargs": 0,
+            "flags": ["FOO_PROPERTIES", "NO_EXTERNAL_INSTALL"],
+            "kwargs": {"CMD_ARGS": '*', "COMMAND": '*', "NUMPE": '*', "TARGET": '*'}},
+
+        "register_scalar_test": {
+            "pargs": 0,
+            "flags": ["FOO_PROPERTIES", "NO_EXTERNAL_INSTALL"],
+            "kwargs": {"TARGET": '*', "COMMAND": '*', "CMD_ARGS": '*'}},
+
+        "set_target_properties": {
+            "pargs": 1,
+            "flags": ["FOO_PROPERTIES", "NO_EXTERNAL_INSTALL"],
+            "kwargs": {"COMPILE_DEFINITIONS": '*', "DEPENDS": '*', "FOLDER": '*',
+                       "IMPORTED_CONFIGURATIONS": '*',
+                       "IMPORTED_IMPLIB": '*',
+                       "IMPORTED_IMPLIB_DEBUG": '*',
+                       "IMPORTED_IMPLIB_RELEASE": '*',
+                       "IMPORTED_LINK_INTERFACE_LANGUAGES": '*',
+                       "IMPORTED_LOCATION_DEBUG": '*',
+                       "IMPORTED_LOCATION_RELEASE": '*', "IMPORTED_LINK_INTERFACE_LIBRARIES": '*',
+                       "IMPORTED_LINK_INTERFACE_LANGUAGES": '*',
+                       "IMPORTED_LINK_INTERFACE_LIBRARIES_NOCONFIG": '*',
+                       "IMPORTED_LOCATION": '*',
+                       "INTERFACE_INCLUDE_DIRECTORIES": '*',
+                       "LINKER_LANGUAGE": '*',
+                       "OUTPUT_NAME": '*',
+                       "RUNTIME_OUTPUT_DIRECTORY": '*',
+                       "VS_KEYWORD": '*',
+                       "WINDOWS_EXPORT_ALL_SYMBOLS": '*',
+                       "XCODE_ATTRIBUTE_ENABLE_OPENMP_SUPPORT": '*'}},
+
+        "set_tests_properties": {
+            "pargs": 1,
+            "flags": ["FOO_PROPERTIES", "NO_EXTERNAL_INSTALL"],
+            "kwargs": {"DEPENDS": '*', "ENVIRONMENT": '*', "FAIL_REGULAR_EXPRESSION": '*',
+                       "LABELS": '*', "PASS_REGULAR_EXPRESSION": '*', "PROCESSORS": '*',
+                       "RESOURCE_LOCK": '*', "WORKING_DIRECTORY": '*'}},
     }
 
     # Specify variable tags.

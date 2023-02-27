@@ -4,7 +4,7 @@
  * \author Mathew Cleveland
  * \date   March 2019
  * \brief  DummyEICoupling class header file (derived from ../EICoupling)
- * \note   Copyright (C) 2019-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2019-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_DummyEICoupling_hh
@@ -43,14 +43,23 @@ public:
    * The constructor assigns fixed values for all of the member data.  Every instance of this object
    * has the same member data.
    */
-  DummyEICoupling();
+  DummyEICoupling() = default;
 
   /*!
    * \brief Default DummyEICoupling() destructor.
    *
    * This is required to correctly release memory when a DummyEICoupling object is destroyed.
    */
-  ~DummyEICoupling() override;
+  ~DummyEICoupling() override = default;
+
+  //! Disable copy construction
+  DummyEICoupling(DummyEICoupling const &rhs) = delete;
+  //! Disable move construction
+  DummyEICoupling(DummyEICoupling &&rhs) noexcept = delete;
+  //! Disable assignment
+  DummyEICoupling &operator=(DummyEICoupling const &rhs) = delete;
+  //! Disable move-assignment
+  DummyEICoupling &operator=(DummyEICoupling &&rhs) noexcept = delete;
 
   // --------- //
   // Accessors //
@@ -69,7 +78,7 @@ public:
                                              const std::vector<double> &w_i) const override;
 
   // Dummy pack function.
-  std::vector<char> pack() const override { return std::vector<char>(); }
+  std::vector<char> pack() const override { return {}; }
 
 }; // end of class DummyEICoupling
 

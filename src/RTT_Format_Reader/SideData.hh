@@ -4,7 +4,7 @@
  * \author B.T. Adams
  * \date   Wed Jun 7 10:33:26 2000
  * \brief  Header file for RTT_Format_Reader/SideData class.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_RTT_Format_Reader_SideData_hh
@@ -21,6 +21,12 @@ namespace rtt_RTT_Format_Reader {
  */
 //================================================================================================//
 class SideData {
+
+private:
+  void readKeyword(std::ifstream &meshfile);
+  void readData(std::ifstream &meshfile);
+  void readEndKeyword(std::ifstream &meshfile);
+
   // typedefs
   using ifstream = std::ifstream;
   using string = std::string;
@@ -31,19 +37,16 @@ class SideData {
   vector_vector_dbl data;
 
 public:
-  SideData(const Dims &dims_)
-      : dims(dims_), data(dims.get_nsides(), vector_dbl(dims.get_nside_data())) { /* empty */
-  }
+  explicit SideData(const Dims &dims_)
+      : dims(dims_), data(dims.get_nsides(), vector_dbl(dims.get_nside_data())) {}
   ~SideData() = default;
+  SideData(SideData const &rhs) = delete;
+  SideData(SideData &&rhs) noexcept = delete;
+  SideData &operator=(SideData const &rhs) = delete;
+  SideData &operator=(SideData &&rhs) noexcept = delete;
 
   void readSideData(ifstream &meshfile);
 
-private:
-  void readKeyword(ifstream &meshfile);
-  void readData(ifstream &meshfile);
-  void readEndKeyword(ifstream &meshfile);
-
-public:
   /*!
    * \brief Returns all of the data field values for each of the sides.
    * \return The data field values for each of the sides.

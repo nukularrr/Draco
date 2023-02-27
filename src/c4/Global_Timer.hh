@@ -4,7 +4,7 @@
  * \author Kent G. Budge
  * \date   Mon Mar 25 17:35:07 2002
  * \brief  Define class Global_Timer, a POSIX standard timer.
- * \note   Copyright (C) 2013-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2013-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_c4_Global_Timer_hh
@@ -114,7 +114,7 @@ public:
   static void reset_all();
 
   //! Print a report that contains all timer information
-  static void report_all(std::ostream &);
+  static void report_all(std::ostream &out);
 };
 
 } // end namespace rtt_c4

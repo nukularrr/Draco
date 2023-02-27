@@ -1,7 +1,7 @@
 #--------------------------------------------*-cmake-*---------------------------------------------#
 # file   config/compilerEnv.cmake
 # brief  Default CMake build parameters
-# note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2010-2023 Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
 
 include_guard(GLOBAL)
@@ -13,6 +13,9 @@ if(NOT DEFINED PLATFORM_CHECK_OPENMP_DONE OR NOT DEFINED CCACHE_CHECK_AVAIL_DONE
 Compiler Setup...
 ")
 endif()
+
+option(ENABLE_CCACHE "If available, use ccache compiler launcher" FALSE)
+option(ENABLE_F90CACHE "If available, use f90cache compiler launcher" FALSE)
 
 # ------------------------------------------------------------------------------------------------ #
 # PAPI
@@ -48,31 +51,71 @@ endif()
 #
 # This feature is usually compiler specific and a compile flag must be added. For this to work the
 # <platform>-<compiler>.cmake files (e.g.:  unix-g++.cmake) call this macro.
+#
+# * OpenMP under MSVC has some significant failings as of 2023.  Some details are captured at
+#   https://re-git.lanl.gov/draco/draco/-/issues/1407
+# * Client codes require OpenMP features like unsigned integer loop indices for omp threaded loops.
+# * OpenMP features that are required, should be tested in c4/tstOMP.cc.
+#
 # ------------------------------------------------------------------------------------------------ #
 macro(query_openmp_availability)
-  if(NOT PLATFORM_CHECK_OPENMP_DONE)
-    set(PLATFORM_CHECK_OPENMP_DONE
-        TRUE
-        CACHE BOOL "Is check for OpenMP done?")
-    mark_as_advanced(PLATFORM_CHECK_OPENMP_DONE)
-    message(STATUS "Looking for OpenMP...")
+  message(STATUS "Looking for OpenMP...")
+  if(WIN32)
+    # ~~~
+    # /openmp:llvm is broken (see comments/re-git issue above) and other modes are too old.
+    # AND (NOT CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+    # set(OpenMP_C_FLAGS "/openmp:experimental")
+    # set(OpenMP_FOUND TRUE)
+    # set(OpenMP_C_VERSION "3.1")
+    # ~~~
+    set(USE_OPENMP OFF)
+  elseif(DEFINED USE_OPENMP)
+    # no-op (use defined value, -DUSE_OPENMP=<OFF|ON>,  instead of attempting to guess)
+  elseif(DEFINED ENV{USE_OPENMP})
+    # Use the value found in the environment: `export USE_OPENMP=<OFF|ON>`
+    set(USE_OPENMP $ENV{USE_OPENMP})
+  else()
+    # Assume we want to use it if it is found.
+    set(USE_OPENMP ON)
+  endif()
+  set(USE_OPENMP
+      ${USE_OPENMP}
+      CACHE BOOL "Enable OpenMP threading support if detected." FORCE)
+
+  # Find package if desired:
+  if(USE_OPENMP)
     find_package(OpenMP QUIET)
-    if(OPENMP_FOUND)
-      message(STATUS "Looking for OpenMP... ${OpenMP_C_FLAGS} (supporting the "
-                     "${OpenMP_C_VERSION} standard)")
-      if(OpenMP_C_VERSION VERSION_LESS 3.0)
-        message(STATUS "OpenMP standard support is too old (< 3.0). Disabling OpenMP build "
-                       "features.")
-        set(OPENMP_FOUND FALSE)
-        set(OpenMP_C_FLAGS
-            ""
-            CACHE BOOL "OpenMP disabled (too old)." FORCE)
-      endif()
-      set(OPENMP_FOUND
-          ${OPENMP_FOUND}
-          CACHE BOOL "Is OpenMP available?" FORCE)
-    else()
+  else()
+    set(OpenMP_FOUND FALSE)
+  endif()
+
+  if(OpenMP_FOUND)
+    # [2022-10-27 KT] cmake/3.22 doesn't report OpenMP_C_VERSION for nvc++. Fake it for now.
+    if("${OpenMP_C_VERSION}x" STREQUAL "x" AND CMAKE_CXX_COMPILER_ID MATCHES "NVHPC")
+      set(OpenMP_C_VERSION
+          "5.0"
+          CACHE BOOL "OpenMP version." FORCE)
+      set(OpenMP_FOUND TRUE)
+    endif()
+    message(STATUS "Looking for OpenMP... ${OpenMP_C_FLAGS} (supporting the ${OpenMP_C_VERSION} "
+                   "standard)")
+    if(OpenMP_C_VERSION VERSION_LESS 3.0)
+      message(STATUS "OpenMP standard support is too old (< 3.0). Disabling OpenMP build features.")
+      set(OpenMP_FOUND FALSE)
+      set(OpenMP_C_FLAGS
+          ""
+          CACHE BOOL "OpenMP disabled (too old)." FORCE)
+    endif()
+    set(OpenMP_FOUND
+        ${OpenMP_FOUND}
+        CACHE BOOL "Is OpenMP available?" FORCE)
+  else()
+    if(USE_OPENMP)
+      # Not detected, though desired.
       message(STATUS "Looking for OpenMP... not found")
+    else()
+      # Detected, but not desired.
+      message(STATUS "Looking for OpenMP... found, but disabled for this build")
     endif()
   endif()
 endmacro()
@@ -107,7 +150,7 @@ endfunction()
 # ------------------------------------------------------------------------------------------------ #
 function(deduplicate_flags FLAGS)
   set(flag_list ${${FLAGS}}) # ${FLAGS} is CMAKE_C_FLAGS, double ${${FLAGS}} is the string of flags.
-  separate_arguments(flag_list)
+  separate_arguments(flag_list NATIVE_COMMAND ${flag_list})
   list(REMOVE_DUPLICATES flag_list)
   string(REGEX REPLACE "([^\\]|^);" "\\1 " _TMP_STR "${flag_list}")
   string(REGEX REPLACE "[\\](.)" "\\1" _TMP_STR "${_TMP_STR}") # fixes escaping
@@ -119,6 +162,8 @@ endfunction()
 # ------------------------------------------------------------------------------------------------ #
 # Setup compilers
 # ------------------------------------------------------------------------------------------------ #
+
+# cmake-lint: disable=R0912,R0915,W0106
 macro(dbsSetupCompilers)
 
   if(NOT dbsSetupCompilers_done)
@@ -142,7 +187,15 @@ macro(dbsSetupCompilers)
     # * Provide these as arguments to cmake as -DC_FLAGS="whatever".
     #
     # -------------------------------------------------------------------------------------------- #
-    foreach(lang C CXX Fortran EXE_LINKER SHARED_LINKER CUDA)
+    foreach(
+      lang
+      C
+      CXX
+      Fortran
+      EXE_LINKER
+      SHARED_LINKER
+      CUDA
+      HIP)
       if(DEFINED ENV{${lang}_FLAGS})
         string(REPLACE "\"" "" tmp "$ENV{${lang}_FLAGS}")
         string(APPEND ${lang}_FLAGS " ${tmp}")
@@ -182,19 +235,33 @@ macro(dbsSetupCompilers)
     # Setup common options for targets
     # -------------------------------------------------------------------------------------------- #
 
-    # Control the use of interprocedural optimization. This used to be set by editing compiler flags
-    # directly, but now that CMake has a universal toggle, we use it. This value is used in
-    # component_macros.cmake when properties are assigned to individual targets.
+    # Control the use of interprocedural optimization. Precedence:
+    #
+    # * (1) If MSVC, disable
+    # * (2) If set in the cache or on the cmake configure line, use the provided value.
+    # * (3) If set in the developer environment, use the provided value.
+    # * (4) Guess
+    #
+    # Options (2) and (3) can be used by the CI/regression system to properly control IPO.  The
+    # USE_IPO variable is used in component_macros.cmake when properties are assigned to individual
+    # targets.
+    #
+    # Ref.: https://cmake.org/cmake/help/git-stage/policy/CMP0069.html
 
-    # See https://cmake.org/cmake/help/git-stage/policy/CMP0069.html
     if(WIN32)
-      set(USE_IPO
-          OFF
-          CACHE BOOL "Enable Interprocedural Optimization for Release builds." FORCE)
+      set(USE_IPO OFF)
+    elseif(DEFINED USE_IPO)
+      # no-op (use defined value, -DUSE_IPO=OFF,  instead of attempting to guess)
+    elseif(DEFINED ENV{USE_IPO})
+      # Use the value found in the enviornment: `export USE_IPO=OFF`
+      set(USE_IPO $ENV{USE_IPO})
     else()
       include(CheckIPOSupported)
       check_ipo_supported(RESULT USE_IPO)
     endif()
+    set(USE_IPO
+        ${USE_IPO}
+        CACHE BOOL "Enable Interprocedural Optimization for Release builds." FORCE)
 
     # -------------------------------------------------------------------------------------------- #
     # Special build mode for Coverage (gcov+lcov+genthml)
@@ -226,7 +293,7 @@ macro(dbsSetupCompilers)
             ${CODE_COVERAGE_IGNORE_REGEX}
             CACHE STRING "List of regex that lcov will ignore" FORCE)
 
-        if(CMAKE_BUILD_TYPE STREQUAL Debug)
+        if(CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL DEBUG)
           # Add required flags (GCC & LLVM/Clang)
           target_compile_options(coverage_config INTERFACE --coverage)
           target_link_options(coverage_config INTERFACE --coverage)
@@ -259,7 +326,8 @@ macro(dbsSetupCompilers)
               COMMAND ${LCOV} ${lcovopts2} --capture --directory .
               COMMAND ${LCOV} ${lcovopts2} --remove coverage.info ${lcov_ignore}
               COMMAND genhtml coverage.info --demangle-cpp --output-directory cov-html
-              COMMAND "${captureLcov}" -g "${GCOV}" -l "${LCOV}")
+              COMMAND "${captureLcov}" -g "${GCOV}" -l "${LCOV}" -b "${PROJECT_SOURCE_DIR}"
+              COMMENT "Lcov is processing gcov data files...")
             unset(captureLcov)
             add_custom_target(
               covrep
@@ -278,7 +346,7 @@ macro(dbsSetupCompilers)
           endif() # EXISTS "${LCOV}" AND EXISTS "${GCOV}"
 
         else() # CMAKE_BUILD_TYPE STREQUAL Debug
-          message(STATUS "Code coverage build ... disabled (CMAKE_BUILD_TYPE != Debug")
+          message(STATUS "Code coverage build ... disabled (CMAKE_BUILD_TYPE != Debug)")
         endif() # CMAKE_BUILD_TYPE STREQUAL Debug
       endif() # CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang"
     endif(UNIX)
@@ -348,6 +416,8 @@ macro(dbsSetupCxx)
   elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "XLClang" OR "${CMAKE_C_COMPILER_ID}" STREQUAL
                                                           "XLCLang")
     include(unix-xl)
+  elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "NVHPC" OR "${CMAKE_C_COMPILER_ID}" STREQUAL "NVHPC")
+    include(Linux-NVHPC) # ${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_C_COMPILER_ID}
   else()
     # missing CMAKE_CXX_COMPILER_ID? - try to match the compiler path+name to a string.
     if("${my_cxx_compiler}" MATCHES "pgCC" OR "${my_cxx_compiler}" MATCHES "pgc[+][+]")
@@ -418,30 +488,33 @@ macro(dbsSetupCxx)
         TRUE
         CACHE BOOL "Have we looked for ccache/f90cache?")
     mark_as_advanced(CCACHE_CHECK_AVAIL_DONE)
-    # From https://crascit.com/2016/04/09/using-ccache-with-cmake/
-    message(STATUS "Looking for ccache...")
-    find_program(CCACHE_PROGRAM ccache)
-    if(CCACHE_PROGRAM)
-      message(STATUS "Looking for ccache... ${CCACHE_PROGRAM}")
-      # Set up wrapper scripts
-      set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-      set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-      add_feature_info(CCache CCACHE_PROGRAM "Using ccache to speed up builds.")
-    else()
-      message(STATUS "Looking for ccache... not found.")
+    if(ENABLE_CCACHE)
+      # From https://crascit.com/2016/04/09/using-ccache-with-cmake/
+      message(STATUS "Looking for ccache...")
+      find_program(CCACHE_PROGRAM ccache)
+      if(CCACHE_PROGRAM)
+        message(STATUS "Looking for ccache... ${CCACHE_PROGRAM}")
+        # Set up wrapper scripts
+        set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+        set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+        add_feature_info(CCache CCACHE_PROGRAM "Using ccache to speed up builds.")
+      else()
+        message(STATUS "Looking for ccache... not found.")
+      endif()
     endif()
 
-    # From https://crascit.com/2016/04/09/using-ccache-with-cmake/
-    message(STATUS "Looking for f90cache...")
-    find_program(F90CACHE_PROGRAM f90cache)
-    if(F90CACHE_PROGRAM)
-      message(STATUS "Looking for f90cache... ${F90CACHE_PROGRAM}")
-      set(CMAKE_Fortran_COMPILER_LAUNCHER "${F90CACHE_PROGRAM}")
-      add_feature_info(F90Cache F90CACHE_PROGRAM "Using f90cache to speed up builds.")
-    else()
-      message(STATUS "Looking for f90cache... not found.")
+    if(ENABLE_F90CACHE)
+      # From https://crascit.com/2016/04/09/using-ccache-with-cmake/
+      message(STATUS "Looking for f90cache...")
+      find_program(F90CACHE_PROGRAM f90cache)
+      if(F90CACHE_PROGRAM)
+        message(STATUS "Looking for f90cache... ${F90CACHE_PROGRAM}")
+        set(CMAKE_Fortran_COMPILER_LAUNCHER "${F90CACHE_PROGRAM}")
+        add_feature_info(F90Cache F90CACHE_PROGRAM "Using f90cache to speed up builds.")
+      else()
+        message(STATUS "Looking for f90cache... not found.")
+      endif()
     endif()
-
   endif()
 
 endmacro()
@@ -464,8 +537,10 @@ endmacro()
 #
 # References:
 #
-# * https://blog.kitware.com/static-checks-with-cmake-cdash-iwyu-clang-tidy-lwyu-cpplint-and-cppcheck/
-# * https://github.com/KratosMultiphysics/Kratos/wiki/How-to-use-Clang-Tidy-to-automatically-correct-code
+# * https://blog.kitware.com/
+#   static-checks-with-cmake-cdash-iwyu-clang-tidy-lwyu-cpplint-and-cppcheck/
+# * https://github.com/KratosMultiphysics/Kratos/wiki/
+#   How-to-use-Clang-Tidy-to-automatically-correct-code
 # * https://www.kdab.com/clang-tidy-part-1-modernize-source-code-using-c11c14/
 #
 # ------------------------------------------------------------------------------------------------ #
@@ -496,7 +571,7 @@ macro(dbsSetupStaticAnalyzers)
     #
     # Example:
     #
-    # * cmake -DDRACO_STATIC_ANALYZER=clang-tidy -DCLANG_TIDY_CHECKS="-checks=generate-*"  ...
+    # * cmake -DDRACO_STATIC_ANALYZER=clang-tidy
     if("${DRACO_STATIC_ANALYZER}" MATCHES "clang-tidy")
       if(NOT CMAKE_CXX_CLANG_TIDY)
         find_program(CMAKE_CXX_CLANG_TIDY clang-tidy)
@@ -507,24 +582,10 @@ macro(dbsSetupStaticAnalyzers)
       endif()
 
       if(CMAKE_CXX_CLANG_TIDY)
-        if(NOT CLANG_TIDY_OPTIONS)
-          set(CLANG_TIDY_OPTIONS "-header-filter=.*[.]hh")
-          # Only run clang tidy on src, test, examples and skip 3rd party libraries
-          #
-          # set(CLANG_TIDY_OPTIONS "\"-header-filter=.*\\b(src|test|examples)\\b\\/(?!lib).*\"")
-        endif()
-        set(CLANG_TIDY_OPTIONS
-            "${CLANG_TIDY_OPTIONS}"
-            CACHE STRING "clang-tidy extra options (eg: -header-filter=.*[.]hh;-fix)" FORCE)
-
         if(NOT CLANG_TIDY_CHECKS)
-          # * -checks=mpi-*,bugprone-*,performance-*,modernize-*
-          # * See full list: `clang-tidy -check=* -list-checks'
-          # * Default: all modernize checks; except use-trailing-return-type.
-          set(CLANG_TIDY_CHECKS "-checks=modernize-*,-modernize-use-trailing-return-type")
+          set(CLANG_TIDY_CHECKS "--config-file=${PROJECT_SOURCE_DIR}/.clang-tidy")
           if(DEFINED ENV{CI})
-            string(REPLACE "-checks=" "--warnings-as-errors=" tmp ${CLANG_TIDY_CHECKS})
-            string(APPEND CLANG_TIDY_CHECKS ";${tmp}")
+            string(APPEND CLANG_TIDY_CHECKS ";--warnings-as-errors=*")
           endif()
         endif()
         set(CLANG_TIDY_CHECKS
@@ -534,16 +595,18 @@ macro(dbsSetupStaticAnalyzers)
         set(CLANG_TIDY_IPATH
             "${CLANG_TIDY_IPATH}"
             CACHE STRING "clang-tidy extra include directories" FORCE)
-        if(NOT "${CLANG_TIDY_CHECKS}" MATCHES "[-]checks[=]")
+        if(NOT ("${CLANG_TIDY_CHECKS}" MATCHES "[-]checks[=]" OR "${CLANG_TIDY_CHECKS}" MATCHES
+                                                                 "[-]config-file[=]"))
           message(FATAL_ERROR "Option CLANG_TIDY_CHECKS string must start with the string "
-                              "'-check='")
+                              "'-check=' or '--config='")
         endif()
         # re-create clang-tidy command
-        if("${CMAKE_CXX_CLANG_TIDY}" MATCHES "[-]checks[=]")
+        if("${CMAKE_CXX_CLANG_TIDY}" MATCHES "[-]checks[=]" OR "${CLANG_TIDY_CHECKS}" MATCHES
+                                                               "[-]config-file[=]")
           list(GET CMAKE_CXX_CLANG_TIDY 0 CMAKE_CXX_CLANG_TIDY)
         endif()
         set(CMAKE_CXX_CLANG_TIDY
-            "${CMAKE_CXX_CLANG_TIDY};${CLANG_TIDY_CHECKS};${CLANG_TIDY_OPTIONS}"
+            "${CMAKE_CXX_CLANG_TIDY};${CLANG_TIDY_CHECKS}"
             CACHE STRING "Run clang-tidy on each source file before compile." FORCE)
       else()
         unset(CMAKE_CXX_CLANG_TIDY)
@@ -610,8 +673,8 @@ macro(dbsSetupStaticAnalyzers)
     endif()
   endif()
 
-  # include-what-you-link
-  # https://blog.kitware.com/static-checks-with-cmake-cdash-iwyu-clang-tidy-lwyu-cpplint-and-cppcheck
+  # include-what-you-link, https://blog.kitware.com/
+  # static-checks-with-cmake-cdash-iwyu-clang-tidy-lwyu-cpplint-and-cppcheck
   if(${DRACO_STATIC_ANALYZER} MATCHES "iwyl" AND UNIX)
     option(CMAKE_LINK_WHAT_YOU_USE "Report if extra libraries are linked." TRUE)
   else()
@@ -706,6 +769,8 @@ macro(dbsSetupFortran)
       include(unix-flang)
     elseif("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU")
       include(unix-gfortran)
+    elseif("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "NVHPC")
+      include(Linux-NVHPC-Fortran)
     else()
       # missing CMAKE_Fortran_COMPILER_ID? - try to match the compiler path+name to a string.
       if(${my_fc_compiler} MATCHES "pgf9[05]" OR ${my_fc_compiler} MATCHES "pgfortran")
@@ -713,8 +778,8 @@ macro(dbsSetupFortran)
       elseif(${my_fc_compiler} MATCHES "ftn")
         message(
           FATAL_ERROR
-            "I think the C++ compiler is a Cray compiler wrapper, but I don't know"
-            " what compiler is wrapped. CMAKE_Fortran_COMPILER_ID = ${CMAKE_Fortran_COMPILER_ID}")
+            "I think the C++ compiler is a Cray compiler wrapper, but I don't know what compiler"
+            " is wrapped. CMAKE_Fortran_COMPILER_ID = ${CMAKE_Fortran_COMPILER_ID}")
       elseif(${my_fc_compiler} MATCHES "ifort")
         include(unix-ifort)
       elseif(${my_fc_compiler} MATCHES "xl")
@@ -761,7 +826,7 @@ macro(dbsSetupFortran)
 endmacro()
 
 # ------------------------------------------------------------------------------------------------ #
-# Setup Cuda Compiler
+# Setup GPU Compiler
 #
 # Use:
 #
@@ -770,18 +835,18 @@ endmacro()
 #
 # Helpers - these environment variables help cmake find/set CUDA envs.
 #
-# * ENV{CUDACXX}
-# * ENV{CUDAFLAGS}
-# * ENV{CUDAHOSTCXX}
+# * ENV{CUDACXX} | ENV{HIPCXX}
+# * ENV{CUDAFLAGS} | ENV{HIPFLAGS}
+# * ENV{CUDAHOSTCXX} | ENV{HIPHOSTCXX}
 #
 # Returns:
 #
 # * BUILD_SHARED_LIBS - bool
-# * CMAKE_CUDA_FLAGS
-# * CMAKE_CUDA_FLAGS_DEBUG
-# * CMAKE_CUDA_FLAGS_RELEASE
-# * CMAKE_CUDA_FLAGS_RELWITHDEBINFO
-# * CMAKE_CUDA_FLAGS_MINSIZEREL
+# * CMAKE_[CUDA|HIP]_FLAGS
+# * CMAKE_[CUDA|HIP]_FLAGS_DEBUG
+# * CMAKE_[CUDA|HIP]_FLAGS_RELEASE
+# * CMAKE_[CUDA|HIP]_FLAGS_RELWITHDEBINFO
+# * CMAKE_[CUDA|HIP]_FLAGS_MINSIZEREL
 #
 # Notes:
 #
@@ -793,41 +858,60 @@ macro(dbsSetupCuda)
 
   # Toggle if we should try to build Cuda parts of the project. Will be enabled if ENV{CUDACXX} is
   # set.
-  option(HAVE_CUDA "Should we build Cuda parts of the project?" OFF)
+  option(HAVE_GPU "Should we build GPU accelerator parts of the project?" OFF)
 
   # Is Cuda enabled (it is considered 'optional' for draco)?
   get_property(_LANGUAGES_ GLOBAL PROPERTY ENABLED_LANGUAGES)
-  if(_LANGUAGES_ MATCHES CUDA)
-    # We found Cuda, keep track of this information.
-    set(HAVE_CUDA ON)
+  if(_LANGUAGES_ MATCHES CUDA OR _LANGUAGES_ MATCHES HIP)
+    # We found Cuda or HIP, keep track of this information.
+    set(HAVE_GPU ON)
     # User option to disable Cuda, even when it is available.
-    option(USE_CUDA "Use Cuda?" ON)
+    option(USE_GPU "Use Cuda|Hip?" ON)
   endif()
 
   # Save the results
-  set(HAVE_CUDA
-      ${HAVE_CUDA}
-      CACHE BOOL "Should we build CUDA portions of this project?" FORCE)
-  if(HAVE_CUDA AND USE_CUDA)
-    # Use this string in 'project(foo ${CUDA_DBS_STRING})' commands to enable cuda per project.
-    set(CUDA_DBS_STRING
-        "CUDA"
-        CACHE STRING "If CUDA is available, this variable is 'CUDA'")
+  set(HAVE_GPU
+      ${HAVE_GPU}
+      CACHE BOOL "Should we build GPU Accelerated (CUDA|HIP) portions of this project?" FORCE)
+  if(HAVE_GPU AND USE_GPU)
+    # Use this string in 'project(foo ${GPU_DBS_STRING})' commands to enable cuda per project.
+    if(_LANGUAGES_ MATCHES CUDA)
+      set(GPU_DBS_STRING
+          "CUDA"
+          CACHE STRING "If CUDA is available, this variable is 'CUDA'")
+    else()
+      set(GPU_DBS_STRING
+          "HIP"
+          CACHE STRING "If HIP is available, this variable is 'HIP'")
+    endif()
     # Use this string as a toggle when calling add_component_library or add_scalar_tests to force
-    # compiling with nvcc.
-    set(COMPILE_WITH_CUDA LINK_LANGUAGE CUDA)
+    # compiling with nvcc/hip.
+    set(COMPILE_WITH_GPU LINK_LANGUAGE ${GPU_DBS_STRING})
 
     # setup flags
     if("${CMAKE_CUDA_COMPILER_ID}" MATCHES "NVIDIA")
       include(unix-cuda)
+    elseif("${CMAKE_HIP_COMPILER_ID}" MATCHES "Clang")
+      include(unix-hip-clang)
     else()
-      message(FATAL_ERROR "Build system does not support CUDACXX=${CMAKE_CUDA_COMPILER}")
+      message(FATAL_ERROR "Build system does not support CUDACXX=${CMAKE_CUDA_COMPILER} or "
+                          "HIPCXX = ${CMAKE_HIP_COMPILER}")
     endif()
   endif()
 
   # Sanity Check
-  if(USE_CUDA AND NOT HAVE_CUDA)
-    message(FATAL_ERROR "==> Cuda requested but nvcc not found. Try loading a cuda module.")
+  if(USE_GPU AND NOT HAVE_GPU)
+    set(message "==> USE_GPU=TRUE but GPU hardware and/or runtimes not found.")
+    if(GPU_DBS_STRING MATCHES "CUDA")
+      string(APPEND message
+             "==> Ie. CUDA requested but nvcc was not found. Try loading a cuda module "
+             "    or setting CUDACXX or CMAKE_CUDA_COMPILER manually.")
+    else()
+      string(APPEND message
+             "==> Ie. HIP requested but rocm was not found. Try loading a rocm module."
+             "    or setting HIPCXX or CMAKE_HIP_COMPILER manually.")
+    endif()
+    message(FATAL_ERROR "${message}")
   endif()
 
 endmacro()
@@ -862,8 +946,8 @@ function(dbsSetupProfilerTools)
     endif()
     if("${CMAKE_MEMORYCHECK_COMMAND_OPTIONS}notset" STREQUAL "notset")
       string(CONCAT CMAKE_MEMORYCHECK_COMMAND_OPTIONS
-                    "-q --tool=memcheck --trace-children=yes --leak-check=full --num-callers=20 "
-                    "--gen-suppressions=all ") # --show-reachable=yes
+                    "--error-exitcode=1 -q --tool=memcheck --trace-children=yes --leak-check=full "
+                    "--num-callers=20 --gen-suppressions=all ") # --show-reachable=yes
       if(EXISTS "${CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
         string(APPEND CMAKE_MEMORYCHECK_COMMAND_OPTIONS
                " --suppressions=${CTEST_MEMORYCHECK_SUPPRESSIONS_FILE} ")
@@ -881,7 +965,12 @@ endfunction()
 #
 # Examples: toggle_compiler_flag( GCC_ENABLE_ALL_WARNINGS "-Weffc++" "CXX" "DEBUG" )
 # ------------------------------------------------------------------------------------------------ #
-macro(toggle_compiler_flag switch compiler_flag compiler_flag_var_names build_modes)
+function(toggle_compiler_flag switch compiler_flag compiler_flag_var_names build_modes)
+
+  # If compiler flag string is empty, this call is a no-op.
+  if("${compiler_flag}x" STREQUAL "x")
+    return()
+  endif()
 
   # generate names that are safe for CMake RegEx MATCHES commands
   string(REPLACE "+" "x" safe_compiler_flag ${compiler_flag})
@@ -894,6 +983,7 @@ macro(toggle_compiler_flag switch compiler_flag compiler_flag_var_names build_mo
        AND NOT ${comp} STREQUAL "CXX"
        AND NOT ${comp} STREQUAL "Fortran"
        AND NOT ${comp} STREQUAL "CUDA"
+       AND NOT ${comp} STREQUAL "HIP"
        AND NOT ${comp} STREQUAL "EXE_LINKER"
        AND NOT ${comp} STREQUAL "SHARED_LINKER")
       message(
@@ -906,50 +996,46 @@ macro(toggle_compiler_flag switch compiler_flag compiler_flag_var_names build_mo
     string(REPLACE "+" "x" safe_CMAKE_${comp}_FLAGS "${CMAKE_${comp}_FLAGS}")
 
     if("${build_modes}x" STREQUAL "x") # set flags for all build modes
-
       if(${switch})
         if(NOT "${safe_CMAKE_${comp}_FLAGS}" MATCHES "${safe_compiler_flag}")
-          set(CMAKE_${comp}_FLAGS
-              "${CMAKE_${comp}_FLAGS} ${compiler_flag} "
-              CACHE STRING "compiler flags" FORCE)
+          set(CMAKE_${comp}_FLAGS "${CMAKE_${comp}_FLAGS} ${compiler_flag} ")
         endif()
       else()
         if("${safe_CMAKE_${comp}_FLAGS}" MATCHES "${safe_compiler_flag}")
           string(REPLACE "${compiler_flag}" "" CMAKE_${comp}_FLAGS ${CMAKE_${comp}_FLAGS})
-          set(CMAKE_${comp}_FLAGS
-              "${CMAKE_${comp}_FLAGS}"
-              CACHE STRING "compiler flags" FORCE)
         endif()
       endif()
+      set(CMAKE_${comp}_FLAGS
+          "${CMAKE_${comp}_FLAGS}"
+          PARENT_SCOPE)
 
     else() # build_modes listed
 
-      foreach(bm ${build_modes})
+      foreach(buildtype ${build_modes})
 
-        string(REPLACE "+" "x" safe_CMAKE_${comp}_FLAGS_${bm} ${CMAKE_${comp}_FLAGS_${bm}})
+        string(REPLACE "+" "x" safe_CMAKE_${comp}_FLAGS_${buildtype}
+                       ${CMAKE_${comp}_FLAGS_${buildtype}})
 
         if(${switch})
-          if(NOT "${safe_CMAKE_${comp}_FLAGS_${bm}}" MATCHES "${safe_compiler_flag}")
-            set(CMAKE_${comp}_FLAGS_${bm}
-                "${CMAKE_${comp}_FLAGS_${bm}} ${compiler_flag} "
-                CACHE STRING "compiler flags" FORCE)
+          if(NOT "${safe_CMAKE_${comp}_FLAGS_${buildtype}}" MATCHES "${safe_compiler_flag}")
+            set(CMAKE_${comp}_FLAGS_${buildtype}
+                "${CMAKE_${comp}_FLAGS_${buildtype}} ${compiler_flag}")
           endif()
         else()
-          if("${safe_CMAKE_${comp}_FLAGS_${bm}}" MATCHES "${safe_compiler_flag}")
-            string(REPLACE "${compiler_flag}" "" CMAKE_${comp}_FLAGS_${bm}
-                           ${CMAKE_${comp}_FLAGS_${bm}})
-            set(CMAKE_${comp}_FLAGS_${bm}
-                "${CMAKE_${comp}_FLAGS_${bm}}"
-                CACHE STRING "compiler flags" FORCE)
+          if("${safe_CMAKE_${comp}_FLAGS_${buildtype}}" MATCHES "${safe_compiler_flag}")
+            string(REPLACE "${compiler_flag}" "" CMAKE_${comp}_FLAGS_${buildtype}
+                           ${CMAKE_${comp}_FLAGS_${buildtype}})
           endif()
         endif()
-
+        set(CMAKE_${comp}_FLAGS_${buildtype}
+            "${CMAKE_${comp}_FLAGS_${buildtype}}"
+            PARENT_SCOPE)
       endforeach()
 
     endif()
 
   endforeach()
-endmacro()
+endfunction()
 
 # ------------------------------------------------------------------------------------------------ #
 # End config/compiler_env.cmake

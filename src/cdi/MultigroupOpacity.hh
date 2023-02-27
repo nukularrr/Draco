@@ -4,7 +4,7 @@
  * \author Kelly Thompson
  * \date   Mon Jan 8 14:58:55 2001
  * \brief  MultigroupOpacity class header file (an abstract class)
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_MultigroupOpacity_hh
@@ -51,6 +51,16 @@ public:
    * destroyed.
    */
   virtual ~MultigroupOpacity() = default;
+  //! Default constructor
+  MultigroupOpacity() = default;
+  //! Disable copy construction
+  MultigroupOpacity(MultigroupOpacity const &rhs) = delete;
+  //! Disable move construction
+  MultigroupOpacity(MultigroupOpacity &&rhs) noexcept = delete;
+  //! Disable assignment
+  MultigroupOpacity &operator=(MultigroupOpacity const &rhs) = delete;
+  //! Disable move-assignment
+  MultigroupOpacity &operator=(MultigroupOpacity &&rhs) noexcept = delete;
 
   // --------- //
   // Accessors //

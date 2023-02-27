@@ -51,14 +51,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #if defined(__clang__) && !defined(__ibmxl__)
+// Also use these for defined(__INTEL_LLVM_COMPILER)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
-#endif
-
-#if defined(__INTEL_LLVM_COMPILER)
-#pragma clang diagnostic push
+#if defined(__clang_major__) && __clang_major__ > 12
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 #pragma clang diagnostic ignored "-Wunused-but-set-variable"
+#endif
 #endif
 
 #include "ut_carray.hh"
@@ -360,10 +359,6 @@ int main(int, char **) {
   cout << "ut_carray: all OK" << endl;
   return 0;
 }
-
-#if defined(__INTEL_LLVM_COMPILER)
-#pragma clang diagnostic pop
-#endif
 
 #if defined(__clang__) && !defined(__ibmxl__)
 #pragma clang diagnostic pop

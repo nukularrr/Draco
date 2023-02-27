@@ -4,7 +4,7 @@
  * \author Kelly Thompson
  * \date   Mon Jan 8 15:02:21 2001
  * \brief  GrayOpacity class header file (an abstract class)
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_GrayOpacity_hh
@@ -51,6 +51,16 @@ public:
    * destroyed.
    */
   virtual ~GrayOpacity() = default;
+  //! Default constructor
+  GrayOpacity() = default;
+  //! Disable copy construction
+  GrayOpacity(GrayOpacity const &rhs) = delete;
+  //! Disable move construction
+  GrayOpacity(GrayOpacity &&rhs) noexcept = delete;
+  //! Disable assignment
+  GrayOpacity &operator=(GrayOpacity const &rhs) = delete;
+  //! Disable move-assignment
+  GrayOpacity &operator=(GrayOpacity &&rhs) noexcept = delete;
 
   // --------- //
   // Accessors //

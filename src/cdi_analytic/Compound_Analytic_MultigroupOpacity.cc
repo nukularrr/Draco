@@ -2,8 +2,8 @@
 /*!
  * \file   cdi_analytic/Compound_Analytic_MultigroupOpacity.cc
  * \brief  Compound_Analytic_MultigroupOpacity class member definitions.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2019-2022 Triad National Security, LLC., All rights reserved.
+ */
 //------------------------------------------------------------------------------------------------//
 
 #include "Compound_Analytic_MultigroupOpacity.hh"
@@ -272,7 +272,14 @@ Compound_Analytic_MultigroupOpacity::sf_char Compound_Analytic_MultigroupOpacity
   for (size_t i = 0; i < models.size(); ++i) {
     Check(group_models[i]);
 
-    models[i] = group_models[i]->pack();
+    // (KPL) The original logic in this loop was simply:
+    // models[i] = group_models[i]->pack();
+    // However, that code causes a link-time failure for xl-16.1.1+gcc-9.3 DEBUG builds.
+    // The following logic (create temporary, resize destination char vector, assign destination
+    // to temporary) appears to work for all supported systems+compilers as of October 2022.
+    sf_char this_pack = group_models[i]->pack();
+    models[i].resize(this_pack.size());
+    models[i] = this_pack;
     Check(num_bytes_models + models[i].size() < INT_MAX);
     num_bytes_models += static_cast<int>(models[i].size());
   }

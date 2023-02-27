@@ -4,7 +4,7 @@
  * \author Thomas M. Evans
  * \date   Mon Mar 25 11:12:35 2002
  * \brief  C4 MPI global reduction instantiations.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "c4/config.h"
@@ -78,6 +78,7 @@ template void global_min<unsigned long>(unsigned long &);
 template void global_min<float>(float &);
 template void global_min<double>(double &);
 template void global_min<long double>(long double &);
+template void global_min<long long>(long long &);
 template void global_min<unsigned long long>(unsigned long long &);
 
 template void global_and<bool>(bool &);

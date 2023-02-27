@@ -3,8 +3,7 @@
  * \file   parser/test/tstClass_Parser.cc
  * \author Kent Budge
  * \date   Mon Aug 28 07:36:50 2006
- * \note   Copyright (C) 2016-2018 Los Alamos National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2019-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "ds++/Release.hh"
@@ -20,7 +19,7 @@ using namespace rtt_parser;
 //------------------------------------------------------------------------------------------------//
 class DummyClass {
 public:
-  DummyClass(double const insouciance_in) : insouciance(insouciance_in) {}
+  explicit DummyClass(double const insouciance_in) noexcept : insouciance(insouciance_in) {}
 
   double Get_Insouciance() const { return insouciance; }
 
@@ -32,11 +31,9 @@ namespace rtt_parser {
 //------------------------------------------------------------------------------------------------//
 template <> class Class_Parse_Table<DummyClass> : public Class_Parse_Table_Base<DummyClass, false> {
 public:
-  // TYPEDEFS
-
   // MANAGEMENT
 
-  Class_Parse_Table(bool context = false);
+  explicit Class_Parse_Table(bool context = false);
 
   // SERVICES
 
@@ -53,9 +50,7 @@ protected:
 private:
   // IMPLEMENTATION
 
-  static void parse_insouciance_(Token_Stream &tokens, int);
-
-  // STATIC
+  static void parse_insouciance_(Token_Stream &tokens, int /*unused*/);
 };
 
 //------------------------------------------------------------------------------------------------//
@@ -70,7 +65,7 @@ template <> std::shared_ptr<DummyClass> parse_class<DummyClass>(Token_Stream &to
 }
 
 //------------------------------------------------------------------------------------------------//
-void Class_Parse_Table<DummyClass>::parse_insouciance_(Token_Stream &tokens, int) {
+void Class_Parse_Table<DummyClass>::parse_insouciance_(Token_Stream &tokens, int /*unused*/) {
   tokens.check_semantics(current_->parsed_insouciance < 0.0,
                          "duplicate specification of insouciance");
 
@@ -100,8 +95,7 @@ void Class_Parse_Table<DummyClass>::check_completeness(Token_Stream &tokens) {
 
 //------------------------------------------------------------------------------------------------//
 std::shared_ptr<DummyClass> Class_Parse_Table<DummyClass>::create_object() {
-  std::shared_ptr<DummyClass> Result =
-      std::shared_ptr<DummyClass>(new DummyClass(parsed_insouciance));
+  std::shared_ptr<DummyClass> Result = std::make_shared<DummyClass>(parsed_insouciance);
   return Result;
 }
 

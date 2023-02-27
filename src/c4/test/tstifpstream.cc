@@ -4,8 +4,7 @@
  * \author Mathew Cleveland
  * \date   Feb. 2020
  * \brief  Tests ifpstream class for paralle read
- * \note   Copyright (C) 2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2020-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "c4/ParallelUnitTest.hh"
@@ -22,7 +21,7 @@ using namespace rtt_c4;
 // HELPER FUNCTIONS
 //------------------------------------------------------------------------------------------------//
 
-void write_stream(std::string filename, const std::ios_base::openmode mode) {
+void write_stream(std::string const &filename, const std::ios_base::openmode mode) {
 
   unsigned const pid = rtt_c4::node();
 
@@ -65,24 +64,21 @@ void tstifpstream(UnitTest &ut, const std::ios_base::openmode mode) {
   std::string zeroth_string(zeroth_buffer_size, '\0');
   in.fill_buffers(zeroth_buffer_size);
   in.read(&zeroth_string[0], zeroth_buffer_size);
-  if (zeroth_string.compare(compare_string) != 0)
-    ITFAILS;
+  FAIL_IF_NOT(zeroth_string.compare(compare_string) == 0);
 
   // read first strings on each rank
   compare_string = "MPI rank " + to_string(pid) + " reporting ...\n";
   std::string first_string(first_buffer_size, '\0');
   in.fill_buffers(first_buffer_size);
   in.read(&first_string[0], first_buffer_size);
-  if (first_string.compare(compare_string) != 0)
-    ITFAILS;
+  FAIL_IF_NOT(first_string.compare(compare_string) == 0);
 
   // read second strings on each rank
   compare_string = "MPI rank " + to_string(pid) + " reporting a second time ...\n";
   std::string second_string(second_buffer_size, '\0');
   in.fill_buffers(second_buffer_size);
   in.read(&second_string[0], second_buffer_size);
-  if (second_string.compare(compare_string) != 0)
-    ITFAILS;
+  FAIL_IF_NOT(second_string.compare(compare_string) == 0);
 
   if (pid == 0)
     PASSMSG("completed serialized read of " + filename + " without hanging or segfaulting");

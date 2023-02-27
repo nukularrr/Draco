@@ -4,7 +4,7 @@
  * \author Rob Lowrie
  * \date   Mon Nov 19 10:09:11 2007
  * \brief  Implementation of Invert_Comm_Map
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "Invert_Comm_Map.hh"
@@ -106,7 +106,7 @@ void invert_comm_map(Invert_Comm_Map_t const &to_map, Invert_Comm_Map_t &from_ma
   }
 
   // Wait on the receives and populate the map
-  C4_Status status;
+  C4_Status status{};
   for (int i = 0; i < num_recv; ++i) {
     recvs[i].wait(&status);
     Check(status.get_message_size() == sizeof(size_t));

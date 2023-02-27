@@ -3,7 +3,7 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2010 June 5
 # brief  Default CMake build parameters
-# note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved.
 #------------------------------------------------------------------------------------------------- #
 
 include_guard(GLOBAL)
@@ -11,6 +11,7 @@ include_guard(GLOBAL)
 # ------------------------------------------------------------------------------------------------ #
 # Build Parameters
 # ------------------------------------------------------------------------------------------------ #
+# cmake-lint: disable=R0912,R0915
 macro(dbsSetDefaults)
 
   # Work around for cmake-3.19+. Should be fixed in cmake-3.20+
@@ -50,7 +51,7 @@ macro(dbsSetDefaults)
 
   # For win32 platforms avoid copying all dependent dll libraries into the test directories by using
   # a common runtime directory.
-  if(WIN32)
+  if(WIN32 AND NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
     if(CMAKE_CONFIGURATION_TYPES)
       set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
     else() # nmake or mingw32-make
@@ -79,7 +80,7 @@ macro(dbsSetDefaults)
   endif()
 
   # Design-by-Contract
-  if(NOT DEFINED DRACO_DBC_LEVEL)
+  if(NOT DEFINED DRACO_DBC_LEVEL AND DEFINED Draco_SOURCE_DIR)
 
     # Default is on (7), except for Makefile based Release builds.
     #
@@ -242,15 +243,6 @@ macro(dbsInitExportTargets PREFIX)
   set(${PREFIX}_PACKAGE_LIST
       ""
       CACHE INTERNAL "List of known package targets" FORCE)
-  set(${PREFIX}_TPL_LIST
-      ""
-      CACHE INTERNAL "List of third party libraries known by this package" FORCE)
-  set(${PREFIX}_TPL_INCLUDE_DIRS
-      ""
-      CACHE INTERNAL "List of include paths used by this package to find TPL header files." FORCE)
-  set(${PREFIX}_TPL_LIBRARIES
-      ""
-      CACHE INTERNAL "List of third party libraries used by this package." FORCE)
 endmacro()
 
 # ------------------------------------------------------------------------------------------------ #

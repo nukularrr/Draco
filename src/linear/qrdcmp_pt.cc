@@ -4,20 +4,20 @@
  * \author Kent Budge
  * \date   Wed Aug 11 15:21:38 2004
  * \brief  Specializations of qrdcmp
- * \note   Copyright (C) 2016-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "qrdcmp.t.hh"
 #include <vector>
 
 namespace rtt_linear {
-using std::vector;
 
 //------------------------------------------------------------------------------------------------//
 // RandomContainer=vector<double>
 //------------------------------------------------------------------------------------------------//
 
-template bool qrdcmp(vector<double> &a, unsigned n, vector<double> &c, vector<double> &d);
+template bool qrdcmp(std::vector<double> &a, unsigned n, std::vector<double> &c,
+                     std::vector<double> &d);
 
 } // end namespace rtt_linear
 

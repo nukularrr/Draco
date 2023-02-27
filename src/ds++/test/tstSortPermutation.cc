@@ -3,8 +3,8 @@
  * \file   ds++/test/tstSortPermutation.cc
  * \author Randy M. Roberts
  * \date   Mon Feb 14 14:20:45 2000
- * \note   Copyright (c) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved.
+ */
 //------------------------------------------------------------------------------------------------//
 
 #include "ds++/Release.hh"
@@ -108,8 +108,7 @@ inline bool testit(const std::string & /*name*/, IT first, IT last, const CMP &c
 //------------------------------------------------------------------------------------------------//
 struct Foo {
   double d;
-  Foo(double d_) : d(d_) { /* empty */
-  }
+  Foo(double d_) : d(d_) {} // NOLINT [hicpp-explicit-conversions]
   bool operator<(const Foo &rhs) const { return d < rhs.d; }
   friend std::ostream &operator<<(std::ostream &os, const Foo &f) { return os << f.d; }
 };
@@ -117,8 +116,7 @@ struct Foo {
 //------------------------------------------------------------------------------------------------//
 struct FooGT {
   double d;
-  FooGT(double d_) : d(d_) { /* empty */
-  }
+  FooGT(double d_) : d(d_) {} // NOLINT [hicpp-explicit-conversions]
   bool operator>(const FooGT &rhs) const noexcept { return d > rhs.d; }
   friend std::ostream &operator<<(std::ostream &os, const FooGT &f) { return os << f.d; }
 };
@@ -134,7 +132,7 @@ template <typename F> struct evenIsLess {
 };
 
 //------------------------------------------------------------------------------------------------//
-int main(int /*argc*/, char * /*argv*/ []) {
+int main(int /*argc*/, char * /*argv*/[]) {
   cout << "Initiating test of the SortPermutation.\n";
 
   std::string name = "SortPermutation";

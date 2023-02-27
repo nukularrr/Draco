@@ -3,16 +3,16 @@
 # author Andrew Till
 # date   2020 May 11
 # brief  Generate build project files for compton_tools
-# note   Copyright (C) 2020-2021 Triad National Security, LLC. All rights reserved.
+# note   Copyright (C) 2020-2022 Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
-cmake_minimum_required(VERSION 3.17.0)
+cmake_minimum_required(VERSION 3.21.0)
 project(compton_tools CXX)
 
 # ------------------------------------------------------------------------------------------------ #
 # Source files
 # ------------------------------------------------------------------------------------------------ #
-set(sources ${PROJECT_SOURCE_DIR}/Compton_Native.cc)
-set(headers ${PROJECT_SOURCE_DIR}/Compton_Native.hh)
+set(sources ${PROJECT_SOURCE_DIR}/Compton_Native.cc ${PROJECT_SOURCE_DIR}/Compton_Edep.cc)
+set(headers ${PROJECT_SOURCE_DIR}/Compton_Native.hh ${PROJECT_SOURCE_DIR}/Compton_Edep.hh)
 
 # ------------------------------------------------------------------------------------------------ #
 # Build package library

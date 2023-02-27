@@ -1,0 +1,106 @@
+#--------------------------------------------------------------------------------------------------#
+# File:    .gitlab/ci/docker-jobs.yml
+# Author:  Kelly Thompson <kgt@lanl.gov>
+# Date:    Wednesday, Jan 13, 2021, 20:57 pm
+# Purpose: gitlab suid runner commands for superlinter (https://github.com/github/super-linter).
+# Note:    Copyright (C) 2020-2023 Triad National Security, LLC., All rights reserved.
+#
+# See Also: https://gitlab.com/snippets/1988376
+#--------------------------------------------------------------------------------------------------#
+
+---
+superlinter:
+  tags:
+    - darwin-docker-shared
+  stage: lint
+  image:
+      name: github/super-linter:slim-v4
+  script: ["true"]
+  rules:
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /exclude_darwin/'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  variables:
+    RUN_LOCAL: "true"
+    DEFAULT_WORKSPACE: $CI_PROJECT_DIR
+    ANSIBLE_DIRECTORY: $CI_PROJECT_PATH
+    LINTER_RULES_PATH: $CI_PROJECT_PATH/.github/linters
+    DEFAULT_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+    ERROR_ON_MISSING_EXEC_BIT: "true"
+    FILTER_REGEX_EXCLUDE: (.*[.]cc$|/test/)
+    PYTHON_FLAKE8_CONFIG_FILE: .flake8
+    SUPPRESS_POSSUM: "true"
+    LOG_LEVEL: "NOTICE"
+    VALIDATE_ALL_CODEBASE: "false"
+    VALIDATE_BASH: "true"
+    VALIDATE_BASH_EXEC: "true"
+    VALIDATE_DOCKERFILE: "true"
+    VALIDATE_ENV: "true"
+    VALIDATE_HTML: "true"
+    VALIDATE_JSON: "true"
+    # VALIDATE_LATEX: "true"
+    VALIDATE_LUA: "true"
+    VALIDATE_MARKDOWN: "true"
+    VALIDATE_PERL: "true"
+    VALIDATE_PYTHON: "true"
+    VALIDATE_PYTHON_FLAKE8: "true"
+    VALIDATE_POWERSHELL: "true"
+    VALIDATE_RUBY: "true"
+    VALIDATE_SHELL_SHFMT: "true"
+    VALIDATE_XML: "true"
+    # VALIDATE_YAML: "true"
+
+checkCoverage_MR:
+  # Ref: https://re-git.lanl.gov/draco/devops/-/wikis/Fail-a-CI-test-if-coverage-decreases
+  # CI_API_V4_URL = https://re-git.lanl.gov/api/v4
+  # CI_MERGE_REQUEST_PROJECT_ID = 503 (draco)
+  # TARGET_COVERAGE_PERCENT is set in the gitlab CI variables section of the GUI.
+  tags:
+    - darwin-docker-shared
+  stage: metrics
+  allow_failure: true
+  image:
+    name: alpine:3.16.2
+  allow_failure: true
+  before_script:
+    - apk add --quiet --update --no-cache curl jq
+  dependencies:
+    - ccs2_gcov
+  variables:
+    BASE_URL: "${CI_API_V4_URL}/projects/${CI_MERGE_REQUEST_PROJECT_ID}/pipelines"
+    URL: "${BASE_URL}/${CI_PIPELINE_ID}/jobs?private_token=${PRIVATE_TOKEN}"
+  artifacts:
+    paths:
+      - ${CI_JOB_NAME}.log
+  script:
+    - echo "curl -k -s ${URL} --> ${CI_JOB_NAME}.log"
+    - curl -k -s ${URL}
+    - curl -k -s ${URL} > ${CI_JOB_NAME}.log
+    - CURRENT_COVERAGE=$(jq --arg JOB_NAME ccs2_gcov
+      '.[] | select (.name=="ccs2_gcov") | .coverage' < "${CI_JOB_NAME}.log")
+    - echo "TARGET_COVERAGE  = ${TARGET_COVERAGE_PERCENT}"
+    - echo "CURRENT_COVERAGE = ${CURRENT_COVERAGE}"
+    - >
+      if [ "${CURRENT_COVERAGE}notset" == "notset" ]; then
+        echo "==> FAIL: Error extracting coverage metric." && exit 1; fi
+    - >
+      if [ $(echo "${CURRENT_COVERAGE} < ${TARGET_COVERAGE_PERCENT}"|bc) == 1 ]; then
+        echo -n  "==> FAIL: Code coverage for this MR is below target value of " &&
+        echo "${TARGET_COVERAGE_PERCENT}" && exit 1;
+      else
+        echo "==> PASS: Code coverage for this MR meets minimum requirements" &&
+        echo "    ${CURRENT_COVERAGE}% > ${TARGET_COVERAGE_PERCENT}%";
+      fi
+  rules:
+    - if: '$CI_COMMIT_BRANCH != "develop"'
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /exclude_ccsnet/'
+      when: never
+    - if: '$CI_MERGE_REQUEST_TITLE =~ /Draft:/ || $CI_MERGE_REQUEST_TITLE =~ /WIP:/'
+      when: never
+    - if: '$CI_PROJECT_NAMESPACE != "draco"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+#--------------------------------------------------------------------------------------------------#
+# end .gitlab/ci/docker-jobs.yml
+#--------------------------------------------------------------------------------------------------#

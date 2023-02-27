@@ -1,0 +1,10 @@
+# -*-yaml-*-
+
+---
+extends: default
+
+rules:
+  line-length:
+    max: 100
+    allow-non-breakable-words: yes
+  trailing-spaces: disable

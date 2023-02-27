@@ -3,7 +3,7 @@
  * \file   cdi_eospac/Eospac.hh
  * \author Kelly Thompson
  * \date   Mon Apr  2 14:14:29 2001
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_eospac_Eospac_hh
@@ -151,6 +151,18 @@ public:
    * destructor in the implementation file to avoid including the unnecessary header files.
    */
   ~Eospac() override;
+
+  //! Disable copy construction
+  Eospac(Eospac const &rhs) = delete;
+
+  //! Disable move construction
+  Eospac(Eospac &&rhs) noexcept = delete;
+
+  //! Disable assignment
+  Eospac &operator=(Eospac const &rhs) = delete;
+
+  //! Disable move-assignment
+  Eospac &operator=(Eospac &&rhs) noexcept = delete;
 
   // --------- //
   // Accessors //
@@ -364,7 +376,7 @@ private:
   static std::vector<std::string> initializeInfoItemDescriptions();
 
   //! Converts a double to a length one vector.
-  static inline std::vector<double> dbl_v1(double const dbl) { return std::vector<double>(1, dbl); }
+  static inline std::vector<double> dbl_v1(double const dbl) { return {dbl}; }
 
   /*!
    * \brief keV2K converts keV temperatures into degrees Kelvin.  libeospac.a requires input

@@ -3,9 +3,9 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2020 April 20
 # brief  Generate build project files for Fortran.
-# note   Copyright (C) 2016-2021, Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2020-2022 Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
-cmake_minimum_required(VERSION 3.17.0)
+cmake_minimum_required(VERSION 3.21.0)
 project(fc4 C Fortran)
 
 # ------------------------------------------------------------------------------------------------ #
@@ -46,8 +46,10 @@ add_component_library(
   NOEXPORT)
 if(WIN32)
   # The library must be installed in the master project's RUNTIME_OUTPUT_DIR
-  set_target_properties(Lib_c4_fc4 PROPERTIES RUNTIME_OUTPUT_DIRECTORY
-                                              ${draco_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+  set_target_properties(
+    Lib_c4_fc4
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${draco_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 endif()
 
 # ------------------------------------------------------------------------------------------------ #
@@ -73,8 +75,7 @@ install(
   DIRECTORY ${fc4_BINARY_DIR}
   DESTINATION "${DBSCFGDIR}include"
   FILES_MATCHING
-  PATTERN "*.mod"
-  PATTERN CMakeFiles EXCLUDE)
+  PATTERN "*.mod")
 
 # ------------------------------------------------------------------------------------------------ #
 # End c4/fc4/CMakeLists.txt

@@ -3,9 +3,9 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2010 April 28
 # brief  Instructions for building src level Makefile.
-# note   Copyright (C) 2016-2021 Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2010-2023 Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
-cmake_minimum_required(VERSION 3.17.0)
+cmake_minimum_required(VERSION 3.21.0)
 project(draco_src_dir)
 
 # Provide helper functions used by component CMakeLists.txt files
@@ -18,6 +18,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   string(REPLACE "/W2" "/W4" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
   string(REPLACE "/W2" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
+force_compiler_flags_to_cache("C;CXX")
 
 # <experimental/mdspan> doesn't work with some tool chains...
 option(USE_MDSPAN "Use experimental/mdspan" ON)
@@ -40,7 +41,6 @@ add_dir_if_exists(c4) #< needs ds++
 add_dir_if_exists(cdi) #< needs ds++
 add_dir_if_exists(device) #< needs ds++
 add_dir_if_exists(FortranChecks) #< needs ds++
-add_dir_if_exists(lapack_wrap) #< needs ds++
 add_dir_if_exists(linear) #< needs ds++
 add_dir_if_exists(memory) #< needs ds++
 add_dir_if_exists(mesh_element) #< needs ds++
@@ -56,7 +56,6 @@ if(USE_MDSPAN)
 endif()
 add_dir_if_exists(cdi_eospac) #< needs parser, ode, cdi
 add_dir_if_exists(cdi_ipcress) #< needs cdi
-add_dir_if_exists(compton_interface) #< needs c4, CSK
 add_dir_if_exists(diagnostics) #< needs c4
 add_dir_if_exists(fit) #< needs linear
 add_dir_if_exists(kde) #< needs c4
@@ -68,6 +67,7 @@ add_dir_if_exists(rng) #< needs ds++, device
 add_dir_if_exists(roots) #< needs linear
 add_dir_if_exists(VendorChecks) #< needs c4
 add_dir_if_exists(viz) #< needs c4
+add_dir_if_exists(predict)
 
 # Level 4
 message(" ")
@@ -123,6 +123,13 @@ if(CMAKE_CONFIGURATION_TYPES)
     message("Cuda Debug F: ${CMAKE_CUDA_FLAGS_DEBUG}")
     message("Cuda Release: ${CMAKE_CUDA_FLAGS_RELEASE}")
   endif()
+  if(_LANGUAGES_ MATCHES HIP)
+    message("HIP         : ${CMAKE_HIP_COMPILER}")
+    message("HIP FLAGS   : ${CMAKE_HIP_FLAGS}")
+    message("HIP Debug FL: ${CMAKE_HIP_FLAGS_DEBUG}")
+    message("HIP Release : ${CMAKE_HIP_FLAGS_RELEASE}")
+  endif()
+
 else()
   hanging_indent(100 5 "C FLAGS: ${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${Draco_BUILD_TYPE}}")
   hanging_indent(100 5 "CXX FLAGS: ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${Draco_BUILD_TYPE}}")
@@ -134,6 +141,10 @@ else()
   if(_LANGUAGES_ MATCHES CUDA)
     message("CUDA        : ${CMAKE_CUDA_COMPILER} (${CMAKE_CUDA_COMPILER_ID})")
     message("Cuda FLAGS  : ${CMAKE_CUDA_FLAGS} ${CMAKE_CUDA_FLAGS_${Draco_BUILD_TYPE}}")
+  endif()
+  if(_LANGUAGES_ MATCHES HIP)
+    message("HIP         : ${CMAKE_HIP_COMPILER} (${CMAKE_HIP_COMPILER_ID})")
+    message("HIP FLAGS   : ${CMAKE_HIP_FLAGS} ${CMAKE_HIP_FLAGS_${Draco_BUILD_TYPE}}")
   endif()
 endif()
 if(CAFS_Fortran_COMPILER)

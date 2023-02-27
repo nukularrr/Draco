@@ -4,8 +4,7 @@
  * \author John McGhee
  * \date   Tue Mar  7 08:38:04 2000
  * \brief  Implements a CIC-19 Hex Mesh Format mesh reader.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "Hex_Mesh_Reader.hh"
@@ -19,7 +18,7 @@ namespace rtt_meshReaders {
 using rtt_mesh_element::Element_Definition;
 
 //------------------------------------------------------------------------------------------------//
-Hex_Mesh_Reader::Hex_Mesh_Reader(std::string filename)
+Hex_Mesh_Reader::Hex_Mesh_Reader(std::string const &filename)
     : meshfile_name(filename), version("unknown"), npoints(0), ncells(0), nvrtx(0), nvrpf(0),
       ndim(0), nvb_faces(0), nrb_faces(0), nmat(0), point_coords(), ipar(), imat_index(),
       irgn_vb_index(), ipar_vb(), ipar_rb(), node_sets() {
@@ -116,27 +115,20 @@ Hex_Mesh_Reader::Hex_Mesh_Reader(std::string filename)
     stmp.insert(i);
   using resultT = std::map<std::string, std::set<unsigned>>;
   node_sets.insert(resultT::value_type("Interior", stmp));
-
-  // Check the results
-  // [2020-07-06 KT] I am removing this check due to a clang-analyze warning:
-  // "Call to virtual method 'Hex_Mesh_Reader::invariant' during construction
-  // bypasses virtual dispatch [clang-analyzer-optin.cplusplus.VirtualCall]"
-  // Ensure(invariant());
 }
 
 //------------------------------------------------------------------------------------------------//
 /*!
- * Returns all the ndim-dimensional interior elements as well as the (ndim-1)
- * dimensional vacuum and reflective boundary face elements
+ * Returns all the ndim-dimensional interior elements as well as the (ndim-1) dimensional vacuum and
+ * reflective boundary face elements
  */
 std::vector<std::vector<unsigned>> Hex_Mesh_Reader::get_element_nodes() const {
-  // Collate the interior, vacuum, and reflective mesh elements into one
-  // vector. Note that the order is important as we will rely on it later to
-  // output the element set data.
+  // Collate the interior, vacuum, and reflective mesh elements into one vector. Note that the order
+  // is important as we will rely on it later to output the element set data.
 
-  // Alternatively, the private data of the class could be changed so that the
-  // work done here is done in the constructor.  This would be more efficient if
-  // this is going to be used repetitively.
+  // Alternatively, the private data of the class could be changed so that the work done here is
+  // done in the constructor.  This would be more efficient if this is going to be used
+  // repetitively.
   std::vector<std::vector<unsigned>> result;
   for (unsigned i = 0; i < ncells; i++)
     result.push_back(ipar[i]);
@@ -211,19 +203,17 @@ std::vector<Element_Definition::Element_Type> Hex_Mesh_Reader::get_unique_elemen
 
 //------------------------------------------------------------------------------------------------//
 /*!
- * There is no provision for naming element sets in the Hex format. The
- * following default names are provided for the sets found on the mesh file:
+ * There is no provision for naming element sets in the Hex format. The following default names are
+ * provided for the sets found on the mesh file:
  * - "Interior" -- All the ndim-dimensional cells in the problem.
  * - "Interior_Region_x" - Interior cells with integer flag "x".
  * - "Vacumm_Boundary" -- All the (ndim-1)dimensional vacuum boundary faces.
  * - "Vacuum_Boundary_Region_x" -- Vacuum boundary faces with flag integer "x"
- * - "Reflective_Boundary" -- All the (ndim-1) dimensional reflective boundary
- *   faces.
+ * - "Reflective_Boundary" -- All the (ndim-1) dimensional reflective boundary faces.
  */
 std::map<std::string, std::set<unsigned>> Hex_Mesh_Reader::get_element_sets() const {
-  // Alternatively, the private data of the class could be changed so that the
-  // work done here is done in the constructor. This would be more efficient if
-  // this is going to be used repetively.
+  // Alternatively, the private data of the class could be changed so that the work done here is
+  // done in the constructor. This would be more efficient if this is going to be used repetively.
   using resultT = std::map<std::string, std::set<unsigned>>;
   resultT result;
   std::vector<int> tmp;
@@ -236,10 +226,9 @@ std::map<std::string, std::set<unsigned>> Hex_Mesh_Reader::get_element_sets() co
     stmp.insert(i);
   result.insert(resultT::value_type("Interior", stmp));
 
-  // Create sets for all the interior mesh sub-regions.  This loops over the
-  // whole mesh number_of_mesh_regions times. Could be made to do it more
-  // efficiently in one loop? Note that this depends on the elements being
-  // stored in a specific order.
+  // Create sets for all the interior mesh sub-regions.  This loops over the whole mesh
+  // number_of_mesh_regions times. Could be made to do it more efficiently in one loop? Note that
+  // this depends on the elements being stored in a specific order.
   rgn_index = std::set<int>(imat_index.begin(), imat_index.end());
   for (auto const &iregion : rgn_index) {
     std::ostringstream os_chdum("");
@@ -253,20 +242,17 @@ std::map<std::string, std::set<unsigned>> Hex_Mesh_Reader::get_element_sets() co
   }
 
   if (nvb_faces > 0) {
-    // Create a vacuum boundary set. Note that this depends on the elements
-    // being stored in a specific order.
+    // Create a vacuum boundary set. Note that this depends on the elements being stored in a
+    // specific order.
     stmp.clear();
     for (unsigned i = ncells; i < ncells + nvb_faces; i++)
       stmp.insert(i);
     result.insert(resultT::value_type("Vacuum_Boundary", stmp));
 
-    // Create sets for all the vacuum boundary regions.  This loops over the
-    // whole mesh number_of_vb_regions times. Could be made to do it more
-    // efficiently in one loop? Note that this depends on the elements being
-    // stored in a specific order.
+    // Create sets for all the vacuum boundary regions.  This loops over the whole mesh
+    // number_of_vb_regions times. Could be made to do it more efficiently in one loop? Note that
+    // this depends on the elements being stored in a specific order.
     rgn_index = std::set<int>(irgn_vb_index.begin(), irgn_vb_index.end());
-    // for (std::set<int>::iterator i = rgn_index.begin(); i != rgn_index.end();
-    //      i++) {
     for (auto const &iregion : rgn_index) {
       std::ostringstream os_chdum("");
       os_chdum << "Vacuum_Boundary_Region_" << iregion;
@@ -281,8 +267,8 @@ std::map<std::string, std::set<unsigned>> Hex_Mesh_Reader::get_element_sets() co
     }
   }
 
-  // Create a reflective boundary set. Note that this depends on the elements
-  // being stored in a specific order.
+  // Create a reflective boundary set. Note that this depends on the elements being stored in a
+  // specific order.
   if (nrb_faces > 0) {
     stmp.clear();
     for (unsigned i = ncells + nvb_faces; i < ncells + nvb_faces + nrb_faces; i++)

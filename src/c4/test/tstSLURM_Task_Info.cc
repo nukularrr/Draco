@@ -3,8 +3,7 @@
  * \file   c4/test/tstSLURM_Task_Info.cc
  * \author Tim Kelley
  * \date   Fri Jun 7 08:06:53 2019
- * \note   Copyright (C) 2019-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2020-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "c4/SLURM_Task_Info.hh"
@@ -23,11 +22,10 @@ using env_store_value = std::pair<bool, std::string>;
 using env_store_t = std::map<std::string, env_store_value>;
 
 //------------------------------------------------------------------------------------------------//
-/* Helper function: Record SLURM keys and values, if any, then remove them from
- * environment. Return recorded values so they can be restored later. */
+/* Helper function: Record SLURM keys and values, if any, then remove them from environment. Return
+ * recorded values so they can be restored later. */
 env_store_t clean_env() {
-  // for each key, is it defined? If so, record the value, then unset it. If
-  // not, note that.
+  // for each key, is it defined? If so, record the value, then unset it. If not, note that.
   std::array<std::string, 3> slurm_keys = {"SLURM_CPUS_PER_TASK", "SLURM_NTASKS",
                                            "SLURM_JOB_NUM_NODES"};
   env_store_t store{};
@@ -43,9 +41,9 @@ env_store_t clean_env() {
       store.insert({k, {true, storestr.str()}});
       int unset_ok = draco_unsetenv(k.c_str());
       if (0 != unset_ok) {
-        printf("%s:%i Failed to unset environment variable %s! errno = %d\n", __FUNCTION__,
-               __LINE__, k.c_str(), errno);
-        // throw something?
+        std::cout << __FUNCTION__ // NOLINT
+                  << ":" << __LINE__ << "Failed to unset environment variable " << k
+                  << "! errno = " << errno << std::endl;
       }
     } else {
       store.insert({k, {false, ""}});
@@ -57,9 +55,9 @@ env_store_t clean_env() {
 //------------------------------------------------------------------------------------------------//
 /* Helper function: Restore the SLURM keys that were previously defined. */
 void restore_env(env_store_t const &store) {
-  /* For each key, if it was defined, restore that definition. If it was
-   * not defined, destroy any subsequent definition */
-  for (auto str_it : store) {
+  /* For each key, if it was defined, restore that definition. If it was not defined, destroy any
+   * subsequent definition */
+  for (auto const &str_it : store) {
     std::string const &key{str_it.first};
     env_store_value const &val{str_it.second};
     bool const &was_defined{val.first};
@@ -67,16 +65,16 @@ void restore_env(env_store_t const &store) {
       std::string const &val_str{val.second};
       int set_ok = draco_setenv(key.c_str(), val_str.c_str());
       if (0 != set_ok) {
-        printf("%s:%i Failed to set environment variable %s to %s, errno = %d\n", __FUNCTION__,
-               __LINE__, key.c_str(), val_str.c_str(), errno);
-        // throw something
+        std::cout << __FUNCTION__ // NOLINT
+                  << ":" << __LINE__ << "Failed to set environment variable! errno = " << errno
+                  << std::endl;
       }
     } else {
       int unset_ok = draco_unsetenv(key.c_str());
       if (0 != unset_ok) {
-        printf("%s:%i Failed to unset environment variable %s! errno = %d\n", __FUNCTION__,
-               __LINE__, key.c_str(), errno);
-        // throw something?
+        std::cout << __FUNCTION__ // NOLINT
+                  << ":" << __LINE__ << "Failed to unset environment variable! errno = " << errno
+                  << std::endl;
       }
     }
   } // for things in store
@@ -145,7 +143,7 @@ void test_SLURM_Info_partial(UnitTest &ut) {
 using t_func = std::function<void(UnitTest &)>;
 
 //------------------------------------------------------------------------------------------------//
-void run_a_test(UnitTest &u, t_func f, std::string const &msg) {
+void run_a_test(UnitTest &u, t_func const &f, std::string const &msg) {
   f(u);
   if (u.numFails == 0) {
     u.passes(msg);

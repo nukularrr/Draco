@@ -4,7 +4,7 @@
  * \author Kelly Thompson
  * \date   Thu May 18 17:08:54 2006
  * \brief  Provide services for scalar unit tests.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "ScalarUnitTest.hh"
@@ -61,12 +61,10 @@ ScalarUnitTest::ScalarUnitTest(int &argc, char **&argv, string_fp_void release_,
     switch (c) {
     case 'v': // --version
       throw rtt_dsxx::assertion(string("Success"));
-      return;
 
     case 'h': // --help
       std::cout << program_options.display_help("tstXGetopt") << std::endl;
       return;
-      break;
 
     default:
       break; // nothing to do.

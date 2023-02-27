@@ -4,7 +4,7 @@
  * \author Ben R. Ryan
  * \date   2019 Nov 18
  * \brief  NDI_TNReaction test
- * \note   Copyright (C) 2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2020-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "cdi/CDI.hh"
@@ -30,17 +30,16 @@ void gendir_test(rtt_dsxx::UnitTest &ut) {
 
   // Write a custom gendir file to deal with NDI-required absolute path to data
   std::string gendir_in = "gendir_tmp.all";
-  std::string gendir_tmp_path = ut.getTestInputPath() + gendir_in;
+  std::string gendir_path = ut.getTestInputPath() + gendir_in;
   std::string data_path = ut.getTestSourcePath() + "ndi_data";
   std::ofstream gendir_tmp_file;
-  gendir_tmp_file.open(gendir_tmp_path);
+  gendir_tmp_file.open(gendir_path);
   gendir_tmp_file << "tndata\n";
   gendir_tmp_file << "  z=n+be7->p+li7.040ztn  d=12/20/2004  l=lanl04\n";
   gendir_tmp_file << "    f=" << data_path << "\n";
   gendir_tmp_file << "    ft=asc  ln=73  o=3372  end\n";
   gendir_tmp_file.close();
 
-  std::string gendir_path = gendir_tmp_path;
   std::string library_in = "lanl04";
   std::string reaction_in = "n+be7->p+li7";
 
@@ -140,12 +139,12 @@ void gendir_default_test(rtt_dsxx::UnitTest &ut) {
 int main(int argc, char *argv[]) {
   rtt_dsxx::ScalarUnitTest ut(argc, argv, rtt_dsxx::release);
   try {
-    gendir_test(ut);
     std::string gendir_default;
     bool def_gendir{false};
     std::tie(def_gendir, gendir_default) = rtt_dsxx::get_env_val<std::string>("NDI_GENDIR_PATH");
 
     if (def_gendir && rtt_dsxx::fileExists(gendir_default)) {
+      gendir_test(ut);
       gendir_default_test(ut);
     } else {
       PASSMSG("==> ENV{NDI_GENDIR_PATH} not set. Some tests were not run.");

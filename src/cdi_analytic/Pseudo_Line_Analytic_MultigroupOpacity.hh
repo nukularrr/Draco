@@ -3,8 +3,7 @@
  * \file   cdi_analytic/Pseudo_Line_Analytic_MultigroupOpacity.hh
  * \author Kent G. Budge
  * \date   Tue Apr  5 08:36:13 MDT 2011
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2011-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_cdi_analytic_Pseudo_Line_Analytic_MultigroupOpacity_hh
@@ -19,16 +18,14 @@ using rtt_parser::Expression;
 //------------------------------------------------------------------------------------------------//
 /*!
  * \class Pseudo_Line_Analytic_Opacity_Model
- * \brief Derived Analytic_Opacity_Model class that defines a random line
- *        spectrum for the opacity.
  *
- * The opacity function is a continuum on which is superimposed a number of
- * lines of the specified peak and width. The line locations are chosen at
- * random.
+ * \brief Derived Analytic_Opacity_Model class that defines a random line spectrum for the opacity.
  *
- * The mass opacity coefficient is assumed independent of temperature or
- * density, which allows precalculation of the opacity structure, an important
- * time saver.
+ * The opacity function is a continuum on which is superimposed a number of lines of the specified
+ * peak and width. The line locations are chosen at random.
+ *
+ * The mass opacity coefficient is assumed independent of temperature or density, which allows
+ * precalculation of the opacity structure, an important time saver.
  */
 class Pseudo_Line_Analytic_MultigroupOpacity : public Analytic_MultigroupOpacity,
                                                public Pseudo_Line_Base {
@@ -53,16 +50,16 @@ public:
   explicit Pseudo_Line_Analytic_MultigroupOpacity(const sf_char &packed);
 
   //! Get the group opacities.
-  sf_double getOpacity(double, double) const override;
+  sf_double getOpacity(double targetTemperature, double targetDensity) const override;
 
   //! Get the group opacity fields given a field of temperatures.
-  vf_double getOpacity(const sf_double &, double) const override;
+  vf_double getOpacity(const sf_double &targetTemperature, double targetDensity) const override;
 
   //! Get the group opacity fields given a field of densities.
-  vf_double getOpacity(double, const sf_double &) const override;
+  vf_double getOpacity(double targetTemperature, const sf_double &targetDensity) const override;
 
   //! Get the data description of the opacity.
-  std_string getDataDescriptor() const override;
+  std::string getDataDescriptor() const override;
 
   //! Pack up the class for persistence.
   sf_char pack() const override;

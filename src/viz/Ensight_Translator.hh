@@ -4,7 +4,7 @@
  * \author Thomas M. Evans
  * \date   Fri Jan 21 16:36:10 2000
  * \brief  Ensight_Translator header file.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_viz_Ensight_Translator_hh
@@ -17,6 +17,9 @@
 #include <set>
 
 namespace rtt_viz {
+
+// helper for SFINAE
+template <bool C, typename T> using enable_if_t = typename std::enable_if<C, T>::type;
 
 //================================================================================================//
 /*!
@@ -49,7 +52,8 @@ enum Ensight_Cell_Types {
   twenty_node_hexahedron,
   six_node_wedge,
   fifteen_node_wedge,
-  unstructured
+  unstructured,
+  unstructured_3d
 };
 
 //================================================================================================//
@@ -80,8 +84,8 @@ enum Ensight_Cell_Types {
  *
  * \arg \b SSF (string scalar field) can be any field type that supports random access iterators and
  *         operator[] indexing
- * \arg \b ISF (integer scalar field) can be any field type that supports random access iterators
- *         and operator[] indexing
+ * \arg \b ISF (unsigned integer scalar field) can be any field type that supports random access
+ *         iterators and operator[] indexing
  * \arg \b IVF (integer vector field) uses the rtt_viz::Viz_Traits class to convert to i,j indexing
  *         to operator(int, int).  See the rtt_viz::Viz_Traits class to determine which 2D vector
  *         containers are specialized
@@ -198,17 +202,20 @@ private:
 
   // Write out geometry file.
   template <typename IVF, typename FVF, typename ISF>
-  void write_geom(const uint32_t part_num, const std_string &, const rtt_viz::Viz_Traits<IVF> &,
-                  const rtt_viz::Viz_Traits<FVF> &, const sf2_int &, const sf_int &, const ISF &,
-                  const ISF &);
+  void write_geom(const uint32_t part_num, const std_string &part_name,
+                  const rtt_viz::Viz_Traits<IVF> &ipar, const rtt_viz::Viz_Traits<FVF> &vrtx_data,
+                  const sf2_int &cells_of_type, const sf_int &vertices, const ISF &g_vrtx_indeces,
+                  const ISF &g_cell_indeces);
 
   // Write out vertex data.
   template <typename FVF>
-  void write_vrtx_data(uint32_t part_num, const rtt_viz::Viz_Traits<FVF> &, const sf_int &);
+  void write_vrtx_data(uint32_t part_num, const rtt_viz::Viz_Traits<FVF> &vrtx_data,
+                       const sf_int &vertices);
 
   // Write out cell data.
   template <typename FVF>
-  void write_cell_data(const uint32_t part_num, const rtt_viz::Viz_Traits<FVF> &, const sf2_int &);
+  void write_cell_data(const uint32_t part_num, const rtt_viz::Viz_Traits<FVF> &cell_data,
+                       const sf2_int &cells_of_type);
 
   // Initializer used by constructors
   void initialize(const bool graphics_continue);
@@ -223,9 +230,12 @@ public:
 
   // Do an Ensight_Dump.
   template <typename ISF, typename IVF, typename SSF, typename FVF>
-  void ensight_dump(int icycle, double time, double dt, const IVF &ipar, const ISF &iel_type,
-                    const ISF &cell_rgn_index, const FVF &pt_coor, const FVF &vrtx_data,
-                    const FVF &cell_data, const ISF &rgn_numbers, const SSF &rgn_name);
+  enable_if_t<std::is_integral<typename ISF::value_type>::value &&
+                  std::is_unsigned<typename ISF::value_type>::value,
+              void>
+  ensight_dump(int icycle, double time, double dt, const IVF &ipar, const ISF &iel_type,
+               const ISF &cell_rgn_index, const FVF &pt_coor, const FVF &vrtx_data,
+               const FVF &cell_data, const ISF &rgn_numbers, const SSF &rgn_name);
 
   // Opens the geometry and variable files.
   void open(const int icycle, const double time, const double dt);
@@ -235,9 +245,12 @@ public:
 
   // Write ensight data for a single part.
   template <typename ISF, typename IVF, typename FVF>
-  void write_part(uint32_t part_num, const std_string &part_name, const IVF &ipar_in,
-                  const ISF &iel_type, const FVF &pt_coor_in, const FVF &vrtx_data_in,
-                  const FVF &cell_data_in, const ISF &g_vrtx_indices, const ISF &g_cell_indices);
+  enable_if_t<std::is_integral<typename ISF::value_type>::value &&
+                  std::is_unsigned<typename ISF::value_type>::value,
+              void>
+  write_part(uint32_t part_num, const std_string &part_name, const IVF &ipar_in,
+             const ISF &iel_type, const FVF &pt_coor_in, const FVF &vrtx_data_in,
+             const FVF &cell_data_in, const ISF &g_vrtx_indices, const ISF &g_cell_indices);
 
   // >>> ACCESSORS
 

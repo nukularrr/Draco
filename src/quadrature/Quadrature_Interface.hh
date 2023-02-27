@@ -4,7 +4,7 @@
  * \author Jae Chang
  * \date   Tue Jan 27 08:51:19 2004
  * \brief  Quadrature interface definitions
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2015-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 #ifndef rtt_quadrature_Quadrature_Interface_hh
 #define rtt_quadrature_Quadrature_Interface_hh
@@ -34,10 +34,10 @@ struct quadrature_data {
 void init_quadrature(quadrature_data &quad);
 
 //! Get quadrature data (e.g.: weights and cosines)
-void get_quadrature(quadrature_data &);
+void get_quadrature(quadrature_data &quad);
 
 //! Ensure quadrature data is meaningful
-void check_quadrature_validity(const quadrature_data &);
+void check_quadrature_validity(const quadrature_data &quad);
 
 } // end extern "C" block
 

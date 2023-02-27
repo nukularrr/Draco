@@ -4,7 +4,7 @@
  * \author Kelly Thompson
  * \date   Friday, Nov 29, 2019, 18:15 pm
  * \brief  Wrap libquo (github.com/lanl/libquo)
- * \note   Copyright (C) 2019-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2019-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "QuoWrapper.hh"
@@ -192,7 +192,7 @@ std::string QuoWrapper::bindings() {
   Remember(auto retval =) QUO_stringify_cbind(quo, &cbindstr);
   Check(QUO_SUCCESS == retval);
   std::string cppbindstr(cbindstr);
-  free(cbindstr);
+  free(cbindstr); // NOLINT [hicpp-no-malloc]
 #else
   std::string cppbindstr("unknown - quo not available");
 #endif

@@ -4,7 +4,7 @@
  * \author Kent Budge
  * \date   Mon Aug  9 13:17:31 2004
  * \brief  Calculate the Q-R decomposition of a square matrix.
- * \note   Copyright (C) 2016-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2021-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef linear_qrdcmp_t_hh
@@ -90,7 +90,7 @@ bool qrdcmp(RandomContainer &a, unsigned n, RandomContainer &c, RandomContainer 
     }
   }
   d[n - 1] = a[n - 1 + n * (n - 1)];
-  if (std::abs(d[n - 1]) < std::numeric_limits<double>::min() || !rtt_dsxx::isFinite(d[n - 1]))
+  if (std::abs(d[n - 1]) < std::numeric_limits<double>::min() || std::isinf(d[n - 1]))
     singular = true;
 
   Ensure(a.size() == n * n);

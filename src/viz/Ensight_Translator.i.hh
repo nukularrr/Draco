@@ -4,11 +4,12 @@
  * \author Thomas M. Evans
  * \date   Fri Jan 21 16:36:10 2000
  * \brief  Ensight_Translator template definitions.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2015-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include <map>
 #include <sstream>
+#include <type_traits>
 
 namespace rtt_viz {
 
@@ -136,6 +137,8 @@ Ensight_Translator::Ensight_Translator(const std_string &prefix, std_string gd_w
  *           vertices that make up the cell.  ipar(i,j) maps the jth+1 vertex number, in the ith+1
  *           cell, to Ensight's "vertex number."  The "vertex number" is in [1:nvertices], so that
  *           for example, the corresponding x-coordinate is pt_coor(ipar(i,j)-1, 0).
+ *           Alternatively, for 3D unstructured meshes, ipar_in is dimensioned [0:ncells-1,
+ *           0:n_local_faces_per_cell-1, 0:n_local_vertices_per_face_per_cell-1].
  * \param[in] iel_type ISF field of Ensight_Cell_Types.  Dimensioned [0:ncells-1].  Each cell in the
  *           problem must be associated with a Ensight_Cell_Types enumeration object.
  * \param[in] cell_rgn_index ISF field of region identifiers.  Dimensioned [0:ncells-1].  This
@@ -161,12 +164,16 @@ Ensight_Translator::Ensight_Translator(const std_string &prefix, std_string gd_w
  *           field types.
  * \sa Examples page for more details about how to do Ensight dumps.
  */
+
 template <typename ISF, typename IVF, typename SSF, typename FVF>
-void Ensight_Translator::ensight_dump(int icycle, double time, double dt, const IVF &ipar_in,
-                                      const ISF &iel_type, const ISF &cell_rgn_index,
-                                      const FVF &pt_coor_in, const FVF &vrtx_data_in,
-                                      const FVF &cell_data_in, const ISF &rgn_numbers,
-                                      const SSF &rgn_name) {
+enable_if_t<std::is_integral<typename ISF::value_type>::value &&
+                std::is_unsigned<typename ISF::value_type>::value,
+            void>
+Ensight_Translator::ensight_dump(int icycle, double time, double dt, const IVF &ipar_in,
+                                 const ISF &iel_type, const ISF &cell_rgn_index,
+                                 const FVF &pt_coor_in, const FVF &vrtx_data_in,
+                                 const FVF &cell_data_in, const ISF &rgn_numbers,
+                                 const SSF &rgn_name) {
   using rtt_viz::Viz_Traits;
   using std::find;
   using std::string;
@@ -238,7 +245,7 @@ void Ensight_Translator::ensight_dump(int icycle, double time, double dt, const 
     auto const find_location = find(parts_list.begin(), parts_list.end(), cell_rgn_index[i]);
 
     Check(find_location != parts_list.end());
-    Check(iel_type[i] >= 0);
+    //Check(iel_type[i] >= 0);
     Check(static_cast<unsigned>(iel_type[i]) < d_num_cell_types);
 
     auto const ipart = find_location - parts_list.begin();
@@ -246,11 +253,20 @@ void Ensight_Translator::ensight_dump(int icycle, double time, double dt, const 
     Check(i < INT_MAX);
     cells_of_type[ipart][iel_type[i]].push_back(static_cast<int>(i));
 
-    // get number of vertices for this cell
-    const size_t n_local_vertices = ipar.ncols(i);
+    // get number of columns (vertices or faces) for this cell
+    const size_t n_local_cols = ipar.ncols(i);
 
-    for (size_t iv = 0; iv < n_local_vertices; ++iv)
-      vertices_of_part[ipart].insert(ipar(i, iv) - 1);
+    // check for 0-depth in ipar, which indicates it is 2-dimensional
+    if (ipar.ndpth(0, 0) == 0) {
+      for (size_t iv = 0; iv < n_local_cols; ++iv)
+        vertices_of_part[ipart].insert(ipar(i, iv, 0) - 1);
+    } else {
+      for (size_t j = 0; j < n_local_cols; ++j) {
+        const size_t n_local_dpth = ipar.ndpth(i, j);
+        for (size_t k = 0; k < n_local_dpth; ++k)
+          vertices_of_part[ipart].insert(ipar(i, j, k) - 1);
+      }
+    }
   }
 
   // Form global cell and vertex indices.  These are the same as their local index, in this case.
@@ -334,11 +350,13 @@ void Ensight_Translator::ensight_dump(int icycle, double time, double dt, const 
  * \sa Examples page for more details about how to do Ensight dumps.
  */
 template <typename ISF, typename IVF, typename FVF>
-void Ensight_Translator::write_part(uint32_t part_num, const std_string &part_name,
-                                    const IVF &ipar_in, const ISF &iel_type, const FVF &pt_coor_in,
-                                    const FVF &vrtx_data_in, const FVF &cell_data_in,
-                                    const ISF &g_vrtx_indices, const ISF &g_cell_indices) {
-
+enable_if_t<std::is_integral<typename ISF::value_type>::value &&
+                std::is_unsigned<typename ISF::value_type>::value,
+            void>
+Ensight_Translator::write_part(uint32_t part_num, const std_string &part_name, const IVF &ipar_in,
+                               const ISF &iel_type, const FVF &pt_coor_in, const FVF &vrtx_data_in,
+                               const FVF &cell_data_in, const ISF &g_vrtx_indices,
+                               const ISF &g_cell_indices) {
   Require(part_num > 0);
 
   using rtt_viz::Viz_Traits;
@@ -367,7 +385,7 @@ void Ensight_Translator::write_part(uint32_t part_num, const std_string &part_na
   sf2_int cells_of_type(d_num_cell_types);
 
   for (size_t i = 0; i < ncells; ++i) {
-    Check(iel_type[i] >= 0);
+    // Check(iel_type[i] >= 0);
     Check(static_cast<unsigned>(iel_type[i]) < d_num_cell_types);
     Check(i < INT_MAX);
     cells_of_type[iel_type[i]].push_back(static_cast<int>(i));
@@ -489,16 +507,53 @@ void Ensight_Translator::write_geom(const uint32_t part_num, const std_string &p
         for (size_t i = 0; i < num_elem; ++i) {
           d_geom_out << static_cast<int>(ipar.ncols(c[i])) << endl;
         }
+        d_geom_out.flush();
       }
-      d_geom_out.flush();
 
-      for (size_t i = 0; i < num_elem; ++i) {
-        Check(d_vrtx_cnt[type] > 0 ? static_cast<int>(ipar.ncols(c[i])) == d_vrtx_cnt[type] : true);
-        for (size_t j = 0; j < ipar.ncols(c[i]); j++)
-          d_geom_out << ens_vertex[ipar(c[i], j)];
-        d_geom_out << endl;
+      // for n-faced polyhedra, Ensight requires:
+      // 1.) number of faces per element
+      // 2.) number of nodes per face per element
+      // 3.) local node indices per face per element
+      if (d_cell_names[type] == "nfaced") {
+
+        // 3D unstructured cells must have non-zero depth
+        Check(ipar.ndpth(c[0], 0) > 0);
+
+        // 1.) number of faces per element
+        for (size_t i = 0; i < num_elem; ++i) {
+          d_geom_out << static_cast<int>(ipar.ncols(c[i])) << endl;
+        }
+        d_geom_out.flush();
+
+        // 2.) number of nodes per face per element
+        for (size_t i = 0; i < num_elem; ++i) {
+          for (size_t j = 0; j < ipar.ncols(c[i]); j++)
+            d_geom_out << static_cast<int>(ipar.ndpth(c[i], j)) << endl;
+        }
+        d_geom_out.flush();
+
+        // 3.) local node indices per face per element
+        for (size_t i = 0; i < num_elem; ++i) {
+          for (size_t j = 0; j < ipar.ncols(c[i]); j++) {
+            for (size_t k = 0; k < ipar.ndpth(c[i], j); ++k)
+              d_geom_out << ens_vertex[ipar(c[i], j, k)];
+            d_geom_out << endl;
+          }
+        }
+        d_geom_out.flush();
+
+      } else {
+
+        // if not nface, only write the vertex list per cell
+        for (size_t i = 0; i < num_elem; ++i) {
+          Check(d_vrtx_cnt[type] > 0 ? static_cast<int>(ipar.ncols(c[i])) == d_vrtx_cnt[type]
+                                     : true);
+          for (size_t j = 0; j < ipar.ncols(c[i]); j++)
+            d_geom_out << ens_vertex[ipar(c[i], j, 0)];
+          d_geom_out << endl;
+        }
+        d_geom_out.flush();
       }
-      d_geom_out.flush();
     }
   } // done looping over cell types
   d_geom_out.flush();

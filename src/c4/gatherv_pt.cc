@@ -4,7 +4,7 @@
  * \author Thomas M. Evans
  * \date   Mon Mar 25 14:44:54 2002
  * \brief  C4 MPI determinate and indeterminate gatherv instantiations.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "C4_Functions.hh"
@@ -13,8 +13,6 @@
 #include "c4/config.h"
 
 namespace rtt_c4 {
-
-using std::vector;
 
 //------------------------------------------------------------------------------------------------//
 // EXPLICIT INSTANTIATIONS OF NON-BLOCKING SEND/RECEIVE

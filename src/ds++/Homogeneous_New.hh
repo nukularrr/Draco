@@ -4,7 +4,7 @@
  * \author Kent Budge
  * \date   Tue Nov 28 08:27:37 2006
  * \brief  Definition of class Homogeneous_New
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef dsxx_Homogeneous_New_hh
@@ -79,9 +79,9 @@ public:
 
   // CREATORS
 
-  //! Create an allocator for objects of the specified size, using the specified
-  //! block byte count (defaulting to a system-tuned value.)
-  Homogeneous_New(unsigned object_size, unsigned default_block_size = DEFAULT_BLOCK_SIZE);
+  //! Create an allocator for objects of the specified size, using the specified block byte count
+  //! (defaulting to a system-tuned value.)
+  explicit Homogeneous_New(unsigned object_size, unsigned default_block_size = DEFAULT_BLOCK_SIZE);
 
   //! Copy constructor: not implemented
   Homogeneous_New(const Homogeneous_New &rhs) = delete;
@@ -101,7 +101,7 @@ public:
   void *allocate();
 
   // Release an object's storage.
-  void deallocate(void *);
+  void deallocate(void *ptr);
 
   // Reserve storage for the specified number of objects.
   void reserve(unsigned object_count);

@@ -4,7 +4,7 @@
  * \author Kelly Thompson
  * \date   Thu Jun  1 17:15:05 2006
  * \brief  Implementation file for encapsulation of Draco parallel unit tests.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "ParallelUnitTest.hh"
@@ -78,7 +78,6 @@ ParallelUnitTest::ParallelUnitTest(int &argc, char **&argv, string_fp_void relea
     case 'v': // --version
       finalize();
       throw rtt_dsxx::assertion(string("Success"));
-      break;
 
     default:
       return; // nothing to do.

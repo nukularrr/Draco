@@ -3,9 +3,9 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2012 Aug 1
 # brief  Generate build project files for c4
-# note   Copyright (C) 2016-2021, Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
-cmake_minimum_required(VERSION 3.17.0)
+cmake_minimum_required(VERSION 3.21.0)
 project(c4 CXX)
 
 # ------------------------------------------------------------------------------------------------ #
@@ -13,7 +13,12 @@ project(c4 CXX)
 # ------------------------------------------------------------------------------------------------ #
 if(TARGET LIBQUO::libquo AND DRACO_C4 STREQUAL MPI)
   set(HAVE_LIBQUO 1)
+else()
+  set(HAVE_LIBQUO 0)
 endif()
+set(HAVE_LIBQUO
+    ${HAVE_LIBQUO}
+    CACHE BOOL "Does Draco require the libquo library?" FORCE)
 
 # ------------------------------------------------------------------------------------------------ #
 # Generate config.h (only occurs when cmake is run) many c4 and MPI values are set in
@@ -41,6 +46,14 @@ if("${DRACO_C4}" STREQUAL "MPI")
     list(APPEND target_deps LIBQUO::libquo)
   endif()
   list(APPEND target_deps MPI::MPI_CXX MPI::MPI_C)
+endif()
+
+# Manually link to the OpenMP runtime for cl-clang under MSVC.  This is work-around for a cmake bug
+# and hopefully can be removed once the bug is fixed.
+if(WIN32
+   AND (CMAKE_C_COMPILER_ID STREQUAL "Clang")
+   AND OpenMP_FOUND)
+  list(APPEND target_deps OpenMP::OpenMP_C)
 endif()
 
 add_component_library(
@@ -76,7 +89,6 @@ if(HAVE_Fortran)
     LIBRARIES rtt_fc4 #< new library will have this name. --> librtt_fc4.dll.
     TARGET_NAMES Lib_c4_fc4
     DEPENDS "${deplist}"
-    # NO_EXTERNAL_INSTALL
     CMAKE_COMMAND_LINE "${build_system_state}"
     # VERBOSE
   )

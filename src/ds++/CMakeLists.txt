@@ -3,9 +3,9 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2010 Sep 24
 # brief  Generate build project files for ds++.
-# note   Copyright (C) 2016-2021, Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
-cmake_minimum_required(VERSION 3.9.0)
+cmake_minimum_required(VERSION 3.21.0)
 project(dsxx CXX)
 
 # ------------------------------------------------------------------------------------------------ #
@@ -92,6 +92,10 @@ cmake_host_system_information(RESULT HAVE_HARDWARE_SSE QUERY HAS_SSE)
 cmake_host_system_information(RESULT HAVE_HARDWARE_SSE2 QUERY HAS_SSE2)
 cmake_host_system_information(RESULT HAVE_HARDWARE_SSE_FP QUERY HAS_SSE_FP)
 cmake_host_system_information(RESULT HAVE_HARDWARE_SSE_MMX QUERY HAS_SSE_MMX)
+
+if(${SITENAME_FAMILY} MATCHES "ATS-2")
+  set(draco_isATS2 1)
+endif()
 
 # Create ds++/config.h
 configure_file(config.h.in ${PROJECT_BINARY_DIR}/ds++/config.h)
@@ -189,7 +193,7 @@ install(FILES ${dsxx_terminal_headers} ${PROJECT_SOURCE_DIR}/terminal/LICENSE
 if(BUILD_TESTING)
   add_subdirectory(test)
 endif()
-if(WIN32)
+if(WIN32 AND (NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
   add_subdirectory(bin)
 endif()
 

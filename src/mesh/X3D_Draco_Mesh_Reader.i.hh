@@ -4,7 +4,7 @@
  * \author Ryan Wollaeger <wollaeger@lanl.gov>, Kendra Long
  * \date   Thursday, Jul 12, 2018, 08:46 am
  * \brief  X3D_Draco_Mesh_Reader class implementation header file.
- * \note   Copyright (C) 2018-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2018-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "ds++/DracoStrings.hh"
@@ -45,7 +45,7 @@ std::map<KT, std::vector<VT>> X3D_Draco_Mesh_Reader::map_x3d_block(const std::st
     size_t i = 0;
 
     // convert value types from string to VT
-    for (auto j : (*it).second) {
+    for (auto const &j : (*it).second) {
 
       // try to convert value type to VT, throw if impossible
       try {

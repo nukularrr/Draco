@@ -3,7 +3,7 @@
  * \file   c4/Timer.cc
  * \author Thomas M. Evans
  * \date   Mon Mar 25 17:56:11 2002
- * \note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "Timer.hh"
@@ -283,9 +283,9 @@ void Timer::pause(double const pauseSeconds) {
   Require(pauseSeconds > 0.0);
 
   //! POSIX tms structure for beginning time.
-  DRACO_TIME_TYPE tms_begin;
+  DRACO_TIME_TYPE tms_begin{};
   //! POSIX tms structure for ending time.
-  DRACO_TIME_TYPE tms_end;
+  DRACO_TIME_TYPE tms_end{};
 
   double begin = wall_clock_time(tms_begin);
   double elapsed(0);

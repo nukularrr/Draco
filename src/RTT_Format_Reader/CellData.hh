@@ -4,7 +4,7 @@
  * \author B.T. Adams
  * \date   Wed Jun 7 10:33:26 2000
  * \brief  Header file for RTT_Format_Reader/CellData class.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_RTT_Format_Reader_CellData_hh
@@ -31,9 +31,14 @@ class CellData {
   vector_vector_dbl data;
 
 public:
-  CellData(const Dims &dims_)
+  explicit CellData(const Dims &dims_)
       : dims(dims_), data(dims.get_ncells(), vector_dbl(dims.get_ncell_data())) {}
   ~CellData() = default;
+
+  CellData(CellData const &rhs) = delete;
+  CellData(CellData &&rhs) noexcept = delete;
+  CellData &operator=(CellData const &rhs) = delete;
+  CellData &operator=(CellData &&rhs) noexcept = delete;
 
   void readCellData(ifstream &meshfile);
 

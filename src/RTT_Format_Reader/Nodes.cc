@@ -4,7 +4,7 @@
  * \author B.T. Adams
  * \date   Wed Jun 7 10:33:26 2000
  * \brief  Implementation file for RTT_Format_Reader/Nodes class.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "Nodes.hh"
@@ -49,7 +49,7 @@ int Nodes::readNextInt(ifstream &meshfile) {
   bool commentLine = true;
   while (commentLine) {
     meshfile >> dummyString;
-    if (dummyString.rfind("!") == string::npos) {
+    if (dummyString.rfind('!') == string::npos) {
       commentLine = false;
       retVal = atoi(dummyString.c_str());
     } else { // Dump everything from here to the end of the line.

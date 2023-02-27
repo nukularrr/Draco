@@ -1,15 +1,15 @@
-//----------------------------------*-C++-*-----------------------------------//
+//--------------------------------------------*-C++-*---------------------------------------------//
 /*!
  * \file   cdi_ndi/test/tstNDI_CP_Eloss.cc
  * \author Ben R. Ryan
  * \date   2020 Jun 3
  * \brief  NDI_CP_Eloss test
- * \note   Copyright (C) 2020 Triad National Security, LLC.
- *         All rights reserved. */
-//----------------------------------------------------------------------------//
+ * \note   Copyright (C) 2020-2022 Triad National Security, LLC., All rights reserved. */
+//------------------------------------------------------------------------------------------------//
 
 #include "cdi/CDI.hh"
 #include "cdi_ndi/NDI_CP_Eloss.hh"
+#include "ds++/Query_Env.hh"
 #include "ds++/Release.hh"
 #include "ds++/ScalarUnitTest.hh"
 #include "ds++/SystemCall.hh"
@@ -22,9 +22,9 @@
 using rtt_cdi_ndi::NDI_CP_Eloss;
 using rtt_dsxx::soft_equiv;
 
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 // TESTS
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 
 void ndi_dedx_test(rtt_dsxx::UnitTest &ut) {
   int proton_zaid = 1001;
@@ -36,10 +36,10 @@ void ndi_dedx_test(rtt_dsxx::UnitTest &ut) {
 
   // Write a custom gendir file to deal with NDI-required absolute path to data
   std::string gendir_in = "gendir_tmp.dedx";
-  std::string gendir_tmp_path = ut.getTestInputPath() + gendir_in;
+  std::string gendir_path = ut.getTestInputPath() + gendir_in;
   std::string data_path = ut.getTestSourcePath() + "dedx_he4_example";
   std::ofstream gendir_tmp_file;
-  gendir_tmp_file.open(gendir_tmp_path);
+  gendir_tmp_file.open(gendir_path);
   gendir_tmp_file << "dedx\n";
   gendir_tmp_file << "  z=2004.000dx  d=2020-06-03  l=rpa_cut\n";
   gendir_tmp_file << "    f=" << data_path << "  ft=asc  ln=2\n";
@@ -47,7 +47,6 @@ void ndi_dedx_test(rtt_dsxx::UnitTest &ut) {
   gendir_tmp_file << "end\n";
   gendir_tmp_file.close();
 
-  std::string gendir_path = gendir_tmp_path;
   std::string library_in = "rpa_cut";
 
   NDI_CP_Eloss eloss(gendir_path, library_in, target, projectile);
@@ -70,7 +69,8 @@ void ndi_dedx_test(rtt_dsxx::UnitTest &ut) {
                                      1.272473147179571250e+15, 1.e-8));
   }
 
-  // Get eloss value for a point between grid points (1.5,2.5,3.5, i.e. requiring linear interpolation)
+  // Get eloss value for a point between grid points (1.5,2.5,3.5, i.e. requiring linear
+  // interpolation)
   {
     double energy = 4.377453e+00;
     double density = 3.344494e+02;
@@ -86,11 +86,23 @@ void ndi_dedx_test(rtt_dsxx::UnitTest &ut) {
   }
 }
 
-//----------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 int main(int argc, char *argv[]) {
   rtt_dsxx::ScalarUnitTest ut(argc, argv, rtt_dsxx::release);
   try {
-    ndi_dedx_test(ut);
+    std::string gendir_default;
+    bool def_gendir{false};
+    std::tie(def_gendir, gendir_default) = rtt_dsxx::get_env_val<std::string>("NDI_GENDIR_PATH");
+
+    if (def_gendir && rtt_dsxx::fileExists(gendir_default)) {
+      ndi_dedx_test(ut);
+    } else {
+      PASSMSG("==> ENV{NDI_GENDIR_PATH} not set. Some tests were not run.");
+    }
   }
   UT_EPILOG(ut);
 }
+
+//------------------------------------------------------------------------------------------------//
+// End tstNDI_CP_Eloss.cc
+//------------------------------------------------------------------------------------------------//

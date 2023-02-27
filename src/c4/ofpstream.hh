@@ -3,7 +3,7 @@
  * \file   c4/ofpstream.hh
  * \author Kent G. Budge
  * \brief  Define class ofpstream
- * \note   Copyright (C) 2018-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2018-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef c4_ofpstream_hh
@@ -54,7 +54,7 @@ namespace rtt_c4 {
 class ofpstream : public std::ostream {
 public:
   //! Constructor -- default to standard output mode (ASCII)
-  ofpstream(std::string const &filename, ios_base::openmode const mode = ios_base::out);
+  explicit ofpstream(std::string const &filename, ios_base::openmode const mode = ios_base::out);
 
   //! Write all buffered output to the file stream, in MPI rank order.
   void send() { sb_.send(); }
@@ -73,7 +73,7 @@ private:
     int_type overflow(int_type c) override;
 
     std::vector<char> buffer_;
-    ios_base::openmode mode_;
+    ios_base::openmode mode_{};
     std::ofstream out_;
   };
 

@@ -4,7 +4,7 @@
  * \author Kent G. Budge
  * \date   Feb 18 2003
  * \brief  Unit tests for the Parse_Table class.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "ds++/Release.hh"
@@ -30,12 +30,12 @@ using namespace rtt_dsxx;
 static std::array<const char *, 3> const color{"BLACK", "BLUE", "BLUE GREEN"};
 static std::array<bool, 3> color_set;
 
-static void Parse_Color(Token_Stream &, int i) {
+static void Parse_Color(Token_Stream & /*unused*/, int i) {
   cout << "You have requested " << color[i] << endl;
   color_set[i] = true;
 }
 
-static void Parse_Any_Color(Token_Stream &tokens, int) {
+static void Parse_Any_Color(Token_Stream &tokens, int /*unused*/) {
   Token token = tokens.shift();
   for (unsigned i = 0; i < sizeof(color) / sizeof(const char *); i++)
     if (!strcmp(token.text().c_str(), color[i])) {
@@ -67,7 +67,7 @@ public:
   }
 
 protected:
-  void report(Token const &, string const & /*err*/) override {
+  void report(Token const & /*token*/, string const & /*err*/) override {
     cout << "error reported to Error_Token_Stream" << endl;
   }
 
@@ -75,7 +75,7 @@ protected:
     cout << "error reported to Error_Token_Stream" << endl;
   }
 
-  Token fill_() override { return Token(rtt_parser::ERROR, "error"); }
+  Token fill_() override { return {rtt_parser::ERROR, "error"}; }
 };
 
 class Colon_Token_Stream : public Token_Stream {
@@ -89,7 +89,7 @@ public:
   }
 
 protected:
-  void report(Token const &, string const & /*err*/) override {
+  void report(Token const & /*token*/, string const & /*err*/) override {
     cout << "error reported to Colon_Token_Stream" << endl;
   }
 
@@ -100,14 +100,14 @@ protected:
   Token fill_() override {
     switch (count_++) {
     case 0:
-      return Token(';', "");
+      return {';', ""};
     case 1:
-      return Token(END, "end");
+      return {END, "end"};
     case 2:
-      return Token(EXIT, "");
+      return {EXIT, ""};
     default:
       Insist(false, "bad case");
-      return Token(rtt_parser::ERROR, ""); // dummy return to eliminate warning
+      return {rtt_parser::ERROR, ""}; // dummy return to eliminate warning
     }
   }
 

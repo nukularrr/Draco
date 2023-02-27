@@ -3,15 +3,17 @@
 # file  src/mesh/python/x3d_generator.py
 # date  Monday, Jul 19, 2021, 12:14 pm
 # brief This script generates X3D mesh files from a mesh object (assumed to have certain data).
-# note  Copyright (C) 2021, Triad National Security, LLC.,  All rights reserved.
+# note  Copyright (C) 2021-2022 Triad National Security, LLC., All rights reserved.
 # ------------------------------------------------------------------------------------------------ #
 import mesh_types
 import numpy as np
 import argparse
 
 # -- mesh class dictionary
-mesh_type_dict = {'orth_2d_mesh': mesh_types.orth_2d_mesh, 'orth_3d_mesh': mesh_types.orth_3d_mesh,
-                  'vor_2d_mesh': mesh_types.vor_2d_mesh}
+mesh_type_dict = {'orth_1d_mesh': mesh_types.orth_1d_mesh, 'orth_2d_mesh': mesh_types.orth_2d_mesh,
+                  'orth_3d_mesh': mesh_types.orth_3d_mesh, 'fcc_3d_mesh': mesh_types.fcc_3d_mesh,
+                  'vor_2d_mesh': mesh_types.vor_2d_mesh, 'rnd_1d_mesh': mesh_types.rnd_1d_mesh,
+                  'rnd_2d_mesh': mesh_types.rnd_2d_mesh, 'rnd_3d_mesh': mesh_types.rnd_3d_mesh}
 
 # ------------------------------------------------------------------------------------------------ #
 # -- create argument parser
@@ -27,6 +29,11 @@ parser.add_argument('--name', type=str, default='mesh',
                     help='Select file name (will be prefixed with x3d. and sufficed with .in).')
 parser.add_argument('--num_cells', type=int, default=100,
                     help='Number of cells')
+# -- random mesh options
+parser.add_argument('--eps', type=float, default=1.0,
+                    help='0=no randomization, 1=max possible randomization.')
+parser.add_argument('--rnd_seed', type=int, default=1,
+                    help='Random number seed (for random mesh).')
 # -- optional region/matid input
 parser.add_argument('--reg_ids', type=int, nargs='+', default=[], help='List of region ids.')
 parser.add_argument('--reg_bnd_per_dim', type=float, nargs='+', default=[],
@@ -47,17 +54,19 @@ assert (ndim < 4), 'len(args.num_per_dim) >= 4'
 assert (len(args.bnd_per_dim) == 2 * ndim), 'len(args.bnd_per_dim) != 2 * ndim'
 
 # -- sanity check optional region input
-assert(len(args.reg_bnd_per_dim) == 2 * ndim * len(args.reg_ids)), \
+assert (len(args.reg_bnd_per_dim) == 2 * ndim * len(args.reg_ids)), \
     'len(args.reg_bnd_per_dim) != 2 * ndim * len(args.reg_ids)'
 
 # -- de-serialize spatial bound list
 bnd_per_dim = [[args.bnd_per_dim[2 * i], args.bnd_per_dim[2 * i + 1]] for i in range(ndim)]
 
 # -- instantiate the class for the mesh type selected
-if args.mesh_type in ['orth_2d_mesh', 'orth_3d_mesh']:
+if args.mesh_type in ['orth_1d_mesh', 'orth_2d_mesh', 'orth_3d_mesh', 'fcc_3d_mesh']:
     mesh = mesh_type_dict[args.mesh_type](bnd_per_dim, args.num_per_dim)
 elif args.mesh_type in ['vor_2d_mesh']:
     mesh = mesh_type_dict[args.mesh_type](bnd_per_dim, args.num_cells)
+elif args.mesh_type in ['rnd_1d_mesh', 'rnd_2d_mesh', 'rnd_3d_mesh']:
+    mesh = mesh_type_dict[args.mesh_type](bnd_per_dim, args.num_per_dim, args.eps, args.rnd_seed)
 
 # ------------------------------------------------------------------------------------------------ #
 # -- construct matid and region dictionary if region data arguments are available

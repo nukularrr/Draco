@@ -4,7 +4,7 @@
  * \author Thomas M. Evans
  * \date   Mon Mar 25 17:35:07 2002
  * \brief  Define class Timer, a POSIX standard timer.
- * \note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_c4_Timer_hh
@@ -239,13 +239,13 @@ public:
   inline void reset();
   static void pause(double const pauseSeconds);
 
-  void print(std::ostream &, int p = 2) const;
+  void print(std::ostream &out, int p = 2) const;
 
-  void printline(std::ostream &, unsigned p = 2U, unsigned width = 15U) const;
+  void printline(std::ostream &out, unsigned p = 2U, unsigned width = 15U) const;
 
-  void printline_mean(std::ostream &, unsigned p = 2U, unsigned w = 13U, unsigned v = 5U) const;
+  void printline_mean(std::ostream &out, unsigned p = 2U, unsigned w = 13U, unsigned v = 5U) const;
 
-  inline void merge(Timer const &);
+  inline void merge(Timer const &t);
 
   static void initialize(int &argc, char **argv);
 };

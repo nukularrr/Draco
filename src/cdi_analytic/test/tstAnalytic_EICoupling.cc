@@ -4,8 +4,7 @@
  * \author Mathew Cleveland
  * \date   March 2019
  * \brief  Analytic_EICoupling test.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC.
- *         All rights reserved. */
+ * \note   Copyright (C) 2019-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "cdi/CDI.hh"
@@ -122,8 +121,10 @@ void CDI_test(rtt_dsxx::UnitTest &ut) {
 
   // EICoupling object
   shared_ptr<const EICoupling> ei_coupling = analytic_ei_coupling;
-  if (typeid(*ei_coupling) != typeid(Analytic_EICoupling))
-    ITFAILS;
+  if (ei_coupling.get()) {
+    auto &r = *ei_coupling.get();
+    FAIL_IF_NOT(typeid(r) == typeid(Analytic_EICoupling));
+  }
 
   // Assign the object to cdi
   eiCouplingData.setEICoupling(ei_coupling);
@@ -172,10 +173,16 @@ void CDI_test(rtt_dsxx::UnitTest &ut) {
 
   // now assign the analytic electron-ion coupling to CDI directly
   eiCouplingData.setEICoupling(analytic_ei_coupling);
-  if (!eiCouplingData.ei_coupling())
-    ITFAILS;
-  if (typeid(*eiCouplingData.ei_coupling()) != typeid(Analytic_EICoupling))
-    ITFAILS;
+  FAIL_IF_NOT(eiCouplingData.ei_coupling());
+  {
+    auto sp = eiCouplingData.ei_coupling();
+    if (sp.get()) {
+      auto &r = *sp.get();
+      FAIL_IF_NOT(typeid(r) == typeid(Analytic_EICoupling));
+    } else {
+      FAILMSG("unable to retrieve eiCouplingData.ei_coupling()/");
+    }
+  }
 
   // now test the data again
 
@@ -201,7 +208,6 @@ void packing_test(rtt_dsxx::UnitTest &ut) {
   using Constant_Model = Constant_Analytic_EICoupling_Model;
 
   vector<char> packed;
-
   {
     // make an analytic model (polynomial specific heats)
     shared_ptr<Constant_Model> model(new Constant_Model(1.1));
@@ -209,7 +215,9 @@ void packing_test(rtt_dsxx::UnitTest &ut) {
     // make an analtyic electron-ion coupling
     shared_ptr<EICoupling> ei_coupling(new Analytic_EICoupling(model));
 
-    packed = ei_coupling->pack();
+    vector<char> internal_pack = ei_coupling->pack();
+    packed.resize(internal_pack.size());
+    packed = internal_pack;
   }
 
   Analytic_EICoupling n_ei_coupling(packed);

@@ -4,7 +4,7 @@
  * \author Kelly Thompson
  * \date   Tue Jun  6 15:03:08 2006
  * \brief  Demonstrate basic OMP threads under MPI.
- * \note   Copyright (C) 2011-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2011-2023 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "c4/ParallelUnitTest.hh"
@@ -105,7 +105,8 @@ void topo_report(rtt_dsxx::UnitTest &ut, bool &one_mpi_rank_per_node) {
   if (maxthreads > 16)
     omp_set_num_threads(16);
 
-#pragma omp parallel private(tid)
+#pragma omp parallel default(none) private(tid)                                                    \
+    shared(nthreads, std::cout, maxthreads, procname, num_dynamic_threads, ut)
   {
     nthreads = omp_get_num_threads();
     tid = omp_get_thread_num();
@@ -142,7 +143,7 @@ void topo_report(rtt_dsxx::UnitTest &ut, bool &one_mpi_rank_per_node) {
 //------------------------------------------------------------------------------------------------//
 void sample_sum(rtt_dsxx::UnitTest &ut, bool const omrpn) {
   if (rtt_c4::node() == 0)
-    std::cout << "Begin test sample_sum()...\n" << std::endl;
+    std::cout << "\nBegin test sample_sum()...\n" << std::endl;
 
   // Generate data and benchmark values:
   int N(10000000);
@@ -190,7 +191,7 @@ void sample_sum(rtt_dsxx::UnitTest &ut, bool const omrpn) {
     t1_omp_build.start();
 
     int nthreads(-1);
-#pragma omp parallel
+#pragma omp parallel default(none) shared(nthreads, std::cout, N, result, foo)
     {
       if (node() == 0 && omp_get_thread_num() == 0) {
         nthreads = omp_get_num_threads();
@@ -198,7 +199,7 @@ void sample_sum(rtt_dsxx::UnitTest &ut, bool const omrpn) {
       }
     }
 
-#pragma omp parallel for shared(foo, bar)
+#pragma omp parallel for shared(foo, bar, N, result) default(none)
     for (int i = 0; i < N; ++i) {
       foo[i] = 99.00 + i;
       bar[i] = 0.99 * i;
@@ -213,7 +214,7 @@ void sample_sum(rtt_dsxx::UnitTest &ut, bool const omrpn) {
 
 // clang-format adds spaces around this colon.
 // clang-format off
-#pragma omp parallel for reduction(+: omp_sum)
+#pragma omp parallel for reduction(+: omp_sum) default(none) shared(N, foo, nthreads, std::cout)
     // clang-format on
     for (int i = 0; i < N; ++i)
       omp_sum += foo[i];
@@ -236,18 +237,6 @@ void sample_sum(rtt_dsxx::UnitTest &ut, bool const omrpn) {
                 << t2_serial_accumulate.wall_clock() << "\t" << t2_omp_accumulate.wall_clock()
                 << std::endl;
     }
-
-    // [2015-11-17 KT] The accumulate test no longer provides enough work to offset the overhead of
-    // OpenMP, especially for the optimized build.  Turn this test off...
-
-    // if( omrpn && nthreads > 4 )
-    // {
-    //     if( t2_omp_accumulate.wall_clock()
-    //         < t2_serial_accumulate.wall_clock() )
-    //         PASSMSG( "OMP accumulate was faster than Serial accumulate.");
-    //     else
-    //         FAILMSG( "OMP accumulate was slower than Serial accumulate.");
-    // }
   }
 #else // SCALAR
   PASSMSG("OMP is disabled.  No checks made.");
@@ -296,7 +285,7 @@ void MandelbrotDriver(rtt_dsxx::UnitTest &ut) {
   if (maxthreads > 16)
     omp_set_num_threads(16);
 
-#pragma omp parallel
+#pragma omp parallel default(none) shared(nthreads, std::cout)
   {
     if (node() == 0 && omp_get_thread_num() == 0) {
       nthreads = omp_get_num_threads();
@@ -304,7 +293,14 @@ void MandelbrotDriver(rtt_dsxx::UnitTest &ut) {
     }
   }
 
-#pragma omp parallel for ordered schedule(dynamic)
+  // gcc-8.X complains about the normal syntax since some variables are automatically marked as
+  // shared.
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
+#pragma omp parallel for ordered schedule(dynamic) default(none) shared(image1)
+#else
+#pragma omp parallel for ordered schedule(dynamic) default(none)                                   \
+    shared(num_pixels, begin, span, image1)
+#endif
   for (int pix = 0; pix < num_pixels; ++pix) {
     const int x = pix % width;
     const int y = pix / width;
@@ -392,6 +388,23 @@ void MandelbrotDriver(rtt_dsxx::UnitTest &ut) {
 }
 
 //------------------------------------------------------------------------------------------------//
+void tstUnsignedOmpLoop(rtt_dsxx::UnitTest &ut) {
+  if (rtt_c4::node() == 0)
+    std::cout << "\nTesting an OpenMP loop with unsigned index." << std::endl;
+  unsigned sum(0), count(5);
+  {
+#pragma omp parallel for reduction(+ : sum) default(none) shared(count)
+    for (unsigned i = 0; i < count; i++) {
+      sum += i;
+    }
+  }
+  if (rtt_c4::node() == 0)
+    std::cout << "Found Sum = " << sum << std::endl;
+  FAIL_IF_NOT(sum == 10);
+  return;
+}
+
+//------------------------------------------------------------------------------------------------//
 int main(int argc, char *argv[]) {
   rtt_c4::ParallelUnitTest ut(argc, argv, rtt_dsxx::release);
   try {
@@ -410,6 +423,7 @@ int main(int argc, char *argv[]) {
     // Unit tests
     topo_report(ut, omrpn);
     sample_sum(ut, omrpn);
+    tstUnsignedOmpLoop(ut);
 
     if (rtt_c4::nodes() == 1)
       MandelbrotDriver(ut);

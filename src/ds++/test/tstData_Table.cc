@@ -3,7 +3,7 @@
  * \file   ds++/test/tstData_Table.cc
  * \author Paul Henning
  * \brief  DBC_Ptr tests.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "ds++/Data_Table.hh"
@@ -49,7 +49,9 @@ void test_array(rtt_dsxx::UnitTest &ut) {
     FAIL_IF_NOT(dt.access() == &dt[0]);
 
     {
-      Data_Table<int> dt3(dt);
+      // Suppress clang-tidy warning since we don't care about performance and really want to test
+      // this form of the ctor.
+      Data_Table<int> dt3(dt); // NOLINT(performance-unnecessary-copy-initialization)
       FAIL_IF_NOT(dt3.size() == dt.size());
       FAIL_IF_NOT(dt3.begin() == dt.begin());
       FAIL_IF_NOT(dt3.end() == dt.end());
@@ -158,13 +160,11 @@ int main(int argc, char *argv[]) {
     }
 
     catch (...) {
-      cout << "ERROR: While testing " << argv[0] << ", "
-           << "An unknown exception was thrown" << endl;
+      cout << "ERROR: While testing " << argv[0] << ", An unknown exception was thrown" << endl;
       ut.numFails++;
     }
   } else {
-    PASSMSG(std::string("Unit tests only works if DBC is on and the ") +
-            std::string("DBC nothrow option is off."));
+    PASSMSG("Unit tests only works if DBC is on and the DBC nothrow option is off.");
   }
   return ut.numFails;
 }

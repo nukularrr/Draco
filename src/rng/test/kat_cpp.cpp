@@ -37,7 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // - 4127: conditional expression is constant
 // - 4100: unreferenced formal parameter
 #pragma warning(push)
-#pragma warning(disable : 4521 4244 4127 4100)
+#pragma warning(disable : 4267 4521 4244 4127 4100)
 #endif
 
 #include "kat_main.h"
@@ -61,18 +61,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma GCC diagnostic ignored "-Wexpansion-to-defined"
 #endif
 
-#ifdef __clang__
+#if defined(__clang__) && !defined(__ibmxl__)
+// Also use these for defined(__INTEL_LLVM_COMPILER)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
 #pragma clang diagnostic ignored "-Wmissing-variable-declarations"
 #pragma clang diagnostic ignored "-Wexpansion-to-defined"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #pragma clang diagnostic ignored "-Wshadow"
-#endif
-
-#if defined(__INTEL_LLVM_COMPILER)
-#pragma clang diagnostic push
+#if defined(__clang_major__) && __clang_major__ > 12
 #pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
 #endif
 
 #include <Random123/MicroURNG.hpp>
@@ -114,7 +113,7 @@ template <typename GEN> void do_test(kat_instance *ti) {
     typename GEN::ctr_type expected;
     typename GEN::ctr_type computed;
   };
-  gdata data;
+  gdata data{};
   // use memcpy.  A reinterpret_cast would violate strict aliasing.
   memcpy(&data, &ti->u, sizeof(data));
   data.computed = g(data.ctr, data.ukey);
@@ -128,8 +127,8 @@ template <typename GEN> void do_test(kat_instance *ti) {
   // MicroURNG: throws if the top 32 bits of the high word of ctr are non-zero.
   typedef typename GEN::ctr_type::value_type value_type; //NOLINT
 
-  value_type hibits =
-      data.ctr[data.ctr.size() - 1] >> (std::numeric_limits<value_type>::digits - 32);
+  value_type hibits = data.ctr[data.ctr.size() - 1] >>
+                      static_cast<unsigned>(std::numeric_limits<value_type>::digits - 32);
   try {
     r123::MicroURNG<GEN> urng(data.ctr, data.ukey);
     if (hibits)
@@ -209,50 +208,46 @@ template <typename GEN> void do_test(kat_instance *ti) {
 
 void host_execute_tests(kat_instance *tests, unsigned ntests) {
   // In C++1x, this could be staticly declared with an initializer list.
-  genmap[make_pair(threefry2x32_e, 13u)] = do_test<r123::Threefry2x32_R<13>>;
-  genmap[make_pair(threefry2x32_e, 20u)] = do_test<r123::Threefry2x32_R<20>>;
-  genmap[make_pair(threefry2x32_e, 32u)] = do_test<r123::Threefry2x32_R<32>>;
+  genmap[make_pair(threefry2x32_e, 13U)] = do_test<r123::Threefry2x32_R<13>>;
+  genmap[make_pair(threefry2x32_e, 20U)] = do_test<r123::Threefry2x32_R<20>>;
+  genmap[make_pair(threefry2x32_e, 32U)] = do_test<r123::Threefry2x32_R<32>>;
 #if R123_USE_64BIT
-  genmap[make_pair(threefry2x64_e, 13u)] = do_test<r123::Threefry2x64_R<13>>;
-  genmap[make_pair(threefry2x64_e, 20u)] = do_test<r123::Threefry2x64_R<20>>;
-  genmap[make_pair(threefry2x64_e, 32u)] = do_test<r123::Threefry2x64_R<32>>;
+  genmap[make_pair(threefry2x64_e, 13U)] = do_test<r123::Threefry2x64_R<13>>;
+  genmap[make_pair(threefry2x64_e, 20U)] = do_test<r123::Threefry2x64_R<20>>;
+  genmap[make_pair(threefry2x64_e, 32U)] = do_test<r123::Threefry2x64_R<32>>;
 #endif
 
-  genmap[make_pair(threefry4x32_e, 13u)] = do_test<r123::Threefry4x32_R<13>>;
-  genmap[make_pair(threefry4x32_e, 20u)] = do_test<r123::Threefry4x32_R<20>>;
-  genmap[make_pair(threefry4x32_e, 72u)] = do_test<r123::Threefry4x32_R<72>>;
+  genmap[make_pair(threefry4x32_e, 13U)] = do_test<r123::Threefry4x32_R<13>>;
+  genmap[make_pair(threefry4x32_e, 20U)] = do_test<r123::Threefry4x32_R<20>>;
+  genmap[make_pair(threefry4x32_e, 72U)] = do_test<r123::Threefry4x32_R<72>>;
 #if R123_USE_64BIT
-  genmap[make_pair(threefry4x64_e, 13u)] = do_test<r123::Threefry4x64_R<13>>;
-  genmap[make_pair(threefry4x64_e, 20u)] = do_test<r123::Threefry4x64_R<20>>;
-  genmap[make_pair(threefry4x64_e, 72u)] = do_test<r123::Threefry4x64_R<72>>;
+  genmap[make_pair(threefry4x64_e, 13U)] = do_test<r123::Threefry4x64_R<13>>;
+  genmap[make_pair(threefry4x64_e, 20U)] = do_test<r123::Threefry4x64_R<20>>;
+  genmap[make_pair(threefry4x64_e, 72U)] = do_test<r123::Threefry4x64_R<72>>;
 #endif
 
-  genmap[make_pair(philox2x32_e, 7u)] = do_test<r123::Philox2x32_R<7>>;
-  genmap[make_pair(philox2x32_e, 10u)] = do_test<r123::Philox2x32_R<10>>;
-  genmap[make_pair(philox4x32_e, 7u)] = do_test<r123::Philox4x32_R<7>>;
-  genmap[make_pair(philox4x32_e, 10u)] = do_test<r123::Philox4x32_R<10>>;
+  genmap[make_pair(philox2x32_e, 7U)] = do_test<r123::Philox2x32_R<7>>;
+  genmap[make_pair(philox2x32_e, 10U)] = do_test<r123::Philox2x32_R<10>>;
+  genmap[make_pair(philox4x32_e, 7U)] = do_test<r123::Philox4x32_R<7>>;
+  genmap[make_pair(philox4x32_e, 10U)] = do_test<r123::Philox4x32_R<10>>;
 
 #if R123_USE_PHILOX_64BIT
-  genmap[make_pair(philox2x64_e, 7u)] = do_test<r123::Philox2x64_R<7>>;
-  genmap[make_pair(philox2x64_e, 10u)] = do_test<r123::Philox2x64_R<10>>;
-  genmap[make_pair(philox4x64_e, 7u)] = do_test<r123::Philox4x64_R<7>>;
-  genmap[make_pair(philox4x64_e, 10u)] = do_test<r123::Philox4x64_R<10>>;
+  genmap[make_pair(philox2x64_e, 7U)] = do_test<r123::Philox2x64_R<7>>;
+  genmap[make_pair(philox2x64_e, 10U)] = do_test<r123::Philox2x64_R<10>>;
+  genmap[make_pair(philox4x64_e, 7U)] = do_test<r123::Philox4x64_R<7>>;
+  genmap[make_pair(philox4x64_e, 10U)] = do_test<r123::Philox4x64_R<10>>;
 #endif
 
 #if R123_USE_AES_NI
-  genmap[make_pair(aesni4x32_e, 10u)] = do_test<r123::AESNI4x32>;
-  genmap[make_pair(ars4x32_e, 7u)] = do_test<r123::ARS4x32_R<7>>;
-  genmap[make_pair(ars4x32_e, 10u)] = do_test<r123::ARS4x32_R<10>>;
+  genmap[make_pair(aesni4x32_e, 10U)] = do_test<r123::AESNI4x32>;
+  genmap[make_pair(ars4x32_e, 7U)] = do_test<r123::ARS4x32_R<7>>;
+  genmap[make_pair(ars4x32_e, 10U)] = do_test<r123::ARS4x32_R<10>>;
 #endif
 
   dev_execute_tests(tests, ntests);
 }
 
-#if defined(__INTEL_LLVM_COMPILER)
-#pragma clang diagnostic pop
-#endif
-
-#ifdef __clang__
+#if defined(__clang__) && !defined(__ibmxl__)
 // Restore clang diagnostics to previous state.
 #pragma clang diagnostic pop
 #endif

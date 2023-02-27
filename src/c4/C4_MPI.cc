@@ -4,7 +4,7 @@
  * \author Thomas M. Evans
  * \date   Thu Mar 21 16:56:17 2002
  * \brief  C4 MPI implementation.
- * \note   Copyright (C) 2010-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "c4/config.h"
@@ -188,7 +188,7 @@ std::vector<int> wait_all_with_source(const unsigned count, C4_Req *const reques
 
   // Nothing to do if count is zero.
   if (count == 0)
-    return std::vector<int>();
+    return {};
 
   // Return value -- rank IDs for all message sources.
   std::vector<int> msg_sources(count);

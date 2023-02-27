@@ -3,7 +3,7 @@
  * \file   c4/Termination_Detector.cc
  * \author Kent Budge
  * \date   Thu Jan 12 10:27:45 2006
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "Termination_Detector.hh"
@@ -66,7 +66,7 @@ bool Termination_Detector::is_terminated() {
   // - receive_count
   // - work_count
   size_t constexpr num_counts = 3;
-  std::array<unsigned, num_counts> buffer;
+  std::array<unsigned, num_counts> buffer{0, 0, 0};
 
   if (ptype_ == ROOT)
   // root processor

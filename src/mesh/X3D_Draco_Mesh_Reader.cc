@@ -4,7 +4,7 @@
  * \author Ryan Wollaeger <wollaeger@lanl.gov>, Kendra Long
  * \date   Thursday, Jul 12, 2018, 08:46 am
  * \brief  X3D_Draco_Mesh_Reader class implementation file.
- * \note   Copyright (C) 2018-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2018-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "X3D_Draco_Mesh_Reader.hh"
@@ -37,9 +37,8 @@ X3D_Draco_Mesh_Reader::X3D_Draco_Mesh_Reader(const std::string &filename_,
 //------------------------------------------------------------------------------------------------//
 // PUBLIC FUNCTIONS
 //------------------------------------------------------------------------------------------------//
-/*!
- * \brief Build the cell-face index map to the corresponding coordinates.
- */
+
+//! Build the cell-face index map to the corresponding coordinates.
 void X3D_Draco_Mesh_Reader::read_mesh() {
 
   Require(parsed_pairs.size() == 0);
@@ -90,7 +89,7 @@ void X3D_Draco_Mesh_Reader::read_mesh() {
 
   // STEP 4: split strings in value at whitespace
 
-  for (auto rpair : raw_pairs) {
+  for (auto const &rpair : raw_pairs) {
 
     // split the string value into a vector
     std::vector<std::string> tmp_vec = rtt_dsxx::tokenize(rpair.second);
@@ -339,7 +338,7 @@ void X3D_Draco_Mesh_Reader::read_bdy_files() {
   const size_t num_bdy = bdy_filenames.size();
 
   size_t bdy_key = 0;
-  for (auto bdy_fname : bdy_filenames) {
+  for (auto const &bdy_fname : bdy_filenames) {
 
     // open file
     std::ifstream bdy_file(bdy_fname.c_str());

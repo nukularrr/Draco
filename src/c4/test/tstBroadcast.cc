@@ -4,7 +4,7 @@
  * \author Thomas M. Evans
  * \date   Tue Apr  2 15:57:11 2002
  * \brief  c4 Broadcast communication test.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #include "c4/ParallelUnitTest.hh"
@@ -15,8 +15,6 @@
 using namespace std;
 
 using rtt_c4::broadcast;
-using rtt_c4::C4_Req;
-using rtt_c4::C4_Traits;
 using rtt_dsxx::soft_equiv;
 
 //------------------------------------------------------------------------------------------------//
@@ -55,9 +53,9 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
     ul = 1000;
     us = 1000;
     s = 1000;
-    f = 1.5f;
+    f = 1.5F;
     d = 2.5;
-    ld = 3.5l;
+    ld = 3.5L;
     v = vref;
     msg = msgref;
   } else {
@@ -94,15 +92,15 @@ void test_simple(rtt_dsxx::UnitTest &ut) {
   FAIL_IF_NOT(ul == 1000);
   FAIL_IF_NOT(us == 1000);
   FAIL_IF_NOT(s == 1000);
-  FAIL_IF_NOT(soft_equiv(f, 1.5f));
+  FAIL_IF_NOT(soft_equiv(f, 1.5F));
   FAIL_IF_NOT(soft_equiv(d, 2.5));
 #ifndef CRAYPE_CCE
-  FAIL_IF_NOT(soft_equiv(ld, 3.5l));
+  FAIL_IF_NOT(soft_equiv(ld, 3.5L));
 #endif
   // check array values
   FAIL_IF_NOT(soft_equiv(v.begin(), v.end(), vref.begin(), vref.end()));
   FAIL_IF_NOT(
-      soft_equiv(vempty.begin(), vempty.end(), vempty_ref.begin(), vempty_ref.end(), 1.0e-7f));
+      soft_equiv(vempty.begin(), vempty.end(), vempty_ref.begin(), vempty_ref.end(), 1.0e-7F));
   FAIL_IF_NOT(msg == msgref);
 
   // safer 4 argument form (in case msg has not been resized).

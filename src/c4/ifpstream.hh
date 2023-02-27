@@ -4,7 +4,7 @@
  * \author Mathew Cleveland
  * \date   Feb. 2020
  * \brief  ifpstream class to read processor decomposed data in parallel.
- * \note   Copyright (C) 2020 Triad National Security, LLC., All rights reserved.
+ * \note   Copyright (C) 2020-2022 Triad National Security, LLC., All rights reserved.
  *
  * This is reader is designed to read parallel decomposed data written by the ofpstream object. It
  * uses similar logic by reading all data with rank==0 and broadcasting requested buffers to the
@@ -39,7 +39,7 @@ namespace rtt_c4 {
 class ifpstream : public std::stringstream {
 public:
   //! Constructor -- default to standard output mode (ASCII)
-  ifpstream(std::string const &filename, ios_base::openmode const mode = ios_base::out);
+  explicit ifpstream(std::string const &filename, ios_base::openmode const mode = ios_base::out);
 
   //! Fill buffer for every rank
   void fill_buffers(unsigned const buffer_size);

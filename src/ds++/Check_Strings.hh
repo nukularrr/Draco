@@ -4,7 +4,7 @@
  * \author John McGhee
  * \date   Sun Jan 30 14:57:09 2000 *
  * \brief  Provides some utilities to check containers of strings.
- * \note Copyright (C) 2016-2020 Triad National Security, LLC.  All rights reserved.
+ * \note Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved.
  *
  * Functions are provided to examine a container of strings: 1) for the occurrence of certain
  * characters, 2) for the length of each string outside of high and low limits, and 3) to determine
@@ -30,7 +30,7 @@ namespace rtt_dsxx {
 
 struct char_in_string {
   std::string str2;
-  char_in_string(std::string s) : str2(std::move(s)) {}
+  explicit char_in_string(std::string s) : str2(std::move(s)) {}
   bool operator()(const std::string &str1) const {
     size_t out = str1.find_first_of(str2);
     return out != std::string::npos;
@@ -51,7 +51,7 @@ struct string_length_out_of_range {
 
 struct strings_equal {
   std::string str2;
-  strings_equal(std::string s) : str2(std::move(s)) {}
+  explicit strings_equal(std::string s) : str2(std::move(s)) {}
   bool operator()(const std::string &str1) const { return str1 == str2; }
 };
 

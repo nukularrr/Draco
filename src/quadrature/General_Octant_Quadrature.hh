@@ -4,7 +4,7 @@
  * \author Kelly Thompson
  * \date   Wed Sep  1 10:19:52 2004
  * \brief  A class to encapsulate a 3D Level Symmetric quadrature set.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC. All rights reserved. */
+ * \note   Copyright (C) 2012-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef quadrature_General_Octant_Quadrature_hh
@@ -27,7 +27,7 @@ public:
   General_Octant_Quadrature(unsigned const sn_order, std::vector<double> const &mu,
                             std::vector<double> const &eta, std::vector<double> const &xi,
                             std::vector<double> const &wt, unsigned number_of_levels,
-                            Quadrature_Class);
+                            Quadrature_Class quadradure_class);
 
   General_Octant_Quadrature() = delete;
 

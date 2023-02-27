@@ -4,7 +4,7 @@
  * \author Kent G. Budge
  * \date   Wed Jan 22 15:18:23 MST 2003
  * \brief  New or overloaded cmath or cmath-like functions.
- * \note   Copyright (C) 2013-2021 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2013-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_dsxx_DracoMath_hh
@@ -18,34 +18,6 @@
 #include <functional>
 
 namespace rtt_dsxx {
-
-//------------------------------------------------------------------------------------------------//
-// isFinite.hh
-//
-// Try to use the C++11/C99 functions isinf, isnan and isfinite defined in <cmath> instead of
-// defining our own.  I would like to use C++11 implemenations which are true functions in the std::
-// namespace.  The problem here is that PGI/13.7 does not have these language features.  However,
-// PGI does provide the C99 _macros_ of the same name (w/o namespace qualifier).
-//------------------------------------------------------------------------------------------------//
-#if defined _MSC_VER || defined __CYGWIN__
-
-template <typename T> bool isNan(T a) { return _isnan(a); }
-template <typename T> bool isInf(T a) { return !_finite(a); }
-template <typename T> bool isFinite(T a) { return _finite(a); }
-
-#elif defined draco_isPGI
-
-template <typename T> bool isNan(T a) { return isnan(a); }
-template <typename T> bool isInf(T a) { return isinf(a); }
-template <typename T> bool isFinite(T a) { return isfinite(a); }
-
-#else
-
-template <typename T> bool isNan(T a) { return std::isnan(a); }
-template <typename T> bool isInf(T a) { return std::isinf(a); }
-template <typename T> bool isFinite(T a) { return std::isfinite(a); }
-
-#endif
 
 //------------------------------------------------------------------------------------------------//
 /*!
@@ -161,40 +133,6 @@ template <typename Ordered_Group> inline Ordered_Group sign(Ordered_Group a, Ord
   else
     return abs(a);
 }
-
-//------------------------------------------------------------------------------------------------//
-/*!
- * \brief Do a linear interpolation between two values.
- *
- * \param[in] x1 x coordinate of first data point.
- * \param[in] y1 y coordinate of first data point.
- * \param[in] x2 x coordinate of second data point.
- * \param[in] y2 y coordinate of second data point.
- * \param[in] x  x coordinate associated with requested y value.
- * \return The y value associated with x based on linear interpolation between (x1,y1) and (x2,y2).
- *
- * Given two points (x1,y1) and (x2,y2), use linaer interpolation to find the y value associated
- * with the provided x value.
- *
- *          y2-y1
- * y = y1 + ----- * (x-x1)
- *          x2-x1
- *
- * \pre  x in (x1,x2), extrapolation is not allowed.
- * \post y in (y1,y2), extrapolation is not allowed.
- */
-constexpr inline double linear_interpolate(double const x1, double const x2, double const y1,
-                                           double const y2, double const x) {
-  Require(ce_fabs(x2 - x1) > std::numeric_limits<double>::epsilon());
-  Require(((x >= x1) && (x <= x2)) || ((x >= x2) && (x <= x1)));
-
-  // return value
-  double const value = (y2 - y1) / (x2 - x1) * (x - x1) + y1;
-
-  Ensure(((value >= y1) && (value <= y2)) || ((value >= y2) && (value <= y1)));
-  return value;
-}
-
 //------------------------------------------------------------------------------------------------//
 /*!
  * \brief Fast ceiling of an integer division

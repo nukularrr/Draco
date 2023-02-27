@@ -4,7 +4,7 @@
  * \author B.T. Adams
  * \date   Wed Jun 7 10:33:26 2000
  * \brief  Header file for RTT_Format_Reader library.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_RTT_Format_Reader_RTT_Format_Reader_hh
@@ -32,6 +32,8 @@ namespace rtt_RTT_Format_Reader {
 //================================================================================================//
 
 class RTT_Format_Reader {
+
+private:
   // NESTED CLASSES AND TYPEDEFS
   using ifstream = std::ifstream;
   using string = std::string;
@@ -44,7 +46,6 @@ class RTT_Format_Reader {
   using vector_vector_uint = std::vector<std::vector<unsigned int>>;
 
   // DATA
-private:
   Header header;
   Dims dims;
   std::shared_ptr<NodeFlags> spNodeFlags;
@@ -63,10 +64,14 @@ private:
 
 public:
   //! Constructor
-  explicit RTT_Format_Reader(string RTT_File);
+  explicit RTT_Format_Reader(string const &RTT_File);
 
   //! Destructor
   ~RTT_Format_Reader() = default;
+  RTT_Format_Reader(RTT_Format_Reader const &rhs) = delete;
+  RTT_Format_Reader(RTT_Format_Reader &&rhs) noexcept = delete;
+  RTT_Format_Reader &operator=(RTT_Format_Reader const &rhs) = delete;
+  RTT_Format_Reader &operator=(RTT_Format_Reader &&rhs) noexcept = delete;
 
   // ACCESSORS
 
@@ -744,6 +749,9 @@ public:
 
   // IMPLEMENTATION
 
+  void reformatData(vector_vector_uint const &cell_side_types_,
+                    std::vector<vector_vector_uint> const &cell_ordered_sides_);
+
 private:
   void readMesh(const string &RTT_file);
   void readKeyword(ifstream &meshfile);
@@ -751,10 +759,6 @@ private:
   void readFlagBlocks(ifstream &meshfile);
   void readDataIDs(ifstream &meshfile);
   void readEndKeyword(ifstream &meshfile);
-
-public:
-  void reformatData(vector_vector_uint const &cell_side_types_,
-                    std::vector<vector_vector_uint> const &cell_ordered_sides_);
 };
 
 } // end namespace rtt_RTT_Format_Reader

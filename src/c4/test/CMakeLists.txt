@@ -3,7 +3,7 @@
 # author Kelly Thompson <kgt@lanl.gov>
 # date   2012 Aug 1
 # brief  Generate build project files for c4/test.
-# note   Copyright (C) 2016-2021, Triad National Security, LLC., All rights reserved.
+# note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved.
 #--------------------------------------------------------------------------------------------------#
 project(c4_test CXX)
 
@@ -57,9 +57,10 @@ elseif(CODE_COVERAGE)
 else()
   set(omp_test_pe_list "1;2")
 endif()
+
 foreach(omptest ${special_tests})
   list(REMOVE_ITEM test_sources ${omptest})
-  if(OPENMP_FOUND)
+  if(OpenMP_FOUND)
     add_parallel_tests(
       MPI_PLUS_OMP
       SOURCES "${omptest}"
@@ -96,7 +97,10 @@ if(NOT ${DRACO_C4} STREQUAL "SCALAR")
   # Override PROCESSORS property.  Use 'mpirun -np 4 ...' but reserve half of the cores. The test
   # will actually use all of the cores, but only very briefly.
   math(EXPR half_of_all_cores "${MPI_MAX_NUMPROCS_PHYSICAL} / 2")
-  set_tests_properties(c4_tstQuoWrapper_4 PROPERTIES PROCESSORS "${half_of_all_cores}")
+  set_tests_properties(
+    c4_tstQuoWrapper_4
+    PROPERTIES
+    PROCESSORS "${half_of_all_cores}")
 endif()
 
 # Exclude tstTime from valgrind checks.
@@ -118,19 +122,21 @@ add_parallel_tests(
 # Python based test runners
 # ------------------------------------------------------------------------------------------------ #
 include(ApplicationUnitTest)
-if(OPENMP_FOUND AND TARGET Exe_xthi)
+if(OpenMP_FOUND AND TARGET Exe_xthi)
   # xthi depends on OpenMP.  If OpenMP is not found, xthi will not be compiled.
   add_app_unit_test(
     DRIVER ${CMAKE_CURRENT_SOURCE_DIR}/tstXthi.py
     APP $<TARGET_FILE_DIR:Exe_xthi>/$<TARGET_FILE_NAME:Exe_xthi>
-    PE_LIST "1;2")
+    PE_LIST "1;2"
+    LABELS "nomemcheck")
 endif()
 if(TARGET Exe_ythi)
   add_app_unit_test(
     DRIVER ${CMAKE_CURRENT_SOURCE_DIR}/tstYthi.py
     APP $<TARGET_FILE_DIR:Exe_ythi>/$<TARGET_FILE_NAME:Exe_ythi>
     TEST_ARGS 2
-    PE_LIST "1;2")
+    PE_LIST "1;2"
+    LABELS "nomemcheck")
 endif()
 
 # ------------------------------------------------------------------------------------------------ #

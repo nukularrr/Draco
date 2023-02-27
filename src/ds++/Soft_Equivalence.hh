@@ -4,7 +4,7 @@
  * \author Thomas M. Evans and Todd Urbatsch
  * \date   Wed Nov  7 14:10:55 2001
  * \brief  Soft_Equivalence functions for floating point comparisons.
- * \note   Copyright (C) 2016-2020 Triad National Security, LLC., All rights reserved. */
+ * \note   Copyright (C) 2010-2022 Triad National Security, LLC., All rights reserved. */
 //------------------------------------------------------------------------------------------------//
 
 #ifndef rtt_dsxx_Soft_Equivalence_hh
@@ -45,7 +45,7 @@ namespace rtt_dsxx {
  */
 template <typename T>
 constexpr inline typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
-soft_equiv(const T &value, const T &reference, const T precision = static_cast<T>(1.0e-12f)) {
+soft_equiv(const T &value, const T &reference, const T precision = static_cast<T>(1.0e-12F)) {
   using std::fabs;
   bool passed = false;
 
